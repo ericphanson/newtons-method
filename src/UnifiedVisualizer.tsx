@@ -10,8 +10,10 @@ import {
 } from './shared-utils';
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
+import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
+import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 
-type Algorithm = 'newton' | 'lbfgs';
+type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
 const UnifiedVisualizer = () => {
   // Shared state
@@ -20,6 +22,16 @@ const UnifiedVisualizer = () => {
   const [lambda, setLambda] = useState(0.0001);
   const [addPointMode, setAddPointMode] = useState(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>('newton');
+
+  // GD Fixed step state
+  const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
+  const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
+  const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
+
+  // GD Line search state
+  const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
+  const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
+  const [gdLSC1, setGdLSC1] = useState(0.0001);
 
   // Newton state
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
@@ -94,6 +106,13 @@ const UnifiedVisualizer = () => {
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // GD Fixed canvas refs
+  const gdFixedParamCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // GD Line Search canvas refs
+  const gdLSParamCanvasRef = useRef<HTMLCanvasElement>(null);
+  const gdLSLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
+
   // Newton canvas refs
   const newtonHessianCanvasRef = useRef<HTMLCanvasElement>(null);
   const newtonParamCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -104,6 +123,20 @@ const UnifiedVisualizer = () => {
   const lbfgsLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Recompute algorithms when shared state changes
+  useEffect(() => {
+    if (data.length > 0) {
+      setGdFixedIterations(runGradientDescent(data, 100, gdFixedAlpha, lambda));
+      setGdFixedCurrentIter(0);
+    }
+  }, [data.length, lambda, gdFixedAlpha, customPoints.length]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      setGdLSIterations(runGradientDescentLineSearch(data, 80, lambda, gdLSC1));
+      setGdLSCurrentIter(0);
+    }
+  }, [data.length, lambda, gdLSC1, customPoints.length]);
+
   useEffect(() => {
     if (data.length > 0) {
       setNewtonIterations(runNewton(data, 15, lambda, newtonC1));
@@ -120,7 +153,11 @@ const UnifiedVisualizer = () => {
 
   // Get current algorithm's iteration
   const getCurrentIter = () => {
-    if (selectedTab === 'newton') {
+    if (selectedTab === 'gd-fixed') {
+      return gdFixedIterations[gdFixedCurrentIter] || gdFixedIterations[0];
+    } else if (selectedTab === 'gd-linesearch') {
+      return gdLSIterations[gdLSCurrentIter] || gdLSIterations[0];
+    } else if (selectedTab === 'newton') {
       return newtonIterations[newtonCurrentIter] || newtonIterations[0];
     } else {
       return lbfgsIterations[lbfgsCurrentIter] || lbfgsIterations[0];
@@ -132,7 +169,19 @@ const UnifiedVisualizer = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedTab === 'newton') {
+      if (selectedTab === 'gd-fixed') {
+        if (e.key === 'ArrowLeft' && gdFixedCurrentIter > 0) {
+          setGdFixedCurrentIter(gdFixedCurrentIter - 1);
+        } else if (e.key === 'ArrowRight' && gdFixedCurrentIter < gdFixedIterations.length - 1) {
+          setGdFixedCurrentIter(gdFixedCurrentIter + 1);
+        }
+      } else if (selectedTab === 'gd-linesearch') {
+        if (e.key === 'ArrowLeft' && gdLSCurrentIter > 0) {
+          setGdLSCurrentIter(gdLSCurrentIter - 1);
+        } else if (e.key === 'ArrowRight' && gdLSCurrentIter < gdLSIterations.length - 1) {
+          setGdLSCurrentIter(gdLSCurrentIter + 1);
+        }
+      } else if (selectedTab === 'newton') {
         if (e.key === 'ArrowLeft' && newtonCurrentIter > 0) {
           setNewtonCurrentIter(newtonCurrentIter - 1);
         } else if (e.key === 'ArrowRight' && newtonCurrentIter < newtonIterations.length - 1) {
@@ -149,7 +198,10 @@ const UnifiedVisualizer = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedTab, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length]);
+  }, [selectedTab, gdFixedCurrentIter, gdFixedIterations.length,
+      gdLSCurrentIter, gdLSIterations.length,
+      newtonCurrentIter, newtonIterations.length,
+      lbfgsCurrentIter, lbfgsIterations.length]);
 
   // Handle canvas click to add points
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
