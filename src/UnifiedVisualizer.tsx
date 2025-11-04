@@ -103,6 +103,34 @@ const UnifiedVisualizer = () => {
     };
   }, [lbfgsIterations]);
 
+  const gdFixedParamBounds = React.useMemo(() => {
+    if (!gdFixedIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+
+    let minW0 = Infinity, maxW0 = -Infinity;
+    let minW1 = Infinity, maxW1 = -Infinity;
+
+    for (const it of gdFixedIterations) {
+      minW0 = Math.min(minW0, it.wNew[0]);
+      maxW0 = Math.max(maxW0, it.wNew[0]);
+      minW1 = Math.min(minW1, it.wNew[1]);
+      maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    const w0Range = maxW0 - minW0;
+    const w1Range = maxW1 - minW1;
+    const pad0 = w0Range * 0.2;
+    const pad1 = w1Range * 0.2;
+
+    return {
+      minW0: minW0 - pad0,
+      maxW0: maxW0 + pad0,
+      minW1: minW1 - pad1,
+      maxW1: maxW1 + pad1,
+      w0Range: w0Range + 2 * pad0,
+      w1Range: w1Range + 2 * pad1
+    };
+  }, [gdFixedIterations]);
+
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -700,6 +728,85 @@ const UnifiedVisualizer = () => {
     ctx.fillText('Loss', 0, 0);
     ctx.restore();
   }, [lbfgsIterations, lbfgsCurrentIter, lbfgsC1, selectedTab]);
+
+  // Draw GD Fixed parameter space
+  useEffect(() => {
+    const canvas = gdFixedParamCanvasRef.current;
+    if (!canvas || selectedTab !== 'gd-fixed') return;
+    const iter = gdFixedIterations[gdFixedCurrentIter];
+    if (!iter) return;
+
+    const { ctx, width: w, height: h } = setupCanvas(canvas);
+    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdFixedParamBounds;
+
+    const resolution = 60;
+    const lossValues: number[] = [];
+
+    // Compute loss landscape
+    for (let i = 0; i < resolution; i++) {
+      for (let j = 0; j < resolution; j++) {
+        const w0 = minW0 + (i / resolution) * w0Range;
+        const w1 = minW1 + (j / resolution) * w1Range;
+        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        lossValues.push(loss);
+      }
+    }
+
+    const minLoss = Math.min(...lossValues);
+    const maxLoss = Math.max(...lossValues);
+    const lossRange = maxLoss - minLoss;
+
+    // Draw heatmap
+    let lossIdx = 0;
+    for (let i = 0; i < resolution; i++) {
+      for (let j = 0; j < resolution; j++) {
+        const loss = lossValues[lossIdx++];
+        const normalized = (loss - minLoss) / (lossRange + 1e-10);
+        const intensity = 1 - normalized;
+
+        const r = Math.floor(139 + (255 - 139) * intensity);
+        const g = Math.floor(92 + (255 - 92) * intensity);
+        const b = Math.floor(246 + (255 - 246) * intensity);
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
+      }
+    }
+
+    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
+    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+
+    // Draw trajectory path
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= gdFixedCurrentIter; i++) {
+      const [w0, w1] = gdFixedIterations[i].wNew;
+      const cx = toCanvasX(w0);
+      const cy = toCanvasY(w1);
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+
+    // Draw current position
+    const [w0, w1] = iter.wNew;
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Draw axis labels
+    ctx.fillStyle = '#374151';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
+    ctx.save();
+    ctx.translate(10, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
+    ctx.restore();
+  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab]);
 
   if (!currentIter) return <div className="p-6">Loading...</div>;
 
