@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, RotateCcw, Home } from 'lucide-react';
 
 // Type definitions
 interface DataPoint {
@@ -610,6 +611,18 @@ const LBFGSVisualizer = () => {
   
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
+      {/* Navigation */}
+      <div className="mb-4 flex gap-3">
+        <Link to="/" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 border border-gray-300">
+          <Home size={18} />
+          Home
+        </Link>
+        <Link to="/newton" className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <ArrowLeft size={18} />
+          Previous: Newton's Method
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
