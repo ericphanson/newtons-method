@@ -21,7 +21,7 @@ const UnifiedVisualizer = () => {
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
   const [addPointMode, setAddPointMode] = useState(0);
-  const [selectedTab, setSelectedTab] = useState<Algorithm>('newton');
+  const [selectedTab, setSelectedTab] = useState<Algorithm>('gd-fixed');
 
   // GD Fixed step state
   const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
@@ -787,10 +787,30 @@ const UnifiedVisualizer = () => {
       <div className="bg-white rounded-lg shadow-md mb-6">
         <div className="flex border-b border-gray-200">
           <button
+            onClick={() => setSelectedTab('gd-fixed')}
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
+              selectedTab === 'gd-fixed'
+                ? 'text-green-700 border-b-2 border-green-600 bg-green-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            GD (Fixed Step)
+          </button>
+          <button
+            onClick={() => setSelectedTab('gd-linesearch')}
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
+              selectedTab === 'gd-linesearch'
+                ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            GD (Line Search)
+          </button>
+          <button
             onClick={() => setSelectedTab('newton')}
-            className={`flex-1 px-6 py-4 font-semibold ${
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'newton'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50'
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
@@ -798,9 +818,9 @@ const UnifiedVisualizer = () => {
           </button>
           <button
             onClick={() => setSelectedTab('lbfgs')}
-            className={`flex-1 px-6 py-4 font-semibold ${
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'lbfgs'
-                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                ? 'text-amber-700 border-b-2 border-amber-600 bg-amber-50'
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
