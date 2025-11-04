@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/unifiedvisualizer.tsx","./src/index.css.d.ts","./src/main.tsx","./src/shared-utils.ts","./src/algorithms/lbfgs.ts","./src/algorithms/newton.ts"],"version":"5.6.3"}
+{"root":["./src/app.tsx","./src/unifiedvisualizer.tsx","./src/index.css.d.ts","./src/main.tsx","./src/shared-utils.ts","./src/algorithms/gradient-descent-linesearch.ts","./src/algorithms/gradient-descent.ts","./src/algorithms/lbfgs.ts","./src/algorithms/newton.ts","./src/components/collapsiblesection.tsx","./src/line-search/armijo.ts","./src/line-search/types.ts"],"version":"5.6.3"}

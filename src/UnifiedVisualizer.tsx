@@ -1399,7 +1399,168 @@ const UnifiedVisualizer = () => {
             </>
           ) : selectedTab === 'gd-linesearch' ? (
             <>
-              {/* GD Line Search content will go here in next task */}
+              {/* GD Line Search - Why This Algorithm? */}
+              <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-2xl font-bold text-blue-900 mb-4">Gradient Descent (Line Search)</h2>
+                <p className="text-gray-800 text-lg">
+                  Adaptive step size selection: choose α dynamically at each iteration to ensure sufficient decrease.
+                </p>
+              </div>
+
+              <CollapsibleSection
+                title="The Problem with Fixed Step Size"
+                defaultExpanded={true}
+                storageKey="gd-ls-problem"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <p><strong>Fixed α has a dilemma:</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-2">
+                    <li>Early iterations: Far from minimum, could take large steps → α should be big</li>
+                    <li>Late iterations: Near minimum, need precision → α should be small</li>
+                    <li>One fixed α can't be optimal throughout!</li>
+                  </ul>
+                  <p className="mt-4"><strong>Additional problem: α depends on the problem</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Changing λ (regularization) changes the landscape steepness</li>
+                    <li>Adding data points changes the loss function</li>
+                    <li>What worked before might not work now</li>
+                  </ul>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Line Search: Adaptive Step Sizes"
+                defaultExpanded={true}
+                storageKey="gd-ls-idea"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <p><strong>Idea:</strong> Choose α dynamically at each iteration</p>
+                  <div className="bg-blue-200 rounded p-4 mt-3">
+                    <p className="font-bold">At iteration k:</p>
+                    <ol className="list-decimal list-inside mt-2 space-y-1">
+                      <li>Compute search direction: p = -∇f(w⁽ᵏ⁾)</li>
+                      <li>Find good step size: α_k = lineSearch(w⁽ᵏ⁾, p)</li>
+                      <li>Update: w⁽ᵏ⁺¹⁾ = w⁽ᵏ⁾ + α_k·p</li>
+                    </ol>
+                  </div>
+                  <p className="mt-3"><strong>Question:</strong> What makes a step size "good"?</p>
+                  <p><strong>Answer:</strong> Sufficient decrease in loss (Armijo condition)</p>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="The Algorithm"
+                defaultExpanded={true}
+                storageKey="gd-ls-algorithm"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <div className="bg-blue-100 rounded p-4">
+                    <p className="font-bold">Main Loop:</p>
+                    <ol className="list-decimal list-inside mt-2 space-y-1">
+                      <li>Compute gradient: g = ∇f(w)</li>
+                      <li>Set search direction: p = -g</li>
+                      <li>Perform line search: α = armijoLineSearch(w, p, g)</li>
+                      <li>Update: w_new = w + α·p</li>
+                      <li>Repeat until ||g|| &lt; ε</li>
+                    </ol>
+                  </div>
+                  <div className="bg-blue-100 rounded p-4 mt-3">
+                    <p className="font-bold">Armijo Line Search (backtracking):</p>
+                    <p className="mt-2">Input: w, p, g, f(w), c₁</p>
+                    <ol className="list-decimal list-inside mt-2 space-y-1">
+                      <li>Start with α = 1</li>
+                      <li>While f(w + αp) &gt; f(w) + c₁·α·(gᵀp):</li>
+                      <li className="ml-6">α ← α/2</li>
+                      <li>Return α</li>
+                    </ol>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Armijo Condition (The Rule)"
+                defaultExpanded={false}
+                storageKey="gd-ls-armijo"
+              >
+                <div className="space-y-3 text-gray-800 font-mono text-sm">
+                  <p className="font-bold">Accept α if it satisfies:</p>
+                  <p>f(w + α·p) ≤ f(w) + c₁·α·(∇f(w)ᵀp)</p>
+                  <div className="mt-4 font-sans">
+                    <p className="font-bold">Interpretation:</p>
+                    <ul className="list-disc list-inside ml-4 space-y-2">
+                      <li>Left side: Actual loss after taking step</li>
+                      <li>Right side: Expected loss from linear approximation + safety margin</li>
+                      <li>c₁ ∈ (0, 1): How much decrease we demand (typically 10⁻⁴)</li>
+                    </ul>
+                    <p className="mt-3">Smaller c₁ → accept steps more easily (less picky)</p>
+                    <p className="mt-3">Larger c₁ → demand more decrease (more picky)</p>
+                    <p className="mt-3">The condition ensures sufficient decrease without being too greedy.
+                    We don't need the absolute best α, just a good-enough α that reduces loss adequately.</p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Line Search Visualization"
+                defaultExpanded={true}
+                storageKey="gd-ls-viz"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <p><strong>The plot shows:</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-2">
+                    <li>X-axis: Step size α we're testing</li>
+                    <li>Y-axis: Loss value f(w + α·p)</li>
+                    <li>Blue curve: Actual loss along the search direction</li>
+                    <li>Orange dashed line: Armijo condition boundary</li>
+                    <li>Red dots: Step sizes that were rejected (not enough decrease)</li>
+                    <li>Green dot: Accepted step size (satisfies Armijo)</li>
+                  </ul>
+                  <p className="mt-3">Watch how the algorithm tries α, rejects it, tries smaller α,
+                  until it finds one that gives sufficient decrease.</p>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Try This"
+                defaultExpanded={false}
+                storageKey="gd-ls-try"
+              >
+                <div className="space-y-2 text-gray-800">
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Set c₁ = 10⁻⁵ (very lenient): Accepts larger steps, fewer backtracks</li>
+                    <li>Set c₁ = 0.1 (strict): Demands more decrease, more backtracks</li>
+                    <li>Compare convergence speed with GD Fixed Step tab</li>
+                    <li>Add data points: Watch line search adapt automatically</li>
+                  </ul>
+                </div>
+              </CollapsibleSection>
+
+              {/* GD Line Search Visualizations */}
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape with trajectory. Notice adaptive step sizes.
+                  </p>
+                  <canvas
+                    ref={gdLSParamCanvasRef}
+                    style={{width: '400px', height: '333px'}}
+                    className="border border-gray-300 rounded"
+                  />
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Backtracking search for step size satisfying Armijo condition.
+                  </p>
+                  <canvas
+                    ref={gdLSLineSearchCanvasRef}
+                    style={{width: '400px', height: '280px'}}
+                    className="border border-gray-300 rounded bg-white"
+                  />
+                </div>
+              </div>
             </>
           ) : selectedTab === 'newton' ? (
             <>
