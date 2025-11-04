@@ -131,6 +131,34 @@ const UnifiedVisualizer = () => {
     };
   }, [gdFixedIterations]);
 
+  const gdLSParamBounds = React.useMemo(() => {
+    if (!gdLSIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+
+    let minW0 = Infinity, maxW0 = -Infinity;
+    let minW1 = Infinity, maxW1 = -Infinity;
+
+    for (const it of gdLSIterations) {
+      minW0 = Math.min(minW0, it.wNew[0]);
+      maxW0 = Math.max(maxW0, it.wNew[0]);
+      minW1 = Math.min(minW1, it.wNew[1]);
+      maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    const w0Range = maxW0 - minW0;
+    const w1Range = maxW1 - minW1;
+    const pad0 = w0Range * 0.2;
+    const pad1 = w1Range * 0.2;
+
+    return {
+      minW0: minW0 - pad0,
+      maxW0: maxW0 + pad0,
+      minW1: minW1 - pad1,
+      maxW1: maxW1 + pad1,
+      w0Range: w0Range + 2 * pad0,
+      w1Range: w1Range + 2 * pad1
+    };
+  }, [gdLSIterations]);
+
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -807,6 +835,180 @@ const UnifiedVisualizer = () => {
     ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
     ctx.restore();
   }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab]);
+
+  // Draw GD Line Search parameter space
+  useEffect(() => {
+    const canvas = gdLSParamCanvasRef.current;
+    if (!canvas || selectedTab !== 'gd-linesearch') return;
+    const iter = gdLSIterations[gdLSCurrentIter];
+    if (!iter) return;
+
+    const { ctx, width: w, height: h } = setupCanvas(canvas);
+    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdLSParamBounds;
+
+    const resolution = 60;
+    const lossValues = [];
+
+    for (let i = 0; i < resolution; i++) {
+      for (let j = 0; j < resolution; j++) {
+        const w0 = minW0 + (i / resolution) * w0Range;
+        const w1 = minW1 + (j / resolution) * w1Range;
+        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        lossValues.push(loss);
+      }
+    }
+
+    const minLoss = Math.min(...lossValues);
+    const maxLoss = Math.max(...lossValues);
+    const lossRange = maxLoss - minLoss;
+
+    let lossIdx = 0;
+    for (let i = 0; i < resolution; i++) {
+      for (let j = 0; j < resolution; j++) {
+        const loss = lossValues[lossIdx++];
+        const normalized = (loss - minLoss) / (lossRange + 1e-10);
+        const intensity = 1 - normalized;
+
+        const r = Math.floor(139 + (255 - 139) * intensity);
+        const g = Math.floor(92 + (255 - 92) * intensity);
+        const b = Math.floor(246 + (255 - 246) * intensity);
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
+      }
+    }
+
+    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
+    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= gdLSCurrentIter; i++) {
+      const [w0, w1] = gdLSIterations[i].wNew;
+      const cx = toCanvasX(w0);
+      const cy = toCanvasY(w1);
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+
+    const [w0, w1] = iter.wNew;
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#374151';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
+    ctx.save();
+    ctx.translate(10, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
+    ctx.restore();
+  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab]);
+
+  // Draw GD Line Search plot
+  useEffect(() => {
+    const canvas = gdLSLineSearchCanvasRef.current;
+    if (!canvas || selectedTab !== 'gd-linesearch') return;
+    const iter = gdLSIterations[gdLSCurrentIter];
+    if (!iter) return;
+
+    const { ctx, width: w, height: h } = setupCanvas(canvas);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    const { alphaRange, lossValues, armijoValues } = iter.lineSearchCurve;
+    const trials = iter.lineSearchTrials;
+
+    const maxAlpha = Math.max(...alphaRange);
+    const allValues = [...lossValues, ...armijoValues];
+    const minLoss = Math.min(...allValues);
+    const maxLoss = Math.max(...allValues);
+    const lossRange = maxLoss - minLoss;
+
+    const margin = { left: 60, right: 20, top: 30, bottom: 50 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
+    const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
+
+    // Draw axes
+    ctx.strokeStyle = '#9ca3af';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, h - margin.bottom);
+    ctx.lineTo(w - margin.right, h - margin.bottom);
+    ctx.stroke();
+
+    // Draw Armijo boundary (dashed)
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    for (let i = 0; i < armijoValues.length; i++) {
+      const cx = toCanvasX(alphaRange[i]);
+      const cy = toCanvasY(armijoValues[i]);
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw actual loss curve
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < lossValues.length; i++) {
+      const cx = toCanvasX(alphaRange[i]);
+      const cy = toCanvasY(lossValues[i]);
+      if (i === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+
+    // Draw starting point
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.arc(toCanvasX(0), toCanvasY(iter.loss), 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Draw trials
+    trials.forEach((t) => {
+      const cx = toCanvasX(t.alpha);
+      const cy = toCanvasY(t.loss);
+
+      ctx.fillStyle = t.satisfied ? '#10b981' : '#dc2626';
+      ctx.beginPath();
+      ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
+      ctx.fill();
+
+      if (t.satisfied) {
+        ctx.fillStyle = '#065f46';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`✓ Accept α=${t.alpha.toFixed(4)}`, cx + 12, cy - 10);
+        ctx.fillText(`loss=${t.loss.toFixed(4)}`, cx + 12, cy + 5);
+      }
+    });
+
+    // Labels
+    ctx.fillStyle = '#374151';
+    ctx.font = '13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Step size α', w / 2, h - 10);
+    ctx.save();
+    ctx.translate(15, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Loss', 0, 0);
+    ctx.restore();
+  }, [gdLSIterations, gdLSCurrentIter, gdLSC1, selectedTab]);
 
   if (!currentIter) return <div className="p-6">Loading...</div>;
 
