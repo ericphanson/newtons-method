@@ -12,6 +12,7 @@ import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+import { CollapsibleSection } from './components/CollapsibleSection';
 
 type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
@@ -1012,8 +1013,13 @@ const UnifiedVisualizer = () => {
 
   if (!currentIter) return <div className="p-6">Loading...</div>;
 
-  const currentIterNum = selectedTab === 'newton' ? newtonCurrentIter : lbfgsCurrentIter;
-  const totalIters = selectedTab === 'newton' ? newtonIterations.length : lbfgsIterations.length;
+  const currentIterNum = selectedTab === 'gd-fixed' ? gdFixedCurrentIter :
+                        selectedTab === 'gd-linesearch' ? gdLSCurrentIter :
+                        selectedTab === 'newton' ? newtonCurrentIter : lbfgsCurrentIter;
+
+  const totalIters = selectedTab === 'gd-fixed' ? gdFixedIterations.length :
+                     selectedTab === 'gd-linesearch' ? gdLSIterations.length :
+                     selectedTab === 'newton' ? newtonIterations.length : lbfgsIterations.length;
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
@@ -1141,7 +1147,35 @@ const UnifiedVisualizer = () => {
           {/* Algorithm-specific hyperparameters and controls */}
           <div className="mb-6 flex justify-between items-center">
             <div className="flex gap-4">
-              {selectedTab === 'newton' ? (
+              {selectedTab === 'gd-fixed' ? (
+                <div>
+                  <label className="text-sm font-bold text-gray-700">Step size α:</label>
+                  <input
+                    type="range"
+                    min="-3"
+                    max="0"
+                    step="0.1"
+                    value={Math.log10(gdFixedAlpha)}
+                    onChange={(e) => setGdFixedAlpha(Math.pow(10, parseFloat(e.target.value)))}
+                    className="mx-2"
+                  />
+                  <span className="text-sm">{gdFixedAlpha.toFixed(3)}</span>
+                </div>
+              ) : selectedTab === 'gd-linesearch' ? (
+                <div>
+                  <label className="text-sm font-bold text-gray-700">Armijo c₁:</label>
+                  <input
+                    type="range"
+                    min="-5"
+                    max="-0.3"
+                    step="0.1"
+                    value={Math.log10(gdLSC1)}
+                    onChange={(e) => setGdLSC1(Math.pow(10, parseFloat(e.target.value)))}
+                    className="mx-2"
+                  />
+                  <span className="text-sm">{gdLSC1.toExponential(1)}</span>
+                </div>
+              ) : selectedTab === 'newton' ? (
                 <div>
                   <label className="text-sm font-bold text-gray-700">Armijo c₁:</label>
                   <input
@@ -1189,7 +1223,9 @@ const UnifiedVisualizer = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  if (selectedTab === 'newton') setNewtonCurrentIter(0);
+                  if (selectedTab === 'gd-fixed') setGdFixedCurrentIter(0);
+                  else if (selectedTab === 'gd-linesearch') setGdLSCurrentIter(0);
+                  else if (selectedTab === 'newton') setNewtonCurrentIter(0);
                   else setLbfgsCurrentIter(0);
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg"
@@ -1199,7 +1235,9 @@ const UnifiedVisualizer = () => {
               </button>
               <button
                 onClick={() => {
-                  if (selectedTab === 'newton') setNewtonCurrentIter(Math.max(0, newtonCurrentIter - 1));
+                  if (selectedTab === 'gd-fixed') setGdFixedCurrentIter(Math.max(0, gdFixedCurrentIter - 1));
+                  else if (selectedTab === 'gd-linesearch') setGdLSCurrentIter(Math.max(0, gdLSCurrentIter - 1));
+                  else if (selectedTab === 'newton') setNewtonCurrentIter(Math.max(0, newtonCurrentIter - 1));
                   else setLbfgsCurrentIter(Math.max(0, lbfgsCurrentIter - 1));
                 }}
                 disabled={currentIterNum === 0}
@@ -1210,7 +1248,9 @@ const UnifiedVisualizer = () => {
               </button>
               <button
                 onClick={() => {
-                  if (selectedTab === 'newton') setNewtonCurrentIter(Math.min(newtonIterations.length - 1, newtonCurrentIter + 1));
+                  if (selectedTab === 'gd-fixed') setGdFixedCurrentIter(Math.min(gdFixedIterations.length - 1, gdFixedCurrentIter + 1));
+                  else if (selectedTab === 'gd-linesearch') setGdLSCurrentIter(Math.min(gdLSIterations.length - 1, gdLSCurrentIter + 1));
+                  else if (selectedTab === 'newton') setNewtonCurrentIter(Math.min(newtonIterations.length - 1, newtonCurrentIter + 1));
                   else setLbfgsCurrentIter(Math.min(lbfgsIterations.length - 1, lbfgsCurrentIter + 1));
                 }}
                 disabled={currentIterNum === totalIters - 1}
@@ -1234,7 +1274,134 @@ const UnifiedVisualizer = () => {
           </div>
 
           {/* Algorithm-specific visualizations */}
-          {selectedTab === 'newton' ? (
+          {selectedTab === 'gd-fixed' ? (
+            <>
+              {/* GD Fixed - Why This Algorithm? */}
+              <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-2xl font-bold text-green-900 mb-4">Gradient Descent (Fixed Step)</h2>
+                <p className="text-gray-800 text-lg">
+                  The simplest optimization algorithm: follow the gradient downhill with constant step size α.
+                </p>
+              </div>
+
+              <CollapsibleSection
+                title="What is Gradient Descent?"
+                defaultExpanded={true}
+                storageKey="gd-fixed-what"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <p><strong>Goal:</strong> Find weights w that minimize loss f(w)</p>
+                  <p><strong>Intuition:</strong> Imagine you're on a hillside in fog. You can feel the slope
+                  under your feet (the gradient), but can't see the valley. Walk downhill repeatedly
+                  until you reach the bottom.</p>
+                  <p>The gradient ∇f tells you the direction of steepest ascent.
+                  We go the opposite way: <strong>-∇f</strong> (steepest descent).</p>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="The Algorithm"
+                defaultExpanded={true}
+                storageKey="gd-fixed-algorithm"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>Start with initial guess w₀ (e.g., all zeros)</li>
+                    <li>Compute gradient: g = ∇f(w)</li>
+                    <li>Take a step downhill: <strong>w_new = w_old - α·g</strong></li>
+                    <li>Repeat steps 2-3 until gradient is tiny (converged)</li>
+                  </ol>
+                  <div className="mt-4 bg-green-200 rounded p-4">
+                    <p className="font-bold">Key parameter: α (step size)</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>Too small → slow progress, many iterations</li>
+                      <li>Too large → overshoot minimum, oscillate or diverge</li>
+                      <li>Just right → steady progress toward minimum</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="The Mathematics"
+                defaultExpanded={false}
+                storageKey="gd-fixed-math"
+              >
+                <div className="space-y-3 text-gray-800 font-mono text-sm">
+                  <div>
+                    <p className="font-bold">Loss function:</p>
+                    <p>f(w) = -(1/N) Σ [y log(σ(wᵀx)) + (1-y) log(1-σ(wᵀx))] + (λ/2)||w||²</p>
+                  </div>
+                  <div>
+                    <p className="font-bold">Gradient (vector of partial derivatives):</p>
+                    <p>∇f(w) = [∂f/∂w₀, ∂f/∂w₁, ∂f/∂w₂]ᵀ</p>
+                  </div>
+                  <div>
+                    <p className="font-bold">For logistic regression:</p>
+                    <p>∇f(w) = (1/N) Σ (σ(wᵀx) - y)·x + λw</p>
+                  </div>
+                  <div>
+                    <p className="font-bold">Update rule:</p>
+                    <p>w⁽ᵏ⁺¹⁾ = w⁽ᵏ⁾ - α∇f(w⁽ᵏ⁾)</p>
+                  </div>
+                  <div>
+                    <p className="font-bold">Convergence criterion:</p>
+                    <p>||∇f(w)|| &lt; ε (e.g., ε = 10⁻⁶)</p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="What You're Seeing"
+                defaultExpanded={true}
+                storageKey="gd-fixed-viz"
+              >
+                <div className="space-y-3 text-gray-800">
+                  <p><strong>Left:</strong> Data space - decision boundary from current weights</p>
+                  <p><strong>Right:</strong> Parameter space (w₀, w₁) - the loss landscape</p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Lighter colors = lower loss (the valley we're searching for)</li>
+                    <li>Orange path = trajectory of weights across iterations</li>
+                    <li>Red dot = current position</li>
+                  </ul>
+                  <p className="mt-2">The gradient points perpendicular to contour lines (level sets).
+                  We follow it downhill toward the minimum.</p>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Try This"
+                defaultExpanded={false}
+                storageKey="gd-fixed-try"
+              >
+                <div className="space-y-2 text-gray-800">
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Set α = 0.001: Watch it take tiny steps. How many iterations to converge?</li>
+                    <li>Set α = 0.5: Watch it oscillate. Why does it zig-zag?</li>
+                    <li>Set α = 1.5: Does it diverge completely?</li>
+                    <li>Add custom points: Does the landscape change? Does the same α still work?</li>
+                  </ul>
+                </div>
+              </CollapsibleSection>
+
+              {/* GD Fixed Visualizations */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Loss landscape with optimization trajectory. Lighter = lower loss.
+                </p>
+                <canvas
+                  ref={gdFixedParamCanvasRef}
+                  style={{width: '700px', height: '500px'}}
+                  className="border border-gray-300 rounded"
+                />
+              </div>
+            </>
+          ) : selectedTab === 'gd-linesearch' ? (
+            <>
+              {/* GD Line Search content will go here in next task */}
+            </>
+          ) : selectedTab === 'newton' ? (
             <>
               {/* Newton's Method - Why Newton? */}
               <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg shadow-md p-6 mb-6">

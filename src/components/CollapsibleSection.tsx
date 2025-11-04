@@ -43,16 +43,23 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     <div className="mb-4">
       <button
         onClick={toggleExpanded}
+        aria-expanded={isExpanded}
+        aria-controls={storageKey ? `${storageKey}-content` : undefined}
         className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
       >
         <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        <span className="text-gray-600 text-xl">
+        <span className="text-gray-600 text-xl" aria-hidden="true">
           {isExpanded ? '▼' : '▶'}
         </span>
       </button>
 
       {isExpanded && (
-        <div className="mt-2 px-4 py-3 bg-white rounded-lg border border-gray-200">
+        <div
+          id={storageKey ? `${storageKey}-content` : undefined}
+          role="region"
+          aria-labelledby={storageKey ? `${storageKey}-button` : undefined}
+          className="mt-2 px-4 py-3 bg-white rounded-lg border border-gray-200"
+        >
           {children}
         </div>
       )}
