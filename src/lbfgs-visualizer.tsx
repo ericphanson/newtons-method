@@ -1,13 +1,74 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, RotateCcw, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
+
+// Type definitions
+interface DataPoint {
+  x1: number;
+  x2: number;
+  y: number;
+}
+
+interface MemoryPair {
+  s: number[];
+  y: number[];
+  rho: number;
+}
+
+interface TwoLoopData {
+  firstLoop: Array<{
+    i: number;
+    rho: number;
+    sTq: number;
+    alpha: number;
+    q: number[];
+  }>;
+  gamma: number;
+  secondLoop: Array<{
+    i: number;
+    yTr: number;
+    beta: number;
+    alpha: number;
+    correction: number;
+    r: number[];
+  }>;
+  alphas: number[];
+}
+
+interface LineSearchTrial {
+  trial: number;
+  alpha: number;
+  loss: number;
+  armijoRHS: number;
+  satisfied: boolean;
+}
+
+interface Iteration {
+  iter: number;
+  w: number[];
+  loss: number;
+  grad: number[];
+  gradNorm: number;
+  direction: number[];
+  alpha: number;
+  wNew: number[];
+  newLoss: number;
+  memory: MemoryPair[];
+  twoLoopData: TwoLoopData | null;
+  lineSearchTrials: LineSearchTrial[];
+  lineSearchCurve: {
+    alphaRange: number[];
+    lossValues: number[];
+    armijoValues: number[];
+  };
+}
 
 // Utility functions
-const sigmoid = (z) => {
+const sigmoid = (z: number) => {
   const clipped = Math.max(-500, Math.min(500, z));
   return 1 / (1 + Math.exp(-clipped));
 };
 
-const clip = (val, min, max) => Math.max(min, Math.min(max, val));
+const clip = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
 // Generate properly interleaved crescent dataset
 const generateCrescents = () => {
@@ -43,7 +104,7 @@ const generateCrescents = () => {
   return points;
 };
 
-const computeLossAndGradient = (w, data, lambda) => {
+const computeLossAndGradient = (w: number[], data: DataPoint[], lambda: number) => {
   const [w0, w1, w2] = w;
   let loss = 0;
   const grad = [0, 0, 0];
@@ -69,22 +130,23 @@ const computeLossAndGradient = (w, data, lambda) => {
   return { loss, grad };
 };
 
-const dot = (a, b) => a.reduce((sum, val, i) => sum + val * b[i], 0);
-const norm = (v) => Math.sqrt(dot(v, v));
-const scale = (v, s) => v.map(x => x * s);
-const add = (a, b) => a.map((x, i) => x + b[i]);
-const sub = (a, b) => a.map((x, i) => x - b[i]);
+const dot = (a: number[], b: number[]) => a.reduce((sum, val, i) => sum + val * b[i], 0);
+const norm = (v: number[]) => Math.sqrt(dot(v, v));
+const scale = (v: number[], s: number) => v.map(x => x * s);
+const add = (a: number[], b: number[]) => a.map((x, i) => x + b[i]);
+const sub = (a: number[], b: number[]) => a.map((x, i) => x - b[i]);
 
-const runLBFGS = (data, maxIter = 25, M = 5, lambda = 0.0001, c1 = 0.0001) => {
-  const iterations = [];
+const runLBFGS = (data: DataPoint[], maxIter = 25, M = 5, lambda = 0.0001, c1 = 0.0001): Iteration[] => {
+  const iterations: Iteration[] = [];
   let w = [0.1, 0.1, 0.0];
-  const memory = [];
-  
+  const memory: MemoryPair[] = [];
+
   for (let iter = 0; iter < maxIter; iter++) {
     const { loss, grad } = computeLossAndGradient(w, data, lambda);
     const gradNorm = norm(grad);
-    
-    let direction, twoLoopData = null;
+
+    let direction: number[];
+    let twoLoopData: TwoLoopData | null = null;
     
     if (iter === 0 || memory.length === 0) {
       direction = scale(grad, -1);
@@ -208,27 +270,27 @@ const runLBFGS = (data, maxIter = 25, M = 5, lambda = 0.0001, c1 = 0.0001) => {
   return iterations;
 };
 
-const setupCanvas = (canvas) => {
+const setupCanvas = (canvas: HTMLCanvasElement) => {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   ctx.scale(dpr, dpr);
   return { ctx, width: rect.width, height: rect.height };
 };
 
 const LBFGSVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
-  const [customPoints, setCustomPoints] = useState([]);
+  const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
   const [c1, setC1] = useState(0.0001);
   const [addPointMode, setAddPointMode] = useState(0); // 0 = off, 1 = class 0, 2 = class 1
-  const [iterations, setIterations] = useState([]);
+  const [iterations, setIterations] = useState<Iteration[]>([]);
   const [currentIter, setCurrentIter] = useState(0);
-  const canvasRef = useRef(null);
-  const paramCanvasRef = useRef(null);
-  const lineSearchCanvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const paramCanvasRef = useRef<HTMLCanvasElement>(null);
+  const lineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
   
   const data = [...baseData, ...customPoints];
   const iter = iterations[currentIter] || iterations[0];
@@ -271,7 +333,7 @@ const LBFGSVisualizer = () => {
   }, [iterations]);
   
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft' && currentIter > 0) {
         setCurrentIter(currentIter - 1);
       } else if (e.key === 'ArrowRight' && currentIter < iterations.length - 1) {
@@ -284,10 +346,11 @@ const LBFGSVisualizer = () => {
   }, [currentIter, iterations.length]);
   
   // Handle canvas click to add points
-  const handleCanvasClick = (e) => {
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (addPointMode === 0) return;
-    
+
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -308,8 +371,8 @@ const LBFGSVisualizer = () => {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
     
-    const toCanvasX = (x1) => ((x1 + 3) / 6) * w;
-    const toCanvasY = (x2) => ((2.5 - x2) / 5) * h;
+    const toCanvasX = (x1: number) => ((x1 + 3) / 6) * w;
+    const toCanvasY = (x2: number) => ((2.5 - x2) / 5) * h;
     
     const [w0, w1, w2] = iter.wNew;
     if (Math.abs(w1) > 1e-6) {
@@ -406,8 +469,8 @@ const LBFGSVisualizer = () => {
       }
     }
     
-    const toCanvasX = (w0) => ((w0 - minW0) / w0Range) * w;
-    const toCanvasY = (w1) => ((maxW1 - w1) / w1Range) * h;
+    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
+    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
     
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -461,8 +524,8 @@ const LBFGSVisualizer = () => {
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
     
-    const toCanvasX = (alpha) => margin.left + (alpha / maxAlpha) * plotW;
-    const toCanvasY = (loss) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
+    const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
+    const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
     
     ctx.strokeStyle = '#9ca3af';
     ctx.lineWidth = 1;
@@ -505,7 +568,7 @@ const LBFGSVisualizer = () => {
     ctx.textAlign = 'right';
     ctx.fillText(`Start: loss=${iter.loss.toFixed(4)}`, toCanvasX(0) - 10, toCanvasY(iter.loss) - 10);
     
-    trials.forEach((t, idx) => {
+    trials.forEach((t) => {
       const cx = toCanvasX(t.alpha);
       const cy = toCanvasY(t.loss);
       
@@ -540,8 +603,8 @@ const LBFGSVisualizer = () => {
     ctx.fillText(`Orange dashed: Armijo bound with c₁=${c1.toExponential(1)}`, margin.left, 28);
   }, [iter, c1]);
   
-  const fmt = (val) => val.toFixed(6);
-  const fmtVec = (vec) => `[${vec.map(v => v.toFixed(4)).join(', ')}]`;
+  const fmt = (val: number) => val.toFixed(6);
+  const fmtVec = (vec: number[]) => `[${vec.map(v => v.toFixed(4)).join(', ')}]`;
   
   if (!iter) return <div className="p-6">Loading...</div>;
   
