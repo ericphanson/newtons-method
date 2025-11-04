@@ -8,6 +8,8 @@ import {
   add,
   sub
 } from '../shared-utils';
+import { armijoLineSearch } from '../line-search/armijo';
+import { LineSearchResult } from '../line-search/types';
 
 export interface MemoryPair {
   s: number[];
@@ -122,41 +124,17 @@ export const runLBFGS = (
       twoLoopData = { firstLoop, gamma, secondLoop, alphas };
     }
 
-    const rho = 0.5;
-    const dirGrad = dot(direction, grad);
-    let alpha = 1.0;
-    const lineSearchTrials: LineSearchTrial[] = [];
+    // Line search
+    const lineSearchResult = armijoLineSearch(
+      w,
+      direction,
+      grad,
+      loss,
+      (wTest) => computeLossAndGradient(wTest, data, lambda),
+      c1
+    );
 
-    const alphaRange: number[] = [];
-    const lossValues: number[] = [];
-    const armijoValues: number[] = [];
-    for (let a = 0; a <= 1.0; a += 0.02) {
-      const wTest = add(w, scale(direction, a));
-      const { loss: testLoss } = computeLossAndGradient(wTest, data, lambda);
-      alphaRange.push(a);
-      lossValues.push(testLoss);
-      armijoValues.push(loss + c1 * a * dirGrad);
-    }
-
-    for (let trial = 0; trial < 20; trial++) {
-      const wNew = add(w, scale(direction, alpha));
-      const { loss: newLoss } = computeLossAndGradient(wNew, data, lambda);
-      const armijoRHS = loss + c1 * alpha * dirGrad;
-      const satisfied = newLoss <= armijoRHS;
-
-      lineSearchTrials.push({
-        trial: trial + 1,
-        alpha,
-        loss: newLoss,
-        armijoRHS,
-        satisfied
-      });
-
-      if (satisfied) break;
-      alpha *= rho;
-    }
-
-    const acceptedAlpha = lineSearchTrials[lineSearchTrials.length - 1].alpha;
+    const acceptedAlpha = lineSearchResult.alpha;
     const wNew = add(w, scale(direction, acceptedAlpha));
     const { loss: newLoss, grad: newGrad } = computeLossAndGradient(wNew, data, lambda);
 
@@ -172,8 +150,8 @@ export const runLBFGS = (
       newLoss,
       memory: memory.map(m => ({ ...m })),
       twoLoopData,
-      lineSearchTrials,
-      lineSearchCurve: { alphaRange, lossValues, armijoValues }
+      lineSearchTrials: lineSearchResult.trials,
+      lineSearchCurve: lineSearchResult.curve
     });
 
     if (iter > 0) {
