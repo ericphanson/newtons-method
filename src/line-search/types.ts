@@ -1,5 +1,3 @@
-import { DataPoint } from '../shared-utils';
-
 export interface LineSearchResult {
   alpha: number;
   newLoss: number;

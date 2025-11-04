@@ -9,7 +9,6 @@ import {
   sub
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { LineSearchResult } from '../line-search/types';
 
 export interface MemoryPair {
   s: number[];
