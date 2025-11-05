@@ -8,6 +8,11 @@ import {
   fmtVec,
   computeLossAndGradient
 } from './shared-utils';
+import {
+  logisticObjective,
+  logisticGradient,
+  logisticHessian
+} from './utils/logisticRegression';
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
@@ -85,6 +90,44 @@ const UnifiedVisualizer = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const data = [...baseData, ...customPoints];
+
+  // Get current problem definition (logistic regression or from registry)
+  const getCurrentProblem = useCallback(() => {
+    if (currentProblem === 'logistic-regression') {
+      // Return logistic regression wrapped as problem interface
+      // Note: Logistic regression uses 3D weights [w0, w1, w2] with bias
+      return {
+        name: 'Logistic Regression',
+        description: 'Binary classification with L2 regularization',
+        objective: (w: number[]) => logisticObjective(w, data, lambda),
+        gradient: (w: number[]) => logisticGradient(w, data, lambda),
+        hessian: (w: number[]) => logisticHessian(w, data, lambda),
+        domain: {
+          w0: [-3, 3],
+          w1: [-3, 3],
+        },
+        requiresDataset: true,
+        dimensionality: 3, // 3D weights [w0, w1, w2]
+      };
+    } else {
+      // Get problem from registry
+      const problem = getProblem(currentProblem);
+      if (!problem) {
+        throw new Error(`Problem not found: ${currentProblem}`);
+      }
+      return {
+        ...problem,
+        requiresDataset: false,
+        dimensionality: 2, // 2D weights [w0, w1]
+      };
+    }
+  }, [currentProblem, data, lambda]);
+
+  // Log problem info for debugging (will be used in later tasks)
+  useEffect(() => {
+    const problem = getCurrentProblem();
+    console.log('Current problem:', problem.name, 'Dimensionality:', problem.dimensionality);
+  }, [getCurrentProblem]);
 
   // Default configuration for reset functionality
   const defaultConfig = useRef({
