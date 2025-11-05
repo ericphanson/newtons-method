@@ -9,6 +9,7 @@ import {
   sub
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
+import { ProblemFunctions, AlgorithmOptions } from './types';
 
 export interface MemoryPair {
   s: number[];
@@ -56,7 +57,148 @@ export interface LBFGSIteration {
   };
 }
 
+/**
+ * L-BFGS (Limited-memory BFGS) quasi-Newton method
+ *
+ * Approximates the Hessian inverse using a history buffer of gradient differences.
+ * More memory-efficient than full BFGS, storing only M recent (s, y) pairs.
+ * Uses two-loop recursion to compute search direction without storing full Hessian.
+ *
+ * @param problem Problem definition with objective, gradient, and dimensionality
+ * @param options Algorithm options including maxIter, c1 (line search), m (memory size), and optional initial point
+ * @returns Array of iteration objects with memory buffer and two-loop recursion details
+ */
 export const runLBFGS = (
+  problem: ProblemFunctions,
+  options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number }
+): LBFGSIteration[] => {
+  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint } = options;
+  const iterations: LBFGSIteration[] = [];
+  const M = m; // Memory parameter: number of (s, y) pairs to store
+
+  // Note: lambda is accepted for API consistency but unused here since
+  // regularization is already baked into ProblemFunctions
+  void lambda;
+
+  // Initialize weights based on dimensionality
+  let w = initialPoint || (problem.dimensionality === 3
+    ? [0.1, 0.1, 0.0]
+    : [0.1, 0.1]);
+
+  const memory: MemoryPair[] = [];
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    const loss = problem.objective(w);
+    const grad = problem.gradient(w);
+    const gradNorm = norm(grad);
+
+    let direction: number[];
+    let twoLoopData: TwoLoopData | null = null;
+
+    if (iter === 0 || memory.length === 0) {
+      direction = scale(grad, -1);
+    } else {
+      const q = [...grad];
+      const alphas = [];
+      const firstLoop = [];
+
+      for (let i = memory.length - 1; i >= 0; i--) {
+        const { s, y, rho } = memory[i];
+        const alpha = rho * dot(s, q);
+        alphas.unshift(alpha);
+        for (let j = 0; j < q.length; j++) {
+          q[j] -= alpha * y[j];
+        }
+        firstLoop.push({
+          i: memory.length - i,
+          rho,
+          sTq: dot(s, grad),
+          alpha,
+          q: [...q]
+        });
+      }
+
+      const lastMem = memory[memory.length - 1];
+      const gamma = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      const r = scale(q, gamma);
+
+      const secondLoop = [];
+      for (let i = 0; i < memory.length; i++) {
+        const { s, y, rho } = memory[i];
+        const beta = rho * dot(y, r);
+        const correction = alphas[i] - beta;
+        for (let j = 0; j < r.length; j++) {
+          r[j] += correction * s[j];
+        }
+        secondLoop.push({
+          i: i + 1,
+          yTr: dot(y, scale(r, 1 / (1 + correction / alphas[i]))),
+          beta,
+          alpha: alphas[i],
+          correction,
+          r: [...r]
+        });
+      }
+
+      direction = scale(r, -1);
+      twoLoopData = { firstLoop, gamma, secondLoop, alphas };
+    }
+
+    // Line search
+    const lineSearchResult = armijoLineSearch(
+      w,
+      direction,
+      grad,
+      loss,
+      (wTest) => ({ loss: problem.objective(wTest), grad: problem.gradient(wTest) }),
+      c1
+    );
+
+    const acceptedAlpha = lineSearchResult.alpha;
+    const wNew = add(w, scale(direction, acceptedAlpha));
+    const newLoss = problem.objective(wNew);
+    const newGrad = problem.gradient(wNew);
+
+    iterations.push({
+      iter,
+      w: [...w],
+      loss,
+      grad: [...grad],
+      gradNorm,
+      direction,
+      alpha: acceptedAlpha,
+      wNew: [...wNew],
+      newLoss,
+      memory: memory.map(m => ({ ...m })),
+      twoLoopData,
+      lineSearchTrials: lineSearchResult.trials,
+      lineSearchCurve: lineSearchResult.curve
+    });
+
+    if (iter > 0) {
+      const s = sub(wNew, w);
+      const y = sub(newGrad, grad);
+      const sTy = dot(s, y);
+
+      if (sTy > 1e-10) {
+        memory.push({ s, y, rho: 1 / sTy });
+        if (memory.length > M) memory.shift();
+      }
+    }
+
+    w = wNew;
+
+    if (gradNorm < 1e-5) break;
+  }
+
+  return iterations;
+};
+
+/**
+ * @deprecated Use runLBFGS with ProblemFunctions interface instead
+ * Kept for backward compatibility during migration
+ */
+export const runLBFGSLegacy = (
   data: DataPoint[],
   maxIter = 25,
   M = 5,

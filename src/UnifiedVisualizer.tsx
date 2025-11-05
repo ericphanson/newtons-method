@@ -13,7 +13,7 @@ import {
   logisticHessian
 } from './utils/logisticRegression';
 import { runNewtonLegacy, NewtonIteration } from './algorithms/newton';
-import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
+import { runLBFGSLegacy, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescentLegacy, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearchLegacy, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
@@ -390,7 +390,7 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      setLbfgsIterations(runLBFGS(data, 25, lbfgsM, lambda, lbfgsC1));
+      setLbfgsIterations(runLBFGSLegacy(data, 25, lbfgsM, lambda, lbfgsC1));
       setLbfgsCurrentIter(0);
     }
   }, [data.length, lambda, lbfgsC1, lbfgsM, customPoints.length]);
