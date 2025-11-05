@@ -2061,39 +2061,140 @@ const UnifiedVisualizer = () => {
             </>
           ) : (
             <>
-              {/* L-BFGS - Why L-BFGS? */}
-              <div className="bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-2xl font-bold text-yellow-900 mb-4">Why L-BFGS?</h2>
+              {/* L-BFGS - Quick Start */}
+              <CollapsibleSection
+                title="Quick Start"
+                defaultExpanded={true}
+                storageKey="lbfgs-quick-start"
+              >
                 <div className="space-y-4 text-gray-800">
                   <div>
-                    <h3 className="text-lg font-bold text-yellow-800 mb-2">The Goal</h3>
-                    <p>We want to find weights w that minimize our loss function f(w). Think of it as finding the lowest point in a hilly landscape.</p>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">The Core Idea</h3>
+                    <p>
+                      Newton's method uses <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> for smarter steps,
+                      but computing H costs O(n³). <strong>L-BFGS approximates</strong>{' '}
+                      <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> using only recent gradient changes—no
+                      Hessian computation needed.
+                    </p>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Gradient Descent (The Slow Way)</h3>
-                    <p><strong>Idea:</strong> Always walk downhill (opposite of gradient).</p>
-                    <p><strong>Direction:</strong> p = -∇f (just the negative gradient)</p>
-                    <p><strong>Problem:</strong> Takes tiny steps, doesn't know about curvature. Can zig-zag and converge slowly.</p>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">The Algorithm</h3>
+                    <ol className="list-decimal ml-6 space-y-1">
+                      <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
+                      <li>
+                        Use <strong>two-loop recursion</strong> to compute{' '}
+                        <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> from M recent (s,y) pairs
+                      </li>
+                      <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
+                      <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
+                      <li>
+                        Store new pair: <InlineMath>s = \alpha p</InlineMath> (parameter change),{' '}
+                        <InlineMath>{'y = \\nabla f_{new} - \\nabla f_{old}'}</InlineMath> (gradient change)
+                      </li>
+                      <li>Keep only M most recent pairs (discard oldest)</li>
+                    </ol>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Newton's Method (The Ideal)</h3>
-                    <p><strong>Idea:</strong> Use second derivatives (curvature) to take smarter, larger steps directly toward the minimum.</p>
-                    <p><strong>Direction:</strong> p = -H⁻¹∇f where H is the Hessian matrix (all second derivatives)</p>
-                    <p><strong>Problem:</strong> Computing and inverting H is expensive: O(n³) time and O(n²) memory. For n=1000 parameters, that's computing 1 million values!</p>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Key Idea</h3>
+                    <p>
+                      <InlineMath>(s, y)</InlineMath> pairs implicitly capture curvature: "when we moved
+                      by <InlineMath>s</InlineMath>, the gradient changed by <InlineMath>y</InlineMath>".
+                    </p>
+                    <p className="mt-2">
+                      The <strong>two-loop recursion</strong> transforms <InlineMath>\nabla f</InlineMath>{' '}
+                      into <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> using only these pairs.
+                    </p>
+                    <p className="mt-2 font-semibold">No Hessian matrix ever computed or stored!</p>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-yellow-800 mb-2">L-BFGS (The Clever Compromise)</h3>
-                    <p><strong>Idea:</strong> Approximate H⁻¹∇f without ever computing the Hessian!</p>
-                    <p><strong>How:</strong> Store only M=5 recent (parameter change, gradient change) pairs. Use these to implicitly capture curvature information.</p>
-                    <p><strong>Cost:</strong> O(m·n) time, O(m·n) memory where m=5. For n=1000: only 5000 values instead of 1 million!</p>
-                    <p><strong>Benefit:</strong> Gets Newton-like convergence speed with gradient-descent-like memory usage.</p>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">When to Use</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Large problems (n &gt; 1000 parameters)</li>
+                      <li>Memory constrained environments</li>
+                      <li>Smooth, differentiable objectives</li>
+                      <li>When Newton too expensive, gradient descent too slow</li>
+                    </ul>
                   </div>
-                  <div className="bg-yellow-200 rounded p-4">
-                    <p className="font-bold">In This Visualization:</p>
-                    <p className="text-sm">Watch how L-BFGS takes larger, smarter steps than gradient descent would, by approximating the Hessian using only recent history. The two-loop recursion is the algorithm that makes this magic happen!</p>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Key Parameters</h3>
+                    <p>
+                      <strong>M = memory size</strong> (typically 5-20)
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Larger M = better Hessian approximation but more computation</li>
+                      <li>M=10 often works well in practice</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-amber-100 rounded p-3">
+                    <p className="font-bold text-sm">Assumptions:</p>
+                    <ul className="text-sm list-disc ml-6">
+                      <li>f is differentiable</li>
+                      <li>Gradients are Lipschitz continuous (smoothness)</li>
+                      <li>Convexity helpful but not required</li>
+                    </ul>
                   </div>
                 </div>
-              </div>
+              </CollapsibleSection>
+
+              {/* L-BFGS - Visual Guide */}
+              <CollapsibleSection
+                title="Visual Guide"
+                defaultExpanded={true}
+                storageKey="lbfgs-visual-guide"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Parameter Space</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Trajectory takes <strong>Newton-like steps</strong> without computing Hessian</li>
+                      <li>Steps adapt to problem curvature using history</li>
+                      <li>Converges <strong>faster than gradient descent</strong>, nearly as fast as Newton</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Memory Pairs Visualization</h3>
+                    <p>Recent <InlineMath>(s, y)</InlineMath> pairs shown as arrows:</p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <InlineMath>s</InlineMath> = where we moved (parameter change)
+                      </li>
+                      <li>
+                        <InlineMath>y</InlineMath> = how gradient changed (curvature signal)
+                      </li>
+                      <li>Older pairs fade out as new ones replace them</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Two-Loop Recursion</h3>
+                    <p>Step-by-step transformation:</p>
+                    <BlockMath>{'q = \\nabla f \\;\\rightarrow\\; \\ldots \\;\\rightarrow\\; p \\approx -H^{-1}\\nabla f'}</BlockMath>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li><strong>Backward loop:</strong> process pairs from newest to oldest</li>
+                      <li><strong>Forward loop:</strong> reconstruct from oldest to newest</li>
+                      <li>Shows how gradient gets transformed using memory</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Line Search Panel</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Similar to Newton: often accepts large steps</li>
+                      <li>
+                        <InlineMath>\alpha &lt; 1</InlineMath> when approximation quality poor or
+                        far from minimum
+                      </li>
+                      <li>Armijo condition ensures progress</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
 
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
