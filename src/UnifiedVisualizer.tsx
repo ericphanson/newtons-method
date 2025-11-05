@@ -13,6 +13,7 @@ import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
+import { InlineMath, BlockMath } from './components/Math';
 
 type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
@@ -1564,31 +1565,63 @@ const UnifiedVisualizer = () => {
             </>
           ) : selectedTab === 'newton' ? (
             <>
-              {/* Newton's Method - Why Newton? */}
-              <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-2xl font-bold text-blue-900 mb-4">Why Newton's Method?</h2>
+              {/* Newton's Method - Quick Start */}
+              <CollapsibleSection
+                title="Quick Start"
+                defaultExpanded={true}
+                storageKey="newton-quick-start"
+              >
                 <div className="space-y-4 text-gray-800">
                   <div>
                     <h3 className="text-lg font-bold text-blue-800 mb-2">The Core Idea</h3>
-                    <p>Instead of just following the gradient (steepest descent), Newton's method uses <strong>curvature information</strong> from the Hessian matrix to take smarter steps toward the minimum.</p>
+                    <p>
+                      Gradient descent uses first derivatives. Newton's method uses second derivatives
+                      (the <strong>Hessian matrix</strong>) to see the curvature and take smarter steps
+                      toward the minimum.
+                    </p>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">The Math</h3>
-                    <p><strong>Newton direction:</strong> p = -H⁻¹∇f</p>
-                    <p className="text-sm mt-1">Where H is the Hessian (matrix of second derivatives). This accounts for how quickly the gradient changes in different directions.</p>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">The Algorithm</h3>
+                    <ol className="list-decimal ml-6 space-y-1">
+                      <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
+                      <li>Compute Hessian <InlineMath>H(w)</InlineMath> (matrix of all second derivatives)</li>
+                      <li>Solve <InlineMath>Hp = -\nabla f</InlineMath> for search direction <InlineMath>p</InlineMath> (Newton direction)</li>
+                      <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
+                      <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
+                    </ol>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">The Advantage</h3>
-                    <p><strong>Quadratic convergence:</strong> Near the minimum, the error decreases quadratically each iteration. Much faster than gradient descent's linear convergence!</p>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Key Formula</h3>
+                    <p>Newton direction:</p>
+                    <BlockMath>{'p = -H^{-1}\\nabla f'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Intuition: <InlineMath>{'H^{-1}'}</InlineMath> transforms the gradient into the
+                      natural coordinate system of the problem.
+                    </p>
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">The Cost</h3>
-                    <p><strong>Computing H:</strong> O(n²) operations</p>
-                    <p><strong>Inverting H:</strong> O(n³) operations</p>
-                    <p className="text-sm mt-1">For large problems (n=1000+), this becomes prohibitively expensive. This motivates L-BFGS!</p>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">When to Use</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Small-medium problems (n &lt; 1000 parameters)</li>
+                      <li>Smooth, twice-differentiable objectives</li>
+                      <li>Near a local minimum (quadratic convergence)</li>
+                      <li>When you can afford O(n³) computation per iteration</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-blue-100 rounded p-3">
+                    <p className="font-bold text-sm">Assumptions:</p>
+                    <ul className="text-sm list-disc ml-6">
+                      <li>f is twice continuously differentiable</li>
+                      <li>Hessian is positive definite (strongly convex) for guaranteed convergence</li>
+                      <li>Line search used when H not positive definite or far from minimum</li>
+                    </ul>
                   </div>
                 </div>
-              </div>
+              </CollapsibleSection>
 
               {/* Newton Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
