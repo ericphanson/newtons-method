@@ -236,8 +236,8 @@ const UnifiedVisualizer = () => {
 
       // 4. Load custom dataset if provided
       if (experiment.dataset) {
-        // @ts-expect-error - setDataPoints will be added in Task 4
-        setDataPoints(experiment.dataset);
+        // @ts-expect-error - DataPoint type mismatch will be resolved in Task 4
+        setCustomPoints(experiment.dataset);
       }
 
       // 5. Reset algorithm to apply changes
@@ -246,10 +246,8 @@ const UnifiedVisualizer = () => {
       // @ts-expect-error - setHistory will be added in Task 4
       setHistory([]);
 
-      // Show success message briefly
-      setTimeout(() => {
-        setExperimentLoading(false);
-      }, 300);
+      // Clear loading state immediately (no artificial delay to avoid race conditions)
+      setExperimentLoading(false);
 
     } catch (error) {
       console.error('Error loading experiment:', error);
