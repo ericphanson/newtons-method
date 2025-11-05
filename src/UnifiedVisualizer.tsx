@@ -493,51 +493,38 @@ const UnifiedVisualizer = () => {
     const toCanvasX = (x1: number) => ((x1 + 3) / 6) * w;
     const toCanvasY = (x2: number) => ((2.5 - x2) / 5) * h;
 
-    // Only show decision boundary and data points for logistic regression
-    const problem = getCurrentProblem();
-    const showDataVisualization = problem.requiresDataset && currentProblem === 'logistic-regression';
-
-    if (showDataVisualization) {
-      if (currentIter) {
-        // Draw decision boundary from current algorithm
-        const [w0, w1, w2] = currentIter.wNew;
-        if (Math.abs(w1) > 1e-6) {
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          for (let x1 = -3; x1 <= 3; x1 += 0.1) {
-            const x2 = -(w0 * x1 + w2) / w1;
-            const cx = toCanvasX(x1);
-            const cy = toCanvasY(x2);
-            if (x1 === -3) ctx.moveTo(cx, cy);
-            else ctx.lineTo(cx, cy);
-          }
-          ctx.stroke();
-        }
-      }
-
-      // Draw points (whether or not we have iterations)
-      for (const point of data) {
-        const cx = toCanvasX(point.x1);
-        const cy = toCanvasY(point.x2);
-        const isCustom = customPoints.includes(point);
-        ctx.fillStyle = point.y === 0 ? '#ef4444' : '#3b82f6';
+    // Draw decision boundary only for logistic regression
+    if (currentProblem === 'logistic-regression' && currentIter) {
+      const [w0, w1, w2] = currentIter.wNew;
+      if (Math.abs(w1) > 1e-6) {
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(cx, cy, isCustom ? 6 : 4, 0, 2 * Math.PI);
-        ctx.fill();
-        if (isCustom) {
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
+        for (let x1 = -3; x1 <= 3; x1 += 0.1) {
+          const x2 = -(w0 * x1 + w2) / w1;
+          const cx = toCanvasX(x1);
+          const cy = toCanvasY(x2);
+          if (x1 === -3) ctx.moveTo(cx, cy);
+          else ctx.lineTo(cx, cy);
         }
+        ctx.stroke();
       }
-    } else {
-      // For non-dataset problems, show a message
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '14px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Pure optimization problem', w / 2, h / 2 - 10);
-      ctx.fillText('(no dataset visualization)', w / 2, h / 2 + 10);
+    }
+
+    // Always draw data points for visual reference
+    for (const point of data) {
+      const cx = toCanvasX(point.x1);
+      const cy = toCanvasY(point.x2);
+      const isCustom = customPoints.includes(point);
+      ctx.fillStyle = point.y === 0 ? '#ef4444' : '#3b82f6';
+      ctx.beginPath();
+      ctx.arc(cx, cy, isCustom ? 6 : 4, 0, 2 * Math.PI);
+      ctx.fill();
+      if (isCustom) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
     }
 
     // Draw axes
