@@ -14,6 +14,12 @@ import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
+// @ts-expect-error - Will be used in Task 3+
+import { getExperimentsForAlgorithm } from './experiments';
+// @ts-expect-error - Will be used in Task 3+
+import { getProblem } from './problems';
+// @ts-expect-error - Will be used in Task 3+
+import type { ExperimentPreset } from './types/experiments';
 
 type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
@@ -45,6 +51,12 @@ const UnifiedVisualizer = () => {
   const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
+
+  // Experiment state
+  // @ts-expect-error - Will be used in Task 3+
+  const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
+  // @ts-expect-error - Will be used in Task 3+
+  const [experimentLoading, setExperimentLoading] = useState(false);
 
   const data = [...baseData, ...customPoints];
 
