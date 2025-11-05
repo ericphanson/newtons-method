@@ -19,11 +19,12 @@ import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithm
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
+import { ProblemExplainer } from './components/ProblemExplainer';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
-type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+type Algorithm = 'problems' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
 const LoadingSpinner = () => (
   <svg
@@ -1407,6 +1408,16 @@ const UnifiedVisualizer = () => {
       <div className="bg-white rounded-lg shadow-md mb-6">
         <div className="flex border-b border-gray-200">
           <button
+            onClick={() => setSelectedTab('problems')}
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
+              selectedTab === 'problems'
+                ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            Problems
+          </button>
+          <button
             onClick={() => setSelectedTab('gd-fixed')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'gd-fixed'
@@ -1449,6 +1460,10 @@ const UnifiedVisualizer = () => {
         </div>
 
         <div className="p-6">
+          {selectedTab === 'problems' ? (
+            <ProblemExplainer />
+          ) : (
+            <>
           {/* Algorithm-specific hyperparameters and controls */}
           <div className="mb-6 flex justify-between items-center">
             <div className="flex gap-4">
@@ -4155,6 +4170,8 @@ const UnifiedVisualizer = () => {
                 )}
               </div>
             </>
+          )}
+          </>
           )}
         </div>
       </div>
