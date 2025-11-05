@@ -484,7 +484,7 @@ const UnifiedVisualizer = () => {
   // Draw shared data space
   useEffect(() => {
     const canvas = dataCanvasRef.current;
-    if (!canvas || !currentIter) return;
+    if (!canvas) return;
 
     const { ctx, width: w, height: h } = setupCanvas(canvas);
     ctx.fillStyle = '#ffffff';
@@ -498,23 +498,25 @@ const UnifiedVisualizer = () => {
     const showDataVisualization = problem.requiresDataset && currentProblem === 'logistic-regression';
 
     if (showDataVisualization) {
-      // Draw decision boundary from current algorithm
-      const [w0, w1, w2] = currentIter.wNew;
-      if (Math.abs(w1) > 1e-6) {
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        for (let x1 = -3; x1 <= 3; x1 += 0.1) {
-          const x2 = -(w0 * x1 + w2) / w1;
-          const cx = toCanvasX(x1);
-          const cy = toCanvasY(x2);
-          if (x1 === -3) ctx.moveTo(cx, cy);
-          else ctx.lineTo(cx, cy);
+      if (currentIter) {
+        // Draw decision boundary from current algorithm
+        const [w0, w1, w2] = currentIter.wNew;
+        if (Math.abs(w1) > 1e-6) {
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          for (let x1 = -3; x1 <= 3; x1 += 0.1) {
+            const x2 = -(w0 * x1 + w2) / w1;
+            const cx = toCanvasX(x1);
+            const cy = toCanvasY(x2);
+            if (x1 === -3) ctx.moveTo(cx, cy);
+            else ctx.lineTo(cx, cy);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
-      // Draw points
+      // Draw points (whether or not we have iterations)
       for (const point of data) {
         const cx = toCanvasX(point.x1);
         const cy = toCanvasY(point.x2);
@@ -1248,8 +1250,6 @@ const UnifiedVisualizer = () => {
     ctx.restore();
   }, [gdLSIterations, gdLSCurrentIter, gdLSC1, selectedTab]);
 
-  if (!currentIter) return <div className="p-6">Loading...</div>;
-
   const currentIterNum = selectedTab === 'gd-fixed' ? gdFixedCurrentIter :
                         selectedTab === 'gd-linesearch' ? gdLSCurrentIter :
                         selectedTab === 'newton' ? newtonCurrentIter : lbfgsCurrentIter;
@@ -1585,15 +1585,24 @@ const UnifiedVisualizer = () => {
           </div>
 
           {/* Current State */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-bold mb-3">Iteration {currentIter.iter} / {totalIters - 1}</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><strong>Loss:</strong> {fmt(currentIter.newLoss)}</div>
-              <div><strong>Gradient norm:</strong> {fmt(currentIter.gradNorm)}</div>
-              <div><strong>Weights:</strong> {fmtVec(currentIter.wNew)}</div>
-              <div><strong>Step size <InlineMath>\alpha</InlineMath>:</strong> {fmt(currentIter.alpha)}</div>
+          {currentIter ? (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-bold mb-3">Iteration {currentIter.iter} / {totalIters - 1}</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><strong>Loss:</strong> {fmt(currentIter.newLoss)}</div>
+                <div><strong>Gradient norm:</strong> {fmt(currentIter.gradNorm)}</div>
+                <div><strong>Weights:</strong> {fmtVec(currentIter.wNew)}</div>
+                <div><strong>Step size <InlineMath>\alpha</InlineMath>:</strong> {fmt(currentIter.alpha)}</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-bold mb-2 text-yellow-800">No iterations yet</h3>
+              <p className="text-sm text-yellow-700">
+                Click the "Step" button or use the arrow keys to run the optimization algorithm.
+              </p>
+            </div>
+          )}
 
           {/* Algorithm-specific visualizations */}
           {selectedTab === 'gd-fixed' ? (
