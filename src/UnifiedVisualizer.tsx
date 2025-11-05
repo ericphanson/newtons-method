@@ -84,7 +84,6 @@ const UnifiedVisualizer = () => {
 
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
-  const [showProblemSwitcher, setShowProblemSwitcher] = useState(false);
   const [visualizationBounds, setVisualizationBounds] = useState({
     w0: [-3, 3] as [number, number],
     w1: [-3, 3] as [number, number],
@@ -313,7 +312,6 @@ const UnifiedVisualizer = () => {
       // 3. Switch problem if needed
       if (experiment.problem !== 'logistic-regression') {
         setCurrentProblem(experiment.problem);
-        setShowProblemSwitcher(true);
 
         const problem = getProblem(experiment.problem);
         if (problem) {
@@ -322,7 +320,6 @@ const UnifiedVisualizer = () => {
         }
       } else {
         setCurrentProblem('logistic-regression');
-        setShowProblemSwitcher(false);
       }
 
       // 4. Load custom dataset if provided
@@ -362,7 +359,6 @@ const UnifiedVisualizer = () => {
     setLambda(cfg.lambda);
     setLbfgsM(cfg.lbfgsM);
     setCurrentExperiment(null);
-    setShowProblemSwitcher(false);
     setGdFixedCurrentIter(0);
     setGdLSCurrentIter(0);
     setNewtonCurrentIter(0);
@@ -1305,6 +1301,69 @@ const UnifiedVisualizer = () => {
             />
           </div>
           <div className="w-64 space-y-4">
+            {/* Problem Switcher */}
+            <div>
+              <h3 className="font-bold text-gray-800 mb-2">Problem Type</h3>
+              <select
+                value={currentProblem}
+                onChange={(e) => {
+                  const newProblem = e.target.value;
+                  setCurrentProblem(newProblem);
+
+                  // Reset algorithm state when problem changes
+                  setGdFixedCurrentIter(0);
+                  setGdFixedIterations([]);
+                  setGdLSCurrentIter(0);
+                  setGdLSIterations([]);
+                  setNewtonCurrentIter(0);
+                  setNewtonIterations([]);
+                  setLbfgsCurrentIter(0);
+                  setLbfgsIterations([]);
+
+                  // Get problem info and update bounds
+                  let problemName = 'Logistic Regression';
+                  if (newProblem !== 'logistic-regression') {
+                    const problem = getProblem(newProblem);
+                    if (problem) {
+                      problemName = problem.name;
+                      console.log('Switched to:', problem.name, 'Domain:', problem.domain);
+                      // Update visualization bounds based on problem domain
+                      if (problem.domain) {
+                        setVisualizationBounds({
+                          w0: problem.domain.w0,
+                          w1: problem.domain.w1,
+                        });
+                      }
+                    }
+                  } else {
+                    // Reset to default bounds for logistic regression
+                    setVisualizationBounds({
+                      w0: [-3, 3],
+                      w1: [-3, 3],
+                    });
+                  }
+
+                  // Show notification
+                  setToast({
+                    message: `Switched to: ${problemName}`,
+                    type: 'info'
+                  });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
+              >
+                <option value="logistic-regression">Logistic Regression</option>
+                <option value="quadratic">Quadratic Bowl</option>
+                <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
+                <option value="rosenbrock">Rosenbrock Function</option>
+                <option value="non-convex-saddle">Saddle Point</option>
+              </select>
+              <p className="text-xs text-gray-600 mt-1">
+                {currentProblem === 'logistic-regression'
+                  ? 'Classification with dataset'
+                  : 'Pure optimization problem'}
+              </p>
+            </div>
+
             <div>
               <h3 className="font-bold text-gray-800 mb-2">Regularization (<InlineMath>\lambda</InlineMath>)</h3>
               <input
@@ -1346,71 +1405,6 @@ const UnifiedVisualizer = () => {
           </div>
         </div>
       </div>
-
-      {/* Problem Switcher */}
-      {showProblemSwitcher && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">Problem Type</h3>
-          <select
-            value={currentProblem}
-            onChange={(e) => {
-              const newProblem = e.target.value;
-              setCurrentProblem(newProblem);
-
-              // Reset algorithm state when problem changes
-              setGdFixedCurrentIter(0);
-              setGdFixedIterations([]);
-              setGdLSCurrentIter(0);
-              setGdLSIterations([]);
-              setNewtonCurrentIter(0);
-              setNewtonIterations([]);
-              setLbfgsCurrentIter(0);
-              setLbfgsIterations([]);
-
-              // Get problem info and update bounds
-              let problemName = 'Logistic Regression';
-              if (newProblem !== 'logistic-regression') {
-                const problem = getProblem(newProblem);
-                if (problem) {
-                  problemName = problem.name;
-                  console.log('Switched to:', problem.name, 'Domain:', problem.domain);
-                  // Update visualization bounds based on problem domain
-                  if (problem.domain) {
-                    setVisualizationBounds({
-                      w0: problem.domain.w0,
-                      w1: problem.domain.w1,
-                    });
-                  }
-                }
-              } else {
-                // Reset to default bounds for logistic regression
-                setVisualizationBounds({
-                  w0: [-3, 3],
-                  w1: [-3, 3],
-                });
-              }
-
-              // Show notification
-              setToast({
-                message: `Switched to: ${problemName}`,
-                type: 'info'
-              });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="logistic-regression">Logistic Regression (current)</option>
-            <option value="quadratic">Quadratic Bowl</option>
-            <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
-            <option value="rosenbrock">Rosenbrock Function</option>
-            <option value="non-convex-saddle">Saddle Point</option>
-          </select>
-          <p className="text-xs text-gray-600 mt-2">
-            {currentProblem === 'logistic-regression'
-              ? 'Classification problem with dataset visualization'
-              : 'Pure optimization problem (no dataset)'}
-          </p>
-        </div>
-      )}
 
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
