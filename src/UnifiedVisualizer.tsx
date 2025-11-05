@@ -1652,139 +1652,514 @@ const UnifiedVisualizer = () => {
             </>
           ) : selectedTab === 'gd-linesearch' ? (
             <>
-              {/* GD Line Search - Why This Algorithm? */}
-              <div className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-2xl font-bold text-blue-900 mb-4">Gradient Descent (Line Search)</h2>
-                <p className="text-gray-800 text-lg">
-                  Adaptive step size selection: choose α dynamically at each iteration to ensure sufficient decrease.
-                </p>
-              </div>
-
+              {/* Quick Start */}
               <CollapsibleSection
-                title="The Problem with Fixed Step Size"
+                title="Quick Start"
                 defaultExpanded={true}
-                storageKey="gd-ls-problem"
+                storageKey="gd-ls-quick-start"
               >
-                <div className="space-y-3 text-gray-800">
-                  <p><strong>Fixed α has a dilemma:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-2">
-                    <li>Early iterations: Far from minimum, could take large steps → α should be big</li>
-                    <li>Late iterations: Near minimum, need precision → α should be small</li>
-                    <li>One fixed α can't be optimal throughout!</li>
-                  </ul>
-                  <p className="mt-4"><strong>Additional problem: α depends on the problem</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>Changing λ (regularization) changes the landscape steepness</li>
-                    <li>Adding data points changes the loss function</li>
-                    <li>What worked before might not work now</li>
-                  </ul>
-                </div>
-              </CollapsibleSection>
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Idea</h3>
+                    <p>
+                      Instead of using a fixed step size <InlineMath>\alpha</InlineMath>, automatically
+                      search for a good step size at each iteration. This makes the algorithm{' '}
+                      <strong>robust and efficient</strong> across different problems.
+                    </p>
+                  </div>
 
-              <CollapsibleSection
-                title="Line Search: Adaptive Step Sizes"
-                defaultExpanded={true}
-                storageKey="gd-ls-idea"
-              >
-                <div className="space-y-3 text-gray-800">
-                  <p><strong>Idea:</strong> Choose α dynamically at each iteration</p>
-                  <div className="bg-blue-200 rounded p-4 mt-3">
-                    <p className="font-bold">At iteration k:</p>
-                    <ol className="list-decimal list-inside mt-2 space-y-1">
-                      <li>Compute search direction: p = -∇f(w⁽ᵏ⁾)</li>
-                      <li>Find good step size: α_k = lineSearch(w⁽ᵏ⁾, p)</li>
-                      <li>Update: w⁽ᵏ⁺¹⁾ = w⁽ᵏ⁾ + α_k·p</li>
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">The Algorithm</h3>
+                    <ol className="list-decimal ml-6 space-y-1">
+                      <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
+                      <li>Set search direction <InlineMath>p = -\nabla f(w)</InlineMath></li>
+                      <li>
+                        <strong>Line search:</strong> find step size <InlineMath>\alpha</InlineMath> that
+                        decreases loss sufficiently
+                      </li>
+                      <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
+                      <li>Repeat until convergence</li>
                     </ol>
                   </div>
-                  <p className="mt-3"><strong>Question:</strong> What makes a step size "good"?</p>
-                  <p><strong>Answer:</strong> Sufficient decrease in loss (Armijo condition)</p>
-                </div>
-              </CollapsibleSection>
 
-              <CollapsibleSection
-                title="The Algorithm"
-                defaultExpanded={true}
-                storageKey="gd-ls-algorithm"
-              >
-                <div className="space-y-3 text-gray-800">
-                  <div className="bg-blue-100 rounded p-4">
-                    <p className="font-bold">Main Loop:</p>
-                    <ol className="list-decimal list-inside mt-2 space-y-1">
-                      <li>Compute gradient: g = ∇f(w)</li>
-                      <li>Set search direction: p = -g</li>
-                      <li>Perform line search: α = armijoLineSearch(w, p, g)</li>
-                      <li>Update: w_new = w + α·p</li>
-                      <li>Repeat until ||g|| &lt; ε</li>
-                    </ol>
-                  </div>
-                  <div className="bg-blue-100 rounded p-4 mt-3">
-                    <p className="font-bold">Armijo Line Search (backtracking):</p>
-                    <p className="mt-2">Input: w, p, g, f(w), c₁</p>
-                    <ol className="list-decimal list-inside mt-2 space-y-1">
-                      <li>Start with α = 1</li>
-                      <li>While f(w + αp) &gt; f(w) + c₁·α·(gᵀp):</li>
-                      <li className="ml-6">α ← α/2</li>
-                      <li>Return α</li>
-                    </ol>
-                  </div>
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection
-                title="Armijo Condition (The Rule)"
-                defaultExpanded={false}
-                storageKey="gd-ls-armijo"
-              >
-                <div className="space-y-3 text-gray-800 font-mono text-sm">
-                  <p className="font-bold">Accept α if it satisfies:</p>
-                  <p>f(w + α·p) ≤ f(w) + c₁·α·(∇f(w)ᵀp)</p>
-                  <div className="mt-4 font-sans">
-                    <p className="font-bold">Interpretation:</p>
-                    <ul className="list-disc list-inside ml-4 space-y-2">
-                      <li>Left side: Actual loss after taking step</li>
-                      <li>Right side: Expected loss from linear approximation + safety margin</li>
-                      <li>c₁ ∈ (0, 1): How much decrease we demand (typically 10⁻⁴)</li>
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Key Advantage</h3>
+                    <p>
+                      <strong>No manual tuning</strong> of step size needed. The line search
+                      automatically adapts to:
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Problem scaling and curvature</li>
+                      <li>Changes in landscape across iterations</li>
+                      <li>Different regions of parameter space</li>
                     </ul>
-                    <p className="mt-3">Smaller c₁ → accept steps more easily (less picky)</p>
-                    <p className="mt-3">Larger c₁ → demand more decrease (more picky)</p>
-                    <p className="mt-3">The condition ensures sufficient decrease without being too greedy.
-                    We don't need the absolute best α, just a good-enough α that reduces loss adequately.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">When to Use</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>When you want robust optimization without tuning</li>
+                      <li>Problems with varying curvature</li>
+                      <li>When step size selection is difficult</li>
+                      <li>Production systems where reliability matters</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-teal-100 rounded p-3">
+                    <p className="font-bold text-sm">Tradeoff:</p>
+                    <p className="text-sm">
+                      Each iteration costs more (multiple gradient evaluations for line search),
+                      but fewer total iterations needed. Usually worth it for reliable convergence.
+                    </p>
                   </div>
                 </div>
               </CollapsibleSection>
 
+              {/* Visual Guide */}
               <CollapsibleSection
-                title="Line Search Visualization"
+                title="Visual Guide"
                 defaultExpanded={true}
-                storageKey="gd-ls-viz"
+                storageKey="gd-ls-visual-guide"
               >
-                <div className="space-y-3 text-gray-800">
-                  <p><strong>The plot shows:</strong></p>
-                  <ul className="list-disc list-inside ml-4 space-y-2">
-                    <li>X-axis: Step size α we're testing</li>
-                    <li>Y-axis: Loss value f(w + α·p)</li>
-                    <li>Blue curve: Actual loss along the search direction</li>
-                    <li>Orange dashed line: Armijo condition boundary</li>
-                    <li>Red dots: Step sizes that were rejected (not enough decrease)</li>
-                    <li>Green dot: Accepted step size (satisfies Armijo)</li>
-                  </ul>
-                  <p className="mt-3">Watch how the algorithm tries α, rejects it, tries smaller α,
-                  until it finds one that gives sufficient decrease.</p>
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Parameter Space</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Trajectory shows <strong>adaptive step sizes</strong> changing iteration-to-iteration</li>
+                      <li>Large steps when far from minimum, small steps when close</li>
+                      <li>Direction is always <InlineMath>-\nabla f</InlineMath> (steepest descent)</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Line Search Panel</h3>
+                    <p>Shows loss <InlineMath>f(w + \alpha p)</InlineMath> as function of step size <InlineMath>\alpha</InlineMath>:</p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Blue curve:</strong> actual loss along search direction</li>
+                      <li><strong>Orange dashed line:</strong> Armijo condition boundary</li>
+                      <li><strong>Red dots:</strong> rejected steps (insufficient decrease)</li>
+                      <li><strong>Green dot:</strong> accepted step (satisfies Armijo)</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">What to Watch</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Number of backtracking steps varies by iteration</li>
+                      <li>Early iterations may need more backtracking (landscape unfamiliar)</li>
+                      <li>Near minimum, often accepts larger steps (landscape smoother)</li>
+                    </ul>
+                  </div>
                 </div>
               </CollapsibleSection>
 
+              {/* Line Search Details */}
+              <CollapsibleSection
+                title="Line Search Details"
+                defaultExpanded={true}
+                storageKey="gd-ls-line-search-details"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Why Line Search for Gradient Descent</h3>
+                    <p>
+                      Fixed step size <InlineMath>\alpha</InlineMath> fails when landscape has
+                      varying curvature:
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 mt-2">
+                      <li>
+                        <strong>Steep regions:</strong> need small <InlineMath>\alpha</InlineMath> to
+                        avoid overshooting
+                      </li>
+                      <li>
+                        <strong>Flat regions:</strong> can use large <InlineMath>\alpha</InlineMath> for
+                        faster progress
+                      </li>
+                      <li>
+                        <strong>Curvature changes:</strong> optimal <InlineMath>\alpha</InlineMath> varies
+                        across iterations
+                      </li>
+                    </ul>
+                    <p className="text-sm mt-2">
+                      <strong>Line search adapts automatically,</strong> making gradient descent both
+                      robust and efficient.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Current Method: Armijo Backtracking</h3>
+                    <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
+                    <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>c_1 = </InlineMath>{gdLSC1.toFixed(4)} controls how much
+                      decrease we require.
+                    </p>
+
+                    <div className="mt-3">
+                      <p className="font-semibold">Backtracking Algorithm:</p>
+                      <ol className="list-decimal ml-6 space-y-1 text-sm">
+                        <li>
+                          Start with <InlineMath>\alpha = 1</InlineMath> (or previous iteration's value)
+                        </li>
+                        <li>Check if Armijo condition satisfied</li>
+                        <li>If yes → accept <InlineMath>\alpha</InlineMath></li>
+                        <li>If no → reduce <InlineMath>\alpha \leftarrow 0.5\alpha</InlineMath> and repeat</li>
+                      </ol>
+                    </div>
+
+                    <div className="mt-3 bg-teal-50 rounded p-3">
+                      <p className="font-semibold text-sm mb-2">Understanding c₁:</p>
+                      <ul className="text-sm list-disc ml-6">
+                        <li>
+                          <strong>c₁ too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
+                        </li>
+                        <li>
+                          <strong>c₁ good</strong> (e.g., 0.0001): balances quality and efficiency
+                        </li>
+                        <li>
+                          <strong>c₁ too large</strong> (e.g., 0.5): too conservative, tiny steps
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-100 rounded p-3">
+                    <p className="font-bold text-sm mb-2">Other Line Search Methods</p>
+                    <p className="text-sm">
+                      <strong>Wolfe conditions:</strong> Add curvature condition for better theoretical properties<br/>
+                      <strong>Goldstein conditions:</strong> Alternative sufficient decrease criterion<br/>
+                      <strong>Exact line search:</strong> Minimize along line (expensive, rarely used)
+                    </p>
+                    <p className="text-xs mt-2 italic">
+                      Armijo backtracking is simple, fast, and works well in practice.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Try This */}
               <CollapsibleSection
                 title="Try This"
-                defaultExpanded={false}
-                storageKey="gd-ls-try"
+                defaultExpanded={true}
+                storageKey="gd-ls-try-this"
               >
-                <div className="space-y-2 text-gray-800">
-                  <ul className="list-disc list-inside space-y-2">
-                    <li>Set c₁ = 10⁻⁵ (very lenient): Accepts larger steps, fewer backtracks</li>
-                    <li>Set c₁ = 0.1 (strict): Demands more decrease, more backtracks</li>
-                    <li>Compare convergence speed with GD Fixed Step tab</li>
-                    <li>Add data points: Watch line search adapt automatically</li>
-                  </ul>
+                <div className="space-y-3">
+                  <p className="text-gray-800 mb-4">
+                    See how line search automatically adapts to different situations:
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="border border-teal-200 rounded p-3 bg-teal-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-teal-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-teal-900">Success: Automatic Adaptation</p>
+                          <p className="text-sm text-gray-700">
+                            Line search finds good steps without manual tuning
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Step size varies, always makes progress
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-blue-900">Compare: Fixed vs Adaptive</p>
+                          <p className="text-sm text-gray-700">
+                            Same problem with fixed α vs line search
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Line search more robust and efficient
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-orange-200 rounded p-3 bg-orange-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-orange-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-orange-900">Failure: c₁ Too Small</p>
+                          <p className="text-sm text-gray-700">
+                            c₁=0.00001 accepts poor steps, slow convergence
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Many backtracking steps, minimal progress
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-red-200 rounded p-3 bg-red-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-red-900">Failure: c₁ Too Large</p>
+                          <p className="text-sm text-gray-700">
+                            c₁=0.5 is too conservative, rejects good steps
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Tiny steps, very slow progress
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-purple-900">Advantage: Varying Curvature</p>
+                          <p className="text-sm text-gray-700">
+                            Landscape with dramatic curvature changes (Rosenbrock)
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Adapts to narrow valley where fixed α fails
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-4">
+                    Note: One-click experiment loading coming soon!
+                  </p>
+                </div>
+              </CollapsibleSection>
+
+              {/* When Things Go Wrong */}
+              <CollapsibleSection
+                title="When Things Go Wrong"
+                defaultExpanded={false}
+                storageKey="gd-ls-when-wrong"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800 mb-2">Common Misconceptions</h3>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-semibold">❌ "Line search is always better than fixed step"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Costs more per iteration (multiple gradient evaluations)<br/>
+                          ✓ For very cheap gradients, fixed step may be faster overall<br/>
+                          ✓ Tradeoff: fewer iterations vs cost per iteration
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "Line search guarantees fast convergence"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Still subject to problem conditioning<br/>
+                          ✓ Gradient descent is fundamentally first-order (doesn't use curvature)<br/>
+                          ✓ Newton or L-BFGS will be faster for well-conditioned problems
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "Any line search condition works"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Armijo alone doesn't prevent arbitrarily small steps<br/>
+                          ✓ Wolfe conditions (Armijo + curvature) have better theory<br/>
+                          ✓ In practice, Armijo backtracking works well for most problems
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
+                    <p className="mb-2">Same as fixed step gradient descent:</p>
+                    <ul className="space-y-2">
+                      <li>
+                        <strong>Strongly convex:</strong> Linear convergence, line search improves constant
+                      </li>
+                      <li>
+                        <strong>Convex:</strong> Converges to global minimum
+                      </li>
+                      <li>
+                        <strong>Non-convex:</strong> May converge to local minima, line search helps stability
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Too many backtracking steps</strong> → c₁ too large, decrease it
+                      </li>
+                      <li>
+                        <strong>Slow progress</strong> → c₁ too small, increase it (or use better algorithm)
+                      </li>
+                      <li>
+                        <strong>Still diverging</strong> → gradient computation bug, check implementation
+                      </li>
+                      <li>
+                        <strong>Expensive per iteration</strong> → gradient evaluation is costly,
+                        consider limited memory methods
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Mathematical Derivations */}
+              <CollapsibleSection
+                title="Mathematical Derivations"
+                defaultExpanded={false}
+                storageKey="gd-ls-math-derivations"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Armijo Condition Proof</h3>
+                    <p>The Armijo condition ensures sufficient decrease:</p>
+                    <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+                    <p className="text-sm mt-2">
+                      For descent direction <InlineMath>p = -\nabla f</InlineMath>, we have{' '}
+                      <InlineMath>\nabla f^T p &lt; 0</InlineMath>, so the right side decreases
+                      with <InlineMath>\alpha</InlineMath>.
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Guarantees:</strong> Backtracking terminates in finite steps (by Taylor expansion).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
+                    <p>For L-smooth functions:</p>
+                    <BlockMath>
+                      {'f(w + \\alpha p) \\leq f(w) + \\alpha \\nabla f^T p + \\frac{L\\alpha^2}{2}\\|p\\|^2'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      This bounds how much f can increase along direction p, guaranteeing
+                      backtracking finds acceptable step.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Why Backtracking Terminates</h3>
+                    <p>By Taylor expansion around <InlineMath>w</InlineMath>:</p>
+                    <BlockMath>
+                      f(w + \alpha p) = f(w) + \alpha \nabla f^T p + O(\alpha^2)
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      For small enough <InlineMath>\alpha</InlineMath>, the{' '}
+                      <InlineMath>O(\alpha^2)</InlineMath> term is negligible, so:
+                    </p>
+                    <BlockMath>
+                      f(w + \alpha p) \approx f(w) + \alpha \nabla f^T p &lt; f(w) + c_1 \alpha \nabla f^T p
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      Since <InlineMath>c_1 &lt; 1</InlineMath> and{' '}
+                      <InlineMath>\nabla f^T p &lt; 0</InlineMath>, Armijo condition satisfied.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Advanced Topics */}
+              <CollapsibleSection
+                title="Advanced Topics"
+                defaultExpanded={false}
+                storageKey="gd-ls-advanced"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Wolfe Conditions</h3>
+                    <p>Stronger than Armijo, adds curvature condition:</p>
+                    <div className="mt-2">
+                      <p className="font-semibold text-sm">1. Sufficient decrease (Armijo):</p>
+                      <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+                    </div>
+                    <div className="mt-2">
+                      <p className="font-semibold text-sm">2. Curvature condition:</p>
+                      <BlockMath>\nabla f(w + \alpha p)^T p \geq c_2 \nabla f^T p</BlockMath>
+                    </div>
+                    <p className="text-sm mt-2">
+                      Typical: <InlineMath>c_1 = 0.0001</InlineMath>, <InlineMath>c_2 = 0.9</InlineMath>.
+                      Ensures step isn't too small.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Strong Wolfe Conditions</h3>
+                    <p>Replace curvature condition with:</p>
+                    <BlockMath>|\nabla f(w + \alpha p)^T p| \leq c_2 |\nabla f^T p|</BlockMath>
+                    <p className="text-sm mt-2">
+                      Prevents steps where curvature increases too much.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Goldstein Conditions</h3>
+                    <p>Alternative to Armijo with upper and lower bounds:</p>
+                    <BlockMath>
+                      {'f(w) + (1-c)\\alpha \\nabla f^T p \\leq f(w + \\alpha p) \\leq f(w) + c\\alpha \\nabla f^T p'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      Less commonly used than Wolfe conditions.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Line Search Method Comparison</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm border">
+                        <thead className="bg-purple-100">
+                          <tr>
+                            <th className="border p-2">Method</th>
+                            <th className="border p-2">Cost</th>
+                            <th className="border p-2">Theory</th>
+                            <th className="border p-2">Use Case</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="border p-2"><strong>Armijo</strong></td>
+                            <td className="border p-2">Low</td>
+                            <td className="border p-2">Good</td>
+                            <td className="border p-2">General purpose</td>
+                          </tr>
+                          <tr>
+                            <td className="border p-2"><strong>Wolfe</strong></td>
+                            <td className="border p-2">Medium</td>
+                            <td className="border p-2">Better</td>
+                            <td className="border p-2">Quasi-Newton methods</td>
+                          </tr>
+                          <tr>
+                            <td className="border p-2"><strong>Strong Wolfe</strong></td>
+                            <td className="border p-2">Medium</td>
+                            <td className="border p-2">Best</td>
+                            <td className="border p-2">BFGS, L-BFGS</td>
+                          </tr>
+                          <tr>
+                            <td className="border p-2"><strong>Exact</strong></td>
+                            <td className="border p-2">Very high</td>
+                            <td className="border p-2">Optimal</td>
+                            <td className="border p-2">Rarely practical</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Cost Analysis</h3>
+                    <p className="mb-2"><strong>Per iteration cost:</strong></p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>Fixed step: 1 gradient evaluation</li>
+                      <li>Armijo backtracking: 1-10 gradient evaluations (average ~2-3)</li>
+                      <li>Wolfe conditions: 2-15 gradient evaluations</li>
+                    </ul>
+                    <p className="text-sm mt-2">
+                      <strong>Total cost:</strong> Line search usually wins by reducing total iterations.
+                    </p>
+                  </div>
                 </div>
               </CollapsibleSection>
 
