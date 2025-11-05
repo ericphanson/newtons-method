@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
 import {
   DataPoint,
@@ -94,7 +94,7 @@ const UnifiedVisualizer = () => {
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const data = [...baseData, ...customPoints];
+  const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
   // Get current problem definition (logistic regression or from registry)
   const getCurrentProblem = useCallback(() => {
@@ -397,7 +397,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Fixed error:', error);
       setGdFixedIterations([]);
     }
-  }, [currentProblem, lambda, gdFixedAlpha, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdFixedAlpha]);
 
   useEffect(() => {
     try {
@@ -414,7 +414,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Line Search error:', error);
       setGdLSIterations([]);
     }
-  }, [currentProblem, lambda, gdLSC1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdLSC1]);
 
   useEffect(() => {
     try {
@@ -431,7 +431,7 @@ const UnifiedVisualizer = () => {
       console.error('Newton error:', error);
       setNewtonIterations([]);
     }
-  }, [currentProblem, lambda, newtonC1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, newtonC1]);
 
   useEffect(() => {
     try {
@@ -449,7 +449,7 @@ const UnifiedVisualizer = () => {
       console.error('L-BFGS error:', error);
       setLbfgsIterations([]);
     }
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM]);
 
   // Get current algorithm's iteration
   const getCurrentIter = () => {
