@@ -1483,23 +1483,12 @@ const UnifiedVisualizer = () => {
         )}
       </div>
 
-      {/* Shared Data Space */}
+      {/* Problem Switcher - Always Visible */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Data Space</h2>
-        <div className="flex gap-6">
-          <div className="flex-1">
-            <canvas
-              ref={dataCanvasRef}
-              style={{width: '500px', height: '400px', cursor: addPointMode ? 'crosshair' : 'default'}}
-              className="border border-gray-300 rounded"
-              onClick={handleCanvasClick}
-            />
-          </div>
-          <div className="w-64 space-y-4">
-            {/* Problem Switcher */}
-            <div>
-              <h3 className="font-bold text-gray-800 mb-2">Problem Type</h3>
-              <select
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Problem Selection</h2>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Current Problem</label>
+          <select
                 value={currentProblem}
                 onChange={(e) => {
                   const newProblem = e.target.value;
@@ -1551,54 +1540,70 @@ const UnifiedVisualizer = () => {
                 <option value="rosenbrock">Rosenbrock Function</option>
                 <option value="non-convex-saddle">Saddle Point</option>
               </select>
-              <p className="text-xs text-gray-600 mt-1">
-                {currentProblem === 'logistic-regression'
-                  ? 'Classification with dataset'
-                  : 'Pure optimization problem'}
-              </p>
-            </div>
+          <p className="text-xs text-gray-600 mt-1">
+            {currentProblem === 'logistic-regression'
+              ? 'Classification with dataset - problem is parametrized by the data points'
+              : 'Pure mathematical optimization - problem defined by objective function'}
+          </p>
+        </div>
+      </div>
 
-            <div>
-              <h3 className="font-bold text-gray-800 mb-2">Regularization (<InlineMath>\lambda</InlineMath>)</h3>
-              <input
-                type="range"
-                min="-6"
-                max="-2"
-                step="0.1"
-                value={Math.log10(lambda)}
-                onChange={(e) => setLambda(Math.pow(10, parseFloat(e.target.value)))}
-                className="w-full"
+      {/* Data Space - Only for Logistic Regression */}
+      {currentProblem === 'logistic-regression' && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Data Space (Dataset Parametrization)</h2>
+          <div className="flex gap-6">
+            <div className="flex-1">
+              <canvas
+                ref={dataCanvasRef}
+                style={{width: '500px', height: '400px', cursor: addPointMode ? 'crosshair' : 'default'}}
+                className="border border-gray-300 rounded"
+                onClick={handleCanvasClick}
               />
-              <span className="text-sm"><InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}</span>
             </div>
-            <div>
-              <h3 className="font-bold text-gray-800 mb-2">Add Points</h3>
-              <div className="flex gap-2 flex-col">
-                <button
-                  onClick={() => setAddPointMode(addPointMode === 1 ? 0 : 1)}
-                  className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 1 ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800'}`}
-                >
-                  {addPointMode === 1 ? '✓' : '+'} Class 0
-                </button>
-                <button
-                  onClick={() => setAddPointMode(addPointMode === 2 ? 0 : 2)}
-                  className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 2 ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'}`}
-                >
-                  {addPointMode === 2 ? '✓' : '+'} Class 1
-                </button>
-                {customPoints.length > 0 && (
+            <div className="w-64 space-y-4">
+              <div>
+                <h3 className="font-bold text-gray-800 mb-2">Regularization (<InlineMath>\lambda</InlineMath>)</h3>
+                <input
+                  type="range"
+                  min="-6"
+                  max="-2"
+                  step="0.1"
+                  value={Math.log10(lambda)}
+                  onChange={(e) => setLambda(Math.pow(10, parseFloat(e.target.value)))}
+                  className="w-full"
+                />
+                <span className="text-sm"><InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800 mb-2">Add Points</h3>
+                <div className="flex gap-2 flex-col">
                   <button
-                    onClick={() => setCustomPoints([])}
-                    className="px-3 py-2 bg-gray-200 rounded-lg text-sm"
+                    onClick={() => setAddPointMode(addPointMode === 1 ? 0 : 1)}
+                    className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 1 ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800'}`}
                   >
-                    Clear ({customPoints.length})
+                    {addPointMode === 1 ? '✓' : '+'} Class 0
                   </button>
-                )}
+                  <button
+                    onClick={() => setAddPointMode(addPointMode === 2 ? 0 : 2)}
+                    className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 2 ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'}`}
+                  >
+                    {addPointMode === 2 ? '✓' : '+'} Class 1
+                  </button>
+                  {customPoints.length > 0 && (
+                    <button
+                      onClick={() => setCustomPoints([])}
+                      className="px-3 py-2 bg-gray-200 rounded-lg text-sm"
+                    >
+                      Clear ({customPoints.length})
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
