@@ -2559,6 +2559,161 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              <CollapsibleSection
+                title="Advanced Topics"
+                defaultExpanded={false}
+                storageKey="lbfgs-advanced"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Gradient computation:</strong> O(n) to O(n²) depending on problem
+                      </li>
+                      <li>
+                        <strong>Two-loop recursion:</strong> O(Mn) operations
+                      </li>
+                      <li>
+                        <strong>Line search:</strong> multiple gradient evaluations
+                      </li>
+                      <li>
+                        <strong>Total per iteration:</strong> O(Mn) time, O(Mn) memory
+                      </li>
+                    </ul>
+                    <p className="text-sm mt-2 italic">
+                      <strong>Example:</strong> For n=1000, M=10: ~10,000 operations vs
+                      ~1 billion for Newton's method
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Memory-Computation Tradeoff</h3>
+                    <p className="mb-2"><strong>M selection guidelines:</strong></p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>M=3-5:</strong> minimal memory, acceptable for well-conditioned problems</li>
+                      <li><strong>M=5-10:</strong> good balance for most problems (recommended)</li>
+                      <li><strong>M=10-20:</strong> better approximation, higher cost</li>
+                      <li><strong>M&gt;50:</strong> rarely beneficial, diminishing returns</li>
+                    </ul>
+                    <p className="text-sm mt-2">
+                      <strong>Problem-dependent:</strong> Ill-conditioned problems benefit from larger M
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Full BFGS vs L-BFGS</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm border">
+                        <thead className="bg-purple-100">
+                          <tr>
+                            <th className="border p-2">Method</th>
+                            <th className="border p-2">Memory</th>
+                            <th className="border p-2">Update Cost</th>
+                            <th className="border p-2">Best For</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="border p-2"><strong>BFGS</strong></td>
+                            <td className="border p-2">O(n²)</td>
+                            <td className="border p-2">O(n²)</td>
+                            <td className="border p-2">n &lt; 100</td>
+                          </tr>
+                          <tr>
+                            <td className="border p-2"><strong>L-BFGS</strong></td>
+                            <td className="border p-2">O(Mn)</td>
+                            <td className="border p-2">O(Mn)</td>
+                            <td className="border p-2">n &gt; 100</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Why Two-Loop Recursion is Efficient</h3>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>
+                        Avoids forming explicit matrix <InlineMath>B_k</InlineMath> or{' '}
+                        <InlineMath>{String.raw`B_k^{-1}`}</InlineMath>
+                      </li>
+                      <li>
+                        Implicit representation via <InlineMath>(s,y)</InlineMath> pairs
+                      </li>
+                      <li>Applies rank-2 updates in sequence</li>
+                      <li>Exploits structure of BFGS update formula (Sherman-Morrison-Woodbury)</li>
+                      <li>Cache-friendly: sequential access to small vectors</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Relationship to Conjugate Gradient</h3>
+                    <p className="mb-2">Both use history to improve search directions:</p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Conjugate Gradient:</strong> uses gradient history to build
+                        conjugate directions
+                      </li>
+                      <li>
+                        <strong>L-BFGS:</strong> uses <InlineMath>(s,y)</InlineMath> history to
+                        approximate <InlineMath>{String.raw`H^{-1}`}</InlineMath>
+                      </li>
+                      <li>
+                        <strong>For quadratics:</strong> CG converges in at most n steps
+                      </li>
+                      <li>
+                        <strong>For non-quadratic:</strong> L-BFGS more robust and practical
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Extensions and Variants</h3>
+
+                    <div className="space-y-2 mt-2">
+                      <div>
+                        <p className="font-semibold">OWL-QN (Orthant-Wise Limited-memory Quasi-Newton)</p>
+                        <p className="text-sm ml-4">
+                          L-BFGS for L1-regularized problems, handles non-smoothness at zero
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">Stochastic L-BFGS</p>
+                        <p className="text-sm ml-4">
+                          Mini-batch variants for large datasets, stabilization techniques needed
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">Block L-BFGS</p>
+                        <p className="text-sm ml-4">
+                          Exploits problem structure (e.g., layers in neural networks)
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">L-BFGS-B</p>
+                        <p className="text-sm ml-4">
+                          Extension to bound-constrained optimization (box constraints)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-100 rounded p-3">
+                    <p className="font-bold text-sm mb-2">Historical Note</p>
+                    <p className="text-sm">
+                      L-BFGS was developed by Jorge Nocedal in 1980. The "L" stands for
+                      "Limited-memory". It's one of the most widely used optimization algorithms
+                      in practice, powering everything from machine learning libraries to
+                      engineering simulation software.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
