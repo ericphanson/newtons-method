@@ -3111,7 +3111,18 @@ const UnifiedVisualizer = () => {
                   <div className="space-y-3">
                     <div className="border border-amber-200 rounded p-3 bg-amber-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-amber-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-amber-600 font-bold text-lg hover:text-amber-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('lbfgs');
+                            const exp = experiments.find(e => e.id === 'lbfgs-success-quadratic');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Success - Strongly Convex Problem"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-amber-900">Success: Strongly Convex Problem</p>
                           <p className="text-sm text-gray-700">
@@ -3126,7 +3137,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('lbfgs');
+                            const exp = experiments.find(e => e.id === 'lbfgs-memory-comparison');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Memory Matters - M=3 vs M=10"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-blue-900">Memory Matters: M=3 vs M=10</p>
                           <p className="text-sm text-gray-700">
@@ -3141,7 +3163,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('lbfgs');
+                            const exp = experiments.find(e => e.id === 'lbfgs-rosenbrock');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Challenge - Rosenbrock Valley"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-purple-900">Challenge: Rosenbrock Valley</p>
                           <p className="text-sm text-gray-700">
@@ -3156,7 +3189,19 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('lbfgs');
+                            const exp = experiments.find(e => e.id === 'lbfgs-compare');
+                            if (exp) loadExperiment(exp);
+                            // TODO: Implement side-by-side comparison view
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Compare L-BFGS vs GD vs Newton"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-green-900">Compare: L-BFGS vs GD vs Newton</p>
                           <p className="text-sm text-gray-700">
@@ -3169,10 +3214,6 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-gray-500 mt-4">
-                    Note: One-click experiment loading coming soon!
-                  </p>
                 </div>
               </CollapsibleSection>
 
