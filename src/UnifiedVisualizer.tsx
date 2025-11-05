@@ -20,6 +20,29 @@ import type { ExperimentPreset } from './types/experiments';
 
 type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
+const LoadingSpinner = () => (
+  <svg
+    className="animate-spin h-4 w-4 text-current"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    />
+  </svg>
+);
+
 const UnifiedVisualizer = () => {
   // Shared state
   const [baseData] = useState(() => generateCrescents());
@@ -1478,7 +1501,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-fixed');
                             const exp = experiments.find(e => e.id === 'gd-fixed-success');
@@ -1487,7 +1512,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Good Step Size"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-green-900">Success: Good Step Size (α=0.1)</p>
@@ -1504,7 +1529,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-fixed');
                             const exp = experiments.find(e => e.id === 'gd-fixed-diverge');
@@ -1513,7 +1540,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Too Large Step Size"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: Too Large (α=2.5)</p>
@@ -1530,7 +1557,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-orange-200 rounded p-3 bg-orange-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-fixed');
                             const exp = experiments.find(e => e.id === 'gd-fixed-too-small');
@@ -1539,7 +1568,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Too Small Step Size"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-orange-900">Failure: Too Small (α=0.001)</p>
@@ -1556,7 +1585,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-fixed');
                             const exp = experiments.find(e => e.id === 'gd-fixed-ill-conditioned');
@@ -1565,7 +1596,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Ill-Conditioned Problem"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-purple-900">Struggle: Ill-Conditioned</p>
@@ -2023,7 +2054,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-teal-200 rounded p-3 bg-teal-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-teal-600 font-bold text-lg hover:text-teal-700 disabled:opacity-50 cursor-pointer"
+                          className="text-teal-600 font-bold text-lg hover:text-teal-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-success');
@@ -2032,7 +2065,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Automatic Adaptation"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-teal-900">Success: Automatic Adaptation</p>
@@ -2049,7 +2082,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-compare');
@@ -2059,7 +2094,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Fixed vs Adaptive (coming soon)"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-blue-900">Compare: Fixed vs Adaptive</p>
@@ -2076,7 +2111,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-orange-200 rounded p-3 bg-orange-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-c1-too-small');
@@ -2085,7 +2122,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: C1 Too Small"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-orange-900">Failure: c₁ Too Small</p>
@@ -2102,7 +2139,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-c1-too-large');
@@ -2111,7 +2150,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: C1 Too Large"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: c₁ Too Large</p>
@@ -2128,7 +2167,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-varying-curvature');
@@ -2137,7 +2178,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Varying Curvature"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-purple-900">Advantage: Varying Curvature</p>
@@ -2611,7 +2652,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('newton');
                             const exp = experiments.find(e => e.id === 'newton-success-quadratic');
@@ -2620,7 +2663,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Success - Strongly Convex Quadratic"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-blue-900">Success: Strongly Convex Quadratic</p>
@@ -2637,7 +2680,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('newton');
                             const exp = experiments.find(e => e.id === 'newton-failure-rosenbrock');
@@ -2646,7 +2691,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Failure - Non-Convex Saddle Point"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: Non-Convex Saddle Point</p>
@@ -2663,7 +2708,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('newton');
                             const exp = experiments.find(e => e.id === 'newton-fixed-linesearch');
@@ -2672,7 +2719,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Fixed - Line Search Rescue"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-green-900">Fixed: Line Search Rescue</p>
@@ -2689,7 +2736,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('newton');
                             const exp = experiments.find(e => e.id === 'newton-compare-ill-conditioned');
@@ -2698,7 +2747,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Compare - Newton vs GD on Ill-Conditioned"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
@@ -3223,7 +3272,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-amber-200 rounded p-3 bg-amber-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-amber-600 font-bold text-lg hover:text-amber-700 disabled:opacity-50 cursor-pointer"
+                          className="text-amber-600 font-bold text-lg hover:text-amber-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('lbfgs');
                             const exp = experiments.find(e => e.id === 'lbfgs-success-quadratic');
@@ -3232,7 +3283,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Success - Strongly Convex Problem"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-amber-900">Success: Strongly Convex Problem</p>
@@ -3249,7 +3300,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('lbfgs');
                             const exp = experiments.find(e => e.id === 'lbfgs-memory-comparison');
@@ -3258,7 +3311,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Memory Matters - M=3 vs M=10"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-blue-900">Memory Matters: M=3 vs M=10</p>
@@ -3275,7 +3328,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('lbfgs');
                             const exp = experiments.find(e => e.id === 'lbfgs-rosenbrock');
@@ -3284,7 +3339,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Challenge - Rosenbrock Valley"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-purple-900">Challenge: Rosenbrock Valley</p>
@@ -3301,7 +3356,9 @@ const UnifiedVisualizer = () => {
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
                         <button
-                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`"
                           onClick={() => {
                             const experiments = getExperimentsForAlgorithm('lbfgs');
                             const exp = experiments.find(e => e.id === 'lbfgs-compare');
@@ -3311,7 +3368,7 @@ const UnifiedVisualizer = () => {
                           disabled={experimentLoading}
                           aria-label="Load experiment: Compare L-BFGS vs GD vs Newton"
                         >
-                          ▶
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
                           <p className="font-semibold text-green-900">Compare: L-BFGS vs GD vs Newton</p>
