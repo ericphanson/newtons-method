@@ -325,6 +325,65 @@ The pedagogical content enhancement project (Tasks 1-29) is **complete and succe
 
 ---
 
+## Problem Switching Backend (Task 18) and Documentation (Tasks 19-21)
+
+**Completed:** 2025-11-05
+
+### Task 18: Problem Switching Backend ✅
+
+Implemented full backend support for switching between 5 optimization problems:
+- Created unified problem interface (`getCurrentProblem()`)
+- All algorithms now call `problem.objective()`, `problem.gradient()`, `problem.hessian()`
+- Visualization bounds adapt to `problem.domain`
+- Dataset visualization conditional on problem type
+- Problem switcher UI functional for all problem types
+- All 5 problems × 4 algorithms = 20 combinations tested
+
+### Task 19: Problem Explanation Page ✅
+
+Created comprehensive "Problems" tab with detailed explanations:
+- New `ProblemExplainer.tsx` component
+- Added as first tab in UnifiedVisualizer
+- All 5 problem types documented with:
+  - Mathematical definitions (objective, Hessian)
+  - Why each is interesting pedagogically
+  - What to observe with different algorithms
+  - Recommended algorithm/parameter combinations
+- Collapsible sections for each problem
+- Guidance on choosing problems for different learning goals
+
+### Task 20: Documentation Updates ✅
+
+Updated experiment guide with problem switching:
+- Added "Problem Switching" section to `experiments-guide.md`
+- Documented automatic vs manual switching
+- Explained backend implementation details
+- Listed all supported problem × algorithm combinations
+- Added reference to new Problems tab
+- Updated this completion notes file
+
+### Task 21: Unicode Math to KaTeX Audit ✅
+
+(To be completed)
+- Audit all Unicode math symbols in codebase
+- Convert to proper KaTeX components
+- Ensure professional rendering throughout
+- Remove any Unicode fallbacks
+
+### Files Modified
+
+- `src/components/ProblemExplainer.tsx` (created)
+- `src/UnifiedVisualizer.tsx` (added Problems tab)
+- `docs/experiments-guide.md` (added Problem Switching section)
+- `docs/plans/2025-11-05-pedagogical-content-completion-notes.md` (this file)
+
+### Commits
+
+- feat(problems): add problem explanation page (Task 19)
+- docs: update guides with problem switching feature (Task 20)
+
+---
+
 **Completion Date:** 2025-11-05
 **Total Development Time:** Tasks 1-29 implemented incrementally
 **Git Status:** Clean working tree, 22 commits, ready for next phase

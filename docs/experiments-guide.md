@@ -60,6 +60,35 @@ Experiments automatically switch between these problem types:
 - **Rosenbrock Function** - Non-convex banana valley
 - **Saddle Point** - Hyperbolic paraboloid with negative eigenvalue
 
+## Problem Switching
+
+As of Task 18, the visualizer fully supports switching between 5 different optimization problems. This enables experiments to demonstrate algorithm behavior on different landscapes.
+
+### How It Works
+
+1. **Automatic Switching** - Click an experiment button that specifies a problem
+2. **Manual Switching** - Use the problem dropdown that appears above visualizations
+3. **Dynamic Updates** - Objective, gradient, Hessian, and domain bounds all update
+
+### Backend Implementation
+
+The system uses a unified problem interface:
+- `getCurrentProblem()` resolves to logistic regression or problem registry
+- All algorithms call `problem.objective()`, `problem.gradient()`, `problem.hessian()`
+- Visualization bounds adapt to `problem.domain`
+- Dataset visualization only shown for logistic regression
+
+### Supported Combinations
+
+All 5 problems work with all 4 algorithms:
+- Logistic Regression (default, with dataset)
+- Quadratic Bowl (ideal convergence conditions)
+- Ill-Conditioned Quadratic (scaling challenge)
+- Rosenbrock Function (non-convex valley)
+- Saddle Point (Newton failure mode)
+
+See the "Problems" tab for detailed explanations of each problem type.
+
 ## Manual Problem Switching
 
 When an experiment loads a non-default problem, a problem switcher appears above the visualizations. You can manually select any problem type to explore its landscape.
