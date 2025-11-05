@@ -106,10 +106,81 @@ Each experiment preset defines:
 - **Custom data** - Optional dataset (for logistic regression)
 - **Expected observation** - What to watch for in the visualization
 
+## Comparison Mode
+
+The visualizer includes side-by-side comparison mode for comparing algorithms or parameter settings.
+
+### How to Use Comparison Mode
+
+1. **Navigate to any algorithm tab** with comparison experiments
+2. **Click a comparison experiment** (marked with blue/purple color)
+3. **Two visualizations appear side-by-side** showing different algorithms or settings
+4. **Observe the differences** in convergence speed, trajectory, and final solution
+
+### Available Comparisons
+
+- **GD Fixed vs GD Line Search** - See how automatic step size helps
+- **L-BFGS (M=3) vs L-BFGS (M=10)** - Memory size impact on convergence
+- **Newton vs GD on Ill-Conditioned** - Second-order vs first-order methods
+
+All comparison experiments automatically configure both sides and run simultaneously.
+
+## All Working Combinations
+
+All 20 problem × algorithm combinations are fully functional:
+
+### Logistic Regression (Classification)
+- ✅ Gradient Descent (Fixed Step)
+- ✅ Gradient Descent (Line Search)
+- ✅ Newton's Method
+- ✅ L-BFGS
+
+### Quadratic Bowl (Strongly Convex)
+- ✅ Gradient Descent (Fixed Step)
+- ✅ Gradient Descent (Line Search)
+- ✅ Newton's Method
+- ✅ L-BFGS
+
+### Ill-Conditioned Quadratic (κ=100)
+- ✅ Gradient Descent (Fixed Step)
+- ✅ Gradient Descent (Line Search)
+- ✅ Newton's Method
+- ✅ L-BFGS
+
+### Rosenbrock Function (Non-Convex Valley)
+- ✅ Gradient Descent (Fixed Step)
+- ✅ Gradient Descent (Line Search)
+- ✅ Newton's Method
+- ✅ L-BFGS
+
+### Saddle Point (Hyperbolic Paraboloid)
+- ✅ Gradient Descent (Fixed Step)
+- ✅ Gradient Descent (Line Search)
+- ✅ Newton's Method
+- ✅ L-BFGS
+
+## Troubleshooting
+
+### Algorithm Not Converging?
+- Check your step size (for fixed-step GD)
+- Try a different initial point
+- Switch to a different problem type
+- Use line search for automatic adaptation
+
+### Visualization Not Updating?
+- Click "Run Algorithm" after changing parameters
+- Check that max iterations > 0
+- Ensure initial point is within bounds
+
+### Want to Start Over?
+- Click "Reset All" to restore defaults
+- Clear active experiment indicator
+
 ## Future Enhancements
 
-- [ ] Side-by-side comparison mode for "Compare" experiments
-- [ ] Animation playback of experiment trajectory
-- [ ] Experiment result recording and replay
-- [ ] Custom experiment creation UI
-- [ ] Experiment sharing via URL parameters
+These features are NOT currently planned but could be added:
+- Animation playback of experiment trajectory
+- Experiment result recording and replay
+- Custom experiment creation UI
+- Experiment sharing via URL parameters
+- Additional problem types (Himmelblau, Beale, etc.)
