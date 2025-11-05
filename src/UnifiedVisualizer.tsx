@@ -496,36 +496,49 @@ const UnifiedVisualizer = () => {
     const toCanvasX = (x1: number) => ((x1 + 3) / 6) * w;
     const toCanvasY = (x2: number) => ((2.5 - x2) / 5) * h;
 
-    // Draw decision boundary from current algorithm
-    const [w0, w1, w2] = currentIter.wNew;
-    if (Math.abs(w1) > 1e-6) {
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      for (let x1 = -3; x1 <= 3; x1 += 0.1) {
-        const x2 = -(w0 * x1 + w2) / w1;
-        const cx = toCanvasX(x1);
-        const cy = toCanvasY(x2);
-        if (x1 === -3) ctx.moveTo(cx, cy);
-        else ctx.lineTo(cx, cy);
-      }
-      ctx.stroke();
-    }
+    // Only show decision boundary and data points for logistic regression
+    const problem = getCurrentProblem();
+    const showDataVisualization = problem.requiresDataset && currentProblem === 'logistic-regression';
 
-    // Draw points
-    for (const point of data) {
-      const cx = toCanvasX(point.x1);
-      const cy = toCanvasY(point.x2);
-      const isCustom = customPoints.includes(point);
-      ctx.fillStyle = point.y === 0 ? '#ef4444' : '#3b82f6';
-      ctx.beginPath();
-      ctx.arc(cx, cy, isCustom ? 6 : 4, 0, 2 * Math.PI);
-      ctx.fill();
-      if (isCustom) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
+    if (showDataVisualization) {
+      // Draw decision boundary from current algorithm
+      const [w0, w1, w2] = currentIter.wNew;
+      if (Math.abs(w1) > 1e-6) {
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let x1 = -3; x1 <= 3; x1 += 0.1) {
+          const x2 = -(w0 * x1 + w2) / w1;
+          const cx = toCanvasX(x1);
+          const cy = toCanvasY(x2);
+          if (x1 === -3) ctx.moveTo(cx, cy);
+          else ctx.lineTo(cx, cy);
+        }
         ctx.stroke();
       }
+
+      // Draw points
+      for (const point of data) {
+        const cx = toCanvasX(point.x1);
+        const cy = toCanvasY(point.x2);
+        const isCustom = customPoints.includes(point);
+        ctx.fillStyle = point.y === 0 ? '#ef4444' : '#3b82f6';
+        ctx.beginPath();
+        ctx.arc(cx, cy, isCustom ? 6 : 4, 0, 2 * Math.PI);
+        ctx.fill();
+        if (isCustom) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+    } else {
+      // For non-dataset problems, show a message
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Pure optimization problem', w / 2, h / 2 - 10);
+      ctx.fillText('(no dataset visualization)', w / 2, h / 2 + 10);
     }
 
     // Draw axes
@@ -1383,7 +1396,9 @@ const UnifiedVisualizer = () => {
             <option value="non-convex-saddle">Saddle Point</option>
           </select>
           <p className="text-xs text-gray-600 mt-2">
-            Note: Problem switching affects visualization domain and objective function.
+            {currentProblem === 'logistic-regression'
+              ? 'Classification problem with dataset visualization'
+              : 'Pure optimization problem (no dataset)'}
           </p>
         </div>
       )}
