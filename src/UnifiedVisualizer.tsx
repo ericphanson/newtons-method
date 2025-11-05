@@ -14,7 +14,7 @@ import {
 } from './utils/logisticRegression';
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
-import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
+import { runGradientDescentLegacy, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
@@ -369,7 +369,7 @@ const UnifiedVisualizer = () => {
   // Recompute algorithms when shared state changes
   useEffect(() => {
     if (data.length > 0) {
-      setGdFixedIterations(runGradientDescent(data, 100, gdFixedAlpha, lambda));
+      setGdFixedIterations(runGradientDescentLegacy(data, 100, gdFixedAlpha, lambda));
       setGdFixedCurrentIter(0);
     }
   }, [data.length, lambda, gdFixedAlpha, customPoints.length]);
