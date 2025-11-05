@@ -52,7 +52,6 @@ const UnifiedVisualizer = () => {
   // Experiment state
   const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
-  void currentExperiment; // Will be used in future tasks
 
   const data = [...baseData, ...customPoints];
 
@@ -1749,6 +1748,32 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* Experiment Indicator */}
+              {currentExperiment && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">▶</span>
+                      <span className="text-sm font-semibold text-blue-900">
+                        Experiment Active
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {currentExperiment}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentExperiment(null);
+                        // Optionally reset to defaults
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* GD Fixed Visualizations */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
@@ -2331,6 +2356,32 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* Experiment Indicator */}
+              {currentExperiment && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">▶</span>
+                      <span className="text-sm font-semibold text-blue-900">
+                        Experiment Active
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {currentExperiment}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentExperiment(null);
+                        // Optionally reset to defaults
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* GD Line Search Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
@@ -2865,6 +2916,32 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
+
+              {/* Experiment Indicator */}
+              {currentExperiment && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">▶</span>
+                      <span className="text-sm font-semibold text-blue-900">
+                        Experiment Active
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {currentExperiment}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentExperiment(null);
+                        // Optionally reset to defaults
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Newton Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
@@ -3589,6 +3666,32 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
+
+              {/* Experiment Indicator */}
+              {currentExperiment && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">▶</span>
+                      <span className="text-sm font-semibold text-blue-900">
+                        Experiment Active
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {currentExperiment}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentExperiment(null);
+                        // Optionally reset to defaults
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
