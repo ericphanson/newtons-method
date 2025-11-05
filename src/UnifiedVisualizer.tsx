@@ -2196,6 +2196,72 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* L-BFGS - Line Search Details */}
+              <CollapsibleSection
+                title="Line Search Details"
+                defaultExpanded={false}
+                storageKey="lbfgs-line-search-details"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Why Line Search for L-BFGS</h3>
+                    <p>
+                      Quasi-Newton direction <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> is only
+                      an approximation:
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 mt-2">
+                      <li>
+                        <strong>Not guaranteed to be descent direction</strong> if approximation poor
+                      </li>
+                      <li>
+                        <strong>Line search ensures we actually decrease the loss</strong>
+                      </li>
+                      <li>
+                        <strong>Essential for convergence guarantees</strong>
+                      </li>
+                    </ul>
+                    <p className="text-sm mt-2">
+                      Without line search, L-BFGS can diverge even on well-behaved problems.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Current Method: Armijo Backtracking</h3>
+                    <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
+                    <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>c_1 = </InlineMath>{lbfgsC1.toFixed(4)} controls how much decrease we require.
+                    </p>
+
+                    <div className="mt-3">
+                      <p className="font-semibold">Backtracking Algorithm:</p>
+                      <ol className="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Start with <InlineMath>\alpha = 1</InlineMath> (try full step first)</li>
+                        <li>Check if Armijo condition satisfied</li>
+                        <li>If yes → accept <InlineMath>\alpha</InlineMath></li>
+                        <li>If no → reduce <InlineMath>\alpha \leftarrow 0.5\alpha</InlineMath> and repeat</li>
+                      </ol>
+                    </div>
+
+                    <p className="text-sm mt-3">
+                      <strong>Typical behavior:</strong> When the quasi-Newton approximation is good
+                      (near minimum, after building history), <InlineMath>\alpha = 1</InlineMath> is
+                      often accepted. When approximation is poor (early iterations, far from minimum),
+                      backtracking finds smaller steps.
+                    </p>
+                  </div>
+
+                  <div className="bg-amber-100 rounded p-3">
+                    <p className="font-bold text-sm mb-2">Wolfe Conditions (Advanced)</p>
+                    <p className="text-sm">
+                      Full BFGS theory requires <strong>Wolfe conditions</strong> (Armijo + curvature
+                      condition) to guarantee positive definiteness. This implementation uses Armijo
+                      backtracking, which works well in practice for L-BFGS.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
