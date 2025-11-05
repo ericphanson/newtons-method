@@ -1,0 +1,86 @@
+# Experiment System User Guide
+
+## Overview
+
+The Newton's Method visualizer includes 17 interactive experiments across 4 optimization algorithms. Each experiment demonstrates a specific concept, success pattern, or failure mode.
+
+## How to Use Experiments
+
+1. **Navigate to an algorithm tab** (GD Fixed, GD Line Search, Newton, or L-BFGS)
+2. **Scroll to "Try This" section** (expanded by default)
+3. **Click the ▶ play button** on any experiment card
+4. **Watch the visualization** update with new parameters and problem
+5. **Observe the results** as described in the experiment
+
+## Experiment Categories
+
+### Success Cases (Green)
+Demonstrate optimal conditions and expected behavior.
+
+### Failure Cases (Red/Orange)
+Show what goes wrong with poor parameter choices.
+
+### Comparison Cases (Blue/Purple)
+Compare algorithms or parameter settings side-by-side.
+
+## Available Experiments
+
+### Gradient Descent (Fixed Step) - 4 Experiments
+1. **Success: Good Step Size (α=0.1)** - Smooth convergence with well-chosen step size
+2. **Failure: Too Large (α=0.8)** - Oscillation and divergence from overshooting
+3. **Failure: Too Small (α=0.001)** - Extremely slow convergence from tiny steps
+4. **Struggle: Ill-Conditioned** - Zig-zagging on elongated landscape
+
+### Gradient Descent (Line Search) - 5 Experiments
+1. **Success: Automatic Adaptation** - Line search finds good steps automatically
+2. **Compare: Fixed vs Adaptive** - Side-by-side comparison (TODO)
+3. **Failure: c₁ Too Small** - Accepts poor steps, wastes iterations
+4. **Failure: c₁ Too Large** - Too conservative, rejects good steps
+5. **Advantage: Varying Curvature** - Handles changing landscape (Rosenbrock)
+
+### Newton's Method - 4 Experiments
+1. **Success: Quadratic Convergence** - 1-2 iterations on bowl function
+2. **Failure: Saddle Point** - Negative eigenvalue, wrong direction
+3. **Fixed: Line Search Rescue** - Damping prevents divergence
+4. **Compare: Newton vs GD** - Ill-conditioned problem comparison
+
+### L-BFGS - 4 Experiments
+1. **Success: Without Hessian** - Newton-like speed, no matrix computation
+2. **Memory: M=3 vs M=10** - Memory size affects convergence rate
+3. **Challenge: Rosenbrock** - Tests quasi-Newton approximation
+4. **Compare: Three Algorithms** - L-BFGS vs GD vs Newton (TODO)
+
+## Problem Types
+
+Experiments automatically switch between these problem types:
+
+- **Logistic Regression** - 2D classification with crescent dataset
+- **Quadratic Bowl** - Strongly convex, ideal for convergence demos
+- **Ill-Conditioned Quadratic** - Elongated ellipse (κ=100)
+- **Rosenbrock Function** - Non-convex banana valley
+- **Saddle Point** - Hyperbolic paraboloid with negative eigenvalue
+
+## Manual Problem Switching
+
+When an experiment loads a non-default problem, a problem switcher appears above the visualizations. You can manually select any problem type to explore its landscape.
+
+## Resetting
+
+Click the "Reset All" button to return all parameters to their default values and clear the active experiment.
+
+## Technical Details
+
+Each experiment preset defines:
+- **Problem type** - Which objective function to use
+- **Hyperparameters** - Algorithm-specific settings (α, c₁, M, λ)
+- **Initial point** - Starting position in parameter space
+- **Custom data** - Optional dataset (for logistic regression)
+- **Expected observation** - What to watch for in the visualization
+
+## Future Enhancements
+
+- [ ] Side-by-side comparison mode for "Compare" experiments
+- [ ] Animation playback of experiment trajectory
+- [ ] Experiment result recording and replay
+- [ ] Custom experiment creation UI
+- [ ] Experiment sharing via URL parameters
