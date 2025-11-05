@@ -2341,6 +2341,99 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* L-BFGS - When Things Go Wrong */}
+              <CollapsibleSection
+                title="When Things Go Wrong"
+                defaultExpanded={false}
+                storageKey="lbfgs-when-wrong"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800 mb-2">Common Misconceptions</h3>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-semibold">❌ "L-BFGS is always better than gradient descent"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Requires smooth objectives and good line search<br/>
+                          ✓ Can fail on non-smooth problems (L1 regularization, ReLU, kinks)<br/>
+                          ✓ More complex to implement and debug
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "L-BFGS equals Newton's method"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Only approximates Newton direction<br/>
+                          ✓ Approximation quality depends on M and problem structure<br/>
+                          ✓ Superlinear vs quadratic convergence
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "More memory (larger M) is always better"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Diminishing returns: M=5-20 usually sufficient<br/>
+                          ✓ Larger M = more computation per iteration<br/>
+                          ✓ Very old pairs may contain stale curvature information
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
+                    <ul className="space-y-2">
+                      <li>
+                        <strong>Strongly convex:</strong> Superlinear convergence guaranteed
+                        (between linear GD and quadratic Newton)
+                      </li>
+                      <li>
+                        <strong>Convex:</strong> Converges to global minimum
+                      </li>
+                      <li>
+                        <strong>Non-convex:</strong> Can converge to local minima, no global
+                        guarantees (like all local methods)
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Slow convergence</strong> → increase M, improve initialization,
+                        check smoothness assumptions
+                      </li>
+                      <li>
+                        <strong>Oscillation</strong> → decrease M or line search c1 parameter
+                      </li>
+                      <li>
+                        <strong>Memory issues</strong> → M too large for hardware, decrease M
+                      </li>
+                      <li>
+                        <strong>Non-smooth objective</strong> → consider specialized variants
+                        (OWL-QN for L1) or smoothing techniques
+                      </li>
+                      <li>
+                        <strong>Stale curvature</strong> → problem landscape changes dramatically,
+                        consider restarting with fresh memory
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-amber-100 rounded p-3">
+                    <p className="font-bold text-sm mb-2">When to Switch Algorithms</p>
+                    <ul className="text-sm list-disc ml-6">
+                      <li>Problem too small (n &lt; 100) → consider full BFGS or Newton</li>
+                      <li>Non-smooth objective → use subgradient methods or specialized variants</li>
+                      <li>Stochastic setting (mini-batches) → use stochastic variants or Adam</li>
+                      <li>Need exact second-order convergence → use Newton's method</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
