@@ -1483,7 +1483,7 @@ const UnifiedVisualizer = () => {
                           ▶
                         </button>
                         <div>
-                          <p className="font-semibold text-red-900">Failure: Too Large (α=0.8)</p>
+                          <p className="font-semibold text-red-900">Failure: Too Large (α=2.5)</p>
                           <p className="text-sm text-gray-700">
                             Step size causes oscillation and divergence
                           </p>
