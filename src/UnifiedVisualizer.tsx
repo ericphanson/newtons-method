@@ -1623,6 +1623,54 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* Visual Guide */}
+              <CollapsibleSection
+                title="Visual Guide"
+                defaultExpanded={true}
+                storageKey="newton-visual-guide"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Parameter Space</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Trajectory takes <strong>fewer, larger steps</strong> than gradient descent</li>
+                      <li>Steps are <strong>not perpendicular</strong> to contours (unlike steepest descent)</li>
+                      <li>Near minimum, often <strong>converges in 2-3 iterations</strong></li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Matrix Heatmap</h3>
+                    <p>Shows curvature information: <InlineMath>{'H_{ij} = \\frac{\\partial^2 f}{\\partial w_i \\partial w_j}'}</InlineMath></p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Diagonal:</strong> curvature along each parameter axis</li>
+                      <li><strong>Off-diagonal:</strong> how parameters interact (cross-derivatives)</li>
+                      <li><strong>Color intensity:</strong> magnitude of second derivatives</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Eigenvalue Display</h3>
+                    <p>Shows <InlineMath>{'\\lambda_{\\min}'}</InlineMath>, <InlineMath>{'\\lambda_{\\max}'}</InlineMath>,
+                       condition number <InlineMath>{'\\kappa = \\lambda_{\\max}/\\lambda_{\\min}'}</InlineMath></p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>All positive</strong> → local minimum (bowl-shaped)</li>
+                      <li><strong>Some negative</strong> → saddle point (not a minimum)</li>
+                      <li><strong>Large κ</strong> → ill-conditioned, but Newton handles better than GD</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Line Search Panel</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Often accepts <InlineMath>{'\\alpha = 1'}</InlineMath> (full Newton step) near minimum</li>
+                      <li>Smaller <InlineMath>{'\\alpha'}</InlineMath> when far from minimum or Hessian approximation poor</li>
+                      <li>Armijo condition ensures sufficient decrease</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* Newton Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
