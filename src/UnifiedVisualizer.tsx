@@ -53,6 +53,10 @@ const UnifiedVisualizer = () => {
   const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
 
+  // Problem state
+  const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
+  const [showProblemSwitcher, setShowProblemSwitcher] = useState(false);
+
   const data = [...baseData, ...customPoints];
 
   // Calculate parameter bounds for both algorithms
@@ -228,6 +232,7 @@ const UnifiedVisualizer = () => {
           // TODO: Actually switch the problem in the algorithm
           console.log('Would switch to problem:', experiment.problem);
         }
+        setShowProblemSwitcher(true);
       }
 
       // 4. Load custom dataset if provided
@@ -1169,6 +1174,35 @@ const UnifiedVisualizer = () => {
           </div>
         </div>
       </div>
+
+      {/* Problem Switcher */}
+      {showProblemSwitcher && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">Problem Type</h3>
+          <select
+            value={currentProblem}
+            onChange={(e) => {
+              setCurrentProblem(e.target.value);
+              // Apply problem switch
+              const problem = getProblem(e.target.value);
+              if (problem) {
+                console.log('Switching to:', problem.name);
+                // TODO: Actually switch problem implementation
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          >
+            <option value="logistic-regression">Logistic Regression (current)</option>
+            <option value="quadratic">Quadratic Bowl</option>
+            <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
+            <option value="rosenbrock">Rosenbrock Function</option>
+            <option value="non-convex-saddle">Saddle Point</option>
+          </select>
+          <p className="text-xs text-gray-600 mt-2">
+            Note: Problem switching affects visualization domain and objective function.
+          </p>
+        </div>
+      )}
 
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
