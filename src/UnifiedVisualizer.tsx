@@ -155,11 +155,9 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, data, lambda]);
 
-  // Log problem info for debugging (will be used in later tasks)
+  // Track visualization bounds updates
   useEffect(() => {
-    const problem = getCurrentProblem();
-    console.log('Current problem:', problem.name, 'Dimensionality:', problem.dimensionality);
-    console.log('Visualization bounds:', visualizationBounds);
+    // Problem and bounds are now synced via getCurrentProblem
   }, [getCurrentProblem, visualizationBounds]);
 
   // Default configuration for reset functionality
@@ -344,7 +342,6 @@ const UnifiedVisualizer = () => {
 
         const problem = getProblem(experiment.problem);
         if (problem) {
-          console.log('Loaded problem:', problem.name);
           // Problem is now active via getCurrentProblem()
         }
       } else {
@@ -1494,7 +1491,6 @@ const UnifiedVisualizer = () => {
                     const problem = getProblem(newProblem);
                     if (problem) {
                       problemName = problem.name;
-                      console.log('Switched to:', problem.name, 'Domain:', problem.domain);
                       // Update visualization bounds based on problem domain
                       if (problem.domain) {
                         setVisualizationBounds({

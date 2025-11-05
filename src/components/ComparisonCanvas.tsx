@@ -13,6 +13,10 @@ interface ComparisonCanvasProps {
   title: string;
 }
 
+/**
+ * Canvas component for visualizing comparison of two optimization trajectories
+ * Renders both trajectories on a shared coordinate space with adaptive bounds
+ */
 export function ComparisonCanvas({
   leftIterations,
   leftCurrentIter,

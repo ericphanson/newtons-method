@@ -7,6 +7,10 @@ interface ToastProps {
   duration?: number;
 }
 
+/**
+ * Toast notification component with auto-dismiss
+ * Displays a temporary message with configurable type and duration
+ */
 export function Toast({ message, type = 'success', onClose, duration = 3000 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);

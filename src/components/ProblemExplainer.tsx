@@ -1,6 +1,10 @@
 import { InlineMath, BlockMath } from './Math';
 import { CollapsibleSection } from './CollapsibleSection';
 
+/**
+ * Educational component explaining all available optimization problems
+ * Displays mathematical formulations, properties, and recommended use cases
+ */
 export function ProblemExplainer() {
   return (
     <div className="space-y-6 p-6 max-w-4xl">

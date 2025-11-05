@@ -12,6 +12,10 @@ interface ComparisonViewProps {
   onRightIterChange: (iter: number) => void;
 }
 
+/**
+ * Side-by-side comparison view for two algorithm runs
+ * Displays iteration controls and metrics for each algorithm
+ */
 export function ComparisonView({ left, right, onLeftIterChange, onRightIterChange }: ComparisonViewProps) {
   return (
     <div className="grid grid-cols-2 gap-4 mb-6">

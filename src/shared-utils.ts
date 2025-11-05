@@ -14,16 +14,31 @@ export interface LineSearchTrial {
   satisfied: boolean;
 }
 
-// Utility functions
+/**
+ * Sigmoid activation function with numerical stability
+ * @param z Input value
+ * @returns Sigmoid output in range (0, 1)
+ */
 export const sigmoid = (z: number): number => {
   const clipped = Math.max(-500, Math.min(500, z));
   return 1 / (1 + Math.exp(-clipped));
 };
 
+/**
+ * Clip value to specified range
+ * @param val Value to clip
+ * @param min Minimum value
+ * @param max Maximum value
+ * @returns Clipped value
+ */
 export const clip = (val: number, min: number, max: number): number =>
   Math.max(min, Math.min(max, val));
 
-// Generate properly interleaved crescent dataset
+/**
+ * Generate properly interleaved crescent dataset for binary classification
+ * Creates two interleaved crescent-shaped clusters with labels 0 and 1
+ * @returns Array of data points with x1, x2 coordinates and y labels
+ */
 export const generateCrescents = (): DataPoint[] => {
   const points: DataPoint[] = [];
   const n = 70;
@@ -57,6 +72,13 @@ export const generateCrescents = (): DataPoint[] => {
   return points;
 };
 
+/**
+ * Compute logistic regression loss and gradient
+ * @param w Weight vector [w0, w1, w2]
+ * @param data Training data points
+ * @param lambda L2 regularization parameter
+ * @returns Object containing loss value and gradient vector
+ */
 export const computeLossAndGradient = (
   w: number[],
   data: DataPoint[],
@@ -87,23 +109,55 @@ export const computeLossAndGradient = (
   return { loss, grad };
 };
 
-// Vector operations
+/**
+ * Dot product of two vectors
+ * @param a First vector
+ * @param b Second vector
+ * @returns Dot product sum
+ */
 export const dot = (a: number[], b: number[]): number =>
   a.reduce((sum, val, i) => sum + val * b[i], 0);
 
+/**
+ * Euclidean norm (L2 norm) of a vector
+ * @param v Input vector
+ * @returns L2 norm
+ */
 export const norm = (v: number[]): number =>
   Math.sqrt(dot(v, v));
 
+/**
+ * Scale vector by scalar
+ * @param v Input vector
+ * @param s Scalar multiplier
+ * @returns Scaled vector
+ */
 export const scale = (v: number[], s: number): number[] =>
   v.map(x => x * s);
 
+/**
+ * Add two vectors element-wise
+ * @param a First vector
+ * @param b Second vector
+ * @returns Sum vector
+ */
 export const add = (a: number[], b: number[]): number[] =>
   a.map((x, i) => x + b[i]);
 
+/**
+ * Subtract two vectors element-wise
+ * @param a First vector
+ * @param b Second vector
+ * @returns Difference vector (a - b)
+ */
 export const sub = (a: number[], b: number[]): number[] =>
   a.map((x, i) => x - b[i]);
 
-// Canvas setup utility
+/**
+ * Set up canvas with proper DPI scaling
+ * @param canvas HTML canvas element
+ * @returns Object containing context and dimensions
+ */
 export const setupCanvas = (canvas: HTMLCanvasElement) => {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
@@ -114,7 +168,17 @@ export const setupCanvas = (canvas: HTMLCanvasElement) => {
   return { ctx, width: rect.width, height: rect.height };
 };
 
-// Formatting utilities
+/**
+ * Format number to 6 decimal places
+ * @param val Number to format
+ * @returns Formatted string
+ */
 export const fmt = (val: number): string => val.toFixed(6);
+
+/**
+ * Format vector to string with 4 decimal places per element
+ * @param vec Vector to format
+ * @returns Formatted string like "[1.0000, 2.0000]"
+ */
 export const fmtVec = (vec: number[]): string =>
   `[${vec.map(v => v.toFixed(4)).join(', ')}]`;

@@ -3,6 +3,10 @@ import { quadraticProblem, illConditionedQuadratic } from './quadratic';
 import { rosenbrockProblem } from './rosenbrock';
 import { saddleProblem } from './saddle';
 
+/**
+ * Registry of all available optimization problems
+ * Maps problem type string to problem definition
+ */
 export const problemRegistry: Record<string, ProblemDefinition> = {
   'quadratic': quadraticProblem,
   'ill-conditioned-quadratic': illConditionedQuadratic,
@@ -10,6 +14,11 @@ export const problemRegistry: Record<string, ProblemDefinition> = {
   'non-convex-saddle': saddleProblem,
 };
 
+/**
+ * Get problem definition by type
+ * @param type Problem type identifier
+ * @returns Problem definition or undefined if not found
+ */
 export function getProblem(type: string): ProblemDefinition | undefined {
   return problemRegistry[type];
 }

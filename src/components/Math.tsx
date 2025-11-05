@@ -8,6 +8,12 @@ interface MathProps {
   className?: string;
 }
 
+/**
+ * Render LaTeX math expression using KaTeX
+ * @param children LaTeX string to render
+ * @param block Whether to render in display mode (block) or inline mode
+ * @param className Optional CSS classes
+ */
 export function Math({ children, block = false, className = '' }: MathProps) {
   const html = useMemo(() => {
     try {
@@ -33,11 +39,16 @@ export function Math({ children, block = false, className = '' }: MathProps) {
   );
 }
 
-// Convenience components
+/**
+ * Convenience component for inline math
+ */
 export function InlineMath({ children, className }: { children: string; className?: string }) {
   return <Math block={false} className={className}>{children}</Math>;
 }
 
+/**
+ * Convenience component for block (display) math
+ */
 export function BlockMath({ children, className }: { children: string; className?: string }) {
   return <Math block={true} className={className}>{children}</Math>;
 }
