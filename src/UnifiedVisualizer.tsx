@@ -14,6 +14,7 @@ import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
+import { Toast } from './components/Toast';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -79,6 +80,9 @@ const UnifiedVisualizer = () => {
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
   const [showProblemSwitcher, setShowProblemSwitcher] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const data = [...baseData, ...customPoints];
 
@@ -282,6 +286,12 @@ const UnifiedVisualizer = () => {
 
       // Clear loading state immediately (no artificial delay to avoid race conditions)
       setExperimentLoading(false);
+
+      // Show success toast
+      setToast({
+        message: `Loaded: ${experiment.name}`,
+        type: 'success'
+      });
 
     } catch (error) {
       console.error('Error loading experiment:', error);
@@ -3994,6 +4004,14 @@ const UnifiedVisualizer = () => {
           )}
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
