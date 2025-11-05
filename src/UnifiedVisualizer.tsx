@@ -15,7 +15,7 @@ import {
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescentLegacy, GDIteration } from './algorithms/gradient-descent';
-import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+import { runGradientDescentLineSearchLegacy, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
@@ -376,7 +376,7 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      setGdLSIterations(runGradientDescentLineSearch(data, 80, lambda, gdLSC1));
+      setGdLSIterations(runGradientDescentLineSearchLegacy(data, 80, lambda, gdLSC1));
       setGdLSCurrentIter(0);
     }
   }, [data.length, lambda, gdLSC1, customPoints.length]);
