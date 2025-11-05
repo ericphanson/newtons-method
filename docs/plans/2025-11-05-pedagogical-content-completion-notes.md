@@ -273,6 +273,58 @@ The pedagogical content enhancement project (Tasks 1-29) is **complete and succe
 
 ---
 
+## Experiment Wiring (Phase 2)
+
+**Completed:** 2025-11-05
+
+### What Was Added
+
+1. **Interactive Experiment Buttons** - All 17 experiment ▶ buttons now functional
+2. **Saddle Point Problem** - New non-convex problem with negative eigenvalue
+3. **Experiment Loading** - `loadExperiment` function updates state and resets algorithm
+4. **Visual Feedback** - Loading spinners, toast notifications, experiment indicator
+5. **Problem Switcher** - UI for manual problem selection (shown when needed)
+6. **Reset Functionality** - Reset All button and keyboard shortcuts
+7. **User Documentation** - Complete guide to using experiments
+
+### Technical Implementation
+
+- **17 click handlers** wired to experiment preset loading
+- **Toast component** with animations for user feedback
+- **State management** for current experiment and loading status
+- **Keyboard shortcuts** (Cmd+E, Cmd+R) for power users
+- **Problem registry integration** for switching objectives
+
+### Files Modified
+
+- `src/UnifiedVisualizer.tsx` - Added loadExperiment, state, event handlers
+- `src/problems/saddle.ts` - New saddle point problem
+- `src/components/Toast.tsx` - Toast notification component
+- `docs/experiments-guide.md` - User guide
+- `docs/known-issues.md` - Known limitations
+
+### Commits
+
+- feat(problems): add non-convex saddle point problem
+- feat(experiments): add experiment state and loadExperiment
+- feat(gd-fixed): wire up Try This experiment buttons
+- feat(gd-linesearch): wire up Try This experiment buttons
+- feat(newton): wire up Try This experiment buttons
+- feat(lbfgs): wire up Try This experiment buttons
+- feat(experiments): add toast notifications
+- feat(experiments): add keyboard shortcuts
+- docs: add experiment system user guide
+
+### What Still Needs Work
+
+1. **Problem Switching Backend** - Currently UI only, need to wire to algorithm
+2. **Side-by-Side Comparison** - "Compare" experiments need split view
+3. **Visualization Domain** - Problem domain bounds not yet applied to canvas
+4. **Custom Datasets** - Dataset loading partially implemented
+5. **Experiment Recording** - Save/replay experiment results
+
+---
+
 **Completion Date:** 2025-11-05
 **Total Development Time:** Tasks 1-29 implemented incrementally
 **Git Status:** Clean working tree, 22 commits, ready for next phase
