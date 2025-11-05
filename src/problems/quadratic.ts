@@ -14,7 +14,7 @@ export const quadraticProblem: ProblemDefinition = {
     return [w[0], w[1]];
   },
 
-  hessian: (w: number[]): number[][] => {
+  hessian: (_w: number[]): number[][] => {
     // Constant Hessian = [[1, 0], [0, 1]] (identity)
     return [[1, 0], [0, 1]];
   },
@@ -39,7 +39,7 @@ export const illConditionedQuadratic: ProblemDefinition = {
     return [100 * w[0], w[1]];
   },
 
-  hessian: (w: number[]): number[][] => {
+  hessian: (_w: number[]): number[][] => {
     return [[100, 0], [0, 1]];
   },
 
