@@ -12,7 +12,7 @@ import {
   logisticGradient,
   logisticHessian
 } from './utils/logisticRegression';
-import { runNewton, NewtonIteration } from './algorithms/newton';
+import { runNewtonLegacy, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescentLegacy, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearchLegacy, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
@@ -383,7 +383,7 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      setNewtonIterations(runNewton(data, 15, lambda, newtonC1));
+      setNewtonIterations(runNewtonLegacy(data, 15, lambda, newtonC1));
       setNewtonCurrentIter(0);
     }
   }, [data.length, lambda, newtonC1, customPoints.length]);

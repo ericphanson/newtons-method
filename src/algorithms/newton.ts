@@ -9,6 +9,7 @@ import {
   add
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
+import { ProblemFunctions, AlgorithmOptions } from './types';
 
 export interface NewtonIteration {
   iter: number;
@@ -133,7 +134,103 @@ const computeEigenvalues = (A: number[][]): number[] => {
   return eigenvalues.sort((a, b) => Math.abs(b) - Math.abs(a));
 };
 
+/**
+ * Newton's Method with Armijo line search
+ *
+ * Second-order optimization using exact Hessian information.
+ * At each iteration, solves H * direction = -grad to get Newton direction,
+ * then performs line search to ensure sufficient decrease.
+ *
+ * @param problem Problem definition with objective, gradient, hessian, and dimensionality
+ * @param options Algorithm options including maxIter, c1, and optional initial point
+ * @returns Array of iteration objects with Hessian, eigenvalues, and line search details
+ */
 export const runNewton = (
+  problem: ProblemFunctions,
+  options: AlgorithmOptions & { c1?: number; lambda?: number }
+): NewtonIteration[] => {
+  if (!problem.hessian) {
+    throw new Error('Newton method requires Hessian function');
+  }
+
+  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint } = options;
+  const iterations: NewtonIteration[] = [];
+
+  // Note: lambda is accepted for API consistency but unused here since
+  // regularization is already baked into ProblemFunctions
+  void lambda;
+
+  // Initialize weights based on dimensionality
+  let w = initialPoint || (problem.dimensionality === 3
+    ? [0.1, 0.1, 0.0]
+    : [0.1, 0.1]);
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    const loss = problem.objective(w);
+    const grad = problem.gradient(w);
+    const hessian = problem.hessian(w);
+    const gradNorm = norm(grad);
+    const eigenvalues = computeEigenvalues(hessian);
+    const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
+
+    // Solve Hessian * direction = -grad (Newton direction)
+    const HInv = invertMatrix(hessian);
+    let direction: number[];
+
+    if (HInv === null) {
+      // If Hessian is singular, fall back to gradient descent
+      direction = scale(grad, -1);
+    } else {
+      direction = HInv.map(row => -dot(row, grad));
+    }
+
+    // Perform line search to find good step size
+    const lineSearchResult = armijoLineSearch(
+      w,
+      direction,
+      grad,
+      loss,
+      (wTest) => ({ loss: problem.objective(wTest), grad: problem.gradient(wTest) }),
+      c1
+    );
+
+    const acceptedAlpha = lineSearchResult.alpha;
+    const wNew = add(w, scale(direction, acceptedAlpha));
+    const newLoss = problem.objective(wNew);
+
+    iterations.push({
+      iter,
+      w: [...w],
+      loss,
+      grad: [...grad],
+      gradNorm,
+      hessian: hessian.map(row => [...row]),
+      eigenvalues: [...eigenvalues],
+      conditionNumber,
+      direction,
+      alpha: acceptedAlpha,
+      wNew: [...wNew],
+      newLoss,
+      lineSearchTrials: lineSearchResult.trials,
+      lineSearchCurve: lineSearchResult.curve
+    });
+
+    w = wNew;
+
+    // Early stopping if converged
+    if (gradNorm < 1e-5) {
+      break;
+    }
+  }
+
+  return iterations;
+};
+
+/**
+ * @deprecated Use runNewton with ProblemFunctions interface instead
+ * Kept for backward compatibility during migration
+ */
+export const runNewtonLegacy = (
   data: DataPoint[],
   maxIter = 15,
   lambda = 0.0001,
