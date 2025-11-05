@@ -3,7 +3,7 @@ import UnifiedVisualizer from './UnifiedVisualizer';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/newtons-method">
       <Routes>
         <Route path="/" element={<UnifiedVisualizer />} />
       </Routes>
