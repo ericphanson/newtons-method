@@ -14,7 +14,6 @@ import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
-// @ts-expect-error - Will be used in Task 4+
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -51,10 +50,9 @@ const UnifiedVisualizer = () => {
   const [lbfgsM, setLbfgsM] = useState(5);
 
   // Experiment state
-  // @ts-expect-error - Will be used in Task 4+
   const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
-  // @ts-expect-error - Will be used in Task 4+
   const [experimentLoading, setExperimentLoading] = useState(false);
+  void currentExperiment; // Will be used in future tasks
 
   const data = [...baseData, ...customPoints];
 
@@ -191,7 +189,6 @@ const UnifiedVisualizer = () => {
   const lbfgsLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Load experiment preset
-  // @ts-expect-error - Will be used in Task 4+
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
     setExperimentLoading(true);
     setCurrentExperiment(experiment.id);
@@ -1447,7 +1444,18 @@ const UnifiedVisualizer = () => {
                   <div className="space-y-3">
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-fixed');
+                            const exp = experiments.find(e => e.id === 'gd-fixed-success');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Good Step Size"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-green-900">Success: Good Step Size (α=0.1)</p>
                           <p className="text-sm text-gray-700">
@@ -1462,7 +1470,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-fixed');
+                            const exp = experiments.find(e => e.id === 'gd-fixed-diverge');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Too Large Step Size"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: Too Large (α=0.8)</p>
                           <p className="text-sm text-gray-700">
@@ -1477,7 +1496,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-orange-200 rounded p-3 bg-orange-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-orange-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-fixed');
+                            const exp = experiments.find(e => e.id === 'gd-fixed-too-small');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Too Small Step Size"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-orange-900">Failure: Too Small (α=0.001)</p>
                           <p className="text-sm text-gray-700">
@@ -1492,7 +1522,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-fixed');
+                            const exp = experiments.find(e => e.id === 'gd-fixed-ill-conditioned');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Ill-Conditioned Problem"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-purple-900">Struggle: Ill-Conditioned</p>
                           <p className="text-sm text-gray-700">
@@ -1505,10 +1546,6 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-gray-500 mt-4">
-                    Note: One-click experiment loading coming soon!
-                  </p>
                 </div>
               </CollapsibleSection>
 
