@@ -398,6 +398,27 @@ const UnifiedVisualizer = () => {
       newtonCurrentIter, newtonIterations.length,
       lbfgsCurrentIter, lbfgsIterations.length]);
 
+  // Keyboard shortcuts for experiments
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + E: Clear current experiment
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        setCurrentExperiment(null);
+        resetToDefaults();
+      }
+
+      // Ctrl/Cmd + R: Reset to defaults
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        resetToDefaults();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [resetToDefaults]);
+
   // Handle canvas click to add points
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (addPointMode === 0) return;
@@ -1882,6 +1903,10 @@ const UnifiedVisualizer = () => {
                       </button>
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
+                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
+                  </p>
                 </div>
               )}
 
@@ -2508,6 +2533,10 @@ const UnifiedVisualizer = () => {
                       </button>
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
+                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
+                  </p>
                 </div>
               )}
 
@@ -3085,6 +3114,10 @@ const UnifiedVisualizer = () => {
                       </button>
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
+                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
+                  </p>
                 </div>
               )}
 
@@ -3851,6 +3884,10 @@ const UnifiedVisualizer = () => {
                       </button>
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
+                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
+                  </p>
                 </div>
               )}
 
