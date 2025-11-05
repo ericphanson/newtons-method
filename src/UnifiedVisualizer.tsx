@@ -1278,9 +1278,17 @@ const UnifiedVisualizer = () => {
       <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-2xl font-bold text-purple-900 mb-4">Problem: Logistic Regression</h2>
         <div className="space-y-2 text-gray-800">
-          <div><strong>Model:</strong> P(y=1|x) = σ(w₀·x₁ + w₁·x₂ + w₂)</div>
-          <div><strong>Loss:</strong> f(w) = -(1/N) Σ [y log(σ(wᵀx)) + (1-y) log(1-σ(wᵀx))] + (λ/2)(w₀² + w₁²)</div>
-          <div><strong>Goal:</strong> Find w* that minimizes f(w)</div>
+          <div>
+            <strong>Model:</strong>{' '}
+            <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
+          </div>
+          <div>
+            <strong>Loss:</strong>{' '}
+            <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
+          </div>
+          <div>
+            <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
+          </div>
         </div>
       </div>
 
@@ -1298,7 +1306,7 @@ const UnifiedVisualizer = () => {
           </div>
           <div className="w-64 space-y-4">
             <div>
-              <h3 className="font-bold text-gray-800 mb-2">Regularization (λ)</h3>
+              <h3 className="font-bold text-gray-800 mb-2">Regularization (<InlineMath>\lambda</InlineMath>)</h3>
               <input
                 type="range"
                 min="-6"
@@ -1308,7 +1316,7 @@ const UnifiedVisualizer = () => {
                 onChange={(e) => setLambda(Math.pow(10, parseFloat(e.target.value)))}
                 className="w-full"
               />
-              <span className="text-sm">λ = {lambda.toExponential(1)}</span>
+              <span className="text-sm"><InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}</span>
             </div>
             <div>
               <h3 className="font-bold text-gray-800 mb-2">Add Points</h3>
@@ -1469,7 +1477,7 @@ const UnifiedVisualizer = () => {
             <div className="flex gap-4">
               {selectedTab === 'gd-fixed' ? (
                 <div>
-                  <label className="text-sm font-bold text-gray-700">Step size α:</label>
+                  <label className="text-sm font-bold text-gray-700">Step size <InlineMath>\alpha</InlineMath>:</label>
                   <input
                     type="range"
                     min="-3"
@@ -1483,7 +1491,7 @@ const UnifiedVisualizer = () => {
                 </div>
               ) : selectedTab === 'gd-linesearch' ? (
                 <div>
-                  <label className="text-sm font-bold text-gray-700">Armijo c₁:</label>
+                  <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
                   <input
                     type="range"
                     min="-5"
@@ -1497,7 +1505,7 @@ const UnifiedVisualizer = () => {
                 </div>
               ) : selectedTab === 'newton' ? (
                 <div>
-                  <label className="text-sm font-bold text-gray-700">Armijo c₁:</label>
+                  <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
                   <input
                     type="range"
                     min="-5"
@@ -1524,7 +1532,7 @@ const UnifiedVisualizer = () => {
                     <span className="text-sm">{lbfgsM}</span>
                   </div>
                   <div>
-                    <label className="text-sm font-bold text-gray-700">Armijo c₁:</label>
+                    <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
                     <input
                       type="range"
                       min="-5"
@@ -1589,7 +1597,7 @@ const UnifiedVisualizer = () => {
               <div><strong>Loss:</strong> {fmt(currentIter.newLoss)}</div>
               <div><strong>Gradient norm:</strong> {fmt(currentIter.gradNorm)}</div>
               <div><strong>Weights:</strong> {fmtVec(currentIter.wNew)}</div>
-              <div><strong>Step size α:</strong> {fmt(currentIter.alpha)}</div>
+              <div><strong>Step size <InlineMath>\alpha</InlineMath>:</strong> {fmt(currentIter.alpha)}</div>
             </div>
           </div>
 
@@ -1600,7 +1608,7 @@ const UnifiedVisualizer = () => {
               <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-2xl font-bold text-green-900 mb-4">Gradient Descent (Fixed Step)</h2>
                 <p className="text-gray-800 text-lg">
-                  The simplest optimization algorithm: follow the gradient downhill with constant step size α.
+                  The simplest optimization algorithm: follow the gradient downhill with constant step size <InlineMath>\alpha</InlineMath>.
                 </p>
               </div>
 
@@ -1667,7 +1675,7 @@ const UnifiedVisualizer = () => {
               >
                 <div className="space-y-3 text-gray-800">
                   <p><strong>Left:</strong> Data space - decision boundary from current weights</p>
-                  <p><strong>Right:</strong> Parameter space (w₀, w₁) - the loss landscape</p>
+                  <p><strong>Right:</strong> Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) - the loss landscape</p>
                   <ul className="list-disc ml-6 space-y-1">
                     <li>Lighter colors = lower loss (the valley we're searching for)</li>
                     <li>Orange path = trajectory of weights across iterations</li>
@@ -1706,9 +1714,9 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-green-900">Success: Good Step Size (α=0.1)</p>
+                          <p className="font-semibold text-green-900">Success: Good Step Size (<InlineMath>\alpha=0.1</InlineMath>)</p>
                           <p className="text-sm text-gray-700">
-                            Well-chosen α leads to smooth convergence
+                            Well-chosen <InlineMath>\alpha</InlineMath> leads to smooth convergence
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Steady loss decrease, smooth trajectory
@@ -1734,7 +1742,7 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-red-900">Failure: Too Large (α=2.5)</p>
+                          <p className="font-semibold text-red-900">Failure: Too Large (<InlineMath>\alpha=2.5</InlineMath>)</p>
                           <p className="text-sm text-gray-700">
                             Step size causes oscillation and divergence
                           </p>
@@ -1762,7 +1770,7 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-orange-900">Failure: Too Small (α=0.001)</p>
+                          <p className="font-semibold text-orange-900">Failure: Too Small (<InlineMath>\alpha=0.001</InlineMath>)</p>
                           <p className="text-sm text-gray-700">
                             Tiny steps lead to extremely slow convergence
                           </p>
@@ -1833,7 +1841,7 @@ const UnifiedVisualizer = () => {
                       </div>
 
                       <div>
-                        <p className="font-semibold">❌ "Just pick α=0.01 and it'll work"</p>
+                        <p className="font-semibold">❌ "Just pick <InlineMath>\alpha=0.01</InlineMath> and it'll work"</p>
                         <p className="text-sm ml-6">
                           ✓ Optimal <InlineMath>\alpha</InlineMath> depends on problem scaling<br/>
                           ✓ May be too large for some problems, too small for others<br/>
@@ -1860,7 +1868,7 @@ const UnifiedVisualizer = () => {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size α</h3>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size <InlineMath>\alpha</InlineMath></h3>
                     <div className="space-y-2 text-sm">
                       <p><strong>Rule of thumb:</strong></p>
                       <BlockMath>{'0 < \\alpha < \\frac{2}{L}'}</BlockMath>
@@ -2044,7 +2052,7 @@ const UnifiedVisualizer = () => {
 
               {/* GD Fixed Visualizations */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape with optimization trajectory. Lighter = lower loss.
                 </p>
@@ -2213,16 +2221,16 @@ const UnifiedVisualizer = () => {
                     </div>
 
                     <div className="mt-3 bg-teal-50 rounded p-3">
-                      <p className="font-semibold text-sm mb-2">Understanding c₁:</p>
+                      <p className="font-semibold text-sm mb-2">Understanding <InlineMath>c_1</InlineMath>:</p>
                       <ul className="text-sm list-disc ml-6">
                         <li>
-                          <strong>c₁ too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
+                          <strong><InlineMath>c_1</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
                         </li>
                         <li>
-                          <strong>c₁ good</strong> (e.g., 0.0001): balances quality and efficiency
+                          <strong><InlineMath>c_1</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
                         </li>
                         <li>
-                          <strong>c₁ too large</strong> (e.g., 0.5): too conservative, tiny steps
+                          <strong><InlineMath>c_1</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
                         </li>
                       </ul>
                     </div>
@@ -2302,7 +2310,7 @@ const UnifiedVisualizer = () => {
                         <div>
                           <p className="font-semibold text-blue-900">Compare: Fixed vs Adaptive</p>
                           <p className="text-sm text-gray-700">
-                            Same problem with fixed α vs line search
+                            Same problem with fixed <InlineMath>\alpha</InlineMath> vs line search
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Line search more robust and efficient
@@ -2328,9 +2336,9 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-orange-900">Failure: c₁ Too Small</p>
+                          <p className="font-semibold text-orange-900">Failure: <InlineMath>c_1</InlineMath> Too Small</p>
                           <p className="text-sm text-gray-700">
-                            c₁=0.00001 accepts poor steps, slow convergence
+                            <InlineMath>c_1=0.00001</InlineMath> accepts poor steps, slow convergence
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Many backtracking steps, minimal progress
@@ -2356,9 +2364,9 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-red-900">Failure: c₁ Too Large</p>
+                          <p className="font-semibold text-red-900">Failure: <InlineMath>c_1</InlineMath> Too Large</p>
                           <p className="text-sm text-gray-700">
-                            c₁=0.5 is too conservative, rejects good steps
+                            <InlineMath>c_1=0.5</InlineMath> is too conservative, rejects good steps
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Tiny steps, very slow progress
@@ -2389,7 +2397,7 @@ const UnifiedVisualizer = () => {
                             Landscape with dramatic curvature changes (Rosenbrock)
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Adapts to narrow valley where fixed α fails
+                            Observe: Adapts to narrow valley where fixed <InlineMath>\alpha</InlineMath> fails
                           </p>
                         </div>
                       </div>
@@ -2462,10 +2470,10 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>
-                        <strong>Too many backtracking steps</strong> → c₁ too large, decrease it
+                        <strong>Too many backtracking steps</strong> → <InlineMath>c_1</InlineMath> too large, decrease it
                       </li>
                       <li>
-                        <strong>Slow progress</strong> → c₁ too small, increase it (or use better algorithm)
+                        <strong>Slow progress</strong> → <InlineMath>c_1</InlineMath> too small, increase it (or use better algorithm)
                       </li>
                       <li>
                         <strong>Still diverging</strong> → gradient computation bug, check implementation
@@ -2675,7 +2683,7 @@ const UnifiedVisualizer = () => {
               {/* GD Line Search Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
                   <p className="text-sm text-gray-600 mb-3">
                     Loss landscape with trajectory. Notice adaptive step sizes.
                   </p>
@@ -2792,7 +2800,7 @@ const UnifiedVisualizer = () => {
                     <ul className="list-disc ml-6 space-y-1">
                       <li><strong>All positive</strong> → local minimum (bowl-shaped)</li>
                       <li><strong>Some negative</strong> → saddle point (not a minimum)</li>
-                      <li><strong>Large κ</strong> → ill-conditioned, but Newton handles better than GD</li>
+                      <li><strong>Large <InlineMath>\kappa</InlineMath></strong> → ill-conditioned, but Newton handles better than GD</li>
                     </ul>
                   </div>
 
@@ -2886,7 +2894,7 @@ const UnifiedVisualizer = () => {
                             Watch quadratic convergence in 1-2 iterations on a simple bowl
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: All eigenvalues positive, α=1 accepted, dramatic loss drop
+                            Observe: All eigenvalues positive, <InlineMath>\alpha=1</InlineMath> accepted, dramatic loss drop
                           </p>
                         </div>
                       </div>
@@ -2942,7 +2950,7 @@ const UnifiedVisualizer = () => {
                             Same non-convex problem but line search prevents divergence
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Backtracking reduces α, acts like damped Newton
+                            Observe: Backtracking reduces <InlineMath>\alpha</InlineMath>, acts like damped Newton
                           </p>
                         </div>
                       </div>
@@ -2967,7 +2975,7 @@ const UnifiedVisualizer = () => {
                         <div>
                           <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
                           <p className="text-sm text-gray-700">
-                            Elongated ellipse (κ=100) where GD zig-zags but Newton excels
+                            Elongated ellipse (<InlineMath>\kappa=100</InlineMath>) where GD zig-zags but Newton excels
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Newton converges in ~5 iterations (GD would take 100+)
@@ -3037,7 +3045,7 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>
-                        <strong>Negative eigenvalues</strong> → add line search, consider modified Newton (H + λI)
+                        <strong>Negative eigenvalues</strong> → add line search, consider modified Newton (<InlineMath>H + \lambda I</InlineMath>)
                       </li>
                       <li>
                         <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor)
@@ -3154,9 +3162,9 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-purple-800 mb-2">Condition Number and Convergence</h3>
                     <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
                     <ul className="list-disc ml-6 space-y-1">
-                      <li>Large κ → elongated level sets (ill-conditioned)</li>
+                      <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (ill-conditioned)</li>
                       <li>Newton handles ill-conditioning <strong>better than gradient descent</strong></li>
-                      <li>But numerical stability suffers with very large κ</li>
+                      <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
                     </ul>
                   </div>
 
@@ -3168,7 +3176,7 @@ const UnifiedVisualizer = () => {
                       <BlockMath>{'p = -(H + \\lambda I)^{-1}\\nabla f'}</BlockMath>
                       <ul className="list-disc ml-6 space-y-1 text-sm">
                         <li>Adds regularization to make H positive definite</li>
-                        <li>λ=0: pure Newton; λ→∞: gradient descent</li>
+                        <li><InlineMath>\lambda=0</InlineMath>: pure Newton; <InlineMath>\lambda\to\infty</InlineMath>: gradient descent</li>
                         <li>Interpolates between methods based on trust</li>
                       </ul>
                     </div>
@@ -3264,7 +3272,7 @@ const UnifiedVisualizer = () => {
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
                   <p className="text-sm text-gray-600 mb-3">
                     Loss landscape - Newton takes large, informed steps
                   </p>
@@ -4026,7 +4034,7 @@ const UnifiedVisualizer = () => {
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (w₀, w₁)</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
                   <p className="text-sm text-gray-600 mb-3">
                     Loss landscape - lighter = lower loss. Trajectory descends toward minimum.
                   </p>

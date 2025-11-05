@@ -46,7 +46,7 @@ export function ProblemExplainer() {
           <div className="bg-blue-50 rounded p-3">
             <p className="text-sm font-semibold mb-1">Try this:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>GD Fixed Step with α=0.1 (smooth convergence)</li>
+              <li>GD Fixed Step with <InlineMath>\alpha=0.1</InlineMath> (smooth convergence)</li>
               <li>Newton's Method (quadratic convergence near minimum)</li>
               <li>L-BFGS (efficient for classification)</li>
             </ul>
