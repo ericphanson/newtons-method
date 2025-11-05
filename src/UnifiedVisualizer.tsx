@@ -1437,20 +1437,35 @@ const UnifiedVisualizer = () => {
 
       {/* Problem Formulation */}
       <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-bold text-purple-900 mb-4">Problem: Logistic Regression</h2>
-        <div className="space-y-2 text-gray-800">
-          <div>
-            <strong>Model:</strong>{' '}
-            <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
+        <h2 className="text-2xl font-bold text-purple-900 mb-4">
+          Problem: {currentProblem === 'logistic-regression'
+            ? 'Logistic Regression (2D Classification)'
+            : getProblem(currentProblem)?.name || currentProblem}
+        </h2>
+        {currentProblem === 'logistic-regression' ? (
+          <div className="space-y-2 text-gray-800">
+            <div>
+              <strong>Model:</strong>{' '}
+              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
+            </div>
+            <div>
+              <strong>Loss:</strong>{' '}
+              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
+            </div>
+            <div>
+              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
+            </div>
           </div>
-          <div>
-            <strong>Loss:</strong>{' '}
-            <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
+        ) : (
+          <div className="space-y-2 text-gray-800">
+            <div>
+              <strong>Description:</strong> {getProblem(currentProblem)?.description || 'Optimization problem'}
+            </div>
+            <div>
+              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes the objective function
+            </div>
           </div>
-          <div>
-            <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Shared Data Space */}
