@@ -1963,7 +1963,18 @@ const UnifiedVisualizer = () => {
                   <div className="space-y-3">
                     <div className="border border-teal-200 rounded p-3 bg-teal-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-teal-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-teal-600 font-bold text-lg hover:text-teal-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
+                            const exp = experiments.find(e => e.id === 'gd-ls-success');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Automatic Adaptation"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-teal-900">Success: Automatic Adaptation</p>
                           <p className="text-sm text-gray-700">
@@ -1978,7 +1989,19 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
+                            const exp = experiments.find(e => e.id === 'gd-ls-compare');
+                            if (exp) loadExperiment(exp);
+                            // TODO: Implement side-by-side comparison view
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Fixed vs Adaptive (coming soon)"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-blue-900">Compare: Fixed vs Adaptive</p>
                           <p className="text-sm text-gray-700">
@@ -1993,7 +2016,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-orange-200 rounded p-3 bg-orange-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-orange-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
+                            const exp = experiments.find(e => e.id === 'gd-ls-c1-too-small');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: C1 Too Small"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-orange-900">Failure: c₁ Too Small</p>
                           <p className="text-sm text-gray-700">
@@ -2008,7 +2042,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
+                            const exp = experiments.find(e => e.id === 'gd-ls-c1-too-large');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: C1 Too Large"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: c₁ Too Large</p>
                           <p className="text-sm text-gray-700">
@@ -2023,7 +2068,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
+                            const exp = experiments.find(e => e.id === 'gd-ls-varying-curvature');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Varying Curvature"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-purple-900">Advantage: Varying Curvature</p>
                           <p className="text-sm text-gray-700">
