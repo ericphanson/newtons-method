@@ -2262,6 +2262,85 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* L-BFGS - Try This */}
+              <CollapsibleSection
+                title="Try This"
+                defaultExpanded={true}
+                storageKey="lbfgs-try-this"
+              >
+                <div className="space-y-3">
+                  <p className="text-gray-800 mb-4">
+                    Run these experiments to see L-BFGS in action and understand how memory affects performance:
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="border border-amber-200 rounded p-3 bg-amber-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-amber-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-amber-900">Success: Strongly Convex Problem</p>
+                          <p className="text-sm text-gray-700">
+                            Fast Newton-like convergence without computing Hessian
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Memory pairs build curvature info, converges similar to Newton
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-blue-900">Memory Matters: M=3 vs M=10</p>
+                          <p className="text-sm text-gray-700">
+                            Compare different memory sizes on ill-conditioned problem
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: M=3 needs more iterations, M=10 converges faster (try both!)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-purple-900">Challenge: Rosenbrock Valley</p>
+                          <p className="text-sm text-gray-700">
+                            Non-convex problem tests quasi-Newton approximation quality
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Superlinear convergence once memory captures valley curvature
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-green-200 rounded p-3 bg-green-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-green-900">Compare: L-BFGS vs GD vs Newton</p>
+                          <p className="text-sm text-gray-700">
+                            See the speed/cost tradeoff across algorithms
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: GD slow, Newton fast but expensive, L-BFGS best of both worlds
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-4">
+                    Note: One-click experiment loading coming soon!
+                  </p>
+                </div>
+              </CollapsibleSection>
+
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
