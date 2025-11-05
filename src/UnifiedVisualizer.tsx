@@ -306,12 +306,17 @@ const UnifiedVisualizer = () => {
 
       // 3. Switch problem if needed
       if (experiment.problem !== 'logistic-regression') {
+        setCurrentProblem(experiment.problem);
+        setShowProblemSwitcher(true);
+
         const problem = getProblem(experiment.problem);
         if (problem) {
-          // TODO: Actually switch the problem in the algorithm
-          console.log('Would switch to problem:', experiment.problem);
+          console.log('Loaded problem:', problem.name);
+          // Problem is now active via getCurrentProblem()
         }
-        setShowProblemSwitcher(true);
+      } else {
+        setCurrentProblem('logistic-regression');
+        setShowProblemSwitcher(false);
       }
 
       // 4. Load custom dataset if provided
@@ -1322,13 +1327,34 @@ const UnifiedVisualizer = () => {
           <select
             value={currentProblem}
             onChange={(e) => {
-              setCurrentProblem(e.target.value);
-              // Apply problem switch
-              const problem = getProblem(e.target.value);
-              if (problem) {
-                console.log('Switching to:', problem.name);
-                // TODO: Actually switch problem implementation
+              const newProblem = e.target.value;
+              setCurrentProblem(newProblem);
+
+              // Reset algorithm state when problem changes
+              setGdFixedCurrentIter(0);
+              setGdFixedIterations([]);
+              setGdLSCurrentIter(0);
+              setGdLSIterations([]);
+              setNewtonCurrentIter(0);
+              setNewtonIterations([]);
+              setLbfgsCurrentIter(0);
+              setLbfgsIterations([]);
+
+              // Get problem info for notification
+              let problemName = 'Logistic Regression';
+              if (newProblem !== 'logistic-regression') {
+                const problem = getProblem(newProblem);
+                if (problem) {
+                  problemName = problem.name;
+                  console.log('Switched to:', problem.name, 'Domain:', problem.domain);
+                }
               }
+
+              // Show notification
+              setToast({
+                message: `Switched to: ${problemName}`,
+                type: 'info'
+              });
             }}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           >
