@@ -12,10 +12,12 @@ import {
   logisticGradient,
   logisticHessian
 } from './utils/logisticRegression';
-import { runNewtonLegacy, NewtonIteration } from './algorithms/newton';
-import { runLBFGSLegacy, LBFGSIteration } from './algorithms/lbfgs';
-import { runGradientDescentLegacy, GDIteration } from './algorithms/gradient-descent';
-import { runGradientDescentLineSearchLegacy, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+import { runNewton, NewtonIteration } from './algorithms/newton';
+import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
+import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
+import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+import { problemToProblemFunctions, logisticRegressionToProblemFunctions } from './utils/problemAdapter';
+import type { ProblemFunctions } from './algorithms/types';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
@@ -123,6 +125,19 @@ const UnifiedVisualizer = () => {
         requiresDataset: false,
         dimensionality: 2, // 2D weights [w0, w1]
       };
+    }
+  }, [currentProblem, data, lambda]);
+
+  // Get current problem functions for algorithm execution
+  const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
+    if (currentProblem === 'logistic-regression') {
+      return logisticRegressionToProblemFunctions(data, lambda);
+    } else {
+      const problem = getProblem(currentProblem);
+      if (!problem) {
+        throw new Error(`Problem not found: ${currentProblem}`);
+      }
+      return problemToProblemFunctions(problem);
     }
   }, [currentProblem, data, lambda]);
 
@@ -368,32 +383,73 @@ const UnifiedVisualizer = () => {
 
   // Recompute algorithms when shared state changes
   useEffect(() => {
-    if (data.length > 0) {
-      setGdFixedIterations(runGradientDescentLegacy(data, 100, gdFixedAlpha, lambda));
+    try {
+      const problemFuncs = getCurrentProblemFunctions();
+      const iterations = runGradientDescent(problemFuncs, {
+        maxIter: 100,
+        alpha: gdFixedAlpha,
+        lambda,
+        initialPoint: undefined, // Use default for now
+      });
+      setGdFixedIterations(iterations);
       setGdFixedCurrentIter(0);
+    } catch (error) {
+      console.error('GD Fixed error:', error);
+      setGdFixedIterations([]);
     }
-  }, [data.length, lambda, gdFixedAlpha, customPoints.length]);
+  }, [currentProblem, lambda, gdFixedAlpha, getCurrentProblemFunctions]);
 
   useEffect(() => {
-    if (data.length > 0) {
-      setGdLSIterations(runGradientDescentLineSearchLegacy(data, 80, lambda, gdLSC1));
+    try {
+      const problemFuncs = getCurrentProblemFunctions();
+      const iterations = runGradientDescentLineSearch(problemFuncs, {
+        maxIter: 80,
+        c1: gdLSC1,
+        lambda,
+        initialPoint: undefined, // Use default for now
+      });
+      setGdLSIterations(iterations);
       setGdLSCurrentIter(0);
+    } catch (error) {
+      console.error('GD Line Search error:', error);
+      setGdLSIterations([]);
     }
-  }, [data.length, lambda, gdLSC1, customPoints.length]);
+  }, [currentProblem, lambda, gdLSC1, getCurrentProblemFunctions]);
 
   useEffect(() => {
-    if (data.length > 0) {
-      setNewtonIterations(runNewtonLegacy(data, 15, lambda, newtonC1));
+    try {
+      const problemFuncs = getCurrentProblemFunctions();
+      const iterations = runNewton(problemFuncs, {
+        maxIter: 15,
+        c1: newtonC1,
+        lambda,
+        initialPoint: undefined, // Use default for now
+      });
+      setNewtonIterations(iterations);
       setNewtonCurrentIter(0);
+    } catch (error) {
+      console.error('Newton error:', error);
+      setNewtonIterations([]);
     }
-  }, [data.length, lambda, newtonC1, customPoints.length]);
+  }, [currentProblem, lambda, newtonC1, getCurrentProblemFunctions]);
 
   useEffect(() => {
-    if (data.length > 0) {
-      setLbfgsIterations(runLBFGSLegacy(data, 25, lbfgsM, lambda, lbfgsC1));
+    try {
+      const problemFuncs = getCurrentProblemFunctions();
+      const iterations = runLBFGS(problemFuncs, {
+        maxIter: 25,
+        m: lbfgsM,
+        c1: lbfgsC1,
+        lambda,
+        initialPoint: undefined, // Use default for now
+      });
+      setLbfgsIterations(iterations);
       setLbfgsCurrentIter(0);
+    } catch (error) {
+      console.error('L-BFGS error:', error);
+      setLbfgsIterations([]);
     }
-  }, [data.length, lambda, lbfgsC1, lbfgsM, customPoints.length]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM, getCurrentProblemFunctions]);
 
   // Get current algorithm's iteration
   const getCurrentIter = () => {
