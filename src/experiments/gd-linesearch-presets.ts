@@ -2,6 +2,23 @@ import { ExperimentPreset } from '../types/experiments';
 
 export const gdLinesearchExperiments: ExperimentPreset[] = [
   {
+    id: 'gd-ls-compare',
+    name: 'Compare: Fixed vs Adaptive',
+    description: 'Side-by-side: fixed step (α=0.1) vs line search',
+    problem: 'quadratic',
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      maxIter: 50,
+    },
+    initialPoint: [2, 2],
+    expectation: 'Observe: Line search adapts step size, fixed step is consistent but slower',
+    comparisonConfig: {
+      left: { algorithm: 'gd-fixed', alpha: 0.1 },
+      right: { algorithm: 'gd-linesearch', c1: 0.0001 },
+    },
+  },
+  {
     id: 'gd-ls-success',
     name: 'Success: Automatic Adaptation',
     description: 'Line search automatically finds good step sizes',

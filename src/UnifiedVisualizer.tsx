@@ -22,6 +22,8 @@ import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
 import { ProblemExplainer } from './components/ProblemExplainer';
+import { ComparisonView } from './components/ComparisonView';
+import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -98,6 +100,13 @@ const UnifiedVisualizer = () => {
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  // Comparison mode state
+  const [comparisonMode, setComparisonMode] = useState<'none' | 'gd-ls-compare' | 'lbfgs-compare' | 'newton-compare'>('none');
+  const [comparisonLeftIter, setComparisonLeftIter] = useState(0);
+  const [comparisonRightIter, setComparisonRightIter] = useState(0);
+  const [comparisonLeftIterations, setComparisonLeftIterations] = useState<any[]>([]);
+  const [comparisonRightIterations, setComparisonRightIterations] = useState<any[]>([]);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -353,7 +362,97 @@ const UnifiedVisualizer = () => {
         setCustomPoints(convertedDataset);
       }
 
-      // 5. Iterations reset automatically via useEffect when state changes
+      // 5. Handle comparison mode if configured
+      if (experiment.comparisonConfig) {
+        setComparisonMode(experiment.id as any);
+
+        // Run left algorithm
+        const problemFuncs = getCurrentProblemFunctions();
+        const initialPoint = experiment.problem === 'logistic-regression'
+          ? [experiment.initialPoint?.[0] ?? initialW0, experiment.initialPoint?.[1] ?? initialW1, 0]
+          : [experiment.initialPoint?.[0] ?? initialW0, experiment.initialPoint?.[1] ?? initialW1];
+
+        const leftConfig = experiment.comparisonConfig.left;
+        const rightConfig = experiment.comparisonConfig.right;
+
+        let leftIters: any[] = [];
+        let rightIters: any[] = [];
+
+        // Run left algorithm
+        if (leftConfig.algorithm === 'gd-fixed') {
+          leftIters = runGradientDescent(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            alpha: leftConfig.alpha ?? gdFixedAlpha,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (leftConfig.algorithm === 'gd-linesearch') {
+          leftIters = runGradientDescentLineSearch(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: leftConfig.c1 ?? gdLSC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (leftConfig.algorithm === 'newton') {
+          leftIters = runNewton(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: leftConfig.c1 ?? newtonC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (leftConfig.algorithm === 'lbfgs') {
+          leftIters = runLBFGS(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            m: leftConfig.m ?? lbfgsM,
+            c1: leftConfig.c1 ?? lbfgsC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        }
+
+        // Run right algorithm
+        if (rightConfig.algorithm === 'gd-fixed') {
+          rightIters = runGradientDescent(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            alpha: rightConfig.alpha ?? gdFixedAlpha,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (rightConfig.algorithm === 'gd-linesearch') {
+          rightIters = runGradientDescentLineSearch(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: rightConfig.c1 ?? gdLSC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (rightConfig.algorithm === 'newton') {
+          rightIters = runNewton(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: rightConfig.c1 ?? newtonC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        } else if (rightConfig.algorithm === 'lbfgs') {
+          rightIters = runLBFGS(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            m: rightConfig.m ?? lbfgsM,
+            c1: rightConfig.c1 ?? lbfgsC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            initialPoint,
+          });
+        }
+
+        setComparisonLeftIterations(leftIters);
+        setComparisonRightIterations(rightIters);
+        setComparisonLeftIter(0);
+        setComparisonRightIter(0);
+      } else {
+        setComparisonMode('none');
+        setComparisonLeftIterations([]);
+        setComparisonRightIterations([]);
+      }
+
+      // 6. Iterations reset automatically via useEffect when state changes
 
       // Clear loading state immediately (no artificial delay to avoid race conditions)
       setExperimentLoading(false);
@@ -368,7 +467,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, []);
+  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -388,6 +487,11 @@ const UnifiedVisualizer = () => {
     setNewtonCurrentIter(0);
     setLbfgsCurrentIter(0);
     setCustomPoints([]);
+    setComparisonMode('none');
+    setComparisonLeftIter(0);
+    setComparisonRightIter(0);
+    setComparisonLeftIterations([]);
+    setComparisonRightIterations([]);
   }, []);
 
   // Recompute algorithms when shared state changes
@@ -1528,6 +1632,64 @@ const UnifiedVisualizer = () => {
         <div className="p-6">
           {selectedTab === 'problems' ? (
             <ProblemExplainer />
+          ) : comparisonMode !== 'none' ? (
+            <>
+              {/* Comparison Mode View */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Algorithm Comparison</h2>
+                <p className="text-gray-700 mb-4">{
+                  getExperimentsForAlgorithm(selectedTab)
+                    .find(e => e.id === comparisonMode)?.expectation
+                }</p>
+
+                <ComparisonView
+                  left={{
+                    name: comparisonMode === 'gd-ls-compare' ? 'GD Fixed (α=0.1)' :
+                          comparisonMode === 'lbfgs-compare' ? 'L-BFGS' :
+                          'Newton',
+                    iterations: comparisonLeftIterations,
+                    currentIter: comparisonLeftIter,
+                    color: '#3b82f6',
+                  }}
+                  right={{
+                    name: comparisonMode === 'gd-ls-compare' ? 'GD Line Search' :
+                          comparisonMode === 'lbfgs-compare' ? 'Newton' :
+                          'GD Line Search',
+                    iterations: comparisonRightIterations,
+                    currentIter: comparisonRightIter,
+                    color: '#10b981',
+                  }}
+                  onLeftIterChange={setComparisonLeftIter}
+                  onRightIterChange={setComparisonRightIter}
+                />
+
+                <div className="mt-6">
+                  <ComparisonCanvas
+                    leftIterations={comparisonLeftIterations}
+                    leftCurrentIter={comparisonLeftIter}
+                    leftColor="#3b82f6"
+                    rightIterations={comparisonRightIterations}
+                    rightCurrentIter={comparisonRightIter}
+                    rightColor="#10b981"
+                    width={800}
+                    height={600}
+                    title="Optimization Trajectories"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <button
+                    onClick={() => {
+                      setComparisonMode('none');
+                      setCurrentExperiment(null);
+                    }}
+                    className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  >
+                    Exit Comparison Mode
+                  </button>
+                </div>
+              </div>
+            </>
           ) : (
             <>
           {/* Algorithm-specific hyperparameters and controls */}
@@ -2513,10 +2675,9 @@ const UnifiedVisualizer = () => {
                             const experiments = getExperimentsForAlgorithm('gd-linesearch');
                             const exp = experiments.find(e => e.id === 'gd-ls-compare');
                             if (exp) loadExperiment(exp);
-                            // TODO: Implement side-by-side comparison view
                           }}
                           disabled={experimentLoading}
-                          aria-label="Load experiment: Fixed vs Adaptive (coming soon)"
+                          aria-label="Load experiment: Fixed vs Adaptive"
                         >
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
@@ -3811,7 +3972,6 @@ const UnifiedVisualizer = () => {
                             const experiments = getExperimentsForAlgorithm('lbfgs');
                             const exp = experiments.find(e => e.id === 'lbfgs-compare');
                             if (exp) loadExperiment(exp);
-                            // TODO: Implement side-by-side comparison view
                           }}
                           disabled={experimentLoading}
                           aria-label="Load experiment: Compare L-BFGS vs GD vs Newton"

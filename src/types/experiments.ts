@@ -26,6 +26,10 @@ export interface ExperimentPreset {
   };
   initialPoint?: [number, number];
   expectation: string; // What to observe
+  comparisonConfig?: {
+    left: { algorithm: string; [key: string]: any };
+    right: { algorithm: string; [key: string]: any };
+  };
 }
 
 export interface ProblemDefinition {
