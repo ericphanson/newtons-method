@@ -2525,7 +2525,18 @@ const UnifiedVisualizer = () => {
                   <div className="space-y-3">
                     <div className="border border-blue-200 rounded p-3 bg-blue-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('newton');
+                            const exp = experiments.find(e => e.id === 'newton-success-quadratic');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Success - Strongly Convex Quadratic"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-blue-900">Success: Strongly Convex Quadratic</p>
                           <p className="text-sm text-gray-700">
@@ -2540,7 +2551,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-red-200 rounded p-3 bg-red-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('newton');
+                            const exp = experiments.find(e => e.id === 'newton-failure-rosenbrock');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Failure - Non-Convex Saddle Point"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-red-900">Failure: Non-Convex Saddle Point</p>
                           <p className="text-sm text-gray-700">
@@ -2555,7 +2577,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-green-200 rounded p-3 bg-green-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('newton');
+                            const exp = experiments.find(e => e.id === 'newton-fixed-linesearch');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Fixed - Line Search Rescue"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-green-900">Fixed: Line Search Rescue</p>
                           <p className="text-sm text-gray-700">
@@ -2570,7 +2603,18 @@ const UnifiedVisualizer = () => {
 
                     <div className="border border-purple-200 rounded p-3 bg-purple-50">
                       <div className="flex items-start gap-2">
-                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <button
+                          className="text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('newton');
+                            const exp = experiments.find(e => e.id === 'newton-compare-ill-conditioned');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Compare - Newton vs GD on Ill-Conditioned"
+                        >
+                          ▶
+                        </button>
                         <div>
                           <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
                           <p className="text-sm text-gray-700">
@@ -2583,10 +2627,6 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-gray-500 mt-4">
-                    Note: One-click experiment loading coming soon!
-                  </p>
                 </div>
               </CollapsibleSection>
 
