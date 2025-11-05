@@ -5,8 +5,7 @@ import {
   generateCrescents,
   setupCanvas,
   fmt,
-  fmtVec,
-  computeLossAndGradient
+  fmtVec
 } from './shared-utils';
 import {
   logisticObjective,
@@ -636,12 +635,16 @@ const UnifiedVisualizer = () => {
 
     const resolution = 60;
     const lossValues: number[] = [];
+    const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
-        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        // Use problem interface for loss computation
+        const loss = problem.dimensionality === 3
+          ? problem.objective([w0, w1, 0])
+          : problem.objective([w0, w1]);
         lossValues.push(loss);
       }
     }
@@ -804,12 +807,16 @@ const UnifiedVisualizer = () => {
 
     const resolution = 60;
     const lossValues = [];
+    const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
-        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        // Use problem interface for loss computation
+        const loss = problem.dimensionality === 3
+          ? problem.objective([w0, w1, 0])
+          : problem.objective([w0, w1]);
         lossValues.push(loss);
       }
     }
@@ -972,13 +979,17 @@ const UnifiedVisualizer = () => {
 
     const resolution = 60;
     const lossValues: number[] = [];
+    const problem = getCurrentProblem();
 
     // Compute loss landscape
     for (let i = 0; i < resolution; i++) {
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
-        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        // Use problem interface for loss computation
+        const loss = problem.dimensionality === 3
+          ? problem.objective([w0, w1, 0])
+          : problem.objective([w0, w1]);
         lossValues.push(loss);
       }
     }
@@ -1051,12 +1062,16 @@ const UnifiedVisualizer = () => {
 
     const resolution = 60;
     const lossValues = [];
+    const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
-        const { loss } = computeLossAndGradient([w0, w1, 0], data, lambda);
+        // Use problem interface for loss computation
+        const loss = problem.dimensionality === 3
+          ? problem.objective([w0, w1, 0])
+          : problem.objective([w0, w1]);
         lossValues.push(loss);
       }
     }
