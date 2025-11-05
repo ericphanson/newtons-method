@@ -1459,10 +1459,25 @@ const UnifiedVisualizer = () => {
         ) : (
           <div className="space-y-2 text-gray-800">
             <div>
+              <strong>Objective:</strong>{' '}
+              {currentProblem === 'quadratic' && (
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}</InlineMath>
+              )}
+              {currentProblem === 'ill-conditioned-quadratic' && (
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}(100w_0^2 + w_1^2)`}</InlineMath>
+              )}
+              {currentProblem === 'rosenbrock' && (
+                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}</InlineMath>
+              )}
+              {currentProblem === 'non-convex-saddle' && (
+                <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
+              )}
+            </div>
+            <div>
               <strong>Description:</strong> {getProblem(currentProblem)?.description || 'Optimization problem'}
             </div>
             <div>
-              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes the objective function
+              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
             </div>
           </div>
         )}
