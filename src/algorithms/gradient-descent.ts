@@ -24,10 +24,14 @@ export interface GDIteration {
  */
 export const runGradientDescent = (
   problem: ProblemFunctions,
-  options: AlgorithmOptions & { alpha: number }
+  options: AlgorithmOptions & { alpha: number; lambda?: number }
 ): GDIteration[] => {
-  const { maxIter, alpha, initialPoint } = options;
+  const { maxIter, alpha, lambda = 0, initialPoint } = options;
   const iterations: GDIteration[] = [];
+
+  // Note: lambda is accepted for API consistency but unused here since
+  // regularization is already baked into ProblemFunctions
+  void lambda;
 
   // Initialize weights based on dimensionality
   let w = initialPoint || (problem.dimensionality === 3
