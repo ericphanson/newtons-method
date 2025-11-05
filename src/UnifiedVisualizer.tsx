@@ -1286,81 +1286,70 @@ const UnifiedVisualizer = () => {
               </div>
 
               <CollapsibleSection
-                title="What is Gradient Descent?"
+                title="Quick Start"
                 defaultExpanded={true}
-                storageKey="gd-fixed-what"
+                storageKey="gd-fixed-quick-start"
               >
-                <div className="space-y-3 text-gray-800">
-                  <p><strong>Goal:</strong> Find weights w that minimize loss f(w)</p>
-                  <p><strong>Intuition:</strong> Imagine you're on a hillside in fog. You can feel the slope
-                  under your feet (the gradient), but can't see the valley. Walk downhill repeatedly
-                  until you reach the bottom.</p>
-                  <p>The gradient ∇f tells you the direction of steepest ascent.
-                  We go the opposite way: <strong>-∇f</strong> (steepest descent).</p>
-                </div>
-              </CollapsibleSection>
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-green-800 mb-2">The Core Idea</h3>
+                    <p>
+                      Follow the <strong>gradient downhill</strong>. The gradient{' '}
+                      <InlineMath>\nabla f(w)</InlineMath> points in the direction of steepest
+                      increase, so <InlineMath>-\nabla f(w)</InlineMath> points toward steepest
+                      decrease.
+                    </p>
+                  </div>
 
-              <CollapsibleSection
-                title="The Algorithm"
-                defaultExpanded={true}
-                storageKey="gd-fixed-algorithm"
-              >
-                <div className="space-y-3 text-gray-800">
-                  <ol className="list-decimal list-inside space-y-2">
-                    <li>Start with initial guess w₀ (e.g., all zeros)</li>
-                    <li>Compute gradient: g = ∇f(w)</li>
-                    <li>Take a step downhill: <strong>w_new = w_old - α·g</strong></li>
-                    <li>Repeat steps 2-3 until gradient is tiny (converged)</li>
-                  </ol>
-                  <div className="mt-4 bg-green-200 rounded p-4">
-                    <p className="font-bold">Key parameter: α (step size)</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1">
-                      <li>Too small → slow progress, many iterations</li>
-                      <li>Too large → overshoot minimum, oscillate or diverge</li>
-                      <li>Just right → steady progress toward minimum</li>
+                  <div>
+                    <h3 className="text-lg font-bold text-green-800 mb-2">The Algorithm</h3>
+                    <ol className="list-decimal ml-6 space-y-1">
+                      <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
+                      <li>Scale by step size <InlineMath>\alpha</InlineMath></li>
+                      <li>Update <InlineMath>w \leftarrow w - \alpha \nabla f(w)</InlineMath></li>
+                      <li>Repeat until convergence</li>
+                    </ol>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-green-800 mb-2">Key Formula</h3>
+                    <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k)'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      where <InlineMath>\alpha</InlineMath> (alpha) is the <strong>learning rate</strong>
+                      or step size.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-green-800 mb-2">When to Use</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Simple baseline for any differentiable function</li>
+                      <li>Educational purposes (understanding optimization)</li>
+                      <li>When computational cost per iteration must be minimal</li>
+                      <li>Problems where you can tune <InlineMath>\alpha</InlineMath> effectively</li>
                     </ul>
                   </div>
-                </div>
-              </CollapsibleSection>
 
-              <CollapsibleSection
-                title="The Mathematics"
-                defaultExpanded={false}
-                storageKey="gd-fixed-math"
-              >
-                <div className="space-y-3 text-gray-800 font-mono text-sm">
-                  <div>
-                    <p className="font-bold">Loss function:</p>
-                    <p>f(w) = -(1/N) Σ [y log(σ(wᵀx)) + (1-y) log(1-σ(wᵀx))] + (λ/2)||w||²</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">Gradient (vector of partial derivatives):</p>
-                    <p>∇f(w) = [∂f/∂w₀, ∂f/∂w₁, ∂f/∂w₂]ᵀ</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">For logistic regression:</p>
-                    <p>∇f(w) = (1/N) Σ (σ(wᵀx) - y)·x + λw</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">Update rule:</p>
-                    <p>w⁽ᵏ⁺¹⁾ = w⁽ᵏ⁾ - α∇f(w⁽ᵏ⁾)</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">Convergence criterion:</p>
-                    <p>||∇f(w)|| &lt; ε (e.g., ε = 10⁻⁶)</p>
+                  <div className="bg-green-100 rounded p-3">
+                    <p className="font-bold text-sm">Key Challenge:</p>
+                    <p className="text-sm">
+                      Choosing <InlineMath>\alpha</InlineMath> is critical. Too large → divergence.
+                      Too small → slow convergence. This is why line search methods exist
+                      (see Gradient Descent with Line Search tab).
+                    </p>
                   </div>
                 </div>
               </CollapsibleSection>
 
               <CollapsibleSection
-                title="What You're Seeing"
+                title="Visual Guide"
                 defaultExpanded={true}
-                storageKey="gd-fixed-viz"
+                storageKey="gd-fixed-visual-guide"
               >
                 <div className="space-y-3 text-gray-800">
                   <p><strong>Left:</strong> Data space - decision boundary from current weights</p>
                   <p><strong>Right:</strong> Parameter space (w₀, w₁) - the loss landscape</p>
-                  <ul className="list-disc list-inside ml-4 space-y-1">
+                  <ul className="list-disc ml-6 space-y-1">
                     <li>Lighter colors = lower loss (the valley we're searching for)</li>
                     <li>Orange path = trajectory of weights across iterations</li>
                     <li>Red dot = current position</li>
@@ -1372,16 +1361,279 @@ const UnifiedVisualizer = () => {
 
               <CollapsibleSection
                 title="Try This"
-                defaultExpanded={false}
-                storageKey="gd-fixed-try"
+                defaultExpanded={true}
+                storageKey="gd-fixed-try-this"
               >
-                <div className="space-y-2 text-gray-800">
-                  <ul className="list-disc list-inside space-y-2">
-                    <li>Set α = 0.001: Watch it take tiny steps. How many iterations to converge?</li>
-                    <li>Set α = 0.5: Watch it oscillate. Why does it zig-zag?</li>
-                    <li>Set α = 1.5: Does it diverge completely?</li>
-                    <li>Add custom points: Does the landscape change? Does the same α still work?</li>
-                  </ul>
+                <div className="space-y-3">
+                  <p className="text-gray-800 mb-4">
+                    Experiment with different step sizes to see success and failure modes:
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="border border-green-200 rounded p-3 bg-green-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-green-900">Success: Good Step Size (α=0.1)</p>
+                          <p className="text-sm text-gray-700">
+                            Well-chosen α leads to smooth convergence
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Steady loss decrease, smooth trajectory
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-red-200 rounded p-3 bg-red-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-red-900">Failure: Too Large (α=0.8)</p>
+                          <p className="text-sm text-gray-700">
+                            Step size causes oscillation and divergence
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Loss increases, trajectory bounces around
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-orange-200 rounded p-3 bg-orange-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-orange-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-orange-900">Failure: Too Small (α=0.001)</p>
+                          <p className="text-sm text-gray-700">
+                            Tiny steps lead to extremely slow convergence
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Barely moves, would need thousands of iterations
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-purple-900">Struggle: Ill-Conditioned</p>
+                          <p className="text-sm text-gray-700">
+                            Elongated landscape causes zig-zagging
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Perpendicular steps to contours, slow progress
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-4">
+                    Note: One-click experiment loading coming soon!
+                  </p>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="When Things Go Wrong"
+                defaultExpanded={false}
+                storageKey="gd-fixed-when-wrong"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800 mb-2">Common Misconceptions</h3>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-semibold">❌ "The gradient points to the minimum"</p>
+                        <p className="text-sm ml-6">
+                          ✓ The gradient points toward steepest <strong>increase</strong><br/>
+                          ✓ We follow <InlineMath>-\nabla f</InlineMath> (negative gradient) downhill<br/>
+                          ✓ This is the direction of steepest <strong>decrease</strong>, not necessarily toward minimum
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "Gradient descent always converges"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Only with proper step size <InlineMath>\alpha</InlineMath><br/>
+                          ✓ Can diverge if <InlineMath>\alpha</InlineMath> too large<br/>
+                          ✓ Can get stuck in local minima on non-convex functions
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "Just pick α=0.01 and it'll work"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Optimal <InlineMath>\alpha</InlineMath> depends on problem scaling<br/>
+                          ✓ May be too large for some problems, too small for others<br/>
+                          ✓ Line search methods (next tab) solve this automatically
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
+                    <ul className="space-y-2">
+                      <li>
+                        <strong>Strongly convex:</strong> Linear convergence to global minimum
+                        (guaranteed with proper <InlineMath>\alpha</InlineMath>)
+                      </li>
+                      <li>
+                        <strong>Convex:</strong> Converges to global minimum (possibly slowly)
+                      </li>
+                      <li>
+                        <strong>Non-convex:</strong> May get stuck in local minima or saddle points
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size α</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Rule of thumb:</strong></p>
+                      <BlockMath>{'0 < \\alpha < \\frac{2}{L}'}</BlockMath>
+                      <p>
+                        where L is the Lipschitz constant of <InlineMath>\nabla f</InlineMath> (smoothness).
+                      </p>
+                      <p className="mt-2">
+                        <strong>Practical approach:</strong> Try <InlineMath>\alpha = 0.1</InlineMath>,
+                        then adjust based on behavior (increase if too slow, decrease if diverging).
+                      </p>
+                      <p className="mt-2">
+                        <strong>Better approach:</strong> Use line search (next tab) to avoid manual tuning.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Mathematical Derivations"
+                defaultExpanded={false}
+                storageKey="gd-fixed-math-derivations"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Gradient Descent Update Rule</h3>
+                    <p>The basic update is simple:</p>
+                    <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k)'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>\alpha &gt; 0</InlineMath> is the step size (learning rate).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Why This Works</h3>
+                    <p>By Taylor expansion around <InlineMath>w_k</InlineMath>:</p>
+                    <BlockMath>{'f(w_{k+1}) \\approx f(w_k) + \\nabla f(w_k)^T (w_{k+1} - w_k)'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Substituting the update rule:
+                    </p>
+                    <BlockMath>{'f(w_{k+1}) \\approx f(w_k) - \\alpha \\|\\nabla f(w_k)\\|^2'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Since <InlineMath>\|\nabla f(w_k)\|^2 \geq 0</InlineMath>, the loss decreases
+                      (for small enough <InlineMath>\alpha</InlineMath>).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
+                    <p><strong>For strongly convex functions:</strong></p>
+                    <BlockMath>{'\\|w_k - w^*\\| \\leq (1 - \\mu/L)^k \\|w_0 - w^*\\|'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>\mu</InlineMath> is strong convexity parameter and{' '}
+                      <InlineMath>L</InlineMath> is smoothness (Lipschitz constant of gradient).
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Linear convergence:</strong> Error decreases by constant factor each iteration.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Step Size Selection</h3>
+                    <p><strong>Sufficient condition for decrease:</strong></p>
+                    <BlockMath>{'\\alpha < \\frac{2}{L}'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>L</InlineMath> satisfies:
+                    </p>
+                    <BlockMath>{'\\|\\nabla f(x) - \\nabla f(y)\\| \\leq L\\|x - y\\|'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      (Lipschitz continuity of gradient)
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">For Logistic Regression</h3>
+                    <p><strong>Loss function:</strong></p>
+                    <BlockMath>{'f(w) = -\\frac{1}{N} \\sum_{i=1}^{N} \\left[y_i \\log(\\sigma(w^T x_i)) + (1-y_i) \\log(1-\\sigma(w^T x_i))\\right] + \\frac{\\lambda}{2}\\|w\\|^2'}</BlockMath>
+                    <p className="text-sm mt-2"><strong>Gradient:</strong></p>
+                    <BlockMath>{'\\nabla f(w) = \\frac{1}{N} \\sum_{i=1}^{N} (\\sigma(w^T x_i) - y_i) x_i + \\lambda w'}</BlockMath>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection
+                title="Advanced Topics"
+                defaultExpanded={false}
+                storageKey="gd-fixed-advanced"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Momentum Methods</h3>
+                    <p>Add momentum to accelerate convergence:</p>
+                    <BlockMath>{'v_{k+1} = \\beta v_k - \\alpha \\nabla f(w_k)'}</BlockMath>
+                    <BlockMath>{'w_{k+1} = w_k + v_{k+1}'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Typical <InlineMath>\beta = 0.9</InlineMath>. Momentum accumulates
+                      velocity in consistent directions, damping oscillations.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Nesterov Acceleration</h3>
+                    <p>"Look ahead" before computing gradient:</p>
+                    <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k + \\beta v_k) + \\beta v_k'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Provably optimal convergence rate for smooth convex functions.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Adaptive Methods Preview</h3>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>
+                        <strong>AdaGrad:</strong> Adapts learning rate per parameter based on
+                        historical gradients
+                      </li>
+                      <li>
+                        <strong>RMSprop:</strong> Uses moving average of squared gradients
+                      </li>
+                      <li>
+                        <strong>Adam:</strong> Combines momentum and adaptive learning rates
+                        (most popular in deep learning)
+                      </li>
+                    </ul>
+                    <p className="text-sm mt-2">
+                      These methods automatically tune step sizes, reducing manual tuning burden.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Per iteration:</strong> O(n) for gradient computation</li>
+                      <li><strong>Memory:</strong> O(n) to store parameters</li>
+                      <li><strong>Total cost:</strong> depends on # iterations to converge</li>
+                    </ul>
+                    <p className="text-sm mt-2 italic">
+                      Simple and cheap per iteration, but may require many iterations.
+                    </p>
+                  </div>
                 </div>
               </CollapsibleSection>
 
