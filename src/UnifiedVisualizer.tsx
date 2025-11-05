@@ -84,6 +84,10 @@ const UnifiedVisualizer = () => {
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
   const [showProblemSwitcher, setShowProblemSwitcher] = useState(false);
+  const [visualizationBounds, setVisualizationBounds] = useState({
+    w0: [-3, 3] as [number, number],
+    w1: [-3, 3] as [number, number],
+  });
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -126,7 +130,8 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const problem = getCurrentProblem();
     console.log('Current problem:', problem.name, 'Dimensionality:', problem.dimensionality);
-  }, [getCurrentProblem]);
+    console.log('Visualization bounds:', visualizationBounds);
+  }, [getCurrentProblem, visualizationBounds]);
 
   // Default configuration for reset functionality
   const defaultConfig = useRef({
@@ -1340,14 +1345,27 @@ const UnifiedVisualizer = () => {
               setLbfgsCurrentIter(0);
               setLbfgsIterations([]);
 
-              // Get problem info for notification
+              // Get problem info and update bounds
               let problemName = 'Logistic Regression';
               if (newProblem !== 'logistic-regression') {
                 const problem = getProblem(newProblem);
                 if (problem) {
                   problemName = problem.name;
                   console.log('Switched to:', problem.name, 'Domain:', problem.domain);
+                  // Update visualization bounds based on problem domain
+                  if (problem.domain) {
+                    setVisualizationBounds({
+                      w0: problem.domain.w0,
+                      w1: problem.domain.w1,
+                    });
+                  }
                 }
+              } else {
+                // Reset to default bounds for logistic regression
+                setVisualizationBounds({
+                  w0: [-3, 3],
+                  w1: [-3, 3],
+                });
               }
 
               // Show notification
