@@ -1671,6 +1671,366 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* Line Search Details */}
+              <CollapsibleSection
+                title="Line Search Details"
+                defaultExpanded={true}
+                storageKey="newton-line-search-details"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Why Line Search for Newton's Method</h3>
+                    <p>Pure Newton (<InlineMath>\alpha = 1</InlineMath> always) assumes the quadratic
+                       approximation is perfect:</p>
+                    <ul className="list-disc ml-6 space-y-1 mt-2">
+                      <li><strong>Far from minimum:</strong> quadratic approximation breaks down</li>
+                      <li><strong>Non-convex regions:</strong> negative eigenvalues → wrong direction</li>
+                      <li><strong>Line search provides damping:</strong> reduces to gradient descent if needed</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Current Method: Armijo Backtracking</h3>
+                    <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
+                    <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>c_1 = </InlineMath>{newtonC1.toFixed(4)} controls how much decrease we require.
+                    </p>
+
+                    <div className="mt-3">
+                      <p className="font-semibold">Backtracking Algorithm:</p>
+                      <ol className="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Start with <InlineMath>\alpha = 1</InlineMath> (full Newton step)</li>
+                        <li>Check if Armijo condition satisfied</li>
+                        <li>If yes → accept <InlineMath>\alpha</InlineMath></li>
+                        <li>If no → reduce <InlineMath>\alpha \leftarrow 0.5\alpha</InlineMath> and repeat</li>
+                      </ol>
+                    </div>
+
+                    <p className="text-sm mt-3">
+                      <strong>Why it works:</strong> Near the minimum with positive definite Hessian,
+                      <InlineMath>\alpha = 1</InlineMath> is usually accepted. Far away or in
+                      problematic regions, backtracking provides safety.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Try This */}
+              <CollapsibleSection
+                title="Try This"
+                defaultExpanded={true}
+                storageKey="newton-try-this"
+              >
+                <div className="space-y-3">
+                  <p className="text-gray-800 mb-4">
+                    Run these experiments to see when Newton's method excels and when it struggles:
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-blue-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-blue-900">Success: Strongly Convex Quadratic</p>
+                          <p className="text-sm text-gray-700">
+                            Watch quadratic convergence in 1-2 iterations on a simple bowl
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: All eigenvalues positive, α=1 accepted, dramatic loss drop
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-red-200 rounded p-3 bg-red-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-red-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-red-900">Failure: Non-Convex Saddle Point</p>
+                          <p className="text-sm text-gray-700">
+                            Start near saddle to see negative eigenvalues and wrong direction
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Negative eigenvalue, Newton direction points wrong way
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-green-200 rounded p-3 bg-green-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-green-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-green-900">Fixed: Line Search Rescue</p>
+                          <p className="text-sm text-gray-700">
+                            Same non-convex problem but line search prevents divergence
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Backtracking reduces α, acts like damped Newton
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
+                      <div className="flex items-start gap-2">
+                        <button className="text-purple-600 font-bold text-lg">▶</button>
+                        <div>
+                          <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
+                          <p className="text-sm text-gray-700">
+                            Elongated ellipse (κ=100) where GD zig-zags but Newton excels
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Newton converges in ~5 iterations (GD would take 100+)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-4">
+                    Note: One-click experiment loading coming soon!
+                  </p>
+                </div>
+              </CollapsibleSection>
+
+              {/* When Things Go Wrong */}
+              <CollapsibleSection
+                title="When Things Go Wrong"
+                defaultExpanded={false}
+                storageKey="newton-when-wrong"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800 mb-2">Common Misconceptions</h3>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-semibold">❌ "Newton always converges faster than gradient descent"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Only near a local minimum with positive definite Hessian<br/>
+                          ✓ Can diverge or fail in non-convex regions without line search
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "The Hessian tells you the direction to the minimum"</p>
+                        <p className="text-sm ml-6">
+                          ✓ <InlineMath>{'-H^{-1}\\nabla f'}</InlineMath> is the Newton direction, not just <InlineMath>H</InlineMath><br/>
+                          ✓ If H not positive definite, may not be a descent direction
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold">❌ "Newton's method always finds the global minimum"</p>
+                        <p className="text-sm ml-6">
+                          ✓ Only for convex functions<br/>
+                          ✓ Non-convex: converges to local minimum or saddle point
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
+                    <ul className="space-y-2">
+                      <li>
+                        <strong>Strongly convex:</strong> Quadratic convergence guaranteed,
+                        H positive definite everywhere
+                      </li>
+                      <li>
+                        <strong>Convex:</strong> H positive semidefinite, converges to global minimum
+                      </li>
+                      <li>
+                        <strong>Non-convex:</strong> May converge to local minimum or saddle point,
+                        H can have negative eigenvalues
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Negative eigenvalues</strong> → add line search, consider modified Newton (H + λI)
+                      </li>
+                      <li>
+                        <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor)
+                      </li>
+                      <li>
+                        <strong>Numerical issues</strong> → Hessian ill-conditioned, use iterative solvers or quasi-Newton
+                      </li>
+                      <li>
+                        <strong>High cost</strong> → n too large, switch to L-BFGS
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Mathematical Derivations */}
+              <CollapsibleSection
+                title="Mathematical Derivations"
+                defaultExpanded={false}
+                storageKey="newton-math-derivations"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Taylor Expansion</h3>
+                    <p>Approximate f locally as quadratic:</p>
+                    <BlockMath>
+                      {'f(w+p) = f(w) + \\nabla f(w)^T p + \\frac{1}{2}p^T H(w) p + O(\\|p\\|^3)'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      This is a second-order approximation using the Hessian matrix.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Deriving Newton Direction</h3>
+                    <p>Minimize the quadratic approximation over p:</p>
+                    <BlockMath>
+                      {'\\nabla_p \\left[ f(w) + \\nabla f^T p + \\frac{1}{2}p^T H p \\right] = \\nabla f + Hp = 0'}
+                    </BlockMath>
+                    <p>Therefore:</p>
+                    <BlockMath>Hp = -\nabla f</BlockMath>
+                    <p>Newton direction:</p>
+                    <BlockMath>{'p = -H^{-1}\\nabla f'}</BlockMath>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Why It Works</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        At minimum of quadratic function, this gives <strong>exact solution in one step</strong>
+                      </li>
+                      <li>
+                        Near a minimum, f behaves like quadratic → <strong>fast convergence</strong>
+                      </li>
+                      <li>
+                        Uses curvature information to <strong>scale gradient properly</strong> in each direction
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
+                    <p><strong>Quadratic convergence:</strong></p>
+                    <BlockMath>
+                      {'\\|e_{k+1}\\| \\leq C\\|e_k\\|^2'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      where <InlineMath>{'e_k = w_k - w^*'}</InlineMath> is the error.
+                      Error <strong>squared</strong> at each iteration (very fast near solution).
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Requires:</strong> strong convexity, Lipschitz continuous Hessian,
+                      starting close enough to <InlineMath>{'w^*'}</InlineMath>
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Proof Sketch</h3>
+                    <ol className="list-decimal ml-6 space-y-1 text-sm">
+                      <li>Taylor expand f(w_k) and f(w*) around w_k</li>
+                      <li>Use Newton update rule to relate w_{'{k+1}'} and w_k</li>
+                      <li>Bound error using Hessian Lipschitz constant</li>
+                      <li>Show error term is quadratic in current error</li>
+                    </ol>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Full proof requires Lipschitz continuity of the Hessian and bounds on eigenvalues.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Advanced Topics */}
+              <CollapsibleSection
+                title="Advanced Topics"
+                defaultExpanded={false}
+                storageKey="newton-advanced"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Computing Hessian H:</strong> O(n²) operations and memory</li>
+                      <li><strong>Solving Hp = -∇f:</strong> O(n³) with direct methods (Cholesky, LU)</li>
+                      <li><strong>Total per iteration:</strong> O(n³) time, O(n²) space</li>
+                      <li><strong>For n=1000:</strong> ~1 billion operations per iteration</li>
+                    </ul>
+                    <p className="text-sm mt-2 italic">
+                      This is why Newton's method becomes impractical for large-scale problems,
+                      motivating quasi-Newton methods like L-BFGS.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Condition Number and Convergence</h3>
+                    <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Large κ → elongated level sets (ill-conditioned)</li>
+                      <li>Newton handles ill-conditioning <strong>better than gradient descent</strong></li>
+                      <li>But numerical stability suffers with very large κ</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Modified Newton Methods</h3>
+
+                    <div className="mt-2">
+                      <p className="font-semibold">Levenberg-Marquardt:</p>
+                      <BlockMath>{'p = -(H + \\lambda I)^{-1}\\nabla f'}</BlockMath>
+                      <ul className="list-disc ml-6 space-y-1 text-sm">
+                        <li>Adds regularization to make H positive definite</li>
+                        <li>λ=0: pure Newton; λ→∞: gradient descent</li>
+                        <li>Interpolates between methods based on trust</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-3">
+                      <p className="font-semibold">Eigenvalue Modification:</p>
+                      <p className="text-sm">Replace negative eigenvalues with small positive values</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Inexact Newton</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Solve Hp = -∇f <strong>approximately</strong> using iterative methods</li>
+                      <li>Use Conjugate Gradient (CG) for large problems</li>
+                      <li>Reduces O(n³) to O(n²) or better</li>
+                      <li>Still achieves superlinear convergence with loose tolerances</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Trust Region Methods</h3>
+                    <p>Alternative to line search:</p>
+                    <BlockMath>
+                      {'\\min_p \\; f(w) + \\nabla f^T p + \\frac{1}{2}p^T H p \\quad \\text{s.t.} \\; \\|p\\| \\leq \\Delta'}
+                    </BlockMath>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>Constrain step to trust region of radius Δ</li>
+                      <li>Adjust Δ based on agreement between model and actual function</li>
+                      <li>More robust in non-convex settings</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Quasi-Newton Preview</h3>
+                    <p>Key insight: Newton requires exact Hessian (expensive)</p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Quasi-Newton approximates H or H⁻¹ from gradients</li>
+                      <li>Builds up curvature information over iterations</li>
+                      <li>Next algorithm: <strong>L-BFGS</strong> (Limited-memory BFGS)</li>
+                      <li>O(mn) cost instead of O(n³), where m ≈ 5-20</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* Newton Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
