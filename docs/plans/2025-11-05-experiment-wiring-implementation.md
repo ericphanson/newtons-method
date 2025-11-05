@@ -2185,6 +2185,134 @@ List all supported problem × algorithm combinations."
 
 ---
 
+## Task 21: Audit and Convert All Unicode Math to KaTeX
+
+**Files:**
+- Audit: All `src/**/*.tsx` files
+- Modify: Any files with Unicode math symbols
+
+**Step 1: Search for Unicode math symbols**
+
+Run comprehensive search for common Unicode math:
+
+```bash
+# Search for common Unicode math symbols
+grep -rn "∇\|α\|β\|γ\|λ\|≤\|≥\|≈\|≠\|×\|÷\|∞\|∂\|∑\|∏\|√\|∫\|≡\|⊂\|⊃\|∈\|∉\|∪\|∩\|⁰\|¹\|²\|³\|⁴\|⁵\|⁶\|⁷\|⁸\|⁹\|₀\|₁\|₂\|₃\|₄\|κ\|θ\|φ\|ψ\|ω\|Δ\|Θ\|Λ\|Ξ\|Π\|Σ\|Φ\|Ψ\|Ω" src/ --include="*.tsx" --include="*.ts" > unicode-math-audit.txt
+
+# Count occurrences
+wc -l unicode-math-audit.txt
+```
+
+Expected: Find all locations with Unicode math
+
+**Step 2: Review audit results**
+
+Check `unicode-math-audit.txt` for:
+- Algorithm descriptions
+- Parameter labels
+- UI text
+- Comments
+- Variable names (leave these as-is)
+
+Common patterns to replace:
+- `∇` → `<InlineMath>\nabla</InlineMath>`
+- `α` → `<InlineMath>\alpha</InlineMath>`
+- `λ` → `<InlineMath>\lambda</InlineMath>`
+- `≤` → `<InlineMath>\leq</InlineMath>`
+- `w⁽ᵏ⁺¹⁾` → `<InlineMath>w_{k+1}</InlineMath>`
+- `H⁻¹` → `<InlineMath>H^{-1}</InlineMath>`
+
+**Step 3: Update UnifiedVisualizer.tsx**
+
+Search specifically in the main file:
+
+```bash
+grep -n "∇\|α\|β\|λ" src/UnifiedVisualizer.tsx | head -30
+```
+
+Common locations:
+- Parameter slider labels
+- Algorithm step descriptions
+- Loss function displays
+- Hyperparameter labels
+
+Example fixes:
+
+```typescript
+// BEFORE:
+<label>Step size α:</label>
+
+// AFTER:
+<label>Step size <InlineMath>\alpha</InlineMath>:</label>
+
+// BEFORE:
+<p>Current loss: {loss.toFixed(4)}</p>
+
+// AFTER:
+<p>Current loss <InlineMath>f(w)</InlineMath>: {loss.toFixed(4)}</p>
+
+// BEFORE:
+<span>∇f(w) = ...</span>
+
+// AFTER:
+<span><InlineMath>\nabla f(w)</InlineMath> = ...</span>
+```
+
+**Step 4: Update problem descriptions**
+
+If logistic regression or other problems have Unicode in descriptions:
+
+```typescript
+// In problem registry or helper text:
+// BEFORE:
+description: "Minimize f(w) = ... with L2 regularization λ"
+
+// AFTER:
+description: (
+  <>
+    Minimize <InlineMath>f(w) = ...</InlineMath> with L2 regularization{' '}
+    <InlineMath>\lambda</InlineMath>
+  </>
+)
+```
+
+**Step 5: Update any remaining UI components**
+
+Check these components:
+- Slider labels
+- Tooltip text
+- Help text
+- Algorithm status displays
+- Iteration info displays
+
+**Step 6: Test all tabs**
+
+Run: `npm run dev`
+
+Visit each tab and verify:
+- No Unicode math visible
+- All math renders via KaTeX
+- No rendering errors
+- Proper spacing around inline math
+
+**Step 7: Clean up and commit**
+
+```bash
+rm unicode-math-audit.txt
+git add src/**/*.tsx src/**/*.ts
+git commit -m "refactor: convert all Unicode math to KaTeX
+
+Replace Unicode math symbols with KaTeX components throughout:
+- ∇, α, β, γ, λ, κ, θ, etc. → InlineMath
+- Superscripts/subscripts → proper LaTeX notation
+- Mathematical operators → LaTeX equivalents
+
+Ensures consistent, professional math rendering everywhere.
+All math now uses KaTeX instead of Unicode fallbacks."
+```
+
+---
+
 ## Execution Options
 
 Plan complete and saved to `docs/plans/2025-11-05-experiment-wiring-implementation.md`.
