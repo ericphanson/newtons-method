@@ -80,6 +80,11 @@ const UnifiedVisualizer = () => {
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
 
+  // Shared algorithm state
+  const [maxIter, setMaxIter] = useState(100);
+  const [initialW0, setInitialW0] = useState(-1);
+  const [initialW1, setInitialW1] = useState(1);
+
   // Experiment state
   const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
@@ -156,6 +161,9 @@ const UnifiedVisualizer = () => {
     lbfgsC1: 0.0001,
     lambda: 0.0001,
     lbfgsM: 5,
+    maxIter: 100,
+    initialW0: -1,
+    initialW1: 1,
   });
 
   // Calculate parameter bounds for both algorithms
@@ -312,15 +320,12 @@ const UnifiedVisualizer = () => {
         setLbfgsM(experiment.hyperparameters.m);
       }
       if (experiment.hyperparameters.maxIter !== undefined) {
-        // @ts-expect-error - setMaxIter will be added in Task 4
         setMaxIter(experiment.hyperparameters.maxIter);
       }
 
       // 2. Set initial point if specified
       if (experiment.initialPoint) {
-        // @ts-expect-error - setInitialW0/W1 will be added in Task 4
         setInitialW0(experiment.initialPoint[0]);
-        // @ts-expect-error - setInitialW0/W1 will be added in Task 4
         setInitialW1(experiment.initialPoint[1]);
       }
 
@@ -339,15 +344,16 @@ const UnifiedVisualizer = () => {
 
       // 4. Load custom dataset if provided
       if (experiment.dataset) {
-        // @ts-expect-error - DataPoint type mismatch will be resolved in Task 4
-        setCustomPoints(experiment.dataset);
+        // Convert from experiment DataPoint format {x, y, label} to visualizer format {x1, x2, y}
+        const convertedDataset = experiment.dataset.map(point => ({
+          x1: point.x,
+          x2: point.y,
+          y: point.label,
+        }));
+        setCustomPoints(convertedDataset);
       }
 
-      // 5. Reset algorithm to apply changes
-      // @ts-expect-error - setCurrentIteration will be added in Task 4
-      setCurrentIteration(0);
-      // @ts-expect-error - setHistory will be added in Task 4
-      setHistory([]);
+      // 5. Iterations reset automatically via useEffect when state changes
 
       // Clear loading state immediately (no artificial delay to avoid race conditions)
       setExperimentLoading(false);
@@ -373,6 +379,9 @@ const UnifiedVisualizer = () => {
     setLbfgsC1(cfg.lbfgsC1);
     setLambda(cfg.lambda);
     setLbfgsM(cfg.lbfgsM);
+    setMaxIter(cfg.maxIter);
+    setInitialW0(cfg.initialW0);
+    setInitialW1(cfg.initialW1);
     setCurrentExperiment(null);
     setGdFixedCurrentIter(0);
     setGdLSCurrentIter(0);
@@ -385,11 +394,14 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     try {
       const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = currentProblem === 'logistic-regression'
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
       const iterations = runGradientDescent(problemFuncs, {
-        maxIter: 100,
+        maxIter,
         alpha: gdFixedAlpha,
         lambda,
-        initialPoint: undefined, // Use default for now
+        initialPoint,
       });
       setGdFixedIterations(iterations);
       setGdFixedCurrentIter(0);
@@ -397,16 +409,19 @@ const UnifiedVisualizer = () => {
       console.error('GD Fixed error:', error);
       setGdFixedIterations([]);
     }
-  }, [currentProblem, lambda, gdFixedAlpha]);
+  }, [currentProblem, lambda, gdFixedAlpha, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
       const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = currentProblem === 'logistic-regression'
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
       const iterations = runGradientDescentLineSearch(problemFuncs, {
-        maxIter: 80,
+        maxIter,
         c1: gdLSC1,
         lambda,
-        initialPoint: undefined, // Use default for now
+        initialPoint,
       });
       setGdLSIterations(iterations);
       setGdLSCurrentIter(0);
@@ -414,16 +429,19 @@ const UnifiedVisualizer = () => {
       console.error('GD Line Search error:', error);
       setGdLSIterations([]);
     }
-  }, [currentProblem, lambda, gdLSC1]);
+  }, [currentProblem, lambda, gdLSC1, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
       const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = currentProblem === 'logistic-regression'
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
       const iterations = runNewton(problemFuncs, {
-        maxIter: 15,
+        maxIter,
         c1: newtonC1,
         lambda,
-        initialPoint: undefined, // Use default for now
+        initialPoint,
       });
       setNewtonIterations(iterations);
       setNewtonCurrentIter(0);
@@ -431,17 +449,20 @@ const UnifiedVisualizer = () => {
       console.error('Newton error:', error);
       setNewtonIterations([]);
     }
-  }, [currentProblem, lambda, newtonC1]);
+  }, [currentProblem, lambda, newtonC1, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
       const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = currentProblem === 'logistic-regression'
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
       const iterations = runLBFGS(problemFuncs, {
-        maxIter: 25,
+        maxIter,
         m: lbfgsM,
         c1: lbfgsC1,
         lambda,
-        initialPoint: undefined, // Use default for now
+        initialPoint,
       });
       setLbfgsIterations(iterations);
       setLbfgsCurrentIter(0);
@@ -449,7 +470,7 @@ const UnifiedVisualizer = () => {
       console.error('L-BFGS error:', error);
       setLbfgsIterations([]);
     }
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Get current algorithm's iteration
   const getCurrentIter = () => {
@@ -1511,49 +1532,160 @@ const UnifiedVisualizer = () => {
             <>
           {/* Algorithm-specific hyperparameters and controls */}
           <div className="mb-6 flex justify-between items-center">
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               {selectedTab === 'gd-fixed' ? (
-                <div>
-                  <label className="text-sm font-bold text-gray-700">Step size <InlineMath>\alpha</InlineMath>:</label>
-                  <input
-                    type="range"
-                    min="-3"
-                    max="0"
-                    step="0.1"
-                    value={Math.log10(gdFixedAlpha)}
-                    onChange={(e) => setGdFixedAlpha(Math.pow(10, parseFloat(e.target.value)))}
-                    className="mx-2"
-                  />
-                  <span className="text-sm">{gdFixedAlpha.toFixed(3)}</span>
-                </div>
+                <>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Step size <InlineMath>\alpha</InlineMath>:</label>
+                    <input
+                      type="range"
+                      min="-3"
+                      max="0"
+                      step="0.1"
+                      value={Math.log10(gdFixedAlpha)}
+                      onChange={(e) => setGdFixedAlpha(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{gdFixedAlpha.toFixed(3)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="500"
+                      step="10"
+                      value={maxIter}
+                      onChange={(e) => setMaxIter(Number(e.target.value))}
+                      className="mx-2 px-2 py-1 border border-gray-300 rounded w-20 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Initial Point:</label>
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_0</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW0}
+                      onChange={(e) => setInitialW0(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_1</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW1}
+                      onChange={(e) => setInitialW1(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                  </div>
+                </>
               ) : selectedTab === 'gd-linesearch' ? (
-                <div>
-                  <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
-                  <input
-                    type="range"
-                    min="-5"
-                    max="-0.3"
-                    step="0.1"
-                    value={Math.log10(gdLSC1)}
-                    onChange={(e) => setGdLSC1(Math.pow(10, parseFloat(e.target.value)))}
-                    className="mx-2"
-                  />
-                  <span className="text-sm">{gdLSC1.toExponential(1)}</span>
-                </div>
+                <>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
+                    <input
+                      type="range"
+                      min="-5"
+                      max="-0.3"
+                      step="0.1"
+                      value={Math.log10(gdLSC1)}
+                      onChange={(e) => setGdLSC1(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{gdLSC1.toExponential(1)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="500"
+                      step="10"
+                      value={maxIter}
+                      onChange={(e) => setMaxIter(Number(e.target.value))}
+                      className="mx-2 px-2 py-1 border border-gray-300 rounded w-20 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Initial Point:</label>
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_0</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW0}
+                      onChange={(e) => setInitialW0(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_1</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW1}
+                      onChange={(e) => setInitialW1(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                  </div>
+                </>
               ) : selectedTab === 'newton' ? (
-                <div>
-                  <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
-                  <input
-                    type="range"
-                    min="-5"
-                    max="-0.3"
-                    step="0.1"
-                    value={Math.log10(newtonC1)}
-                    onChange={(e) => setNewtonC1(Math.pow(10, parseFloat(e.target.value)))}
-                    className="mx-2"
-                  />
-                  <span className="text-sm">{newtonC1.toExponential(1)}</span>
-                </div>
+                <>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Armijo <InlineMath>c_1</InlineMath>:</label>
+                    <input
+                      type="range"
+                      min="-5"
+                      max="-0.3"
+                      step="0.1"
+                      value={Math.log10(newtonC1)}
+                      onChange={(e) => setNewtonC1(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{newtonC1.toExponential(1)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="500"
+                      step="10"
+                      value={maxIter}
+                      onChange={(e) => setMaxIter(Number(e.target.value))}
+                      className="mx-2 px-2 py-1 border border-gray-300 rounded w-20 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Initial Point:</label>
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_0</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW0}
+                      onChange={(e) => setInitialW0(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_1</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW1}
+                      onChange={(e) => setInitialW1(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                  </div>
+                </>
               ) : (
                 <>
                   <div>
@@ -1580,6 +1712,41 @@ const UnifiedVisualizer = () => {
                       className="mx-2"
                     />
                     <span className="text-sm">{lbfgsC1.toExponential(1)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="500"
+                      step="10"
+                      value={maxIter}
+                      onChange={(e) => setMaxIter(Number(e.target.value))}
+                      className="mx-2 px-2 py-1 border border-gray-300 rounded w-20 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Initial Point:</label>
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_0</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW0}
+                      onChange={(e) => setInitialW0(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
+                    <span className="mx-1 text-xs text-gray-600">
+                      <InlineMath>w_1</InlineMath>
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={initialW1}
+                      onChange={(e) => setInitialW1(Number(e.target.value))}
+                      className="px-2 py-1 border border-gray-300 rounded w-16 text-sm"
+                    />
                   </div>
                 </>
               )}
