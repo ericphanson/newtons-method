@@ -17,15 +17,15 @@ export const gdFixedExperiments: ExperimentPreset[] = [
   {
     id: 'gd-fixed-diverge',
     name: 'Failure: Step Size Too Large',
-    description: 'α=0.8 causes oscillation and divergence',
+    description: 'α=2.5 exceeds stability limit and causes divergence',
     problem: 'quadratic',
     hyperparameters: {
-      alpha: 0.8,
+      alpha: 2.5,
       lambda: 0,
       maxIter: 50,
     },
     initialPoint: [2, 2],
-    expectation: 'Observe: Loss increases, trajectory oscillates, diverges',
+    expectation: 'Observe: Loss increases exponentially, trajectory spirals outward, true divergence',
   },
   {
     id: 'gd-fixed-too-small',
