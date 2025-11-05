@@ -2434,6 +2434,131 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* L-BFGS - Mathematical Derivations */}
+              <CollapsibleSection
+                title="Mathematical Derivations"
+                defaultExpanded={false}
+                storageKey="lbfgs-math-derivations"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Secant Equation</h3>
+                    <p>Newton uses: <InlineMath>Hp = -\nabla f</InlineMath> (exact)</p>
+                    <p className="mt-2">Quasi-Newton: approximate H or H⁻¹ from gradients</p>
+                    <p className="mt-2"><strong>Key insight:</strong></p>
+                    <BlockMath>{String.raw`y_k = \nabla f_{k+1} - \nabla f_k \approx H s_k`}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>{String.raw`s_k = w_{k+1} - w_k`}</InlineMath> (parameter change)
+                    </p>
+                    <p className="text-sm mt-2">
+                      This <strong>secant equation</strong> relates gradient changes to parameter
+                      changes via approximate Hessian.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">BFGS Update Formula</h3>
+                    <p>Start with approximation <InlineMath>B_k \approx H</InlineMath></p>
+                    <p className="mt-2">
+                      Update to <InlineMath>{String.raw`B_{k+1}`}</InlineMath> satisfying secant equation:
+                    </p>
+                    <BlockMath>{String.raw`B_{k+1}s_k = y_k`}</BlockMath>
+                    <p className="mt-2"><strong>BFGS formula:</strong></p>
+                    <BlockMath>
+                      {String.raw`B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{ s_k^T B_k s_k} + \frac{y_k y_k^T}{ y_k^T s_k}`}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      Maintains positive definiteness if <InlineMath>y_k^T s_k &gt; 0</InlineMath>
+                      (guaranteed by Wolfe line search).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Why Limited Memory?</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Full BFGS:</strong> stores <InlineMath>B_k</InlineMath> (n×n matrix)
+                        → O(n²) memory
+                      </li>
+                      <li>
+                        <strong>L-BFGS:</strong> don't store <InlineMath>B_k</InlineMath>, instead
+                        store M recent <InlineMath>(s,y)</InlineMath> pairs → O(Mn) memory
+                      </li>
+                      <li>
+                        Implicitly represent <InlineMath>{String.raw`B_k^{-1}`}</InlineMath> via two-loop recursion
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Two-Loop Recursion</h3>
+                    <p className="mb-2">
+                      <strong>Given:</strong> M pairs <InlineMath>(s_i, y_i)</InlineMath> and
+                      gradient <InlineMath>q = \nabla f</InlineMath>
+                    </p>
+                    <p className="mb-2">
+                      <strong>Goal:</strong> compute <InlineMath>{String.raw`p = B_k^{-1} q \approx -H^{-1}\nabla f`}</InlineMath>
+                    </p>
+
+                    <div className="bg-indigo-50 rounded p-3 mt-3">
+                      <p className="font-semibold mb-2">Backward Loop (i = k-1, k-2, ..., k-M):</p>
+                      <div className="text-sm font-mono space-y-1">
+                        <div><InlineMath>{String.raw`\rho_i = 1/(y_i^T s_i)`}</InlineMath></div>
+                        <div><InlineMath>{String.raw`\alpha_i = \rho_i s_i^T q`}</InlineMath></div>
+                        <div><InlineMath>{String.raw`q \leftarrow q - \alpha_i y_i`}</InlineMath></div>
+                      </div>
+                    </div>
+
+                    <div className="bg-indigo-50 rounded p-3 mt-3">
+                      <p className="font-semibold mb-2">Initialize:</p>
+                      <div className="text-sm">
+                        <InlineMath>{String.raw`r = H_0^{-1} q`}</InlineMath>, typically{' '}
+                        <InlineMath>{String.raw`H_0^{-1} = \gamma I`}</InlineMath> where{' '}
+                        <InlineMath>{String.raw`\gamma = s_{k-1}^T y_{k-1} / y_{k-1}^T y_{k-1}`}</InlineMath>
+                      </div>
+                    </div>
+
+                    <div className="bg-indigo-50 rounded p-3 mt-3">
+                      <p className="font-semibold mb-2">Forward Loop (i = k-M, k-M+1, ..., k-1):</p>
+                      <div className="text-sm font-mono space-y-1">
+                        <div><InlineMath>{String.raw`\beta = \rho_i y_i^T r`}</InlineMath></div>
+                        <div><InlineMath>{String.raw`r \leftarrow r + s_i (\alpha_i - \beta)`}</InlineMath></div>
+                      </div>
+                    </div>
+
+                    <p className="mt-3">
+                      <strong>Result:</strong> <InlineMath>{String.raw`p = r \approx -H^{-1}\nabla f`}</InlineMath>
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Why It Works</h3>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>Each (s,y) pair represents one rank-2 update to Hessian approximation</li>
+                      <li>
+                        Two-loop recursion applies these updates implicitly without forming{' '}
+                        <InlineMath>B_k</InlineMath>
+                      </li>
+                      <li>
+                        Mathematically equivalent to full BFGS but O(Mn) instead of O(n²)
+                      </li>
+                      <li>Clever matrix algebra exploits structure of BFGS update</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
+                    <p><strong>Superlinear convergence:</strong></p>
+                    <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
+                    <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
+                      <li>Faster than linear (GD) but slower than quadratic (Newton)</li>
+                      <li>Depends on M: larger M → closer to Newton rate</li>
+                      <li>In practice: M=10 often sufficient for near-Newton performance</li>
+                    </ul>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* L-BFGS Visualizations */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
