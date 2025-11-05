@@ -82,6 +82,16 @@ const UnifiedVisualizer = () => {
 
   const data = [...baseData, ...customPoints];
 
+  // Default configuration for reset functionality
+  const defaultConfig = useRef({
+    gdFixedAlpha: 0.1,
+    gdLSC1: 0.0001,
+    newtonC1: 0.0001,
+    lbfgsC1: 0.0001,
+    lambda: 0.0001,
+    lbfgsM: 5,
+  });
+
   // Calculate parameter bounds for both algorithms
   const newtonParamBounds = React.useMemo(() => {
     if (!newtonIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
@@ -277,6 +287,24 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
+  }, []);
+
+  // Reset all parameters to defaults
+  const resetToDefaults = useCallback(() => {
+    const cfg = defaultConfig.current;
+    setGdFixedAlpha(cfg.gdFixedAlpha);
+    setGdLSC1(cfg.gdLSC1);
+    setNewtonC1(cfg.newtonC1);
+    setLbfgsC1(cfg.lbfgsC1);
+    setLambda(cfg.lambda);
+    setLbfgsM(cfg.lbfgsM);
+    setCurrentExperiment(null);
+    setShowProblemSwitcher(false);
+    setGdFixedCurrentIter(0);
+    setGdLSCurrentIter(0);
+    setNewtonCurrentIter(0);
+    setLbfgsCurrentIter(0);
+    setCustomPoints([]);
   }, []);
 
   // Recompute algorithms when shared state changes
@@ -1826,15 +1854,23 @@ const UnifiedVisualizer = () => {
                         {currentExperiment}
                       </span>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCurrentExperiment(null);
-                        // Optionally reset to defaults
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-800 underline"
-                    >
-                      Clear
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetToDefaults}
+                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                      >
+                        Reset All
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentExperiment(null);
+                          // Optionally reset to defaults
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -2444,15 +2480,23 @@ const UnifiedVisualizer = () => {
                         {currentExperiment}
                       </span>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCurrentExperiment(null);
-                        // Optionally reset to defaults
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-800 underline"
-                    >
-                      Clear
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetToDefaults}
+                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                      >
+                        Reset All
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentExperiment(null);
+                          // Optionally reset to defaults
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -3013,15 +3057,23 @@ const UnifiedVisualizer = () => {
                         {currentExperiment}
                       </span>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCurrentExperiment(null);
-                        // Optionally reset to defaults
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-800 underline"
-                    >
-                      Clear
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetToDefaults}
+                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                      >
+                        Reset All
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentExperiment(null);
+                          // Optionally reset to defaults
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -3771,15 +3823,23 @@ const UnifiedVisualizer = () => {
                         {currentExperiment}
                       </span>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCurrentExperiment(null);
-                        // Optionally reset to defaults
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-800 underline"
-                    >
-                      Clear
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetToDefaults}
+                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+                      >
+                        Reset All
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentExperiment(null);
+                          // Optionally reset to defaults
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
