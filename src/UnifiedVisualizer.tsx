@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
 import {
   DataPoint,
@@ -14,11 +14,9 @@ import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
-// @ts-expect-error - Will be used in Task 3+
+// @ts-expect-error - Will be used in Task 4+
 import { getExperimentsForAlgorithm } from './experiments';
-// @ts-expect-error - Will be used in Task 3+
 import { getProblem } from './problems';
-// @ts-expect-error - Will be used in Task 3+
 import type { ExperimentPreset } from './types/experiments';
 
 type Algorithm = 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
@@ -53,9 +51,9 @@ const UnifiedVisualizer = () => {
   const [lbfgsM, setLbfgsM] = useState(5);
 
   // Experiment state
-  // @ts-expect-error - Will be used in Task 3+
+  // @ts-expect-error - Will be used in Task 4+
   const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
-  // @ts-expect-error - Will be used in Task 3+
+  // @ts-expect-error - Will be used in Task 4+
   const [experimentLoading, setExperimentLoading] = useState(false);
 
   const data = [...baseData, ...customPoints];
@@ -191,6 +189,73 @@ const UnifiedVisualizer = () => {
   // L-BFGS canvas refs
   const lbfgsParamCanvasRef = useRef<HTMLCanvasElement>(null);
   const lbfgsLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Load experiment preset
+  // @ts-expect-error - Will be used in Task 4+
+  const loadExperiment = useCallback((experiment: ExperimentPreset) => {
+    setExperimentLoading(true);
+    setCurrentExperiment(experiment.id);
+
+    try {
+      // 1. Update hyperparameters
+      if (experiment.hyperparameters.alpha !== undefined) {
+        setGdFixedAlpha(experiment.hyperparameters.alpha);
+      }
+      if (experiment.hyperparameters.c1 !== undefined) {
+        setGdLSC1(experiment.hyperparameters.c1);
+        setNewtonC1(experiment.hyperparameters.c1);
+        setLbfgsC1(experiment.hyperparameters.c1);
+      }
+      if (experiment.hyperparameters.lambda !== undefined) {
+        setLambda(experiment.hyperparameters.lambda);
+      }
+      if (experiment.hyperparameters.m !== undefined) {
+        setLbfgsM(experiment.hyperparameters.m);
+      }
+      if (experiment.hyperparameters.maxIter !== undefined) {
+        // @ts-expect-error - setMaxIter will be added in Task 4
+        setMaxIter(experiment.hyperparameters.maxIter);
+      }
+
+      // 2. Set initial point if specified
+      if (experiment.initialPoint) {
+        // @ts-expect-error - setInitialW0/W1 will be added in Task 4
+        setInitialW0(experiment.initialPoint[0]);
+        // @ts-expect-error - setInitialW0/W1 will be added in Task 4
+        setInitialW1(experiment.initialPoint[1]);
+      }
+
+      // 3. Switch problem if needed
+      if (experiment.problem !== 'logistic-regression') {
+        const problem = getProblem(experiment.problem);
+        if (problem) {
+          // TODO: Actually switch the problem in the algorithm
+          console.log('Would switch to problem:', experiment.problem);
+        }
+      }
+
+      // 4. Load custom dataset if provided
+      if (experiment.dataset) {
+        // @ts-expect-error - setDataPoints will be added in Task 4
+        setDataPoints(experiment.dataset);
+      }
+
+      // 5. Reset algorithm to apply changes
+      // @ts-expect-error - setCurrentIteration will be added in Task 4
+      setCurrentIteration(0);
+      // @ts-expect-error - setHistory will be added in Task 4
+      setHistory([]);
+
+      // Show success message briefly
+      setTimeout(() => {
+        setExperimentLoading(false);
+      }, 300);
+
+    } catch (error) {
+      console.error('Error loading experiment:', error);
+      setExperimentLoading(false);
+    }
+  }, []);
 
   // Recompute algorithms when shared state changes
   useEffect(() => {
