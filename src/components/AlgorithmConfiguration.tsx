@@ -112,10 +112,10 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 step="0.1"
                 value={Math.log10(
                   algorithm === 'gd-linesearch'
-                    ? props.gdLSC1!
+                    ? (props.gdLSC1 ?? 1e-4)
                     : algorithm === 'newton'
-                    ? props.newtonC1!
-                    : props.lbfgsC1!
+                    ? (props.newtonC1 ?? 1e-4)
+                    : (props.lbfgsC1 ?? 1e-4)
                 )}
                 onChange={(e) => {
                   const val = Math.pow(10, parseFloat(e.target.value));
@@ -149,10 +149,10 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 type="text"
                 value={
                   algorithm === 'gd-linesearch'
-                    ? props.gdLSTolerance?.toExponential(1)
+                    ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
                     : algorithm === 'newton'
-                    ? props.newtonTolerance?.toExponential(1)
-                    : props.lbfgsTolerance?.toExponential(1)
+                    ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
+                    : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)
                 }
                 onChange={(e) => {
                   const val = parseFloat(e.target.value);
@@ -249,7 +249,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
 
       <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
         <p className="text-xs text-blue-900">
-          <strong>💡 Auto-run:</strong> Algorithm runs automatically when any parameter changes
+          <strong>Auto-run:</strong> Algorithm runs automatically when any parameter changes
           (computation is fast!)
         </p>
       </div>
