@@ -25,6 +25,7 @@ import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { ObjectiveFunction3D } from './components/ObjectiveFunction3D';
+import { drawContours } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -868,10 +869,11 @@ const UnifiedVisualizer = () => {
     const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = newtonParamBounds;
 
     const resolution = 60;
-    const lossValues: number[] = [];
+    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
+      const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
@@ -879,29 +881,24 @@ const UnifiedVisualizer = () => {
         const loss = problem.dimensionality === 3
           ? problem.objective([w0, w1, 0])
           : problem.objective([w0, w1]);
-        lossValues.push(loss);
+        row.push(loss);
       }
+      lossGrid.push(row);
     }
 
-    const minLoss = Math.min(...lossValues);
-    const maxLoss = Math.max(...lossValues);
-    const lossRange = maxLoss - minLoss;
+    // Draw light background
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, w, h);
 
-    let lossIdx = 0;
-    for (let i = 0; i < resolution; i++) {
-      for (let j = 0; j < resolution; j++) {
-        const loss = lossValues[lossIdx++];
-        const normalized = (loss - minLoss) / (lossRange + 1e-10);
-        const intensity = 1 - normalized;
-
-        const r = Math.floor(139 + (255 - 139) * intensity);
-        const g = Math.floor(92 + (255 - 92) * intensity);
-        const b = Math.floor(246 + (255 - 246) * intensity);
-
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
-      }
-    }
+    // Draw contour lines
+    drawContours({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12
+    });
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1040,10 +1037,11 @@ const UnifiedVisualizer = () => {
     const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = lbfgsParamBounds;
 
     const resolution = 60;
-    const lossValues = [];
+    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
+      const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
@@ -1051,29 +1049,24 @@ const UnifiedVisualizer = () => {
         const loss = problem.dimensionality === 3
           ? problem.objective([w0, w1, 0])
           : problem.objective([w0, w1]);
-        lossValues.push(loss);
+        row.push(loss);
       }
+      lossGrid.push(row);
     }
 
-    const minLoss = Math.min(...lossValues);
-    const maxLoss = Math.max(...lossValues);
-    const lossRange = maxLoss - minLoss;
+    // Draw light background
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, w, h);
 
-    let lossIdx = 0;
-    for (let i = 0; i < resolution; i++) {
-      for (let j = 0; j < resolution; j++) {
-        const loss = lossValues[lossIdx++];
-        const normalized = (loss - minLoss) / (lossRange + 1e-10);
-        const intensity = 1 - normalized;
-
-        const r = Math.floor(139 + (255 - 139) * intensity);
-        const g = Math.floor(92 + (255 - 92) * intensity);
-        const b = Math.floor(246 + (255 - 246) * intensity);
-
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
-      }
-    }
+    // Draw contour lines
+    drawContours({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12
+    });
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1212,11 +1205,12 @@ const UnifiedVisualizer = () => {
     const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdFixedParamBounds;
 
     const resolution = 60;
-    const lossValues: number[] = [];
+    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
 
-    // Compute loss landscape
+    // Compute loss landscape as 2D grid
     for (let i = 0; i < resolution; i++) {
+      const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
@@ -1224,30 +1218,24 @@ const UnifiedVisualizer = () => {
         const loss = problem.dimensionality === 3
           ? problem.objective([w0, w1, 0])
           : problem.objective([w0, w1]);
-        lossValues.push(loss);
+        row.push(loss);
       }
+      lossGrid.push(row);
     }
 
-    const minLoss = Math.min(...lossValues);
-    const maxLoss = Math.max(...lossValues);
-    const lossRange = maxLoss - minLoss;
+    // Draw light background
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, w, h);
 
-    // Draw heatmap
-    let lossIdx = 0;
-    for (let i = 0; i < resolution; i++) {
-      for (let j = 0; j < resolution; j++) {
-        const loss = lossValues[lossIdx++];
-        const normalized = (loss - minLoss) / (lossRange + 1e-10);
-        const intensity = 1 - normalized;
-
-        const r = Math.floor(139 + (255 - 139) * intensity);
-        const g = Math.floor(92 + (255 - 92) * intensity);
-        const b = Math.floor(246 + (255 - 246) * intensity);
-
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
-      }
-    }
+    // Draw contour lines
+    drawContours({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12
+    });
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1295,10 +1283,11 @@ const UnifiedVisualizer = () => {
     const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdLSParamBounds;
 
     const resolution = 60;
-    const lossValues = [];
+    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
 
     for (let i = 0; i < resolution; i++) {
+      const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
@@ -1306,29 +1295,24 @@ const UnifiedVisualizer = () => {
         const loss = problem.dimensionality === 3
           ? problem.objective([w0, w1, 0])
           : problem.objective([w0, w1]);
-        lossValues.push(loss);
+        row.push(loss);
       }
+      lossGrid.push(row);
     }
 
-    const minLoss = Math.min(...lossValues);
-    const maxLoss = Math.max(...lossValues);
-    const lossRange = maxLoss - minLoss;
+    // Draw light background
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, w, h);
 
-    let lossIdx = 0;
-    for (let i = 0; i < resolution; i++) {
-      for (let j = 0; j < resolution; j++) {
-        const loss = lossValues[lossIdx++];
-        const normalized = (loss - minLoss) / (lossRange + 1e-10);
-        const intensity = 1 - normalized;
-
-        const r = Math.floor(139 + (255 - 139) * intensity);
-        const g = Math.floor(92 + (255 - 92) * intensity);
-        const b = Math.floor(246 + (255 - 246) * intensity);
-
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(i * (w / resolution), j * (h / resolution), w / resolution + 1, h / resolution + 1);
-      }
-    }
+    // Draw contour lines
+    drawContours({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12
+    });
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
