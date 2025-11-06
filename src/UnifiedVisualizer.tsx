@@ -15,8 +15,9 @@ import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
-import { problemToProblemFunctions, logisticRegressionToProblemFunctions } from './utils/problemAdapter';
+import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
 import type { ProblemFunctions } from './algorithms/types';
+import { SeparatingHyperplaneVariant } from './types/experiments';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
@@ -65,6 +66,8 @@ const UnifiedVisualizer = () => {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [conditionNumber, setConditionNumber] = useState(100);
   const [rosenbrockB, setRosenbrockB] = useState(100);
+  const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
+    useState<SeparatingHyperplaneVariant>('hard-margin');
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
@@ -172,6 +175,13 @@ const UnifiedVisualizer = () => {
         requiresDataset: false,
         dimensionality: 2, // 2D weights [w0, w1]
       };
+    } else if (currentProblem === 'separating-hyperplane') {
+      // Return metadata about the problem
+      return {
+        name: 'Separating Hyperplane',
+        requiresDataset: true,
+        is3D: true,
+      };
     } else {
       // Get problem from registry
       const problem = getProblem(currentProblem);
@@ -204,6 +214,11 @@ const UnifiedVisualizer = () => {
       // Create parametrized version with current b parameter
       const problem = createRosenbrockProblem(rosenbrockB);
       return problemToProblemFunctions(problem);
+    } else if (currentProblem === 'separating-hyperplane') {
+      if (!data || data.length === 0) {
+        throw new Error('Separating hyperplane requires dataset');
+      }
+      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
     } else {
       const problem = getProblem(currentProblem);
       if (!problem) {
@@ -211,7 +226,7 @@ const UnifiedVisualizer = () => {
       }
       return problemToProblemFunctions(problem);
     }
-  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB]);
+  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB, separatingHyperplaneVariant]);
 
   // Track visualization bounds updates
   useEffect(() => {
@@ -1834,6 +1849,8 @@ const UnifiedVisualizer = () => {
         onConditionNumberChange={setConditionNumber}
         rosenbrockB={rosenbrockB}
         onRosenbrockBChange={setRosenbrockB}
+        separatingHyperplaneVariant={separatingHyperplaneVariant}
+        onSeparatingHyperplaneVariantChange={setSeparatingHyperplaneVariant}
         customPoints={customPoints}
         onCustomPointsChange={setCustomPoints}
         addPointMode={addPointMode}
