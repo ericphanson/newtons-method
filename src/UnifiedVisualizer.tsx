@@ -1099,12 +1099,15 @@ const UnifiedVisualizer = () => {
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (let i = 0; i <= newtonCurrentIter; i++) {
-      const [w0, w1] = newtonIterations[i].wNew;
-      const cx = toCanvasX(w0);
-      const cy = toCanvasY(w1);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
+    // Start from initial point (w of first iteration)
+    if (newtonIterations.length > 0) {
+      const [w0_init, w1_init] = newtonIterations[0].w;
+      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
+      // Draw to each wNew
+      for (let i = 0; i <= newtonCurrentIter; i++) {
+        const [w0, w1] = newtonIterations[i].wNew;
+        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
+      }
     }
     ctx.stroke();
 
@@ -1281,12 +1284,15 @@ const UnifiedVisualizer = () => {
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (let i = 0; i <= lbfgsCurrentIter; i++) {
-      const [w0, w1] = lbfgsIterations[i].wNew;
-      const cx = toCanvasX(w0);
-      const cy = toCanvasY(w1);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
+    // Start from initial point (w of first iteration)
+    if (lbfgsIterations.length > 0) {
+      const [w0_init, w1_init] = lbfgsIterations[0].w;
+      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
+      // Draw to each wNew
+      for (let i = 0; i <= lbfgsCurrentIter; i++) {
+        const [w0, w1] = lbfgsIterations[i].wNew;
+        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
+      }
     }
     ctx.stroke();
 
@@ -1465,12 +1471,15 @@ const UnifiedVisualizer = () => {
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (let i = 0; i <= gdFixedCurrentIter; i++) {
-      const [w0, w1] = gdFixedIterations[i].wNew;
-      const cx = toCanvasX(w0);
-      const cy = toCanvasY(w1);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
+    // Start from initial point (w of first iteration)
+    if (gdFixedIterations.length > 0) {
+      const [w0_init, w1_init] = gdFixedIterations[0].w;
+      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
+      // Draw to each wNew
+      for (let i = 0; i <= gdFixedCurrentIter; i++) {
+        const [w0, w1] = gdFixedIterations[i].wNew;
+        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
+      }
     }
     ctx.stroke();
 
@@ -1555,12 +1564,15 @@ const UnifiedVisualizer = () => {
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (let i = 0; i <= gdLSCurrentIter; i++) {
-      const [w0, w1] = gdLSIterations[i].wNew;
-      const cx = toCanvasX(w0);
-      const cy = toCanvasY(w1);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
+    // Start from initial point (w of first iteration)
+    if (gdLSIterations.length > 0) {
+      const [w0_init, w1_init] = gdLSIterations[0].w;
+      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
+      // Draw to each wNew
+      for (let i = 0; i <= gdLSCurrentIter; i++) {
+        const [w0, w1] = gdLSIterations[i].wNew;
+        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
+      }
     }
     ctx.stroke();
 

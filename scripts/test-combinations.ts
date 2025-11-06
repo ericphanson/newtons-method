@@ -193,7 +193,7 @@ function printResult(result: TestResult) {
       if (allIters.length <= 5) {
         console.log(`   Iteration path:`);
         allIters.forEach((it: any, idx: number) => {
-          console.log(`     ${idx}: w_before=[${it.w.map((x: number) => x.toFixed(4)).join(', ')}] → w_after=[${it.wNew.map((x: number) => x.toFixed(4)).join(', ')}] loss=${it.newLoss.toExponential(2)}`);
+          console.log(`     ${idx}: w_before=[${it.w.map((x: number) => x.toFixed(4)).join(', ')}] → w_after=[${it.wNew.map((x: number) => x.toFixed(4)).join(', ')}] loss=${it.newLoss.toExponential(2)} grad@w=${it.gradNorm.toExponential(2)}`);
         });
       } else {
         // For long paths, just show first iteration
