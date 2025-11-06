@@ -10,7 +10,7 @@ export function ProblemExplainer() {
     <div className="space-y-6 p-6 max-w-4xl">
       <h2 className="text-2xl font-bold text-gray-900">Problem Types</h2>
       <p className="text-gray-700">
-        The visualizer supports 5 different optimization problems. Each demonstrates
+        The visualizer supports 6 different optimization problems. Each demonstrates
         different algorithmic behaviors and challenges.
       </p>
 
@@ -55,6 +55,138 @@ export function ProblemExplainer() {
               <li>L-BFGS (efficient for classification)</li>
             </ul>
           </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* Separating Hyperplane */}
+      <CollapsibleSection
+        title="Separating Hyperplane (Linear Classification)"
+        defaultExpanded={false}
+        storageKey="problem-explainer-separating-hyperplane"
+      >
+        <div className="space-y-3 text-gray-800">
+          <h4 className="font-semibold text-lg">Overview</h4>
+          <p>
+            The <strong>separating hyperplane</strong> problem finds a linear decision boundary
+            that separates two classes of data points. In 2D, this is a line; in higher dimensions,
+            it's a hyperplane. The equation is: <InlineMath>w_0 \cdot x_1 + w_1 \cdot x_2 + w_2 = 0</InlineMath>
+          </p>
+
+          <h4 className="font-semibold text-lg mt-4">Four Variants</h4>
+
+          <div className="ml-4 space-y-4">
+            <div>
+              <h5 className="font-semibold text-base text-blue-700">1. Hard-Margin SVM (Default)</h5>
+              <div className="mt-1">
+                <p className="font-semibold text-sm">Objective:</p>
+                <BlockMath>
+                  {String.raw`\min \frac{1}{2}\|w\|^2`}
+                </BlockMath>
+              </div>
+              <p className="mt-2">
+                Maximizes the margin between classes. Assumes data is perfectly linearly separable.
+              </p>
+              <p className="mt-1">
+                <strong>Failure mode:</strong> If data is not separable, gradients become very large
+                as the algorithm tries to satisfy impossible constraints.
+              </p>
+            </div>
+
+            <div>
+              <h5 className="font-semibold text-base text-blue-700">2. Soft-Margin SVM</h5>
+              <div className="mt-1">
+                <p className="font-semibold text-sm">Objective:</p>
+                <BlockMath>
+                  {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i \max(0, 1 - y_i z_i)`}
+                </BlockMath>
+              </div>
+              <p className="mt-2">
+                Uses <em>hinge loss</em> to allow some misclassifications with penalty C=1.0.
+                More practical than hard-margin. Points outside the margin contribute to loss.
+                Balances margin maximization with allowing errors.
+              </p>
+            </div>
+
+            <div>
+              <h5 className="font-semibold text-base text-blue-700">3. Perceptron Criterion</h5>
+              <div className="mt-1">
+                <p className="font-semibold text-sm">Objective:</p>
+                <BlockMath>
+                  {String.raw`\min \sum_i \max(0, -y_i z_i)`}
+                </BlockMath>
+              </div>
+              <p className="mt-2">
+                Classic perceptron algorithm. Only penalizes misclassified points (<InlineMath>y_i z_i &lt; 0</InlineMath>).
+                Does not maximize margin - just finds any separating hyperplane.
+              </p>
+              <p className="mt-1">
+                <strong>Result:</strong> Often finds solutions closer to the data than SVM variants.
+              </p>
+            </div>
+
+            <div>
+              <h5 className="font-semibold text-base text-blue-700">4. Squared-Hinge Loss</h5>
+              <div className="mt-1">
+                <p className="font-semibold text-sm">Objective:</p>
+                <BlockMath>
+                  {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i [\max(0, 1 - y_i z_i)]^2`}
+                </BlockMath>
+              </div>
+              <p className="mt-2">
+                Smoothed version of hinge loss. Penalizes margin violations quadratically.
+              </p>
+              <p className="mt-1">
+                <strong>Advantage:</strong> Twice differentiable everywhere, better for Newton's method.
+                Gives more penalty to large violations than soft-margin SVM.
+              </p>
+            </div>
+          </div>
+
+          <h4 className="font-semibold text-lg mt-4">Key Insights</h4>
+          <ul className="list-disc ml-6 space-y-1">
+            <li>
+              <strong>Hard-Margin</strong> works beautifully on separable data but fails catastrophically
+              on overlapping classes
+            </li>
+            <li>
+              <strong>Soft-Margin</strong> is the practical choice - handles real-world data with noise
+            </li>
+            <li>
+              <strong>Perceptron</strong> is simplest but doesn't maximize margin (less robust to new data)
+            </li>
+            <li>
+              <strong>Squared-Hinge</strong> is smoothest - best for second-order optimization methods
+            </li>
+          </ul>
+
+          <div className="bg-blue-50 rounded p-3 mt-4">
+            <p className="text-sm font-semibold mb-2">Try This:</p>
+            <ul className="text-sm list-disc ml-5 space-y-1">
+              <li>
+                Start with <strong>hard-margin</strong> on well-separated data (increase crescent separation).
+                Then reduce separation to see it struggle.
+              </li>
+              <li>
+                Compare <strong>soft-margin</strong> vs <strong>squared-hinge</strong> on overlapping data.
+                Notice how squared-hinge gives smoother convergence with Newton's method.
+              </li>
+              <li>
+                Use <strong>perceptron</strong> and compare to <strong>soft-margin</strong>. See how
+                perceptron finds narrower margins (less robust).
+              </li>
+              <li>
+                Try different algorithms: Newton's method works best with squared-hinge (smooth Hessian),
+                gradient descent works with all variants.
+              </li>
+            </ul>
+          </div>
+
+          <h4 className="font-semibold text-lg mt-4">Comparison to Logistic Regression</h4>
+          <p>
+            While logistic regression uses a smooth log-loss that affects all points, SVM variants
+            use margin-based losses that only penalize points near or on the wrong side of the boundary.
+            This makes SVMs focus on the "support vectors" - the critical points near the decision boundary.
+          </p>
         </div>
       </CollapsibleSection>
 
@@ -332,6 +464,7 @@ export function ProblemExplainer() {
             <p className="font-semibold text-gray-900">For learning basics:</p>
             <ul className="text-gray-700 list-disc ml-5">
               <li>Start with Logistic Regression</li>
+              <li>Compare with Separating Hyperplane variants</li>
               <li>Try Rotated Ellipse for rotation invariance</li>
             </ul>
           </div>
