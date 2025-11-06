@@ -68,22 +68,26 @@ const UnifiedVisualizer = () => {
   const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
   const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
+  const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
 
   // GD Line search state
   const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
   const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
   const [gdLSC1, setGdLSC1] = useState(0.0001);
+  const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
 
   // Newton state
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
+  const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
 
   // L-BFGS state
   const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
   const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
+  const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
 
   // Shared algorithm state
   const [maxIter, setMaxIter] = useState(100);
@@ -596,6 +600,7 @@ const UnifiedVisualizer = () => {
         alpha: gdFixedAlpha,
         lambda,
         initialPoint,
+        tolerance: gdFixedTolerance,
       });
       setGdFixedIterations(iterations);
       setGdFixedCurrentIter(0);
@@ -603,7 +608,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Fixed error:', error);
       setGdFixedIterations([]);
     }
-  }, [currentProblem, lambda, gdFixedAlpha, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -616,6 +621,7 @@ const UnifiedVisualizer = () => {
         c1: gdLSC1,
         lambda,
         initialPoint,
+        tolerance: gdLSTolerance,
       });
       setGdLSIterations(iterations);
       setGdLSCurrentIter(0);
@@ -623,7 +629,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Line Search error:', error);
       setGdLSIterations([]);
     }
-  }, [currentProblem, lambda, gdLSC1, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -636,6 +642,7 @@ const UnifiedVisualizer = () => {
         c1: newtonC1,
         lambda,
         initialPoint,
+        tolerance: newtonTolerance,
       });
       setNewtonIterations(iterations);
       setNewtonCurrentIter(0);
@@ -643,7 +650,7 @@ const UnifiedVisualizer = () => {
       console.error('Newton error:', error);
       setNewtonIterations([]);
     }
-  }, [currentProblem, lambda, newtonC1, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, newtonC1, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -658,6 +665,7 @@ const UnifiedVisualizer = () => {
         c1: lbfgsC1,
         lambda,
         initialPoint,
+        tolerance: lbfgsTolerance,
       });
       console.log('L-BFGS completed:', iterations.length, 'iterations');
       if (iterations.length > 0) {
@@ -671,7 +679,7 @@ const UnifiedVisualizer = () => {
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       setLbfgsIterations([]);
     }
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Get current algorithm's iteration
   const getCurrentIter = () => {
@@ -1969,6 +1977,19 @@ const UnifiedVisualizer = () => {
                     <span className="text-sm">{gdFixedAlpha.toFixed(3)}</span>
                   </div>
                   <div>
+                    <label className="text-sm font-bold text-gray-700">Tolerance:</label>
+                    <input
+                      type="range"
+                      min="-8"
+                      max="-3"
+                      step="0.5"
+                      value={Math.log10(gdFixedTolerance)}
+                      onChange={(e) => setGdFixedTolerance(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{gdFixedTolerance.toExponential(1)}</span>
+                  </div>
+                  <div>
                     <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
                     <input
                       type="number"
@@ -2020,6 +2041,19 @@ const UnifiedVisualizer = () => {
                     <span className="text-sm">{gdLSC1.toExponential(1)}</span>
                   </div>
                   <div>
+                    <label className="text-sm font-bold text-gray-700">Tolerance:</label>
+                    <input
+                      type="range"
+                      min="-8"
+                      max="-3"
+                      step="0.5"
+                      value={Math.log10(gdLSTolerance)}
+                      onChange={(e) => setGdLSTolerance(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{gdLSTolerance.toExponential(1)}</span>
+                  </div>
+                  <div>
                     <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
                     <input
                       type="number"
@@ -2069,6 +2103,19 @@ const UnifiedVisualizer = () => {
                       className="mx-2"
                     />
                     <span className="text-sm">{newtonC1.toExponential(1)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Tolerance:</label>
+                    <input
+                      type="range"
+                      min="-8"
+                      max="-3"
+                      step="0.5"
+                      value={Math.log10(newtonTolerance)}
+                      onChange={(e) => setNewtonTolerance(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{newtonTolerance.toExponential(1)}</span>
                   </div>
                   <div>
                     <label className="text-sm font-bold text-gray-700">Max Iterations:</label>
@@ -2132,6 +2179,19 @@ const UnifiedVisualizer = () => {
                       className="mx-2"
                     />
                     <span className="text-sm">{lbfgsC1.toExponential(1)}</span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-gray-700">Tolerance:</label>
+                    <input
+                      type="range"
+                      min="-8"
+                      max="-3"
+                      step="0.5"
+                      value={Math.log10(lbfgsTolerance)}
+                      onChange={(e) => setLbfgsTolerance(Math.pow(10, parseFloat(e.target.value)))}
+                      className="mx-2"
+                    />
+                    <span className="text-sm">{lbfgsTolerance.toExponential(1)}</span>
                   </div>
                   <div>
                     <label className="text-sm font-bold text-gray-700">Max Iterations:</label>

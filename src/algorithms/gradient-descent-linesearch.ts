@@ -42,7 +42,7 @@ export const runGradientDescentLineSearch = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { c1?: number; lambda?: number }
 ): GDLineSearchIteration[] => {
-  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint, tolerance = 1e-6 } = options;
   const iterations: GDLineSearchIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
@@ -93,7 +93,7 @@ export const runGradientDescentLineSearch = (
     w = wNew;
 
     // Early stopping if converged
-    if (gradNorm < 1e-6) {
+    if (gradNorm < tolerance) {
       break;
     }
   }

@@ -33,4 +33,5 @@ export interface ProblemFunctions {
 export interface AlgorithmOptions {
   maxIter: number;
   initialPoint?: number[]; // If not provided, use default [0.1, 0.1] or [0.1, 0.1, 0.0]
+  tolerance?: number; // Convergence tolerance for gradient norm (default varies by algorithm)
 }

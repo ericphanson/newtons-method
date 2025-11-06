@@ -26,7 +26,7 @@ export const runGradientDescent = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { alpha: number; lambda?: number }
 ): GDIteration[] => {
-  const { maxIter, alpha, lambda = 0, initialPoint } = options;
+  const { maxIter, alpha, lambda = 0, initialPoint, tolerance = 1e-6 } = options;
   const iterations: GDIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
@@ -65,7 +65,7 @@ export const runGradientDescent = (
     w = wNew;
 
     // Early stopping if converged
-    if (gradNorm < 1e-6) {
+    if (gradNorm < tolerance) {
       break;
     }
   }

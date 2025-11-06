@@ -153,7 +153,7 @@ export const runNewton = (
     throw new Error('Newton method requires Hessian function');
   }
 
-  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint, tolerance = 1e-5 } = options;
   const iterations: NewtonIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
@@ -218,7 +218,7 @@ export const runNewton = (
     w = wNew;
 
     // Early stopping if converged
-    if (gradNorm < 1e-5) {
+    if (gradNorm < tolerance) {
       break;
     }
   }

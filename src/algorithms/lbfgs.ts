@@ -72,7 +72,7 @@ export const runLBFGS = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number }
 ): LBFGSIteration[] => {
-  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint } = options;
+  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5 } = options;
   const iterations: LBFGSIteration[] = [];
   const M = m; // Memory parameter: number of (s, y) pairs to store
 
@@ -188,7 +188,7 @@ export const runLBFGS = (
 
     w = wNew;
 
-    if (gradNorm < 1e-5) break;
+    if (gradNorm < tolerance) break;
   }
 
   return iterations;
