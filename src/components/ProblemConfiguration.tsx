@@ -1,0 +1,254 @@
+import React from 'react';
+import { InlineMath } from './Math';
+import { DataPoint } from '../shared-utils';
+import { getProblem } from '../problems';
+import { getProblemDefaults } from '../utils/problemDefaults';
+
+interface ProblemConfigurationProps {
+  currentProblem: string;
+  onProblemChange: (
+    newProblem: string,
+    defaults: ReturnType<typeof getProblemDefaults>,
+    bounds: { w0: [number, number]; w1: [number, number] }
+  ) => void;
+
+  // Logistic regression parameters
+  lambda: number;
+  onLambdaChange: (lambda: number) => void;
+  customPoints: DataPoint[];
+  onCustomPointsChange: (points: DataPoint[]) => void;
+  addPointMode: 0 | 1 | 2;
+  onAddPointModeChange: (mode: 0 | 1 | 2) => void;
+
+  // Data canvas (for logistic regression)
+  dataCanvasRef?: React.RefObject<HTMLCanvasElement>;
+  onCanvasClick?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+
+  // For toast notifications
+  onShowToast: (message: string, type: 'success' | 'error' | 'info') => void;
+}
+
+export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
+  currentProblem,
+  onProblemChange,
+  lambda,
+  onLambdaChange,
+  customPoints,
+  onCustomPointsChange,
+  addPointMode,
+  onAddPointModeChange,
+  dataCanvasRef,
+  onCanvasClick,
+  onShowToast,
+}) => {
+
+  // Handle problem selection change
+  const handleProblemChange = (newProblem: string) => {
+    let problemName = 'Logistic Regression';
+    let bounds = { w0: [-3, 3] as [number, number], w1: [-3, 3] as [number, number] };
+
+    if (newProblem !== 'logistic-regression') {
+      const problem = getProblem(newProblem);
+      if (problem) {
+        problemName = problem.name;
+        if (problem.domain) {
+          bounds = {
+            w0: problem.domain.w0,
+            w1: problem.domain.w1,
+          };
+        }
+      }
+    }
+
+    const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
+
+    onProblemChange(newProblem, defaults, bounds);
+    onShowToast(`Switched to: ${problemName}`, 'info');
+  };
+
+  // Get contextual tips based on current parameters
+  const getContextualTip = (): string | null => {
+    if (currentProblem !== 'logistic-regression') return null;
+
+    // Tips for lambda (regularization)
+    if (lambda > 0.001) {
+      return 'Strong regularization - decision boundary will be simpler. Try comparing with lower λ!';
+    } else if (lambda < 0.00001) {
+      return 'Minimal regularization - model can fit complex patterns. Watch for overfitting!';
+    }
+
+    // Tips for data density
+    if (customPoints.length > 20) {
+      return 'Dense dataset - algorithms have more information. See how convergence changes!';
+    } else if (customPoints.length > 0 && customPoints.length <= 5) {
+      return 'Sparse additions - interesting to see how a few points can shift the decision boundary!';
+    }
+
+    return null;
+  };
+
+  const contextualTip = getContextualTip();
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Problem Configuration</h2>
+
+      {/* Integrated header: Dropdown + Formulation */}
+      <div className="mb-4">
+        <div className="flex items-baseline gap-2 mb-3">
+          <label className="text-sm font-medium text-gray-700">Problem:</label>
+          <select
+            value={currentProblem}
+            onChange={(e) => handleProblemChange(e.target.value)}
+            className="px-2 py-1 border border-gray-300 rounded text-sm bg-white font-medium"
+          >
+            <option value="logistic-regression">Logistic Regression</option>
+            <option value="quadratic">Quadratic Bowl</option>
+            <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
+            <option value="rosenbrock">Rosenbrock Function</option>
+            <option value="non-convex-saddle">Saddle Point</option>
+          </select>
+        </div>
+
+        {/* Mathematical Formulation */}
+        {currentProblem === 'logistic-regression' ? (
+          <div className="space-y-2 text-gray-800 text-sm bg-purple-50 p-3 rounded">
+            <div>
+              <strong>Model:</strong>{' '}
+              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
+            </div>
+            <div>
+              <strong>Loss:</strong>{' '}
+              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
+            </div>
+            <div>
+              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2 text-gray-800 text-sm bg-blue-50 p-3 rounded">
+            <div>
+              <strong>Objective:</strong>{' '}
+              {currentProblem === 'quadratic' && (
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}</InlineMath>
+              )}
+              {currentProblem === 'ill-conditioned-quadratic' && (
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}(100w_0^2 + w_1^2)`}</InlineMath>
+              )}
+              {currentProblem === 'rosenbrock' && (
+                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}</InlineMath>
+              )}
+              {currentProblem === 'non-convex-saddle' && (
+                <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
+              )}
+            </div>
+            <div>
+              <strong>Description:</strong> {getProblem(currentProblem)?.description || 'Optimization problem'}
+            </div>
+            <div>
+              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Parameters section - only for logistic regression for now */}
+      {currentProblem === 'logistic-regression' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+
+          <div className="flex gap-6">
+            {/* Data Space Canvas */}
+            <div className="flex-1">
+              <canvas
+                ref={dataCanvasRef}
+                style={{ width: '500px', height: '400px', cursor: addPointMode ? 'crosshair' : 'default' }}
+                className="border border-gray-300 rounded"
+                onClick={onCanvasClick}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                {addPointMode > 0
+                  ? `Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`
+                  : 'Dataset visualization with decision boundary (when algorithm runs)'}
+              </p>
+            </div>
+
+            {/* Controls Sidebar */}
+            <div className="w-64 space-y-4">
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Regularization (<InlineMath>\lambda</InlineMath>)
+                </h4>
+                <input
+                  type="range"
+                  min="-6"
+                  max="-2"
+                  step="0.1"
+                  value={Math.log10(lambda)}
+                  onChange={(e) => onLambdaChange(Math.pow(10, parseFloat(e.target.value)))}
+                  className="w-full"
+                />
+                <span className="text-sm text-gray-600">
+                  <InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}
+                </span>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">Dataset Editing</h4>
+                <div className="flex gap-2 flex-col">
+                  <button
+                    onClick={() => onAddPointModeChange(addPointMode === 1 ? 0 : 1)}
+                    className={`px-3 py-2 rounded-lg text-sm ${
+                      addPointMode === 1 ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {addPointMode === 1 ? '✓' : '+'} Class 0
+                  </button>
+                  <button
+                    onClick={() => onAddPointModeChange(addPointMode === 2 ? 0 : 2)}
+                    className={`px-3 py-2 rounded-lg text-sm ${
+                      addPointMode === 2 ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'
+                    }`}
+                  >
+                    {addPointMode === 2 ? '✓' : '+'} Class 1
+                  </button>
+                  {customPoints.length > 0 && (
+                    <button
+                      onClick={() => onCustomPointsChange([])}
+                      className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
+                    >
+                      Clear ({customPoints.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Contextual Tips */}
+              {contextualTip && (
+                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <p className="text-xs text-amber-900">
+                    <strong>💡 Explore:</strong> {contextualTip}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Future extension point: Parameters for other problems will go here
+          Example structure for when adding quadratic coefficients:
+
+          {currentProblem === 'quadratic' && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+              <div>
+                <label>Coefficient a: <input type="range" ... /></label>
+                <label>Coefficient b: <input type="range" ... /></label>
+              </div>
+            </div>
+          )}
+      */}
+    </div>
+  );
+};

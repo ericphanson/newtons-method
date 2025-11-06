@@ -24,9 +24,9 @@ import { Toast } from './components/Toast';
 import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
+import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
-import { getProblemDefaults, getProblemNote } from './utils/problemDefaults';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
@@ -60,7 +60,7 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
-  const [addPointMode, setAddPointMode] = useState(0);
+  const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>('gd-fixed');
 
   // GD Fixed step state
@@ -1726,195 +1726,41 @@ const UnifiedVisualizer = () => {
         </p>
       </div>
 
-      {/* Problem Formulation */}
-      <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-bold text-purple-900 mb-4">
-          Problem: {currentProblem === 'logistic-regression'
-            ? 'Logistic Regression (2D Classification)'
-            : getProblem(currentProblem)?.name || currentProblem}
-        </h2>
-        {currentProblem === 'logistic-regression' ? (
-          <div className="space-y-2 text-gray-800">
-            <div>
-              <strong>Model:</strong>{' '}
-              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
-            </div>
-            <div>
-              <strong>Loss:</strong>{' '}
-              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
-            </div>
-            <div>
-              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2 text-gray-800">
-            <div>
-              <strong>Objective:</strong>{' '}
-              {currentProblem === 'quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}</InlineMath>
-              )}
-              {currentProblem === 'ill-conditioned-quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}(100w_0^2 + w_1^2)`}</InlineMath>
-              )}
-              {currentProblem === 'rosenbrock' && (
-                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}</InlineMath>
-              )}
-              {currentProblem === 'non-convex-saddle' && (
-                <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
-              )}
-            </div>
-            <div>
-              <strong>Description:</strong> {getProblem(currentProblem)?.description || 'Optimization problem'}
-            </div>
-            <div>
-              <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Unified Problem Configuration */}
+      <ProblemConfiguration
+        currentProblem={currentProblem}
+        onProblemChange={(newProblem, defaults, bounds) => {
+          setCurrentProblem(newProblem);
 
-      {/* Problem Switcher - Always Visible */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Problem Selection</h2>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Current Problem</label>
-          <select
-                value={currentProblem}
-                onChange={(e) => {
-                  const newProblem = e.target.value;
-                  setCurrentProblem(newProblem);
+          // Reset algorithm state when problem changes
+          setGdFixedCurrentIter(0);
+          setGdFixedIterations([]);
+          setGdLSCurrentIter(0);
+          setGdLSIterations([]);
+          setNewtonCurrentIter(0);
+          setNewtonIterations([]);
+          setLbfgsCurrentIter(0);
+          setLbfgsIterations([]);
 
-                  // Reset algorithm state when problem changes
-                  setGdFixedCurrentIter(0);
-                  setGdFixedIterations([]);
-                  setGdLSCurrentIter(0);
-                  setGdLSIterations([]);
-                  setNewtonCurrentIter(0);
-                  setNewtonIterations([]);
-                  setLbfgsCurrentIter(0);
-                  setLbfgsIterations([]);
+          // Apply problem-specific defaults
+          setGdFixedAlpha(defaults.gdFixedAlpha);
+          setMaxIter(defaults.maxIter);
+          setInitialW0(defaults.initialPoint[0]);
+          setInitialW1(defaults.initialPoint[1]);
 
-                  // Apply problem-specific defaults
-                  if (newProblem !== 'logistic-regression') {
-                    const defaults = getProblemDefaults(newProblem);
-                    setGdFixedAlpha(defaults.gdFixedAlpha);
-                    setMaxIter(defaults.maxIter);
-                    setInitialW0(defaults.initialPoint[0]);
-                    setInitialW1(defaults.initialPoint[1]);
-                    // Note: c1 and m already have sensible defaults, but could also update
-                  }
-
-                  // Get problem info and update bounds
-                  let problemName = 'Logistic Regression';
-                  if (newProblem !== 'logistic-regression') {
-                    const problem = getProblem(newProblem);
-                    if (problem) {
-                      problemName = problem.name;
-                      // Update visualization bounds based on problem domain
-                      if (problem.domain) {
-                        setVisualizationBounds({
-                          w0: problem.domain.w0,
-                          w1: problem.domain.w1,
-                        });
-                      }
-                    }
-                  } else {
-                    // Reset to default bounds for logistic regression
-                    setVisualizationBounds({
-                      w0: [-3, 3],
-                      w1: [-3, 3],
-                    });
-                  }
-
-                  // Show notification
-                  setToast({
-                    message: `Switched to: ${problemName}`,
-                    type: 'info'
-                  });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
-              >
-                <option value="logistic-regression">Logistic Regression</option>
-                <option value="quadratic">Quadratic Bowl</option>
-                <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
-                <option value="rosenbrock">Rosenbrock Function</option>
-                <option value="non-convex-saddle">Saddle Point</option>
-              </select>
-          <p className="text-xs text-gray-600 mt-1">
-            {currentProblem === 'logistic-regression'
-              ? 'Classification with dataset - problem is parametrized by the data points'
-              : 'Pure mathematical optimization - problem defined by objective function'}
-          </p>
-          {currentProblem !== 'logistic-regression' && (
-            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>💡 Tip:</strong> {getProblemNote(currentProblem)}
-              </p>
-              <p className="text-xs text-blue-600 mt-1">
-                Defaults adjusted automatically. Feel free to experiment with other values!
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Data Space - Only for Logistic Regression */}
-      {currentProblem === 'logistic-regression' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Data Space (Dataset Parametrization)</h2>
-          <div className="flex gap-6">
-            <div className="flex-1">
-              <canvas
-                ref={dataCanvasRef}
-                style={{width: '500px', height: '400px', cursor: addPointMode ? 'crosshair' : 'default'}}
-                className="border border-gray-300 rounded"
-                onClick={handleCanvasClick}
-              />
-            </div>
-            <div className="w-64 space-y-4">
-              <div>
-                <h3 className="font-bold text-gray-800 mb-2">Regularization (<InlineMath>\lambda</InlineMath>)</h3>
-                <input
-                  type="range"
-                  min="-6"
-                  max="-2"
-                  step="0.1"
-                  value={Math.log10(lambda)}
-                  onChange={(e) => setLambda(Math.pow(10, parseFloat(e.target.value)))}
-                  className="w-full"
-                />
-                <span className="text-sm"><InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800 mb-2">Add Points</h3>
-                <div className="flex gap-2 flex-col">
-                  <button
-                    onClick={() => setAddPointMode(addPointMode === 1 ? 0 : 1)}
-                    className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 1 ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800'}`}
-                  >
-                    {addPointMode === 1 ? '✓' : '+'} Class 0
-                  </button>
-                  <button
-                    onClick={() => setAddPointMode(addPointMode === 2 ? 0 : 2)}
-                    className={`px-3 py-2 rounded-lg text-sm ${addPointMode === 2 ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'}`}
-                  >
-                    {addPointMode === 2 ? '✓' : '+'} Class 1
-                  </button>
-                  {customPoints.length > 0 && (
-                    <button
-                      onClick={() => setCustomPoints([])}
-                      className="px-3 py-2 bg-gray-200 rounded-lg text-sm"
-                    >
-                      Clear ({customPoints.length})
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+          // Update visualization bounds
+          setVisualizationBounds(bounds);
+        }}
+        lambda={lambda}
+        onLambdaChange={setLambda}
+        customPoints={customPoints}
+        onCustomPointsChange={setCustomPoints}
+        addPointMode={addPointMode}
+        onAddPointModeChange={setAddPointMode}
+        dataCanvasRef={dataCanvasRef}
+        onCanvasClick={handleCanvasClick}
+        onShowToast={(message, type) => setToast({ message, type })}
+      />
 
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
