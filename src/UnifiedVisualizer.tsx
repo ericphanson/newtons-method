@@ -21,16 +21,16 @@ import type { ProblemFunctions } from './algorithms/types';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
-import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
+import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
-import { getProblem } from './problems';
+import { getProblem, createIllConditionedQuadratic } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
-type Algorithm = 'problems' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
 
 const LoadingSpinner = () => (
   <svg
@@ -60,8 +60,9 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
+  const [conditionNumber, setConditionNumber] = useState(100);
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
-  const [selectedTab, setSelectedTab] = useState<Algorithm>('gd-fixed');
+  const [selectedTab, setSelectedTab] = useState<Algorithm>('algorithms');
 
   // GD Fixed step state
   const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
@@ -137,6 +138,14 @@ const UnifiedVisualizer = () => {
         requiresDataset: true,
         dimensionality: 3, // 3D weights [w0, w1, w2]
       };
+    } else if (currentProblem === 'ill-conditioned-quadratic') {
+      // Return parametrized ill-conditioned quadratic
+      const problem = createIllConditionedQuadratic(conditionNumber);
+      return {
+        ...problem,
+        requiresDataset: false,
+        dimensionality: 2, // 2D weights [w0, w1]
+      };
     } else {
       // Get problem from registry
       const problem = getProblem(currentProblem);
@@ -149,7 +158,7 @@ const UnifiedVisualizer = () => {
         dimensionality: 2, // 2D weights [w0, w1]
       };
     }
-  }, [currentProblem, data, lambda]);
+  }, [currentProblem, data, lambda, conditionNumber]);
 
   // Get current problem functions for algorithm execution
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
@@ -1753,6 +1762,8 @@ const UnifiedVisualizer = () => {
         }}
         lambda={lambda}
         onLambdaChange={setLambda}
+        conditionNumber={conditionNumber}
+        onConditionNumberChange={setConditionNumber}
         customPoints={customPoints}
         onCustomPointsChange={setCustomPoints}
         addPointMode={addPointMode}
@@ -1766,14 +1777,14 @@ const UnifiedVisualizer = () => {
       <div className="bg-white rounded-lg shadow-md mb-6">
         <div className="flex border-b border-gray-200">
           <button
-            onClick={() => setSelectedTab('problems')}
+            onClick={() => setSelectedTab('algorithms')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'problems'
+              selectedTab === 'algorithms'
                 ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Problems
+            Algorithms
           </button>
           <button
             onClick={() => setSelectedTab('gd-fixed')}
@@ -1818,8 +1829,8 @@ const UnifiedVisualizer = () => {
         </div>
 
         <div className="p-6">
-          {selectedTab === 'problems' ? (
-            <ProblemExplainer />
+          {selectedTab === 'algorithms' ? (
+            <AlgorithmExplainer />
           ) : comparisonMode !== 'none' ? (
             <>
               {/* Comparison Mode View */}

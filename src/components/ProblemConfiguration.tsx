@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
 import { getProblem } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
+import { ProblemExplainer } from './ProblemExplainer';
 
 interface ProblemConfigurationProps {
   currentProblem: string;
@@ -20,6 +21,10 @@ interface ProblemConfigurationProps {
   addPointMode: 0 | 1 | 2;
   onAddPointModeChange: (mode: 0 | 1 | 2) => void;
 
+  // Ill-conditioned quadratic parameters
+  conditionNumber: number;
+  onConditionNumberChange: (kappa: number) => void;
+
   // Data canvas (for logistic regression)
   dataCanvasRef?: React.RefObject<HTMLCanvasElement>;
   onCanvasClick?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -33,6 +38,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onProblemChange,
   lambda,
   onLambdaChange,
+  conditionNumber,
+  onConditionNumberChange,
   customPoints,
   onCustomPointsChange,
   addPointMode,
@@ -41,6 +48,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onCanvasClick,
   onShowToast,
 }) => {
+  const [showProblemExplainer, setShowProblemExplainer] = useState(false);
 
   // Handle problem selection change
   const handleProblemChange = (newProblem: string) => {
@@ -108,6 +116,12 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <option value="rosenbrock">Rosenbrock Function</option>
             <option value="non-convex-saddle">Saddle Point</option>
           </select>
+          <button
+            onClick={() => setShowProblemExplainer(true)}
+            className="ml-2 px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 transition-colors"
+          >
+            Learn About Problems
+          </button>
         </div>
 
         {/* Mathematical Formulation */}
@@ -133,7 +147,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                 <InlineMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}</InlineMath>
               )}
               {currentProblem === 'ill-conditioned-quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}(100w_0^2 + w_1^2)`}</InlineMath>
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
               )}
               {currentProblem === 'rosenbrock' && (
                 <InlineMath>{String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}</InlineMath>
@@ -236,19 +250,61 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         </div>
       )}
 
-      {/* Future extension point: Parameters for other problems will go here
-          Example structure for when adding quadratic coefficients:
-
-          {currentProblem === 'quadratic' && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-              <div>
-                <label>Coefficient a: <input type="range" ... /></label>
-                <label>Coefficient b: <input type="range" ... /></label>
-              </div>
+      {/* Parameters for ill-conditioned quadratic */}
+      {currentProblem === 'ill-conditioned-quadratic' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+          <div className="max-w-md">
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">
+                Condition Number (<InlineMath>\kappa</InlineMath>)
+              </h4>
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="0.1"
+                value={Math.log10(conditionNumber)}
+                onChange={(e) => onConditionNumberChange(Math.pow(10, parseFloat(e.target.value)))}
+                className="w-full"
+              />
+              <span className="text-sm text-gray-600">
+                <InlineMath>\kappa</InlineMath> = {conditionNumber.toFixed(conditionNumber < 10 ? 1 : 0)}
+              </span>
+              <p className="text-xs text-gray-500 mt-2">
+                Higher κ creates more elongated ellipses, making optimization harder.
+                κ=1 is perfectly round (well-conditioned), κ=1000 is very elongated (ill-conditioned).
+              </p>
             </div>
-          )}
-      */}
+          </div>
+        </div>
+      )}
+
+      {/* Problem Explainer Modal */}
+      {showProblemExplainer && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setShowProblemExplainer(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto m-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Problem Types</h2>
+              <button
+                onClick={() => setShowProblemExplainer(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 py-4">
+              <ProblemExplainer />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
