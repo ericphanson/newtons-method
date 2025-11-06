@@ -93,7 +93,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
       </div>
 
       {/* Convergence Hero Section */}
-      <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-4 mb-4">
+      <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-3 mb-4">
         <div className="flex items-baseline justify-between mb-2">
           <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
             Convergence Status
@@ -103,16 +103,23 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           </span>
         </div>
 
-        <div className="mb-3">
-          <div className="text-xs text-gray-600 mb-1">Gradient Norm</div>
-          <div className="text-3xl font-bold text-gray-900 font-mono">{fmt(gradNorm)}</div>
+        <div className="flex items-baseline gap-4 mb-2">
+          <div>
+            <div className="text-xs text-gray-600">Gradient Norm</div>
+            <div className="text-2xl font-bold text-gray-900 font-mono">{fmt(gradNorm)}</div>
+          </div>
         </div>
 
-        <div className="mb-3">
-          <div className="text-xs text-gray-600 mb-2">
-            Progress to convergence (target &lt; {tolerance.toExponential(0)})
+        <div>
+          <div className="flex items-baseline justify-between text-xs text-gray-600 mb-1">
+            <span>Progress to convergence (target &lt; {tolerance.toExponential(0)})</span>
+            {!isConverged && (
+              <span className="font-medium">
+                ~{Math.max(0, totalIters - iterNum - 1)} iterations remaining
+              </span>
+            )}
           </div>
-          <div className="bg-gray-200 h-6 rounded-full overflow-hidden">
+          <div className="bg-gray-200 h-4 rounded-full overflow-hidden">
             <div
               className="h-full"
               style={{
@@ -120,11 +127,6 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
                 background: 'linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #10b981 100%)',
               }}
             ></div>
-          </div>
-          <div className="text-xs text-gray-600 mt-1">
-            {isConverged
-              ? 'Converged!'
-              : `~${Math.max(0, totalIters - iterNum - 1)} iterations remaining`}
           </div>
         </div>
       </div>

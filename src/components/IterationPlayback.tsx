@@ -77,9 +77,6 @@ export const IterationPlayback: React.FC<IterationPlaybackProps> = ({
             {totalIters > 0 ? `${currentIter + 1} / ${totalIters}` : '0 / 0'}
           </span>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Drag to navigate through iterations (like a video timeline)
-        </p>
       </div>
     </div>
   );

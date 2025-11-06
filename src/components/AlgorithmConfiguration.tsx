@@ -58,12 +58,15 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </span>
               </div>
               <input
-                type="number"
+                type="range"
+                min="0.001"
+                max="1"
+                step="0.001"
                 value={props.gdFixedAlpha}
-                onChange={(e) => props.onGdFixedAlphaChange?.(Number(e.target.value))}
-                step="0.01"
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                onChange={(e) => props.onGdFixedAlphaChange?.(parseFloat(e.target.value))}
+                className="w-full mb-2"
               />
+              <div className="text-sm text-gray-600">{props.gdFixedAlpha?.toFixed(3)}</div>
               <p className="text-xs text-gray-500 mt-1">
                 Learning rate (constant for all iterations)
               </p>
@@ -78,14 +81,18 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </span>
               </div>
               <input
-                type="text"
-                value={props.gdFixedTolerance?.toExponential(1)}
+                type="range"
+                min="-10"
+                max="-1"
+                step="0.1"
+                value={Math.log10(props.gdFixedTolerance ?? 1e-6)}
                 onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  if (!isNaN(val)) props.onGdFixedToleranceChange?.(val);
+                  const val = Math.pow(10, parseFloat(e.target.value));
+                  props.onGdFixedToleranceChange?.(val);
                 }}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono"
+                className="w-full mb-2"
               />
+              <div className="text-sm text-gray-600">{props.gdFixedTolerance?.toExponential(1)}</div>
               <p className="text-xs text-gray-500 mt-1">
                 Convergence threshold for gradient norm
               </p>
@@ -146,24 +153,32 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </span>
               </div>
               <input
-                type="text"
-                value={
+                type="range"
+                min="-10"
+                max="-1"
+                step="0.1"
+                value={Math.log10(
                   algorithm === 'gd-linesearch'
-                    ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
+                    ? (props.gdLSTolerance ?? 1e-6)
                     : algorithm === 'newton'
-                    ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
-                    : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)
-                }
+                    ? (props.newtonTolerance ?? 1e-6)
+                    : (props.lbfgsTolerance ?? 1e-6)
+                )}
                 onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  if (!isNaN(val)) {
-                    if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
-                    else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
-                    else props.onLbfgsToleranceChange?.(val);
-                  }
+                  const val = Math.pow(10, parseFloat(e.target.value));
+                  if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
+                  else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
+                  else props.onLbfgsToleranceChange?.(val);
                 }}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono"
+                className="w-full mb-2"
               />
+              <div className="text-sm text-gray-600">
+                {algorithm === 'gd-linesearch'
+                  ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
+                  : algorithm === 'newton'
+                  ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
+                  : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
+              </div>
               <p className="text-xs text-gray-500 mt-1">
                 Convergence threshold for gradient norm
               </p>
@@ -245,13 +260,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </div>
           <p className="text-xs text-gray-500">Starting position in parameter space</p>
         </div>
-      </div>
-
-      <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-        <p className="text-xs text-blue-900">
-          <strong>Auto-run:</strong> Algorithm runs automatically when any parameter changes
-          (computation is fast!)
-        </p>
       </div>
     </div>
   );
