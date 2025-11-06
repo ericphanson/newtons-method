@@ -23,6 +23,19 @@ interface IterationMetricsProps {
   conditionNumber?: number;
   lineSearchTrials?: number;
 
+  // Line search data
+  lineSearchCanvasRef?: React.RefObject<HTMLCanvasElement>;
+  lineSearchCurve?: {
+    alphaRange: number[];
+    lossValues: number[];
+    armijoValues: number[];
+  };
+  lineSearchTrialsData?: Array<{
+    alpha: number;
+    loss: number;
+    satisfied: boolean;
+  }>;
+
   tolerance: number;
 }
 
@@ -41,6 +54,9 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   eigenvalues,
   conditionNumber,
   lineSearchTrials,
+  lineSearchCanvasRef,
+  lineSearchCurve: _lineSearchCurve,
+  lineSearchTrialsData: _lineSearchTrialsData,
   tolerance,
 }) => {
   // Calculate deltas
@@ -243,6 +259,30 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           </div>
         </div>
       )}
+
+      {/* Line Search Visualization (for algorithms with line search) */}
+      {(algorithm === 'gd-linesearch' || algorithm === 'newton' || algorithm === 'lbfgs') &&
+        lineSearchCanvasRef && (
+          <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+            <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wide">
+              Line Search Visualization
+            </h3>
+            <div className="bg-white rounded p-3 border border-gray-300">
+              <div className="text-xs font-bold text-gray-700 mb-2">
+                Line Search Process ({lineSearchTrials || 0} trials)
+              </div>
+              <canvas
+                ref={lineSearchCanvasRef}
+                style={{ width: '100%', height: '200px' }}
+                className="border border-gray-200 rounded"
+              />
+              <p className="text-xs text-gray-600 mt-2">
+                Blue line = actual loss f(w + αd), Orange dashed = Armijo condition upper bound. Green
+                dot = accepted step, Red dots = rejected trials.
+              </p>
+            </div>
+          </div>
+        )}
 
       {/* Hessian Info Panel (only for Newton) */}
       {algorithm === 'newton' && eigenvalues && eigenvalues.length >= 2 && (

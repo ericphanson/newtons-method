@@ -2519,6 +2519,9 @@ const UnifiedVisualizer = () => {
                   prevLoss={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].newLoss : undefined}
                   prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
                   lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
+                  lineSearchCanvasRef={gdLSLineSearchCanvasRef}
+                  lineSearchCurve={gdLSIterations[gdLSCurrentIter].lineSearchCurve}
+                  lineSearchTrialsData={gdLSIterations[gdLSCurrentIter].lineSearchTrials}
                   tolerance={gdLSTolerance}
                 />
               )}
@@ -3135,19 +3138,6 @@ const UnifiedVisualizer = () => {
                   </p>
                 </div>
               )}
-
-              {/* Line Search Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Backtracking search for step size satisfying Armijo condition.
-                </p>
-                <canvas
-                  ref={gdLSLineSearchCanvasRef}
-                  style={{width: '700px', height: '400px'}}
-                  className="border border-gray-300 rounded bg-white"
-                />
-              </div>
             </>
           ) : selectedTab === 'newton' ? (
             <>
@@ -3193,6 +3183,9 @@ const UnifiedVisualizer = () => {
                   eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
                   conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                   lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
+                  lineSearchCanvasRef={newtonLineSearchCanvasRef}
+                  lineSearchCurve={newtonIterations[newtonCurrentIter].lineSearchCurve}
+                  lineSearchTrialsData={newtonIterations[newtonCurrentIter].lineSearchTrials}
                   tolerance={newtonTolerance}
                 />
               )}
@@ -3746,15 +3739,6 @@ const UnifiedVisualizer = () => {
                 </p>
                 <canvas ref={newtonHessianCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
               </div>
-
-              {/* Newton Line Search */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Finding the right step size along Newton direction
-                </p>
-                <canvas ref={newtonLineSearchCanvasRef} style={{width: '700px', height: '400px'}} className="border border-gray-300 rounded bg-white" />
-              </div>
             </>
           ) : (
             <>
@@ -3800,6 +3784,9 @@ const UnifiedVisualizer = () => {
                   prevLoss={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].newLoss : undefined}
                   prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
                   lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
+                  lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
+                  lineSearchCurve={lbfgsIterations[lbfgsCurrentIter].lineSearchCurve}
+                  lineSearchTrialsData={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials}
                   tolerance={lbfgsTolerance}
                 />
               )}
@@ -4524,15 +4511,6 @@ const UnifiedVisualizer = () => {
                   </p>
                 </div>
               )}
-
-              {/* Line Search Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Finding the right step size along search direction
-                </p>
-                <canvas ref={lbfgsLineSearchCanvasRef} style={{width: '700px', height: '400px'}} className="border border-gray-300 rounded bg-white" />
-              </div>
 
               {/* L-BFGS Memory Section */}
               <div className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg shadow-md p-6 mb-6">

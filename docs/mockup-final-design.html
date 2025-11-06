@@ -396,29 +396,43 @@
         <div class="mt-6 bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
             <h3 class="text-lg font-bold text-gray-900 mb-3">Design Notes</h3>
             <ul class="space-y-2 text-sm text-gray-700">
+                <li><strong>✅ Auto-run workflow:</strong> No "Run Algorithm" button - runs automatically when config changes (fast!)</li>
                 <li><strong>✅ Conceptual order:</strong> Configuration → Playback → Metrics matches the mental model (setup, run, observe)</li>
                 <li><strong>✅ Matches existing styles:</strong> Uses your Tailwind classes (bg-white, rounded-lg, shadow-md, text-gray-900, etc.)</li>
                 <li><strong>✅ Clear interaction model:</strong> "EDITABLE" badges on config, "NAVIGATION" on playback, "READ ONLY" on metrics</li>
                 <li><strong>✅ Video player metaphor:</strong> Timeline scrubber looks familiar, Previous/Next like media controls</li>
                 <li><strong>✅ Convergence-first hierarchy:</strong> Gradient norm prominent with progress bar in hero section</li>
-                <li><strong>✅ Rich detail from compact dashboard:</strong> Includes gradient decomposition, direction vectors, eigenvalues, condition number, line search trials</li>
+                <li><strong>✅ Rich detail from compact dashboard:</strong> Includes gradient decomposition, direction vectors, eigenvalues, condition number</li>
                 <li><strong>✅ Mathematical precision:</strong> Shows ||∇f||₂, max component, ||Δw||₂, κ (condition number), λ₁/λ₂ (eigenvalues)</li>
-                <li><strong>✅ Algorithm-specific panel:</strong> Blue-bordered section for method, line search type, trials, eigenvalues</li>
-                <li><strong>✅ Progressive disclosure:</strong> Hessian matrix & detailed line search trials collapsed by default</li>
+                <li><strong>✅ Line search visualization:</strong> Plot shows actual loss curve, Armijo bound, and trial points (like current UI, but integrated)</li>
+                <li><strong>✅ Conditional sections:</strong> Line search panel only for GD-LS/Newton/L-BFGS; Hessian panel only for Newton</li>
+                <li><strong>✅ Pluggable line search:</strong> UI notes "Armijo (pluggable)" to indicate extensibility</li>
                 <li><strong>✅ Consistent spacing:</strong> Uses existing p-6, p-4, mb-6, mb-4 patterns</li>
-                <li><strong>✅ Existing color palette:</strong> blue-600 for primary actions, gray-50 for info boxes, amber-50 for convergence, blue-50 for algorithm info</li>
+                <li><strong>✅ Existing color palette:</strong> blue-600 for primary actions, gray-50 for info boxes, amber-50 for convergence, blue-50 for line search, purple-50 for Hessian</li>
                 <li><strong>✅ Trend indicators:</strong> Shows changes (↓ -12.424, -16.0%) and reduction rates for loss and gradient</li>
             </ul>
 
             <div class="mt-4 p-4 bg-amber-50 border-l-4 border-amber-500 rounded">
                 <h4 class="font-bold text-amber-900 mb-2">What's Different from Current UI:</h4>
                 <ul class="space-y-1 text-sm text-amber-900">
-                    <li><strong>1. Clear separation:</strong> Config (editable) at top, playback (navigation) in middle, metrics (read-only) at bottom</li>
-                    <li><strong>2. Video player controls:</strong> Timeline scrubber makes navigation intent obvious</li>
-                    <li><strong>3. Convergence hero:</strong> Gradient norm gets prominent placement with visual progress bar</li>
-                    <li><strong>4. Richer metrics:</strong> Shows gradient components, direction, movement magnitude, reduction rates</li>
-                    <li><strong>5. Algorithm insights:</strong> Dedicated panel for method-specific details (eigenvalues, condition number)</li>
-                    <li><strong>6. Progressive disclosure:</strong> Advanced details (Hessian matrix, line search trials) collapsed by default</li>
+                    <li><strong>1. No "Run" button:</strong> Auto-runs on config change (settings you see = what ran, no mismatched state)</li>
+                    <li><strong>2. Clear separation:</strong> Config (editable) at top, playback (navigation) in middle, metrics (read-only) at bottom</li>
+                    <li><strong>3. Video player controls:</strong> Timeline scrubber makes navigation intent obvious</li>
+                    <li><strong>4. Convergence hero:</strong> Gradient norm gets prominent placement with visual progress bar</li>
+                    <li><strong>5. Richer metrics:</strong> Shows gradient components, direction, movement magnitude, reduction rates</li>
+                    <li><strong>6. Integrated visualizations:</strong> Line search plot and Hessian info moved from bottom to iteration section</li>
+                    <li><strong>7. Algorithm-specific panels:</strong> Line search (blue) and Hessian (purple) only shown when applicable</li>
+                </ul>
+            </div>
+
+            <div class="mt-4 p-4 bg-purple-50 border-l-4 border-purple-500 rounded">
+                <h4 class="font-bold text-purple-900 mb-2">Conditional Display Logic:</h4>
+                <ul class="space-y-1 text-sm text-purple-900">
+                    <li><strong>GD Fixed Step:</strong> No line search panel, no Hessian panel (simplest view)</li>
+                    <li><strong>GD Line Search:</strong> Show line search panel (blue), no Hessian panel</li>
+                    <li><strong>Newton's Method:</strong> Show line search panel (blue) + Hessian panel (purple)</li>
+                    <li><strong>L-BFGS:</strong> Show line search panel (blue), no Hessian panel (quasi-Newton uses approximation)</li>
+                    <li><strong>Future line search methods:</strong> Pluggable - just update the visualization data source</li>
                 </ul>
             </div>
         </div>
