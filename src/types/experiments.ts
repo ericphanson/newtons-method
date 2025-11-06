@@ -3,7 +3,14 @@ export type ProblemType =
   | 'quadratic'
   | 'ill-conditioned-quadratic'
   | 'rosenbrock'
-  | 'non-convex-saddle';
+  | 'non-convex-saddle'
+  | 'separating-hyperplane';
+
+export type SeparatingHyperplaneVariant =
+  | 'hard-margin'
+  | 'soft-margin'
+  | 'perceptron'
+  | 'squared-hinge';
 
 export interface DataPoint {
   x: number;
