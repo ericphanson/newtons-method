@@ -1,5 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
-import { quadraticProblem, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
+import { quadraticProblem, createRotatedQuadratic, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
 import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock';
 import { saddleProblem } from './saddle';
 
@@ -25,6 +25,7 @@ export function getProblem(type: string): ProblemDefinition | undefined {
 
 export {
   quadraticProblem,
+  createRotatedQuadratic,
   illConditionedQuadratic,
   createIllConditionedQuadratic,
   rosenbrockProblem,

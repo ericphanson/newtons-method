@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup: Clear Interaction Model (Config vs Navigation)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .mockup-label {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px 6px 0 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .main-container {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        /* NAVIGATION SECTION - Media Player Style */
+        .navigation-section {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            padding: 20px;
+            border-bottom: 4px solid #3b82f6;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .iteration-display {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .media-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .media-btn {
+            background: #374151;
+            border: 2px solid #4b5563;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .media-btn:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .media-btn.primary {
+            background: #3b82f6;
+            border-color: #2563eb;
+        }
+
+        .media-btn.primary:hover {
+            background: #2563eb;
+            border-color: #1d4ed8;
+        }
+
+        .timeline-container {
+            background: #374151;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .timeline-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .timeline-track {
+            background: #1f2937;
+            height: 40px;
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+        }
+
+        .timeline-fill {
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            height: 24px;
+            border-radius: 4px;
+            position: absolute;
+            left: 8px;
+            top: 8px;
+        }
+
+        .timeline-thumb {
+            width: 24px;
+            height: 32px;
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 6px;
+            position: absolute;
+            top: 4px;
+            z-index: 2;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #6b7280;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* OBSERVATION SECTION - Read-only Display */
+        .observation-section {
+            padding: 24px;
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7280;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .read-only-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card-compact {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .metric-name {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* CONFIGURATION SECTION - Input Controls */
+        .configuration-section {
+            padding: 24px;
+            background: white;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .config-item {
+            background: #f9fafb;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .config-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .editable-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .config-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .config-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .config-value-display {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .run-button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
+
+        .run-button:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">
+        MOCKUP #5: Clear Interaction Model (Configuration vs Navigation vs Observation)
+    </div>
+
+    <div class="main-container">
+        <!-- NAVIGATION SECTION (Media Player Style) -->
+        <div class="navigation-section">
+            <div class="nav-label">🎬 Iteration Playback</div>
+            <div class="iteration-display">Iteration 1 / 300</div>
+
+            <div class="media-controls">
+                <button class="media-btn">⏮ First</button>
+                <button class="media-btn">◀ Prev</button>
+                <button class="media-btn primary">▶ Play</button>
+                <button class="media-btn">Next ▶</button>
+                <button class="media-btn">Last ⏭</button>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-label">Timeline Scrubber</div>
+                <div class="timeline-track">
+                    <div class="timeline-fill" style="width: 0.33%;"></div>
+                    <div class="timeline-thumb" style="left: calc(0.33% + 8px);"></div>
+                </div>
+                <div class="timeline-markers">
+                    <span>0</span>
+                    <span>75</span>
+                    <span>150</span>
+                    <span>225</span>
+                    <span>300</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- OBSERVATION SECTION (Read-Only) -->
+        <div class="observation-section">
+            <div class="section-title">
+                📊 Iteration Metrics
+                <span class="read-only-badge">READ ONLY</span>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card-compact">
+                    <div class="metric-name">Loss</div>
+                    <div class="metric-value">65.219238</div>
+                </div>
+
+                <div class="metric-card-compact">
+                    <div class="metric-name">Gradient Norm</div>
+                    <div class="metric-value">200.010000</div>
+                </div>
+
+                <div class="metric-card-compact">
+                    <div class="metric-name">Weights</div>
+                    <div class="metric-value">[1.1250, 1.9688]</div>
+                </div>
+
+                <div class="metric-card-compact">
+                    <div class="metric-name">Step Size α</div>
+                    <div class="metric-value">0.015625</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- CONFIGURATION SECTION (Input Controls) -->
+        <div class="configuration-section">
+            <div class="section-title">
+                ⚙️ Algorithm Configuration
+                <span class="editable-badge">EDITABLE</span>
+            </div>
+
+            <div class="config-grid">
+                <div class="config-item">
+                    <div class="config-label">
+                        Armijo c₁
+                        <span class="editable-badge">EDIT</span>
+                    </div>
+                    <input
+                        type="range"
+                        class="config-slider"
+                        min="0.0001"
+                        max="0.5"
+                        step="0.0001"
+                        value="0.0001"
+                    />
+                    <div class="config-value-display">0.0001</div>
+                    <div class="help-text">
+                        Armijo condition parameter for line search (smaller = stricter decrease)
+                    </div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">
+                        Tolerance
+                        <span class="editable-badge">EDIT</span>
+                    </div>
+                    <input
+                        type="text"
+                        class="config-input"
+                        value="1.0e-6"
+                    />
+                    <div class="help-text">
+                        Convergence threshold for gradient norm
+                    </div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">
+                        Max Iterations
+                        <span class="editable-badge">EDIT</span>
+                    </div>
+                    <input
+                        type="number"
+                        class="config-input"
+                        value="300"
+                    />
+                    <div class="help-text">
+                        Maximum number of iterations before stopping
+                    </div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">
+                        Initial Point
+                        <span class="editable-badge">EDIT</span>
+                    </div>
+                    <input
+                        type="text"
+                        class="config-input"
+                        value="[-2, 2]"
+                    />
+                    <div class="help-text">
+                        Starting position [w₀, w₁] in parameter space
+                    </div>
+                </div>
+            </div>
+
+            <button class="run-button">
+                🚀 Re-run Algorithm with New Settings
+            </button>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e5e7eb; margin-top: 20px;">
+        <h3 style="margin-top: 0; color: #1f2937;">Design Principles</h3>
+
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;">1. Clear Visual Separation</h4>
+            <ul style="color: #6b7280; line-height: 1.8;">
+                <li><strong>Navigation (Dark gray):</strong> Media player controls for stepping through results</li>
+                <li><strong>Observation (Light gray):</strong> Read-only display of iteration metrics</li>
+                <li><strong>Configuration (White with blue borders):</strong> Editable inputs that trigger re-computation</li>
+            </ul>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;">2. Interaction Affordances</h4>
+            <ul style="color: #6b7280; line-height: 1.8;">
+                <li><strong>Timeline scrubber:</strong> Looks like video player (YouTube, etc.) - clearly for navigation</li>
+                <li><strong>Play button:</strong> Auto-advance through iterations (animation)</li>
+                <li><strong>Configuration sliders:</strong> Different visual style (blue) - clearly for input</li>
+                <li><strong>"Run Algorithm" button:</strong> Explicit trigger for re-computation</li>
+            </ul>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;">3. Status Badges</h4>
+            <ul style="color: #6b7280; line-height: 1.8;">
+                <li><strong>"READ ONLY" badge:</strong> Makes it clear metrics can't be edited directly</li>
+                <li><strong>"EDITABLE" badge:</strong> Signals this is the configuration area</li>
+                <li><strong>"EDIT" micro-badges:</strong> On each input for extra clarity</li>
+            </ul>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;">4. Navigation Placement</h4>
+            <ul style="color: #6b7280; line-height: 1.8;">
+                <li><strong>Top position:</strong> Navigation controls at top (like video player header)</li>
+                <li><strong>Visually distinct:</strong> Dark background separates from content</li>
+                <li><strong>Large iteration counter:</strong> Current position always visible</li>
+                <li><strong>Timeline scrubber:</strong> Full width for precise control</li>
+            </ul>
+        </div>
+
+        <div style="background: #fef3c7; padding: 16px; border-left: 4px solid #f59e0b; border-radius: 4px; margin-top: 20px;">
+            <h4 style="margin-top: 0; color: #92400e;">Key Insight: Mental Model Alignment</h4>
+            <p style="color: #6b7280; margin: 0; line-height: 1.6;">
+                This design maps to a familiar mental model: <strong>video player</strong>. Users understand that:
+            </p>
+            <ul style="color: #6b7280; line-height: 1.6; margin-bottom: 0;">
+                <li>Playback controls navigate through pre-recorded content (don't change the video)</li>
+                <li>Settings (quality, speed) modify the experience (trigger new behavior)</li>
+                <li>The timeline shows where you are in the recording</li>
+            </ul>
+            <p style="color: #6b7280; margin: 12px 0 0 0; line-height: 1.6;">
+                Same principle here: <strong>Navigation</strong> steps through pre-computed iterations, <strong>Configuration</strong> changes the algorithm and re-runs.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

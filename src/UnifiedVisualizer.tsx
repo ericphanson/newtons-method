@@ -27,7 +27,7 @@ import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
-import { getProblem, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
+import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
 type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
@@ -60,6 +60,7 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
+  const [rotationAngle, setRotationAngle] = useState(0);
   const [conditionNumber, setConditionNumber] = useState(100);
   const [rosenbrockB, setRosenbrockB] = useState(100);
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
@@ -145,6 +146,14 @@ const UnifiedVisualizer = () => {
         requiresDataset: true,
         dimensionality: 3, // 3D weights [w0, w1, w2]
       };
+    } else if (currentProblem === 'quadratic') {
+      // Return parametrized rotated quadratic
+      const problem = createRotatedQuadratic(rotationAngle);
+      return {
+        ...problem,
+        requiresDataset: false,
+        dimensionality: 2, // 2D weights [w0, w1]
+      };
     } else if (currentProblem === 'ill-conditioned-quadratic') {
       // Return parametrized ill-conditioned quadratic
       const problem = createIllConditionedQuadratic(conditionNumber);
@@ -173,14 +182,18 @@ const UnifiedVisualizer = () => {
         dimensionality: 2, // 2D weights [w0, w1]
       };
     }
-  }, [currentProblem, data, lambda, conditionNumber, rosenbrockB]);
+  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB]);
 
   // Get current problem functions for algorithm execution
-  // For parametrized problems (ill-conditioned quadratic, Rosenbrock),
+  // For parametrized problems (rotated quadratic, ill-conditioned quadratic, Rosenbrock),
   // we create instances with current parameter values
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
     if (currentProblem === 'logistic-regression') {
       return logisticRegressionToProblemFunctions(data, lambda);
+    } else if (currentProblem === 'quadratic') {
+      // Create parametrized version with current rotation angle
+      const problem = createRotatedQuadratic(rotationAngle);
+      return problemToProblemFunctions(problem);
     } else if (currentProblem === 'ill-conditioned-quadratic') {
       // Create parametrized version with current condition number
       const problem = createIllConditionedQuadratic(conditionNumber);
@@ -196,7 +209,7 @@ const UnifiedVisualizer = () => {
       }
       return problemToProblemFunctions(problem);
     }
-  }, [currentProblem, data, lambda, conditionNumber, rosenbrockB]);
+  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB]);
 
   // Track visualization bounds updates
   useEffect(() => {
@@ -235,7 +248,7 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, data, lambda]);
 
-  // Note: When conditionNumber or rosenbrockB changes, algorithms automatically rerun
+  // Note: When rotationAngle, conditionNumber, or rosenbrockB changes, algorithms automatically rerun
   // because getCurrentProblemFunctions includes them in its dependencies, which triggers
   // the algorithm useEffects below to recompute with the new parameter values.
 
@@ -1832,6 +1845,8 @@ const UnifiedVisualizer = () => {
         }}
         lambda={lambda}
         onLambdaChange={setLambda}
+        rotationAngle={rotationAngle}
+        onRotationAngleChange={setRotationAngle}
         conditionNumber={conditionNumber}
         onConditionNumberChange={setConditionNumber}
         rosenbrockB={rosenbrockB}

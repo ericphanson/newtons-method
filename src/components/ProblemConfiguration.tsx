@@ -21,6 +21,10 @@ interface ProblemConfigurationProps {
   addPointMode: 0 | 1 | 2;
   onAddPointModeChange: (mode: 0 | 1 | 2) => void;
 
+  // Rotated quadratic parameters
+  rotationAngle: number;
+  onRotationAngleChange: (theta: number) => void;
+
   // Ill-conditioned quadratic parameters
   conditionNumber: number;
   onConditionNumberChange: (kappa: number) => void;
@@ -42,6 +46,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onProblemChange,
   lambda,
   onLambdaChange,
+  rotationAngle,
+  onRotationAngleChange,
   conditionNumber,
   onConditionNumberChange,
   rosenbrockB,
@@ -150,7 +156,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <div>
               <strong>Objective:</strong>{' '}
               {currentProblem === 'quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}</InlineMath>
+                <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>
               )}
               {currentProblem === 'ill-conditioned-quadratic' && (
                 <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
@@ -251,6 +257,43 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Parameters for rotated ellipse */}
+      {currentProblem === 'quadratic' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+          <div className="max-w-2xl">
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">
+                Rotation Angle (<InlineMath>\theta</InlineMath>)
+              </h4>
+              <input
+                type="range"
+                min="0"
+                max="90"
+                step="5"
+                value={rotationAngle}
+                onChange={(e) => onRotationAngleChange(parseFloat(e.target.value))}
+                className="w-full"
+              />
+              <span className="text-sm text-gray-600">
+                <InlineMath>\theta</InlineMath> = {rotationAngle}°
+              </span>
+              <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+                <p className="text-xs text-blue-900 font-semibold mb-1">
+                  💡 Key Insight: Rotation Invariance
+                </p>
+                <p className="text-xs text-blue-900">
+                  <strong>θ=0°:</strong> Ellipse aligned with axes. Gradient descent follows axes efficiently.<br/>
+                  <strong>θ=45°:</strong> Maximum misalignment! GD zigzags badly, while Newton/L-BFGS are unaffected.<br/>
+                  <strong>Second-order methods are rotation-invariant</strong> — they adapt to any coordinate system.
+                  First-order methods depend on your choice of coordinates!
+                </p>
+              </div>
             </div>
           </div>
         </div>
