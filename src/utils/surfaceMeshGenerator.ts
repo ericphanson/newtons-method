@@ -19,8 +19,24 @@ export interface SurfaceMeshData {
 export function generateSurfaceMesh(
   objectiveFn: (w: number[]) => number,
   bounds: { w0: [number, number]; w1: [number, number] },
-  resolution: number = 50
+  resolution?: number // Make optional
 ): SurfaceMeshData {
+  // Auto-adjust resolution based on bounds if not specified
+  if (resolution === undefined) {
+    const w0Range = bounds.w0[1] - bounds.w0[0];
+    const w1Range = bounds.w1[1] - bounds.w1[0];
+    const avgRange = (w0Range + w1Range) / 2;
+
+    // Lower resolution for larger domains
+    if (avgRange > 10) {
+      resolution = 30;
+    } else if (avgRange > 5) {
+      resolution = 40;
+    } else {
+      resolution = 50;
+    }
+  }
+
   const [w0Min, w0Max] = bounds.w0;
   const [w1Min, w1Max] = bounds.w1;
 

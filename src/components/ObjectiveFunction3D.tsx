@@ -147,9 +147,9 @@ export function ObjectiveFunction3D({
 }: ObjectiveFunction3DProps) {
   const resetCameraRef = useRef<(() => void) | null>(null);
 
-  // Generate mesh data
+  // Generate mesh data with adaptive resolution
   const meshData = useMemo(() => {
-    return generateSurfaceMesh(objectiveFn, bounds, 50);
+    return generateSurfaceMesh(objectiveFn, bounds);
   }, [objectiveFn, bounds]);
 
   // Compute camera position based on bounds
