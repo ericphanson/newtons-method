@@ -27,7 +27,7 @@ export function drawContours(options: ContourOptions): void {
     canvasWidth,
     canvasHeight,
     numLevels = 15,
-    margins = { left: 60, right: 20, top: 20, bottom: 50 }
+    margins = { left: 60, right: 20, top: 20, bottom: 60 }
   } = options;
 
   // Flatten 2D array to 1D array (d3-contour expects 1D)
@@ -196,7 +196,7 @@ export function drawOptimumMarkers(options: OptimumMarkerOptions): void {
     canvasWidth,
     canvasHeight,
     markerSize = 12,
-    margins = { left: 60, right: 20, top: 20, bottom: 50 }
+    margins = { left: 60, right: 20, top: 20, bottom: 60 }
   } = options;
   const { minW0, maxW0, minW1, maxW1 } = bounds;
   const w0Range = maxW0 - minW0;
@@ -272,7 +272,7 @@ export function drawAxes(options: AxisOptions): void {
     bounds,
     canvasWidth,
     canvasHeight,
-    margins = { left: 60, right: 20, top: 20, bottom: 50 },
+    margins = { left: 60, right: 20, top: 20, bottom: 60 },
     fontSize = 12,
     tickLength = 6
   } = options;
@@ -362,7 +362,7 @@ export function getPlotArea(
   canvasWidth: number,
   canvasHeight: number,
   margins: { left: number; right: number; top: number; bottom: number } =
-    { left: 60, right: 20, top: 20, bottom: 50 }
+    { left: 60, right: 20, top: 20, bottom: 60 }
 ): { x: number; y: number; width: number; height: number } {
   return {
     x: margins.left,

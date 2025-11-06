@@ -1055,7 +1055,7 @@ const UnifiedVisualizer = () => {
     }
 
     // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
 
@@ -1246,7 +1246,7 @@ const UnifiedVisualizer = () => {
     }
 
     // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
 
@@ -1438,7 +1438,7 @@ const UnifiedVisualizer = () => {
     }
 
     // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
 
@@ -1538,7 +1538,7 @@ const UnifiedVisualizer = () => {
     }
 
     // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
 
