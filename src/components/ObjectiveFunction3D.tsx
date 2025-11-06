@@ -1,8 +1,9 @@
 // src/components/ObjectiveFunction3D.tsx
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Grid } from '@react-three/drei';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import { generateSurfaceMesh } from '../utils/surfaceMeshGenerator';
 
@@ -73,6 +74,69 @@ function CurrentPoint({ position }: { position: [number, number, number] }) {
   );
 }
 
+function Scene({
+  meshData,
+  trajectory,
+  currentIter,
+  currentPoint,
+  onResetRef
+}: {
+  meshData: ReturnType<typeof generateSurfaceMesh>;
+  trajectory: number[][];
+  currentIter?: number;
+  currentPoint: [number, number, number] | null;
+  onResetRef: React.MutableRefObject<(() => void) | null>;
+}) {
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+
+  useEffect(() => {
+    onResetRef.current = () => {
+      if (controlsRef.current) {
+        controlsRef.current.reset();
+      }
+    };
+  }, [onResetRef]);
+
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 10]} intensity={1} />
+      <pointLight position={[-10, -10, 5]} intensity={0.5} />
+
+      <Surface meshData={meshData} />
+
+      {trajectory.length > 0 && (
+        <Trajectory points={trajectory} currentIter={currentIter} />
+      )}
+
+      {currentPoint && <CurrentPoint position={currentPoint} />}
+
+      <Grid
+        args={[20, 20]}
+        position={[0, 0, meshData.minZ - 0.1]}
+        cellSize={1}
+        cellThickness={0.5}
+        cellColor="#888888"
+        sectionSize={5}
+        sectionThickness={1}
+        sectionColor="#444444"
+        fadeDistance={50}
+        fadeStrength={1}
+      />
+
+      <OrbitControls
+        ref={controlsRef}
+        enableDamping
+        dampingFactor={0.05}
+        minDistance={2}
+        maxDistance={20}
+      />
+
+      <axesHelper args={[5]} />
+    </>
+  );
+}
+
 export function ObjectiveFunction3D({
   objectiveFn,
   bounds,
@@ -81,6 +145,8 @@ export function ObjectiveFunction3D({
   width = 600,
   height = 500,
 }: ObjectiveFunction3DProps) {
+  const resetCameraRef = useRef<(() => void) | null>(null);
+
   // Generate mesh data
   const meshData = useMemo(() => {
     return generateSurfaceMesh(objectiveFn, bounds, 50);
@@ -105,48 +171,36 @@ export function ObjectiveFunction3D({
     return trajectory[currentIter] as [number, number, number];
   }, [trajectory, currentIter]);
 
+  const handleResetCamera = () => {
+    if (resetCameraRef.current) {
+      resetCameraRef.current();
+    }
+  };
+
   return (
-    <div style={{ width, height }}>
+    <div style={{ width, height, position: 'relative' }}>
       <Canvas
         camera={{
           position: cameraPosition,
           fov: 50,
         }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 10]} intensity={1} />
-        <pointLight position={[-10, -10, 5]} intensity={0.5} />
-
-        <Surface meshData={meshData} />
-
-        {trajectory.length > 0 && (
-          <Trajectory points={trajectory} currentIter={currentIter} />
-        )}
-
-        {currentPoint && <CurrentPoint position={currentPoint} />}
-
-        <Grid
-          args={[20, 20]}
-          position={[0, 0, meshData.minZ - 0.1]}
-          cellSize={1}
-          cellThickness={0.5}
-          cellColor="#888888"
-          sectionSize={5}
-          sectionThickness={1}
-          sectionColor="#444444"
-          fadeDistance={50}
-          fadeStrength={1}
+        <Scene
+          meshData={meshData}
+          trajectory={trajectory}
+          currentIter={currentIter}
+          currentPoint={currentPoint}
+          onResetRef={resetCameraRef}
         />
-
-        <OrbitControls
-          enableDamping
-          dampingFactor={0.05}
-          minDistance={2}
-          maxDistance={20}
-        />
-
-        <axesHelper args={[5]} />
       </Canvas>
+
+      <button
+        onClick={handleResetCamera}
+        className="absolute top-2 right-2 px-3 py-1 bg-gray-700 text-white text-sm rounded hover:bg-gray-600"
+        title="Reset camera view"
+      >
+        Reset View
+      </button>
     </div>
   );
 }
