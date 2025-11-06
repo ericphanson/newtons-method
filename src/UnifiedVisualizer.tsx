@@ -27,7 +27,7 @@ import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
-import { getProblem, createIllConditionedQuadratic } from './problems';
+import { getProblem, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
 type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
@@ -61,8 +61,15 @@ const UnifiedVisualizer = () => {
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
   const [conditionNumber, setConditionNumber] = useState(100);
+  const [rosenbrockB, setRosenbrockB] = useState(100);
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
-  const [selectedTab, setSelectedTab] = useState<Algorithm>('algorithms');
+  const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
+    const saved = localStorage.getItem('selectedAlgorithmTab');
+    if (saved && ['algorithms', 'gd-fixed', 'gd-linesearch', 'newton', 'lbfgs'].includes(saved)) {
+      return saved as Algorithm;
+    }
+    return 'algorithms';
+  });
 
   // GD Fixed step state
   const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
@@ -146,6 +153,14 @@ const UnifiedVisualizer = () => {
         requiresDataset: false,
         dimensionality: 2, // 2D weights [w0, w1]
       };
+    } else if (currentProblem === 'rosenbrock') {
+      // Return parametrized Rosenbrock
+      const problem = createRosenbrockProblem(rosenbrockB);
+      return {
+        ...problem,
+        requiresDataset: false,
+        dimensionality: 2, // 2D weights [w0, w1]
+      };
     } else {
       // Get problem from registry
       const problem = getProblem(currentProblem);
@@ -158,7 +173,7 @@ const UnifiedVisualizer = () => {
         dimensionality: 2, // 2D weights [w0, w1]
       };
     }
-  }, [currentProblem, data, lambda, conditionNumber]);
+  }, [currentProblem, data, lambda, conditionNumber, rosenbrockB]);
 
   // Get current problem functions for algorithm execution
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
@@ -177,6 +192,11 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     // Problem and bounds are now synced via getCurrentProblem
   }, [getCurrentProblem, visualizationBounds]);
+
+  // Save selected tab to localStorage
+  useEffect(() => {
+    localStorage.setItem('selectedAlgorithmTab', selectedTab);
+  }, [selectedTab]);
 
   // Calculate global minimum for logistic regression when data changes
   useEffect(() => {
@@ -1764,6 +1784,8 @@ const UnifiedVisualizer = () => {
         onLambdaChange={setLambda}
         conditionNumber={conditionNumber}
         onConditionNumberChange={setConditionNumber}
+        rosenbrockB={rosenbrockB}
+        onRosenbrockBChange={setRosenbrockB}
         customPoints={customPoints}
         onCustomPointsChange={setCustomPoints}
         addPointMode={addPointMode}
@@ -2821,44 +2843,6 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
-              {/* Visual Guide */}
-              <CollapsibleSection
-                title="Visual Guide"
-                defaultExpanded={true}
-                storageKey="gd-ls-visual-guide"
-              >
-                <div className="space-y-4 text-gray-800">
-                  <div>
-                    <h3 className="text-lg font-bold text-teal-800 mb-2">Parameter Space</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Trajectory shows <strong>adaptive step sizes</strong> changing iteration-to-iteration</li>
-                      <li>Large steps when far from minimum, small steps when close</li>
-                      <li>Direction is always <InlineMath>-\nabla f</InlineMath> (steepest descent)</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-teal-800 mb-2">Line Search Panel</h3>
-                    <p>Shows loss <InlineMath>f(w + \alpha p)</InlineMath> as function of step size <InlineMath>\alpha</InlineMath>:</p>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li><strong>Blue curve:</strong> actual loss along search direction</li>
-                      <li><strong>Orange dashed line:</strong> Armijo condition boundary</li>
-                      <li><strong>Red dots:</strong> rejected steps (insufficient decrease)</li>
-                      <li><strong>Green dot:</strong> accepted step (satisfies Armijo)</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-teal-800 mb-2">What to Watch</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Number of backtracking steps varies by iteration</li>
-                      <li>Early iterations may need more backtracking (landscape unfamiliar)</li>
-                      <li>Near minimum, often accepts larger steps (landscape smoother)</li>
-                    </ul>
-                  </div>
-                </div>
-              </CollapsibleSection>
-
               {/* Line Search Details */}
               <CollapsibleSection
                 title="Line Search Details"
@@ -3481,54 +3465,6 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
-              {/* Visual Guide */}
-              <CollapsibleSection
-                title="Visual Guide"
-                defaultExpanded={true}
-                storageKey="newton-visual-guide"
-              >
-                <div className="space-y-4 text-gray-800">
-                  <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">Parameter Space</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Trajectory takes <strong>fewer, larger steps</strong> than gradient descent</li>
-                      <li>Steps are <strong>not perpendicular</strong> to contours (unlike steepest descent)</li>
-                      <li>Near minimum, often <strong>converges in 2-3 iterations</strong></li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Matrix Heatmap</h3>
-                    <p>Shows curvature information: <InlineMath>{'H_{ij} = \\frac{\\partial^2 f}{\\partial w_i \\partial w_j}'}</InlineMath></p>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li><strong>Diagonal:</strong> curvature along each parameter axis</li>
-                      <li><strong>Off-diagonal:</strong> how parameters interact (cross-derivatives)</li>
-                      <li><strong>Color intensity:</strong> magnitude of second derivatives</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">Eigenvalue Display</h3>
-                    <p>Shows <InlineMath>{'\\lambda_{\\min}'}</InlineMath>, <InlineMath>{'\\lambda_{\\max}'}</InlineMath>,
-                       condition number <InlineMath>{'\\kappa = \\lambda_{\\max}/\\lambda_{\\min}'}</InlineMath></p>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li><strong>All positive</strong> → local minimum (bowl-shaped)</li>
-                      <li><strong>Some negative</strong> → saddle point (not a minimum)</li>
-                      <li><strong>Large <InlineMath>\kappa</InlineMath></strong> → ill-conditioned, but Newton handles better than GD</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-blue-800 mb-2">Line Search Panel</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Often accepts <InlineMath>{'\\alpha = 1'}</InlineMath> (full Newton step) near minimum</li>
-                      <li>Smaller <InlineMath>{'\\alpha'}</InlineMath> when far from minimum or Hessian approximation poor</li>
-                      <li>Armijo condition ensures sufficient decrease</li>
-                    </ul>
-                  </div>
-                </div>
-              </CollapsibleSection>
-
               {/* Line Search Details */}
               <CollapsibleSection
                 title="Line Search Details"
@@ -4106,61 +4042,6 @@ const UnifiedVisualizer = () => {
                       <li>f is differentiable</li>
                       <li>Gradients are Lipschitz continuous (smoothness)</li>
                       <li>Convexity helpful but not required</li>
-                    </ul>
-                  </div>
-                </div>
-              </CollapsibleSection>
-
-              {/* L-BFGS - Visual Guide */}
-              <CollapsibleSection
-                title="Visual Guide"
-                defaultExpanded={true}
-                storageKey="lbfgs-visual-guide"
-              >
-                <div className="space-y-4 text-gray-800">
-                  <div>
-                    <h3 className="text-lg font-bold text-amber-800 mb-2">Parameter Space</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Trajectory takes <strong>Newton-like steps</strong> without computing Hessian</li>
-                      <li>Steps adapt to problem curvature using history</li>
-                      <li>Converges <strong>faster than gradient descent</strong>, nearly as fast as Newton</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-amber-800 mb-2">Memory Pairs Visualization</h3>
-                    <p>Recent <InlineMath>(s, y)</InlineMath> pairs shown as arrows:</p>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>
-                        <InlineMath>s</InlineMath> = where we moved (parameter change)
-                      </li>
-                      <li>
-                        <InlineMath>y</InlineMath> = how gradient changed (curvature signal)
-                      </li>
-                      <li>Older pairs fade out as new ones replace them</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-amber-800 mb-2">Two-Loop Recursion</h3>
-                    <p>Step-by-step transformation:</p>
-                    <BlockMath>{'q = \\nabla f \\;\\rightarrow\\; \\ldots \\;\\rightarrow\\; p \\approx -H^{-1}\\nabla f'}</BlockMath>
-                    <ul className="list-disc ml-6 space-y-1 text-sm">
-                      <li><strong>Backward loop:</strong> process pairs from newest to oldest</li>
-                      <li><strong>Forward loop:</strong> reconstruct from oldest to newest</li>
-                      <li>Shows how gradient gets transformed using memory</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-amber-800 mb-2">Line Search Panel</h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                      <li>Similar to Newton: often accepts large steps</li>
-                      <li>
-                        <InlineMath>{`\\alpha < 1`}</InlineMath> when approximation quality poor or
-                        far from minimum
-                      </li>
-                      <li>Armijo condition ensures progress</li>
                     </ul>
                   </div>
                 </div>

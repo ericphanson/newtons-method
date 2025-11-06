@@ -1,6 +1,6 @@
 import { ProblemDefinition } from '../types/experiments';
 import { quadraticProblem, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
-import { rosenbrockProblem } from './rosenbrock';
+import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock';
 import { saddleProblem } from './saddle';
 
 /**
@@ -28,5 +28,6 @@ export {
   illConditionedQuadratic,
   createIllConditionedQuadratic,
   rosenbrockProblem,
+  createRosenbrockProblem,
   saddleProblem
 };
