@@ -24,6 +24,7 @@ import { Toast } from './components/Toast';
 import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
+import { ObjectiveFunction3D } from './components/ObjectiveFunction3D';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -288,6 +289,20 @@ const UnifiedVisualizer = () => {
       w1Range: w1Range + 2 * pad1
     };
   }, [gdLSIterations]);
+
+  // Helper: Convert iterations to 3D points [w0, w1, loss]
+  const gdFixed3DTrajectory = useMemo(() => {
+    if (!gdFixedIterations || gdFixedIterations.length === 0) return [];
+
+    return gdFixedIterations.map(iter => {
+      const w = iter.wNew;
+      // For 3D problems (logistic regression), use only first 2 dimensions
+      const w0 = w[0];
+      const w1 = w[1];
+      const loss = iter.loss;
+      return [w0, w1, loss];
+    });
+  }, [gdFixedIterations]);
 
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -2461,15 +2476,58 @@ const UnifiedVisualizer = () => {
 
               {/* GD Fixed Visualizations */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D Contour
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D Surface
+                    </button>
+                  </div>
+                </div>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape with optimization trajectory. Lighter = lower loss.
                 </p>
-                <canvas
-                  ref={gdFixedParamCanvasRef}
-                  style={{width: '700px', height: '500px'}}
-                  className="border border-gray-300 rounded"
-                />
+
+                {visualizationMode === '2d' ? (
+                  <canvas
+                    ref={gdFixedParamCanvasRef}
+                    style={{width: '700px', height: '500px'}}
+                    className="border border-gray-300 rounded"
+                  />
+                ) : (
+                  <ObjectiveFunction3D
+                    objectiveFn={(w) => {
+                      try {
+                        const problemFuncs = getCurrentProblemFunctions();
+                        return problemFuncs.objective(w);
+                      } catch {
+                        return 0;
+                      }
+                    }}
+                    bounds={visualizationBounds}
+                    trajectory={gdFixed3DTrajectory}
+                    currentIter={gdFixedCurrentIter}
+                    width={700}
+                    height={500}
+                  />
+                )}
               </div>
             </>
           ) : selectedTab === 'gd-linesearch' ? (
