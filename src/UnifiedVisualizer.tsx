@@ -1520,6 +1520,15 @@ const UnifiedVisualizer = () => {
     }
     ctx.stroke();
 
+    // Draw small red dots at each iteration point
+    ctx.fillStyle = '#dc2626';
+    for (let i = 0; i <= gdFixedCurrentIter; i++) {
+      const [w0_pt, w1_pt] = gdFixedIterations[i].wNew;
+      ctx.beginPath();
+      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
     // Draw current position
     const [w0, w1] = iter.wNew;
     ctx.fillStyle = '#dc2626';
