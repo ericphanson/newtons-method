@@ -24,6 +24,12 @@ export function drawContours(options: ContourOptions): void {
   // Flatten 2D array to 1D array (d3-contour expects 1D)
   const flatValues = values.flat();
 
+  // Check for NaN/Infinity values (algorithm divergence)
+  if (flatValues.some(v => !isFinite(v))) {
+    console.warn('Contour drawing skipped: NaN/Infinity values detected in loss grid');
+    return;
+  }
+
   const minValue = options.minValue ?? Math.min(...flatValues);
   const maxValue = options.maxValue ?? Math.max(...flatValues);
   const valueRange = maxValue - minValue;
@@ -35,13 +41,16 @@ export function drawContours(options: ContourOptions): void {
   const w0Range = maxW0 - minW0;
   const w1Range = maxW1 - minW1;
 
-  // Create contour generator
+  // Create contour generator with exponential spacing for more detail near minimum
+  // Using t^2.5 gives more contours near low values (minimum) and fewer at high values
   const contourGenerator = contours()
     .size([resolution, resolution])
     .smooth(true)
-    .thresholds(range(numLevels).map(i =>
-      minValue + ((i + 1) / (numLevels + 1)) * valueRange
-    ));
+    .thresholds(range(numLevels).map(i => {
+      const t = (i + 1) / (numLevels + 1); // Linear 0 to 1
+      const exponential = Math.pow(t, 2.5); // Concentrate near 0
+      return minValue + exponential * valueRange;
+    }));
 
   // Generate contours
   const contourData = contourGenerator(flatValues);
@@ -98,4 +107,93 @@ export function drawContours(options: ContourOptions): void {
       });
     }
   });
+}
+
+/**
+ * Draw a star marker (filled or hollow) at a specific point
+ */
+export function drawStarMarker(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  filled: boolean,
+  color: string = '#FFD700'
+): void {
+  const outerRadius = size;
+  const innerRadius = size * 0.4;
+  const numPoints = 5;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.beginPath();
+
+  for (let i = 0; i < numPoints * 2; i++) {
+    const angle = (i * Math.PI) / numPoints - Math.PI / 2;
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const px = Math.cos(angle) * radius;
+    const py = Math.sin(angle) * radius;
+
+    if (i === 0) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+
+  ctx.closePath();
+
+  if (filled) {
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/**
+ * Draw optimum markers (global minimum or critical points) on contour plot
+ */
+interface OptimumMarkerOptions {
+  ctx: CanvasRenderingContext2D;
+  globalMinimum?: [number, number];
+  criticalPoint?: [number, number];
+  bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
+  canvasWidth: number;
+  canvasHeight: number;
+  markerSize?: number;
+}
+
+export function drawOptimumMarkers(options: OptimumMarkerOptions): void {
+  const { ctx, globalMinimum, criticalPoint, bounds, canvasWidth, canvasHeight, markerSize = 12 } = options;
+  const { minW0, maxW0, minW1, maxW1 } = bounds;
+  const w0Range = maxW0 - minW0;
+  const w1Range = maxW1 - minW1;
+
+  // Helper to convert parameter space to canvas coordinates
+  const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * canvasWidth;
+  const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * canvasHeight;
+
+  // Draw global minimum (filled star)
+  if (globalMinimum) {
+    const x = toCanvasX(globalMinimum[0]);
+    const y = toCanvasY(globalMinimum[1]);
+    drawStarMarker(ctx, x, y, markerSize, true, '#FFD700');
+  }
+
+  // Draw critical point (hollow star)
+  if (criticalPoint) {
+    const x = toCanvasX(criticalPoint[0]);
+    const y = toCanvasY(criticalPoint[1]);
+    drawStarMarker(ctx, x, y, markerSize, false, '#FFD700');
+  }
 }

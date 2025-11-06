@@ -31,4 +31,6 @@ export const rosenbrockProblem: ProblemDefinition = {
     w0: [-2, 2],
     w1: [-1, 3],
   },
+
+  globalMinimum: [1, 1],  // Analytical solution: f(1,1) = 0, ∇f(1,1) = 0
 };

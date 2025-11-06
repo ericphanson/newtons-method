@@ -25,8 +25,9 @@ import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { ObjectiveFunction3D } from './components/ObjectiveFunction3D';
-import { drawContours } from './utils/contourDrawing';
+import { drawContours, drawOptimumMarkers } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
+import { getProblemDefaults, getProblemNote } from './utils/problemDefaults';
 import { getProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 
@@ -192,8 +193,19 @@ const UnifiedVisualizer = () => {
       maxW1 = Math.max(maxW1, it.wNew[1]);
     }
 
-    const w0Range = maxW0 - minW0;
-    const w1Range = maxW1 - minW1;
+    // If algorithm diverged (NaN/Infinity values), return default bounds
+    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
+      console.warn('Newton: Algorithm diverged (NaN/Infinity detected), using default bounds');
+      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+    }
+
+    let w0Range = maxW0 - minW0;
+    let w1Range = maxW1 - minW1;
+
+    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
+    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
+    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
+
     const pad0 = w0Range * 0.2;
     const pad1 = w1Range * 0.2;
 
@@ -220,8 +232,19 @@ const UnifiedVisualizer = () => {
       maxW1 = Math.max(maxW1, it.wNew[1]);
     }
 
-    const w0Range = maxW0 - minW0;
-    const w1Range = maxW1 - minW1;
+    // If algorithm diverged (NaN/Infinity values), return default bounds
+    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
+      console.warn('L-BFGS: Algorithm diverged (NaN/Infinity detected), using default bounds');
+      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+    }
+
+    let w0Range = maxW0 - minW0;
+    let w1Range = maxW1 - minW1;
+
+    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
+    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
+    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
+
     const pad0 = w0Range * 0.2;
     const pad1 = w1Range * 0.2;
 
@@ -248,8 +271,19 @@ const UnifiedVisualizer = () => {
       maxW1 = Math.max(maxW1, it.wNew[1]);
     }
 
-    const w0Range = maxW0 - minW0;
-    const w1Range = maxW1 - minW1;
+    // If algorithm diverged (NaN/Infinity values), return default bounds
+    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
+      console.warn('GD Fixed: Algorithm diverged (NaN/Infinity detected), using default bounds');
+      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+    }
+
+    let w0Range = maxW0 - minW0;
+    let w1Range = maxW1 - minW1;
+
+    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
+    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
+    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
+
     const pad0 = w0Range * 0.2;
     const pad1 = w1Range * 0.2;
 
@@ -276,8 +310,19 @@ const UnifiedVisualizer = () => {
       maxW1 = Math.max(maxW1, it.wNew[1]);
     }
 
-    const w0Range = maxW0 - minW0;
-    const w1Range = maxW1 - minW1;
+    // If algorithm diverged (NaN/Infinity values), return default bounds
+    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
+      console.warn('GD Line Search: Algorithm diverged (NaN/Infinity detected), using default bounds');
+      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+    }
+
+    let w0Range = maxW0 - minW0;
+    let w1Range = maxW1 - minW1;
+
+    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
+    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
+    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
+
     const pad0 = w0Range * 0.2;
     const pad1 = w1Range * 0.2;
 
@@ -606,6 +651,7 @@ const UnifiedVisualizer = () => {
       const initialPoint = currentProblem === 'logistic-regression'
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
+      console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1 });
       const iterations = runLBFGS(problemFuncs, {
         maxIter,
         m: lbfgsM,
@@ -613,10 +659,16 @@ const UnifiedVisualizer = () => {
         lambda,
         initialPoint,
       });
+      console.log('L-BFGS completed:', iterations.length, 'iterations');
+      if (iterations.length > 0) {
+        console.log('First iteration:', iterations[0]);
+        console.log('Last iteration:', iterations[iterations.length - 1]);
+      }
       setLbfgsIterations(iterations);
       setLbfgsCurrentIter(0);
     } catch (error) {
       console.error('L-BFGS error:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       setLbfgsIterations([]);
     }
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
@@ -789,6 +841,7 @@ const UnifiedVisualizer = () => {
     ctx.fillRect(0, 0, w, h);
 
     const H = iter.hessian;
+    const dim = H.length; // Support both 2D and 3D problems
     const cellSize = 80;
     const startX = 20;
     const startY = 40;
@@ -798,11 +851,14 @@ const UnifiedVisualizer = () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < dim; i++) {
+      for (let j = 0; j < dim; j++) {
         const x = startX + j * cellSize;
         const y = startY + i * cellSize;
-        const val = H[i][j];
+        const val = H[i]?.[j];
+
+        // Skip if value is undefined (shouldn't happen with correct dimensions)
+        if (val === undefined) continue;
 
         // Color based on magnitude
         const maxVal = Math.max(...H.flat().map(Math.abs));
@@ -823,14 +879,15 @@ const UnifiedVisualizer = () => {
       }
     }
 
-    // Labels
+    // Labels (dynamic based on dimension)
+    const labels = ['w₀', 'w₁', 'w₂'];
     ctx.font = '11px sans-serif';
     ctx.fillStyle = '#6b7280';
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < dim; i++) {
       ctx.textAlign = 'right';
-      ctx.fillText(['w₀', 'w₁', 'w₂'][i], startX - 5, startY + i * cellSize + cellSize / 2);
+      ctx.fillText(labels[i], startX - 5, startY + i * cellSize + cellSize / 2);
       ctx.textAlign = 'center';
-      ctx.fillText(['w₀', 'w₁', 'w₂'][i], startX + i * cellSize + cellSize / 2, startY - 10);
+      ctx.fillText(labels[i], startX + i * cellSize + cellSize / 2, startY - 10);
     }
 
     // Title
@@ -899,6 +956,19 @@ const UnifiedVisualizer = () => {
       canvasHeight: h,
       numLevels: 12
     });
+
+    // Draw optimum markers (global minimum or critical points)
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    if (problemDef) {
+      drawOptimumMarkers({
+        ctx,
+        globalMinimum: problemDef.globalMinimum,
+        criticalPoint: problemDef.criticalPoint,
+        bounds: { minW0, maxW0, minW1, maxW1 },
+        canvasWidth: w,
+        canvasHeight: h
+      });
+    }
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1067,6 +1137,19 @@ const UnifiedVisualizer = () => {
       canvasHeight: h,
       numLevels: 12
     });
+
+    // Draw optimum markers (global minimum or critical points)
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    if (problemDef) {
+      drawOptimumMarkers({
+        ctx,
+        globalMinimum: problemDef.globalMinimum,
+        criticalPoint: problemDef.criticalPoint,
+        bounds: { minW0, maxW0, minW1, maxW1 },
+        canvasWidth: w,
+        canvasHeight: h
+      });
+    }
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1237,6 +1320,19 @@ const UnifiedVisualizer = () => {
       numLevels: 12
     });
 
+    // Draw optimum markers (global minimum or critical points)
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    if (problemDef) {
+      drawOptimumMarkers({
+        ctx,
+        globalMinimum: problemDef.globalMinimum,
+        criticalPoint: problemDef.criticalPoint,
+        bounds: { minW0, maxW0, minW1, maxW1 },
+        canvasWidth: w,
+        canvasHeight: h
+      });
+    }
+
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
 
@@ -1313,6 +1409,19 @@ const UnifiedVisualizer = () => {
       canvasHeight: h,
       numLevels: 12
     });
+
+    // Draw optimum markers (global minimum or critical points)
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    if (problemDef) {
+      drawOptimumMarkers({
+        ctx,
+        globalMinimum: problemDef.globalMinimum,
+        criticalPoint: problemDef.criticalPoint,
+        bounds: { minW0, maxW0, minW1, maxW1 },
+        canvasWidth: w,
+        canvasHeight: h
+      });
+    }
 
     const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
     const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
@@ -1535,6 +1644,16 @@ const UnifiedVisualizer = () => {
                   setLbfgsCurrentIter(0);
                   setLbfgsIterations([]);
 
+                  // Apply problem-specific defaults
+                  if (newProblem !== 'logistic-regression') {
+                    const defaults = getProblemDefaults(newProblem);
+                    setGdFixedAlpha(defaults.gdFixedAlpha);
+                    setMaxIter(defaults.maxIter);
+                    setInitialW0(defaults.initialPoint[0]);
+                    setInitialW1(defaults.initialPoint[1]);
+                    // Note: c1 and m already have sensible defaults, but could also update
+                  }
+
                   // Get problem info and update bounds
                   let problemName = 'Logistic Regression';
                   if (newProblem !== 'logistic-regression') {
@@ -1576,6 +1695,16 @@ const UnifiedVisualizer = () => {
               ? 'Classification with dataset - problem is parametrized by the data points'
               : 'Pure mathematical optimization - problem defined by objective function'}
           </p>
+          {currentProblem !== 'logistic-regression' && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>💡 Tip:</strong> {getProblemNote(currentProblem)}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Defaults adjusted automatically. Feel free to experiment with other values!
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -2088,7 +2217,7 @@ const UnifiedVisualizer = () => {
           {/* Current State */}
           {currentIter ? (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-bold mb-3">Iteration {currentIter.iter} / {totalIters - 1}</h3>
+              <h3 className="text-lg font-bold mb-3">Iteration {currentIter.iter + 1} / {totalIters}</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div><strong>Loss:</strong> {fmt(currentIter.newLoss)}</div>
                 <div><strong>Gradient norm:</strong> {fmt(currentIter.gradNorm)}</div>
@@ -2161,6 +2290,32 @@ const UnifiedVisualizer = () => {
                     width={700}
                     height={500}
                   />
+                )}
+
+                {/* Legend for optimum markers */}
+                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                    {(() => {
+                      const problem = getProblem(currentProblem);
+                      if (!problem) return null;
+                      return (
+                        <>
+                          {problem.globalMinimum && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">★</span>
+                              <span>Global minimum</span>
+                            </div>
+                          )}
+                          {problem.criticalPoint && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">☆</span>
+                              <span>Critical point (saddle)</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
 
@@ -2658,6 +2813,32 @@ const UnifiedVisualizer = () => {
                     width={700}
                     height={500}
                   />
+                )}
+
+                {/* Legend for optimum markers */}
+                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                    {(() => {
+                      const problem = getProblem(currentProblem);
+                      if (!problem) return null;
+                      return (
+                        <>
+                          {problem.globalMinimum && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">★</span>
+                              <span>Global minimum</span>
+                            </div>
+                          )}
+                          {problem.criticalPoint && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">☆</span>
+                              <span>Critical point (saddle)</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
 
@@ -3336,6 +3517,32 @@ const UnifiedVisualizer = () => {
                     height={500}
                   />
                 )}
+
+                {/* Legend for optimum markers */}
+                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                    {(() => {
+                      const problem = getProblem(currentProblem);
+                      if (!problem) return null;
+                      return (
+                        <>
+                          {problem.globalMinimum && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">★</span>
+                              <span>Global minimum</span>
+                            </div>
+                          )}
+                          {problem.criticalPoint && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">☆</span>
+                              <span>Critical point (saddle)</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               {/* Newton's Method - Quick Start */}
@@ -3955,6 +4162,32 @@ const UnifiedVisualizer = () => {
                     width={700}
                     height={500}
                   />
+                )}
+
+                {/* Legend for optimum markers */}
+                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                    {(() => {
+                      const problem = getProblem(currentProblem);
+                      if (!problem) return null;
+                      return (
+                        <>
+                          {problem.globalMinimum && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">★</span>
+                              <span>Global minimum</span>
+                            </div>
+                          )}
+                          {problem.criticalPoint && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">☆</span>
+                              <span>Critical point (saddle)</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
 

@@ -23,6 +23,8 @@ export const quadraticProblem: ProblemDefinition = {
     w0: [-3, 3],
     w1: [-3, 3],
   },
+
+  globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
 };
 
 // Ill-conditioned quadratic: elongated ellipse
@@ -47,4 +49,6 @@ export const illConditionedQuadratic: ProblemDefinition = {
     w0: [-0.5, 0.5],
     w1: [-3, 3],
   },
+
+  globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
 };

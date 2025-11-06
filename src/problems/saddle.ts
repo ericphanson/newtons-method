@@ -27,4 +27,7 @@ export const saddleProblem: ProblemDefinition = {
     w0: [-3, 3],
     w1: [-3, 3],
   },
+
+  globalMinimum: undefined,  // No global minimum (unbounded below), but saddle at (0, 0)
+  criticalPoint: [0, 0],      // Saddle point: ∇f(0,0) = 0, but indefinite Hessian
 };

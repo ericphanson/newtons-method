@@ -42,4 +42,6 @@ export interface ProblemDefinition {
     w1: [number, number];
   };
   description: string;
+  globalMinimum?: [number, number];  // Analytical global minimum (if exists)
+  criticalPoint?: [number, number];  // For saddle points or local min/max
 }
