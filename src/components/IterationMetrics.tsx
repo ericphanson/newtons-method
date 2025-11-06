@@ -26,6 +26,10 @@ interface IterationMetricsProps {
   // Line search data
   lineSearchCanvasRef?: React.RefObject<HTMLCanvasElement>;
 
+  // Hessian data (Newton only)
+  hessianCanvasRef?: React.RefObject<HTMLCanvasElement>;
+  hessian?: number[][];
+
   tolerance: number;
 }
 
@@ -45,6 +49,8 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   conditionNumber,
   lineSearchTrials,
   lineSearchCanvasRef,
+  hessianCanvasRef,
+  hessian,
   tolerance,
 }) => {
   // Calculate deltas
@@ -306,6 +312,28 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
               </div>
             )}
           </div>
+
+          {/* Hessian Matrix Visualization */}
+          {hessianCanvasRef && (
+            <details className="bg-white rounded p-3 border border-gray-300">
+              <summary className="cursor-pointer text-xs font-semibold text-gray-700 hover:text-gray-900">
+                View Hessian Matrix Visualization ▼
+              </summary>
+              <div className="mt-3">
+                <canvas
+                  ref={hessianCanvasRef}
+                  style={{ width: '100%', height: '200px' }}
+                  className="border border-gray-200 rounded"
+                />
+                {hessian && (
+                  <pre className="font-mono text-xs mt-2 p-2 bg-gray-50 rounded">
+{`⎡ ${hessian[0].map(fmt).join('  ')} ⎤
+⎣ ${hessian[1].map(fmt).join('  ')} ⎦`}
+                  </pre>
+                )}
+              </div>
+            </details>
+          )}
         </div>
       )}
     </div>

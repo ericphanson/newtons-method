@@ -3182,6 +3182,8 @@ const UnifiedVisualizer = () => {
                   conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                   lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
                   lineSearchCanvasRef={newtonLineSearchCanvasRef}
+                  hessianCanvasRef={newtonHessianCanvasRef}
+                  hessian={newtonIterations[newtonCurrentIter].hessian}
                   tolerance={newtonTolerance}
                 />
               )}
@@ -3726,15 +3728,6 @@ const UnifiedVisualizer = () => {
                   </p>
                 </div>
               )}
-
-              {/* Hessian Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Hessian Matrix & Eigenvalues</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Second derivatives capture curvature
-                </p>
-                <canvas ref={newtonHessianCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
-              </div>
             </>
           ) : (
             <>
