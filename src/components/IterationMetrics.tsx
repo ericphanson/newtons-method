@@ -25,16 +25,6 @@ interface IterationMetricsProps {
 
   // Line search data
   lineSearchCanvasRef?: React.RefObject<HTMLCanvasElement>;
-  lineSearchCurve?: {
-    alphaRange: number[];
-    lossValues: number[];
-    armijoValues: number[];
-  };
-  lineSearchTrialsData?: Array<{
-    alpha: number;
-    loss: number;
-    satisfied: boolean;
-  }>;
 
   tolerance: number;
 }
@@ -55,8 +45,6 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   conditionNumber,
   lineSearchTrials,
   lineSearchCanvasRef,
-  lineSearchCurve: _lineSearchCurve,
-  lineSearchTrialsData: _lineSearchTrialsData,
   tolerance,
 }) => {
   // Calculate deltas

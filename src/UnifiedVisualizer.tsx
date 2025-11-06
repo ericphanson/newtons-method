@@ -2520,8 +2520,6 @@ const UnifiedVisualizer = () => {
                   prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
                   lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                   lineSearchCanvasRef={gdLSLineSearchCanvasRef}
-                  lineSearchCurve={gdLSIterations[gdLSCurrentIter].lineSearchCurve}
-                  lineSearchTrialsData={gdLSIterations[gdLSCurrentIter].lineSearchTrials}
                   tolerance={gdLSTolerance}
                 />
               )}
@@ -3184,8 +3182,6 @@ const UnifiedVisualizer = () => {
                   conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                   lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
                   lineSearchCanvasRef={newtonLineSearchCanvasRef}
-                  lineSearchCurve={newtonIterations[newtonCurrentIter].lineSearchCurve}
-                  lineSearchTrialsData={newtonIterations[newtonCurrentIter].lineSearchTrials}
                   tolerance={newtonTolerance}
                 />
               )}
@@ -3785,8 +3781,6 @@ const UnifiedVisualizer = () => {
                   prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
                   lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                   lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
-                  lineSearchCurve={lbfgsIterations[lbfgsCurrentIter].lineSearchCurve}
-                  lineSearchTrialsData={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials}
                   tolerance={lbfgsTolerance}
                 />
               )}
