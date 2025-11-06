@@ -2860,7 +2860,7 @@ const UnifiedVisualizer = () => {
                     <p>The basic update is simple:</p>
                     <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k)'}</BlockMath>
                     <p className="text-sm mt-2">
-                      Where <InlineMath>\alpha &gt; 0</InlineMath> is the step size (learning rate).
+                      Where <InlineMath>{`\\alpha > 0`}</InlineMath> is the step size (learning rate).
                     </p>
                   </div>
 
@@ -2871,7 +2871,7 @@ const UnifiedVisualizer = () => {
                     <p className="text-sm mt-2">
                       Substituting the update rule:
                     </p>
-                    <BlockMath>{'f(w_{k+1}) \\approx f(w_k) - \\alpha \\|\\nabla f(w_k)\\|^2'}</BlockMath>
+                    <BlockMath>{`f(w_{k+1}) \\approx f(w_k) - \\alpha \\|\\nabla f(w_k)\\|^2`}</BlockMath>
                     <p className="text-sm mt-2">
                       Since <InlineMath>\|\nabla f(w_k)\|^2 \geq 0</InlineMath>, the loss decreases
                       (for small enough <InlineMath>\alpha</InlineMath>).
@@ -2907,9 +2907,9 @@ const UnifiedVisualizer = () => {
                   <div>
                     <h3 className="text-lg font-bold text-indigo-800 mb-2">For Logistic Regression</h3>
                     <p><strong>Loss function:</strong></p>
-                    <BlockMath>{'f(w) = -\\frac{1}{N} \\sum_{i=1}^{N} \\left[y_i \\log(\\sigma(w^T x_i)) + (1-y_i) \\log(1-\\sigma(w^T x_i))\\right] + \\frac{\\lambda}{2}\\|w\\|^2'}</BlockMath>
+                    <BlockMath>{`f(w) = -\\frac{1}{N} \\sum_{i=1}^{N} \\left[y_i \\log(\\sigma(w^T x_i)) + (1-y_i) \\log(1-\\sigma(w^T x_i))\\right] + \\frac{\\lambda}{2}\\|w\\|^2`}</BlockMath>
                     <p className="text-sm mt-2"><strong>Gradient:</strong></p>
-                    <BlockMath>{'\\nabla f(w) = \\frac{1}{N} \\sum_{i=1}^{N} (\\sigma(w^T x_i) - y_i) x_i + \\lambda w'}</BlockMath>
+                    <BlockMath>{`\\nabla f(w) = \\frac{1}{N} \\sum_{i=1}^{N} (\\sigma(w^T x_i) - y_i) x_i + \\lambda w`}</BlockMath>
                   </div>
                 </div>
               </CollapsibleSection>
@@ -3523,7 +3523,7 @@ const UnifiedVisualizer = () => {
                     <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
                     <p className="text-sm mt-2">
                       For descent direction <InlineMath>p = -\nabla f</InlineMath>, we have{' '}
-                      <InlineMath>\nabla f^T p &lt; 0</InlineMath>, so the right side decreases
+                      <InlineMath>{`\\nabla f^T p < 0`}</InlineMath>, so the right side decreases
                       with <InlineMath>\alpha</InlineMath>.
                     </p>
                     <p className="text-sm mt-2">
@@ -3535,7 +3535,7 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
                     <p>For L-smooth functions:</p>
                     <BlockMath>
-                      {'f(w + \\alpha p) \\leq f(w) + \\alpha \\nabla f^T p + \\frac{L\\alpha^2}{2}\\|p\\|^2'}
+                      {`f(w + \\alpha p) \\leq f(w) + \\alpha \\nabla f^T p + \\frac{L\\alpha^2}{2}\\|p\\|^2`}
                     </BlockMath>
                     <p className="text-sm mt-2">
                       This bounds how much f can increase along direction p, guaranteeing
@@ -3554,11 +3554,11 @@ const UnifiedVisualizer = () => {
                       <InlineMath>O(\alpha^2)</InlineMath> term is negligible, so:
                     </p>
                     <BlockMath>
-                      f(w + \alpha p) \approx f(w) + \alpha \nabla f^T p &lt; f(w) + c_1 \alpha \nabla f^T p
+                      {`f(w + \\alpha p) \\approx f(w) + \\alpha \\nabla f^T p < f(w) + c_1 \\alpha \\nabla f^T p`}
                     </BlockMath>
                     <p className="text-sm mt-2">
-                      Since <InlineMath>c_1 &lt; 1</InlineMath> and{' '}
-                      <InlineMath>\nabla f^T p &lt; 0</InlineMath>, Armijo condition satisfied.
+                      Since <InlineMath>{`c_1 < 1`}</InlineMath> and{' '}
+                      <InlineMath>{`\\nabla f^T p < 0`}</InlineMath>, Armijo condition satisfied.
                     </p>
                   </div>
                 </div>
@@ -3824,7 +3824,7 @@ const UnifiedVisualizer = () => {
                     <p>Newton direction:</p>
                     <BlockMath>{'p = -H^{-1}\\nabla f'}</BlockMath>
                     <p className="text-sm mt-2">
-                      Intuition: <InlineMath>{'H^{-1}'}</InlineMath> transforms the gradient into the
+                      Intuition: <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
                       natural coordinate system of the problem.
                     </p>
                   </div>
@@ -4193,15 +4193,15 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
                     <p><strong>Quadratic convergence:</strong></p>
                     <BlockMath>
-                      {'\\|e_{k+1}\\| \\leq C\\|e_k\\|^2'}
+                      {`\\|e_{k+1}\\| \\leq C\\|e_k\\|^2`}
                     </BlockMath>
                     <p className="text-sm mt-2">
-                      where <InlineMath>{'e_k = w_k - w^*'}</InlineMath> is the error.
+                      where <InlineMath>{`e_k = w_k - w^*`}</InlineMath> is the error.
                       Error <strong>squared</strong> at each iteration (very fast near solution).
                     </p>
                     <p className="text-sm mt-2">
                       <strong>Requires:</strong> strong convexity, Lipschitz continuous Hessian,
-                      starting close enough to <InlineMath>{'w^*'}</InlineMath>
+                      starting close enough to <InlineMath>{`w^*`}</InlineMath>
                     </p>
                   </div>
 
@@ -4564,7 +4564,7 @@ const UnifiedVisualizer = () => {
                     <ul className="list-disc ml-6 space-y-1">
                       <li>Similar to Newton: often accepts large steps</li>
                       <li>
-                        <InlineMath>\alpha &lt; 1</InlineMath> when approximation quality poor or
+                        <InlineMath>{`\\alpha < 1`}</InlineMath> when approximation quality poor or
                         far from minimum
                       </li>
                       <li>Armijo condition ensures progress</li>
@@ -4893,7 +4893,7 @@ const UnifiedVisualizer = () => {
                       {String.raw`B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{ s_k^T B_k s_k} + \frac{y_k y_k^T}{ y_k^T s_k}`}
                     </BlockMath>
                     <p className="text-sm mt-2">
-                      Maintains positive definiteness if <InlineMath>y_k^T s_k &gt; 0</InlineMath>
+                      Maintains positive definiteness if <InlineMath>{`y_k^T s_k > 0`}</InlineMath>
                       (guaranteed by Wolfe line search).
                     </p>
                   </div>

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "validate-katex": "tsx scripts/validate-katex.ts",
+    "build": "npm run validate-katex && tsc -b && vite build",
     "preview": "vite preview",
     "test-combo": "tsx scripts/test-combinations.ts",
     "test-all": "tsx scripts/test-combinations.ts --all"
