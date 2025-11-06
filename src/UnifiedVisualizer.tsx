@@ -2613,6 +2613,54 @@ const UnifiedVisualizer = () => {
             </>
           ) : selectedTab === 'gd-linesearch' ? (
             <>
+              {/* Objective Function Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D Contour
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D Surface
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                </p>
+
+                {visualizationMode === '2d' ? (
+                  <canvas ref={gdLSParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                ) : (
+                  <ObjectiveFunction3D
+                    objectiveFn={(w) => {
+                      try {
+                        const problemFuncs = getCurrentProblemFunctions();
+                        return problemFuncs.objective(w);
+                      } catch {
+                        return 0;
+                      }
+                    }}
+                    bounds={visualizationBounds}
+                    trajectory={gdLS3DTrajectory}
+                    currentIter={gdLSCurrentIter}
+                    width={700}
+                    height={500}
+                  />
+                )}
+              </div>
+
               {/* Quick Start */}
               <CollapsibleSection
                 title="Quick Start"
@@ -3227,73 +3275,69 @@ const UnifiedVisualizer = () => {
                 </div>
               )}
 
-              {/* GD Line Search Visualizations */}
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setVisualizationMode('2d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '2d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        2D Contour
-                      </button>
-                      <button
-                        onClick={() => setVisualizationMode('3d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '3d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        3D Surface
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Loss landscape with trajectory. Notice adaptive step sizes.
-                  </p>
-                  {visualizationMode === '2d' ? (
-                    <canvas
-                      ref={gdLSParamCanvasRef}
-                      style={{width: '400px', height: '333px'}}
-                      className="border border-gray-300 rounded"
-                    />
-                  ) : (
-                    <ObjectiveFunction3D
-                      objectiveFn={(w) => {
-                        try {
-                          const problemFuncs = getCurrentProblemFunctions();
-                          return problemFuncs.objective(w);
-                        } catch {
-                          return 0;
-                        }
-                      }}
-                      bounds={visualizationBounds}
-                      trajectory={gdLS3DTrajectory}
-                      currentIter={gdLSCurrentIter}
-                      width={400}
-                      height={333}
-                    />
-                  )}
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Backtracking search for step size satisfying Armijo condition.
-                  </p>
-                  <canvas
-                    ref={gdLSLineSearchCanvasRef}
-                    style={{width: '400px', height: '280px'}}
-                    className="border border-gray-300 rounded bg-white"
-                  />
-                </div>
+              {/* Line Search Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Backtracking search for step size satisfying Armijo condition.
+                </p>
+                <canvas
+                  ref={gdLSLineSearchCanvasRef}
+                  style={{width: '700px', height: '400px'}}
+                  className="border border-gray-300 rounded bg-white"
+                />
               </div>
             </>
           ) : selectedTab === 'newton' ? (
             <>
+              {/* Objective Function Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D Contour
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D Surface
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                </p>
+
+                {visualizationMode === '2d' ? (
+                  <canvas ref={newtonParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                ) : (
+                  <ObjectiveFunction3D
+                    objectiveFn={(w) => {
+                      try {
+                        const problemFuncs = getCurrentProblemFunctions();
+                        return problemFuncs.objective(w);
+                      } catch {
+                        return 0;
+                      }
+                    }}
+                    bounds={visualizationBounds}
+                    trajectory={newton3DTrajectory}
+                    currentIter={newtonCurrentIter}
+                    width={700}
+                    height={500}
+                  />
+                )}
+              </div>
+
               {/* Newton's Method - Quick Start */}
               <CollapsibleSection
                 title="Quick Start"
@@ -3846,61 +3890,13 @@ const UnifiedVisualizer = () => {
                 </div>
               )}
 
-              {/* Newton Visualizations */}
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Hessian Matrix & Eigenvalues</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Second derivatives capture curvature
-                  </p>
-                  <canvas ref={newtonHessianCanvasRef} style={{width: '400px', height: '400px'}} className="border border-gray-300 rounded" />
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setVisualizationMode('2d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '2d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        2D Contour
-                      </button>
-                      <button
-                        onClick={() => setVisualizationMode('3d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '3d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        3D Surface
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Loss landscape - Newton takes large, informed steps
-                  </p>
-                  {visualizationMode === '2d' ? (
-                    <canvas ref={newtonParamCanvasRef} style={{width: '400px', height: '333px'}} className="border border-gray-300 rounded" />
-                  ) : (
-                    <ObjectiveFunction3D
-                      objectiveFn={(w) => {
-                        try {
-                          const problemFuncs = getCurrentProblemFunctions();
-                          return problemFuncs.objective(w);
-                        } catch {
-                          return 0;
-                        }
-                      }}
-                      bounds={visualizationBounds}
-                      trajectory={newton3DTrajectory}
-                      currentIter={newtonCurrentIter}
-                      width={400}
-                      height={333}
-                    />
-                  )}
-                </div>
+              {/* Hessian Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Hessian Matrix & Eigenvalues</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Second derivatives capture curvature
+                </p>
+                <canvas ref={newtonHessianCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
               </div>
 
               {/* Newton Line Search */}
@@ -3909,11 +3905,59 @@ const UnifiedVisualizer = () => {
                 <p className="text-sm text-gray-600 mb-3">
                   Finding the right step size along Newton direction
                 </p>
-                <canvas ref={newtonLineSearchCanvasRef} style={{width: '700px', height: '280px'}} className="border border-gray-300 rounded bg-white" />
+                <canvas ref={newtonLineSearchCanvasRef} style={{width: '700px', height: '400px'}} className="border border-gray-300 rounded bg-white" />
               </div>
             </>
           ) : (
             <>
+              {/* Objective Function Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D Contour
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D Surface
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                </p>
+
+                {visualizationMode === '2d' ? (
+                  <canvas ref={lbfgsParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                ) : (
+                  <ObjectiveFunction3D
+                    objectiveFn={(w) => {
+                      try {
+                        const problemFuncs = getCurrentProblemFunctions();
+                        return problemFuncs.objective(w);
+                      } catch {
+                        return 0;
+                      }
+                    }}
+                    bounds={visualizationBounds}
+                    trajectory={lbfgs3DTrajectory}
+                    currentIter={lbfgsCurrentIter}
+                    width={700}
+                    height={500}
+                  />
+                )}
+              </div>
+
               {/* L-BFGS - Quick Start */}
               <CollapsibleSection
                 title="Quick Start"
@@ -4653,61 +4697,13 @@ const UnifiedVisualizer = () => {
                 </div>
               )}
 
-              {/* L-BFGS Visualizations */}
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setVisualizationMode('2d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '2d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        2D Contour
-                      </button>
-                      <button
-                        onClick={() => setVisualizationMode('3d')}
-                        className={`px-3 py-1 rounded text-sm ${
-                          visualizationMode === '3d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
-                        }`}
-                      >
-                        3D Surface
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Loss landscape - lighter = lower loss. Trajectory descends toward minimum.
-                  </p>
-                  {visualizationMode === '2d' ? (
-                    <canvas ref={lbfgsParamCanvasRef} style={{width: '400px', height: '333px'}} className="border border-gray-300 rounded" />
-                  ) : (
-                    <ObjectiveFunction3D
-                      objectiveFn={(w) => {
-                        try {
-                          const problemFuncs = getCurrentProblemFunctions();
-                          return problemFuncs.objective(w);
-                        } catch {
-                          return 0;
-                        }
-                      }}
-                      bounds={visualizationBounds}
-                      trajectory={lbfgs3DTrajectory}
-                      currentIter={lbfgsCurrentIter}
-                      width={400}
-                      height={333}
-                    />
-                  )}
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Finding the right step size along search direction
-                  </p>
-                  <canvas ref={lbfgsLineSearchCanvasRef} style={{width: '400px', height: '280px'}} className="border border-gray-300 rounded bg-white" />
-                </div>
+              {/* Line Search Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Line Search</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Finding the right step size along search direction
+                </p>
+                <canvas ref={lbfgsLineSearchCanvasRef} style={{width: '700px', height: '400px'}} className="border border-gray-300 rounded bg-white" />
               </div>
 
               {/* L-BFGS Memory Section */}
