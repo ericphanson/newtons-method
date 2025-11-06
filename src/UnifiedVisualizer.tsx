@@ -108,6 +108,9 @@ const UnifiedVisualizer = () => {
   const [comparisonLeftIterations, setComparisonLeftIterations] = useState<any[]>([]);
   const [comparisonRightIterations, setComparisonRightIterations] = useState<any[]>([]);
 
+  // Visualization mode state (2D/3D toggle)
+  const [visualizationMode, setVisualizationMode] = useState<'2d' | '3d'>('2d');
+
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
   // Get current problem definition (logistic regression or from registry)
