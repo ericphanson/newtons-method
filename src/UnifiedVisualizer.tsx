@@ -2108,6 +2108,62 @@ const UnifiedVisualizer = () => {
           {/* Algorithm-specific visualizations */}
           {selectedTab === 'gd-fixed' ? (
             <>
+              {/* Objective Function Visualization */}
+              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D Contour
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D Surface
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                </p>
+
+                {visualizationMode === '2d' ? (
+                  <canvas
+                    ref={gdFixedParamCanvasRef}
+                    style={{width: '700px', height: '500px'}}
+                    className="border border-gray-300 rounded"
+                  />
+                ) : (
+                  <ObjectiveFunction3D
+                    objectiveFn={(w) => {
+                      try {
+                        const problemFuncs = getCurrentProblemFunctions();
+                        return problemFuncs.objective(w);
+                      } catch {
+                        return 0;
+                      }
+                    }}
+                    bounds={visualizationBounds}
+                    trajectory={gdFixed3DTrajectory}
+                    currentIter={gdFixedCurrentIter}
+                    width={700}
+                    height={500}
+                  />
+                )}
+              </div>
+
               {/* GD Fixed - Why This Algorithm? */}
               <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-2xl font-bold text-green-900 mb-4">Gradient Descent (Fixed Step)</h2>
@@ -2554,61 +2610,6 @@ const UnifiedVisualizer = () => {
                 </div>
               )}
 
-              {/* GD Fixed Visualizations */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">Parameter Space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>)</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D Contour
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D Surface
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Loss landscape with optimization trajectory. Lighter = lower loss.
-                </p>
-
-                {visualizationMode === '2d' ? (
-                  <canvas
-                    ref={gdFixedParamCanvasRef}
-                    style={{width: '700px', height: '500px'}}
-                    className="border border-gray-300 rounded"
-                  />
-                ) : (
-                  <ObjectiveFunction3D
-                    objectiveFn={(w) => {
-                      try {
-                        const problemFuncs = getCurrentProblemFunctions();
-                        return problemFuncs.objective(w);
-                      } catch {
-                        return 0;
-                      }
-                    }}
-                    bounds={visualizationBounds}
-                    trajectory={gdFixed3DTrajectory}
-                    currentIter={gdFixedCurrentIter}
-                    width={700}
-                    height={500}
-                  />
-                )}
-              </div>
             </>
           ) : selectedTab === 'gd-linesearch' ? (
             <>
