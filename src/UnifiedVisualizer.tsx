@@ -176,9 +176,19 @@ const UnifiedVisualizer = () => {
   }, [currentProblem, data, lambda, conditionNumber, rosenbrockB]);
 
   // Get current problem functions for algorithm execution
+  // For parametrized problems (ill-conditioned quadratic, Rosenbrock),
+  // we create instances with current parameter values
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
     if (currentProblem === 'logistic-regression') {
       return logisticRegressionToProblemFunctions(data, lambda);
+    } else if (currentProblem === 'ill-conditioned-quadratic') {
+      // Create parametrized version with current condition number
+      const problem = createIllConditionedQuadratic(conditionNumber);
+      return problemToProblemFunctions(problem);
+    } else if (currentProblem === 'rosenbrock') {
+      // Create parametrized version with current b parameter
+      const problem = createRosenbrockProblem(rosenbrockB);
+      return problemToProblemFunctions(problem);
     } else {
       const problem = getProblem(currentProblem);
       if (!problem) {
@@ -186,7 +196,7 @@ const UnifiedVisualizer = () => {
       }
       return problemToProblemFunctions(problem);
     }
-  }, [currentProblem, data, lambda]);
+  }, [currentProblem, data, lambda, conditionNumber, rosenbrockB]);
 
   // Track visualization bounds updates
   useEffect(() => {
@@ -225,21 +235,9 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, data, lambda]);
 
-  // Clear iterations when problem parameters change
-  useEffect(() => {
-    setGdFixedIterations([]);
-    setGdFixedCurrentIter(0);
-    setGdLSIterations([]);
-    setGdLSCurrentIter(0);
-    setNewtonIterations([]);
-    setNewtonCurrentIter(0);
-    setLbfgsIterations([]);
-    setLbfgsCurrentIter(0);
-    setComparisonLeftIterations([]);
-    setComparisonRightIterations([]);
-    setComparisonLeftIter(0);
-    setComparisonRightIter(0);
-  }, [conditionNumber, rosenbrockB]);
+  // Note: When conditionNumber or rosenbrockB changes, algorithms automatically rerun
+  // because getCurrentProblemFunctions includes them in its dependencies, which triggers
+  // the algorithm useEffects below to recompute with the new parameter values.
 
   // Default configuration for reset functionality
   const defaultConfig = useRef({
