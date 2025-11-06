@@ -89,6 +89,22 @@ All 5 problems work with all 4 algorithms:
 
 See the "Problems" tab for detailed explanations of each problem type.
 
+## 3D Visualization
+
+Each algorithm now supports 3D surface plots of the objective function. Click the "3D Surface" button above the parameter space to switch views.
+
+**Benefits:**
+- See curvature and valleys more clearly
+- Understand why algorithms take certain paths
+- Visualize Hessian information (how steep the surface is)
+
+**Example experiments that benefit from 3D:**
+- **Rosenbrock**: See the famous "banana valley" in 3D
+- **Saddle Point**: Observe the saddle shape clearly
+- **Ill-Conditioned**: Understand the elongated ellipse geometry
+
+See [3D Visualization Guide](./3d-visualization-guide.md) for details.
+
 ## Manual Problem Switching
 
 When an experiment loads a non-default problem, a problem switcher appears above the visualizations. You can manually select any problem type to explore its landscape.
