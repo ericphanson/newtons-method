@@ -322,6 +322,17 @@ const UnifiedVisualizer = () => {
     return lbfgsIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
   }, [lbfgsIterations]);
 
+  // Comparison mode 3D trajectories
+  const comparisonLeft3DTrajectory = useMemo(() => {
+    if (!comparisonLeftIterations || comparisonLeftIterations.length === 0) return [];
+    return comparisonLeftIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+  }, [comparisonLeftIterations]);
+
+  const comparisonRight3DTrajectory = useMemo(() => {
+    if (!comparisonRightIterations || comparisonRightIterations.length === 0) return [];
+    return comparisonRightIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+  }, [comparisonRightIterations]);
+
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -1703,7 +1714,37 @@ const UnifiedVisualizer = () => {
             <>
               {/* Comparison Mode View */}
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Algorithm Comparison</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">Algorithm Comparison</h2>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setVisualizationMode('2d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '2d' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      2D View
+                    </button>
+                    <button
+                      onClick={() => setVisualizationMode('3d')}
+                      className={`px-3 py-1 rounded text-sm ${
+                        visualizationMode === '3d' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      3D View
+                    </button>
+                    <button
+                      onClick={() => {
+                        setComparisonMode('none');
+                        setCurrentExperiment(null);
+                      }}
+                      className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+                    >
+                      Exit Comparison
+                    </button>
+                  </div>
+                </div>
+
                 <p className="text-gray-700 mb-4">{
                   getExperimentsForAlgorithm(selectedTab)
                     .find(e => e.id === comparisonMode)?.expectation
@@ -1731,29 +1772,66 @@ const UnifiedVisualizer = () => {
                 />
 
                 <div className="mt-6">
-                  <ComparisonCanvas
-                    leftIterations={comparisonLeftIterations}
-                    leftCurrentIter={comparisonLeftIter}
-                    leftColor="#3b82f6"
-                    rightIterations={comparisonRightIterations}
-                    rightCurrentIter={comparisonRightIter}
-                    rightColor="#10b981"
-                    width={800}
-                    height={600}
-                    title="Optimization Trajectories"
-                  />
-                </div>
-
-                <div className="mt-6">
-                  <button
-                    onClick={() => {
-                      setComparisonMode('none');
-                      setCurrentExperiment(null);
-                    }}
-                    className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-                  >
-                    Exit Comparison Mode
-                  </button>
+                  {visualizationMode === '2d' ? (
+                    <ComparisonCanvas
+                      leftIterations={comparisonLeftIterations}
+                      leftCurrentIter={comparisonLeftIter}
+                      leftColor="#3b82f6"
+                      rightIterations={comparisonRightIterations}
+                      rightCurrentIter={comparisonRightIter}
+                      rightColor="#10b981"
+                      width={800}
+                      height={600}
+                      title="Optimization Trajectories"
+                    />
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-center font-semibold mb-2 text-blue-700">
+                          {comparisonMode === 'gd-ls-compare' ? 'GD Fixed (α=0.1)' :
+                           comparisonMode === 'lbfgs-compare' ? 'L-BFGS' :
+                           'Newton'}
+                        </h3>
+                        <ObjectiveFunction3D
+                          objectiveFn={(w) => {
+                            try {
+                              const problemFuncs = getCurrentProblemFunctions();
+                              return problemFuncs.objective(w);
+                            } catch {
+                              return 0;
+                            }
+                          }}
+                          bounds={visualizationBounds}
+                          trajectory={comparisonLeft3DTrajectory}
+                          currentIter={comparisonLeftIter}
+                          width={580}
+                          height={450}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-center font-semibold mb-2 text-green-700">
+                          {comparisonMode === 'gd-ls-compare' ? 'GD Line Search' :
+                           comparisonMode === 'lbfgs-compare' ? 'Newton' :
+                           'GD Line Search'}
+                        </h3>
+                        <ObjectiveFunction3D
+                          objectiveFn={(w) => {
+                            try {
+                              const problemFuncs = getCurrentProblemFunctions();
+                              return problemFuncs.objective(w);
+                            } catch {
+                              return 0;
+                            }
+                          }}
+                          bounds={visualizationBounds}
+                          trajectory={comparisonRight3DTrajectory}
+                          currentIter={comparisonRightIter}
+                          width={580}
+                          height={450}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
