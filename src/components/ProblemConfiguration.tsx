@@ -25,6 +25,10 @@ interface ProblemConfigurationProps {
   conditionNumber: number;
   onConditionNumberChange: (kappa: number) => void;
 
+  // Rosenbrock parameters
+  rosenbrockB: number;
+  onRosenbrockBChange: (b: number) => void;
+
   // Data canvas (for logistic regression)
   dataCanvasRef?: React.RefObject<HTMLCanvasElement>;
   onCanvasClick?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -40,6 +44,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onLambdaChange,
   conditionNumber,
   onConditionNumberChange,
+  rosenbrockB,
+  onRosenbrockBChange,
   customPoints,
   onCustomPointsChange,
   addPointMode,
@@ -150,7 +156,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                 <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
               )}
               {currentProblem === 'rosenbrock' && (
-                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}</InlineMath>
+                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}</InlineMath>
               )}
               {currentProblem === 'non-convex-saddle' && (
                 <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
@@ -274,6 +280,36 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <p className="text-xs text-gray-500 mt-2">
                 Higher κ creates more elongated ellipses, making optimization harder.
                 κ=1 is perfectly round (well-conditioned), κ=1000 is very elongated (ill-conditioned).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Parameters for Rosenbrock */}
+      {currentProblem === 'rosenbrock' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+          <div className="max-w-md">
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">
+                Valley Steepness (<InlineMath>b</InlineMath>)
+              </h4>
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.1"
+                value={Math.log10(rosenbrockB)}
+                onChange={(e) => onRosenbrockBChange(Math.pow(10, parseFloat(e.target.value)))}
+                className="w-full"
+              />
+              <span className="text-sm text-gray-600">
+                <InlineMath>b</InlineMath> = {rosenbrockB.toFixed(rosenbrockB < 100 ? 0 : 0)}
+              </span>
+              <p className="text-xs text-gray-500 mt-2">
+                Higher b creates steeper, narrower valleys.
+                b=10 is gentle (GD can navigate), b=1000 is extreme (first-order methods struggle).
               </p>
             </div>
           </div>

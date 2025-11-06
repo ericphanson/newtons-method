@@ -1136,6 +1136,15 @@ const UnifiedVisualizer = () => {
     }
     ctx.stroke();
 
+    // Draw small red dots at each iteration point
+    ctx.fillStyle = '#dc2626';
+    for (let i = 0; i <= newtonCurrentIter; i++) {
+      const [w0_pt, w1_pt] = newtonIterations[i].wNew;
+      ctx.beginPath();
+      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
     const [w0, w1] = iter.wNew;
     ctx.fillStyle = '#dc2626';
     ctx.beginPath();
@@ -1326,6 +1335,15 @@ const UnifiedVisualizer = () => {
       }
     }
     ctx.stroke();
+
+    // Draw small red dots at each iteration point
+    ctx.fillStyle = '#dc2626';
+    for (let i = 0; i <= lbfgsCurrentIter; i++) {
+      const [w0_pt, w1_pt] = lbfgsIterations[i].wNew;
+      ctx.beginPath();
+      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
 
     const [w0, w1] = iter.wNew;
     ctx.fillStyle = '#dc2626';
@@ -1627,6 +1645,15 @@ const UnifiedVisualizer = () => {
       }
     }
     ctx.stroke();
+
+    // Draw small red dots at each iteration point
+    ctx.fillStyle = '#dc2626';
+    for (let i = 0; i <= gdLSCurrentIter; i++) {
+      const [w0_pt, w1_pt] = gdLSIterations[i].wNew;
+      ctx.beginPath();
+      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
 
     const [w0, w1] = iter.wNew;
     ctx.fillStyle = '#dc2626';
