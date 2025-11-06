@@ -16,10 +16,19 @@ interface ContourOptions {
   numLevels?: number;
   minValue?: number;
   maxValue?: number;
+  margins?: { left: number; right: number; top: number; bottom: number };
 }
 
 export function drawContours(options: ContourOptions): void {
-  const { ctx, values, bounds, canvasWidth, canvasHeight, numLevels = 15 } = options;
+  const {
+    ctx,
+    values,
+    bounds,
+    canvasWidth,
+    canvasHeight,
+    numLevels = 15,
+    margins = { left: 60, right: 20, top: 20, bottom: 50 }
+  } = options;
 
   // Flatten 2D array to 1D array (d3-contour expects 1D)
   const flatValues = values.flat();
@@ -40,6 +49,10 @@ export function drawContours(options: ContourOptions): void {
   const { minW0, maxW0, minW1, maxW1 } = bounds;
   const w0Range = maxW0 - minW0;
   const w1Range = maxW1 - minW1;
+
+  // Calculate plot area dimensions
+  const plotWidth = canvasWidth - margins.left - margins.right;
+  const plotHeight = canvasHeight - margins.top - margins.bottom;
 
   // Create contour generator with exponential spacing for more detail near minimum
   // Using t^2.5 gives more contours near low values (minimum) and fewer at high values
@@ -92,9 +105,9 @@ export function drawContours(options: ContourOptions): void {
             const w0 = minW0 + (gridX / resolution) * w0Range;
             const w1 = minW1 + (gridY / resolution) * w1Range;
 
-            // Convert to canvas coordinates
-            const canvasX = ((w0 - minW0) / w0Range) * canvasWidth;
-            const canvasY = ((maxW1 - w1) / w1Range) * canvasHeight;
+            // Convert to canvas coordinates (within plot area)
+            const canvasX = margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+            const canvasY = margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
             if (i === 0) {
               ctx.moveTo(canvasX, canvasY);
@@ -171,17 +184,31 @@ interface OptimumMarkerOptions {
   canvasWidth: number;
   canvasHeight: number;
   markerSize?: number;
+  margins?: { left: number; right: number; top: number; bottom: number };
 }
 
 export function drawOptimumMarkers(options: OptimumMarkerOptions): void {
-  const { ctx, globalMinimum, criticalPoint, bounds, canvasWidth, canvasHeight, markerSize = 12 } = options;
+  const {
+    ctx,
+    globalMinimum,
+    criticalPoint,
+    bounds,
+    canvasWidth,
+    canvasHeight,
+    markerSize = 12,
+    margins = { left: 60, right: 20, top: 20, bottom: 50 }
+  } = options;
   const { minW0, maxW0, minW1, maxW1 } = bounds;
   const w0Range = maxW0 - minW0;
   const w1Range = maxW1 - minW1;
 
-  // Helper to convert parameter space to canvas coordinates
-  const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * canvasWidth;
-  const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * canvasHeight;
+  // Calculate plot area dimensions
+  const plotWidth = canvasWidth - margins.left - margins.right;
+  const plotHeight = canvasHeight - margins.top - margins.bottom;
+
+  // Helper to convert parameter space to canvas coordinates (within plot area)
+  const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+  const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
   // Draw global minimum (filled star)
   if (globalMinimum) {
@@ -196,4 +223,151 @@ export function drawOptimumMarkers(options: OptimumMarkerOptions): void {
     const y = toCanvasY(criticalPoint[1]);
     drawStarMarker(ctx, x, y, markerSize, false, '#FFD700');
   }
+}
+
+/**
+ * Calculate nice tick values for an axis
+ */
+function calculateNiceTicks(min: number, max: number, targetCount: number = 5): number[] {
+  const range = max - min;
+  const roughStep = range / (targetCount - 1);
+
+  // Round to nice numbers (1, 2, 5) * 10^n
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const normalized = roughStep / magnitude;
+
+  let niceStep: number;
+  if (normalized <= 1) niceStep = 1 * magnitude;
+  else if (normalized <= 2) niceStep = 2 * magnitude;
+  else if (normalized <= 5) niceStep = 5 * magnitude;
+  else niceStep = 10 * magnitude;
+
+  // Generate ticks
+  const ticks: number[] = [];
+  const firstTick = Math.ceil(min / niceStep) * niceStep;
+
+  for (let tick = firstTick; tick <= max; tick += niceStep) {
+    ticks.push(tick);
+  }
+
+  return ticks;
+}
+
+/**
+ * Draw axes with ticks and labels for contour plot
+ */
+interface AxisOptions {
+  ctx: CanvasRenderingContext2D;
+  bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
+  canvasWidth: number;
+  canvasHeight: number;
+  margins?: { left: number; right: number; top: number; bottom: number };
+  fontSize?: number;
+  tickLength?: number;
+}
+
+export function drawAxes(options: AxisOptions): void {
+  const {
+    ctx,
+    bounds,
+    canvasWidth,
+    canvasHeight,
+    margins = { left: 60, right: 20, top: 20, bottom: 50 },
+    fontSize = 12,
+    tickLength = 6
+  } = options;
+
+  const { minW0, maxW0, minW1, maxW1 } = bounds;
+  const w0Range = maxW0 - minW0;
+  const w1Range = maxW1 - minW1;
+
+  const plotWidth = canvasWidth - margins.left - margins.right;
+  const plotHeight = canvasHeight - margins.top - margins.bottom;
+
+  // Helper functions to convert from data space to plot space
+  const toPlotX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+  const toPlotY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
+
+  ctx.save();
+  ctx.strokeStyle = '#374151';
+  ctx.fillStyle = '#374151';
+  ctx.lineWidth = 1.5;
+  ctx.font = `${fontSize}px sans-serif`;
+
+  // Draw bottom axis (w0)
+  const w0Ticks = calculateNiceTicks(minW0, maxW0, 6);
+  ctx.beginPath();
+  ctx.moveTo(margins.left, canvasHeight - margins.bottom);
+  ctx.lineTo(canvasWidth - margins.right, canvasHeight - margins.bottom);
+  ctx.stroke();
+
+  // Draw w0 ticks and labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  w0Ticks.forEach(tick => {
+    const x = toPlotX(tick);
+    // Tick mark
+    ctx.beginPath();
+    ctx.moveTo(x, canvasHeight - margins.bottom);
+    ctx.lineTo(x, canvasHeight - margins.bottom + tickLength);
+    ctx.stroke();
+    // Label
+    const label = Math.abs(tick) < 0.01 ? tick.toExponential(1) : tick.toFixed(2);
+    ctx.fillText(label, x, canvasHeight - margins.bottom + tickLength + 4);
+  });
+
+  // Draw w0 axis label
+  ctx.font = `${fontSize + 2}px sans-serif`;
+  ctx.fillText('w₀', canvasWidth / 2, canvasHeight - 12);
+
+  // Draw left axis (w1)
+  ctx.font = `${fontSize}px sans-serif`;
+  const w1Ticks = calculateNiceTicks(minW1, maxW1, 6);
+  ctx.beginPath();
+  ctx.moveTo(margins.left, margins.top);
+  ctx.lineTo(margins.left, canvasHeight - margins.bottom);
+  ctx.stroke();
+
+  // Draw w1 ticks and labels
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  w1Ticks.forEach(tick => {
+    const y = toPlotY(tick);
+    // Tick mark
+    ctx.beginPath();
+    ctx.moveTo(margins.left - tickLength, y);
+    ctx.lineTo(margins.left, y);
+    ctx.stroke();
+    // Label
+    const label = Math.abs(tick) < 0.01 ? tick.toExponential(1) : tick.toFixed(2);
+    ctx.fillText(label, margins.left - tickLength - 4, y);
+  });
+
+  // Draw w1 axis label
+  ctx.font = `${fontSize + 2}px sans-serif`;
+  ctx.save();
+  ctx.translate(14, canvasHeight / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('w₁', 0, 0);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/**
+ * Get plot area bounds accounting for axes margins
+ */
+export function getPlotArea(
+  canvasWidth: number,
+  canvasHeight: number,
+  margins: { left: number; right: number; top: number; bottom: number } =
+    { left: 60, right: 20, top: 20, bottom: 50 }
+): { x: number; y: number; width: number; height: number } {
+  return {
+    x: margins.left,
+    y: margins.top,
+    width: canvasWidth - margins.left - margins.right,
+    height: canvasHeight - margins.top - margins.bottom
+  };
 }

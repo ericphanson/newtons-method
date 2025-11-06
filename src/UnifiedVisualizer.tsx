@@ -24,7 +24,7 @@ import { Toast } from './components/Toast';
 import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
-import { drawContours, drawOptimumMarkers } from './utils/contourDrawing';
+import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblemDefaults, getProblemNote } from './utils/problemDefaults';
 import { getProblem } from './problems';
@@ -1054,6 +1054,11 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
+    // Define margins for axes
+    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
+
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
@@ -1065,7 +1070,8 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12
+      numLevels: 12,
+      margins
     });
 
     // Draw optimum markers (global minimum or critical points)
@@ -1078,12 +1084,13 @@ const UnifiedVisualizer = () => {
         criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
-        canvasHeight: h
+        canvasHeight: h,
+        margins
       });
     }
 
-    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
-    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -1106,15 +1113,14 @@ const UnifiedVisualizer = () => {
     ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.fillStyle = '#374151';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
-    ctx.save();
-    ctx.translate(10, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
-    ctx.restore();
+    // Draw axes with ticks and labels
+    drawAxes({
+      ctx,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
   }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab]);
 
   // Draw Newton's line search
@@ -1239,6 +1245,11 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
+    // Define margins for axes
+    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
+
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
@@ -1250,7 +1261,8 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12
+      numLevels: 12,
+      margins
     });
 
     // Draw optimum markers (global minimum or critical points)
@@ -1263,12 +1275,13 @@ const UnifiedVisualizer = () => {
         criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
-        canvasHeight: h
+        canvasHeight: h,
+        margins
       });
     }
 
-    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
-    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -1291,15 +1304,14 @@ const UnifiedVisualizer = () => {
     ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.fillStyle = '#374151';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
-    ctx.save();
-    ctx.translate(10, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
-    ctx.restore();
+    // Draw axes with ticks and labels
+    drawAxes({
+      ctx,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
   }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab]);
 
   // Draw L-BFGS line search
@@ -1425,6 +1437,11 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
+    // Define margins for axes
+    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
+
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
@@ -1436,7 +1453,8 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12
+      numLevels: 12,
+      margins
     });
 
     // Draw optimum markers (global minimum or critical points)
@@ -1449,12 +1467,13 @@ const UnifiedVisualizer = () => {
         criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
-        canvasHeight: h
+        canvasHeight: h,
+        margins
       });
     }
 
-    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
-    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
     // Draw trajectory path
     ctx.strokeStyle = '#f97316';
@@ -1480,15 +1499,14 @@ const UnifiedVisualizer = () => {
     ctx.fill();
 
     // Draw axis labels
-    ctx.fillStyle = '#374151';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
-    ctx.save();
-    ctx.translate(10, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
-    ctx.restore();
+    // Draw axes with ticks and labels
+    drawAxes({
+      ctx,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
   }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab]);
 
   // Draw GD Line Search parameter space
@@ -1519,6 +1537,11 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
+    // Define margins for axes
+    const margins = { left: 60, right: 20, top: 20, bottom: 50 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
+
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
@@ -1530,7 +1553,8 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12
+      numLevels: 12,
+      margins
     });
 
     // Draw optimum markers (global minimum or critical points)
@@ -1543,12 +1567,13 @@ const UnifiedVisualizer = () => {
         criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
-        canvasHeight: h
+        canvasHeight: h,
+        margins
       });
     }
 
-    const toCanvasX = (w0: number) => ((w0 - minW0) / w0Range) * w;
-    const toCanvasY = (w1: number) => ((maxW1 - w1) / w1Range) * h;
+    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -1571,15 +1596,14 @@ const UnifiedVisualizer = () => {
     ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.fillStyle = '#374151';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`w₀: [${minW0.toFixed(1)}, ${maxW0.toFixed(1)}]`, w / 2, h - 5);
-    ctx.save();
-    ctx.translate(10, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(`w₁: [${minW1.toFixed(1)}, ${maxW1.toFixed(1)}]`, 0, 0);
-    ctx.restore();
+    // Draw axes with ticks and labels
+    drawAxes({
+      ctx,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
   }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab]);
 
   // Draw GD Line Search plot
