@@ -5191,8 +5191,8 @@ const UnifiedVisualizer = () => {
                 <h2 className="text-2xl font-bold text-amber-900 mb-4">L-BFGS Memory</h2>
                 <div className="space-y-3 text-gray-800 mb-4">
                   <p><strong>What it is:</strong> Instead of storing the full Hessian H (n×n matrix), we store only M={lbfgsM} recent (s, y) pairs.</p>
-                  <p><strong>s</strong> = parameter change = w_new - w_old (where we moved)</p>
-                  <p><strong>y</strong> = gradient change = ∇f_new - ∇f_old (how the slope changed)</p>
+                  <p><strong>s</strong> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
+                  <p><strong>y</strong> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
                   <p><strong>Why it works:</strong> These pairs implicitly capture curvature: "when we moved in direction s, the gradient changed by y". This is enough to approximate H⁻¹!</p>
                 </div>
 
