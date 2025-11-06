@@ -290,7 +290,7 @@ const UnifiedVisualizer = () => {
     };
   }, [gdLSIterations]);
 
-  // Helper: Convert iterations to 3D points [w0, w1, loss]
+  // Helper: Convert iterations to 3D points [w0, w1, -loss]
   const gdFixed3DTrajectory = useMemo(() => {
     if (!gdFixedIterations || gdFixedIterations.length === 0) return [];
 
@@ -300,37 +300,37 @@ const UnifiedVisualizer = () => {
       const w0 = w[0];
       const w1 = w[1];
       const loss = iter.loss;
-      return [w0, w1, loss];
+      return [w0, w1, -loss]; // Negate loss so lower values appear "down"
     });
   }, [gdFixedIterations]);
 
   // GD Line Search 3D trajectory
   const gdLS3DTrajectory = useMemo(() => {
     if (!gdLSIterations || gdLSIterations.length === 0) return [];
-    return gdLSIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+    return gdLSIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
   }, [gdLSIterations]);
 
   // Newton 3D trajectory
   const newton3DTrajectory = useMemo(() => {
     if (!newtonIterations || newtonIterations.length === 0) return [];
-    return newtonIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+    return newtonIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
   }, [newtonIterations]);
 
   // L-BFGS 3D trajectory
   const lbfgs3DTrajectory = useMemo(() => {
     if (!lbfgsIterations || lbfgsIterations.length === 0) return [];
-    return lbfgsIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+    return lbfgsIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
   }, [lbfgsIterations]);
 
   // Comparison mode 3D trajectories
   const comparisonLeft3DTrajectory = useMemo(() => {
     if (!comparisonLeftIterations || comparisonLeftIterations.length === 0) return [];
-    return comparisonLeftIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+    return comparisonLeftIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
   }, [comparisonLeftIterations]);
 
   const comparisonRight3DTrajectory = useMemo(() => {
     if (!comparisonRightIterations || comparisonRightIterations.length === 0) return [];
-    return comparisonRightIterations.map(iter => [iter.wNew[0], iter.wNew[1], iter.loss]);
+    return comparisonRightIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
   }, [comparisonRightIterations]);
 
   // Canvas refs

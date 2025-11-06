@@ -56,8 +56,9 @@ export function generateSurfaceMesh(
       const z = objectiveFn([w0, w1]);
       zValues.push(z);
 
-      // Add vertex position (x=w0, y=w1, z=loss)
-      vertices.push(w0, w1, z);
+      // Add vertex position (x=w0, y=w1, z=-loss)
+      // Negate z so lower loss appears "down" (descending into valley)
+      vertices.push(w0, w1, -z);
 
       // Color will be set after we know min/max z
       colors.push(0, 0, 0);
