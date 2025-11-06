@@ -220,6 +220,15 @@ const UnifiedVisualizer = () => {
     let minW0 = Infinity, maxW0 = -Infinity;
     let minW1 = Infinity, maxW1 = -Infinity;
 
+    // Include initial point (starting position)
+    if (newtonIterations.length > 0) {
+      const [w0_init, w1_init] = newtonIterations[0].w;
+      minW0 = Math.min(minW0, w0_init);
+      maxW0 = Math.max(maxW0, w0_init);
+      minW1 = Math.min(minW1, w1_init);
+      maxW1 = Math.max(maxW1, w1_init);
+    }
+
     for (const it of newtonIterations) {
       minW0 = Math.min(minW0, it.wNew[0]);
       maxW0 = Math.max(maxW0, it.wNew[0]);
@@ -269,6 +278,15 @@ const UnifiedVisualizer = () => {
 
     let minW0 = Infinity, maxW0 = -Infinity;
     let minW1 = Infinity, maxW1 = -Infinity;
+
+    // Include initial point (starting position)
+    if (lbfgsIterations.length > 0) {
+      const [w0_init, w1_init] = lbfgsIterations[0].w;
+      minW0 = Math.min(minW0, w0_init);
+      maxW0 = Math.max(maxW0, w0_init);
+      minW1 = Math.min(minW1, w1_init);
+      maxW1 = Math.max(maxW1, w1_init);
+    }
 
     for (const it of lbfgsIterations) {
       minW0 = Math.min(minW0, it.wNew[0]);
@@ -320,6 +338,15 @@ const UnifiedVisualizer = () => {
     let minW0 = Infinity, maxW0 = -Infinity;
     let minW1 = Infinity, maxW1 = -Infinity;
 
+    // Include initial point (starting position)
+    if (gdFixedIterations.length > 0) {
+      const [w0_init, w1_init] = gdFixedIterations[0].w;
+      minW0 = Math.min(minW0, w0_init);
+      maxW0 = Math.max(maxW0, w0_init);
+      minW1 = Math.min(minW1, w1_init);
+      maxW1 = Math.max(maxW1, w1_init);
+    }
+
     for (const it of gdFixedIterations) {
       minW0 = Math.min(minW0, it.wNew[0]);
       maxW0 = Math.max(maxW0, it.wNew[0]);
@@ -369,6 +396,15 @@ const UnifiedVisualizer = () => {
 
     let minW0 = Infinity, maxW0 = -Infinity;
     let minW1 = Infinity, maxW1 = -Infinity;
+
+    // Include initial point (starting position)
+    if (gdLSIterations.length > 0) {
+      const [w0_init, w1_init] = gdLSIterations[0].w;
+      minW0 = Math.min(minW0, w0_init);
+      maxW0 = Math.max(maxW0, w0_init);
+      minW1 = Math.min(minW1, w1_init);
+      maxW1 = Math.max(maxW1, w1_init);
+    }
 
     for (const it of gdLSIterations) {
       minW0 = Math.min(minW0, it.wNew[0]);
@@ -4172,8 +4208,8 @@ const UnifiedVisualizer = () => {
                   <div>
                     <h3 className="text-lg font-bold text-indigo-800 mb-2">Proof Sketch</h3>
                     <ol className="list-decimal ml-6 space-y-1 text-sm">
-                      <li>Taylor expand f(w_k) and f(w*) around w_k</li>
-                      <li>Use Newton update rule to relate w_{'{k+1}'} and w_k</li>
+                      <li>Taylor expand f(<InlineMath>w_k</InlineMath>) and f(<InlineMath>w^*</InlineMath>) around <InlineMath>w_k</InlineMath></li>
+                      <li>Use Newton update rule to relate <InlineMath>{String.raw`w_{k+1}`}</InlineMath> and <InlineMath>w_k</InlineMath></li>
                       <li>Bound error using Hessian Lipschitz constant</li>
                       <li>Show error term is quadratic in current error</li>
                     </ol>
