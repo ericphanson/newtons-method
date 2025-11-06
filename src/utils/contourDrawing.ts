@@ -318,7 +318,8 @@ export function drawAxes(options: AxisOptions): void {
 
   // Draw w0 axis label
   ctx.font = `${fontSize + 2}px sans-serif`;
-  ctx.fillText('w₀', canvasWidth / 2, canvasHeight - 12);
+  ctx.textBaseline = 'top';
+  ctx.fillText('w₀', canvasWidth / 2, canvasHeight - margins.bottom + tickLength + 4 + fontSize + 2);
 
   // Draw left axis (w1)
   ctx.font = `${fontSize}px sans-serif`;
