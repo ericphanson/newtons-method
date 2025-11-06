@@ -2255,7 +2255,7 @@ const UnifiedVisualizer = () => {
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
                 </p>
 
                 <canvas
@@ -2352,24 +2352,6 @@ const UnifiedVisualizer = () => {
                       (see Gradient Descent with Line Search tab).
                     </p>
                   </div>
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection
-                title="Visual Guide"
-                defaultExpanded={true}
-                storageKey="gd-fixed-visual-guide"
-              >
-                <div className="space-y-3 text-gray-800">
-                  <p><strong>Left:</strong> Data space - decision boundary from current weights</p>
-                  <p><strong>Right:</strong> Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) - the loss landscape</p>
-                  <ul className="list-disc ml-6 space-y-1">
-                    <li>Lighter colors = lower loss (the valley we're searching for)</li>
-                    <li>Orange path = trajectory of weights across iterations</li>
-                    <li>Red dot = current position</li>
-                  </ul>
-                  <p className="mt-2">The gradient points perpendicular to contour lines (level sets).
-                  We follow it downhill toward the minimum.</p>
                 </div>
               </CollapsibleSection>
 
@@ -2744,7 +2726,7 @@ const UnifiedVisualizer = () => {
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
                 </p>
 
                 <canvas ref={gdLSParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
@@ -3409,7 +3391,7 @@ const UnifiedVisualizer = () => {
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
                 </p>
 
                 <canvas ref={newtonParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
@@ -4017,7 +3999,7 @@ const UnifiedVisualizer = () => {
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
+                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
                 </p>
 
                 <canvas ref={lbfgsParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />

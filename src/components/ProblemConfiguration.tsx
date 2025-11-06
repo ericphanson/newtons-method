@@ -183,7 +183,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <p className="text-xs text-gray-500 mt-2">
                 {addPointMode > 0
                   ? `Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`
-                  : 'Dataset visualization with decision boundary (when algorithm runs)'}
+                  : 'Data space - shows decision boundary from current weights (green line appears when algorithm runs)'}
               </p>
             </div>
 
