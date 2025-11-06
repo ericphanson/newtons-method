@@ -4,6 +4,7 @@ import { DataPoint } from '../shared-utils';
 import { getProblem } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
+import { SeparatingHyperplaneVariant } from '../types/experiments';
 
 interface ProblemConfigurationProps {
   currentProblem: string;
@@ -33,6 +34,10 @@ interface ProblemConfigurationProps {
   rosenbrockB: number;
   onRosenbrockBChange: (b: number) => void;
 
+  // Separating hyperplane parameters
+  separatingHyperplaneVariant?: SeparatingHyperplaneVariant;
+  onSeparatingHyperplaneVariantChange?: (variant: SeparatingHyperplaneVariant) => void;
+
   // Data canvas (for logistic regression)
   dataCanvasRef?: React.RefObject<HTMLCanvasElement>;
   onCanvasClick?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -52,6 +57,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onConditionNumberChange,
   rosenbrockB,
   onRosenbrockBChange,
+  separatingHyperplaneVariant,
+  onSeparatingHyperplaneVariantChange,
   customPoints,
   onCustomPointsChange,
   addPointMode,
@@ -78,6 +85,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           };
         }
       }
+    }
+
+    // Reset separating hyperplane variant
+    if (newProblem === 'separating-hyperplane') {
+      onSeparatingHyperplaneVariantChange?.('hard-margin');
     }
 
     const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
@@ -127,6 +139,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
             <option value="rosenbrock">Rosenbrock Function</option>
             <option value="non-convex-saddle">Saddle Point</option>
+            <option value="separating-hyperplane">Separating Hyperplane</option>
           </select>
           <button
             onClick={() => setShowProblemExplainer(true)}
@@ -150,6 +163,37 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <div>
               <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
             </div>
+          </div>
+        ) : currentProblem === 'separating-hyperplane' ? (
+          <div className="space-y-2 text-gray-800 text-sm bg-green-50 p-3 rounded">
+            {separatingHyperplaneVariant === 'hard-margin' && (
+              <div>
+                <strong>Hard-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2`}</InlineMath>
+                <br />
+                <small>Maximizes margin, requires separable data</small>
+              </div>
+            )}
+            {separatingHyperplaneVariant === 'soft-margin' && (
+              <div>
+                <strong>Soft-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum \max(0, 1-y_i z_i)`}</InlineMath>
+                <br />
+                <small>Hinge loss, allows misclassifications (C=1.0)</small>
+              </div>
+            )}
+            {separatingHyperplaneVariant === 'perceptron' && (
+              <div>
+                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i)`}</InlineMath>
+                <br />
+                <small>Minimizes misclassifications, no margin</small>
+              </div>
+            )}
+            {separatingHyperplaneVariant === 'squared-hinge' && (
+              <div>
+                <strong>Squared-Hinge:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum [\max(0, 1-y_i z_i)]^2`}</InlineMath>
+                <br />
+                <small>Smooth variant, twice differentiable (C=1.0)</small>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-2 text-gray-800 text-sm bg-blue-50 p-3 rounded">
@@ -266,8 +310,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       {currentProblem === 'quadratic' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="max-w-2xl">
-            <div>
+          <div className="flex gap-4">
+            <div className="w-64">
               <h4 className="font-medium text-gray-700 mb-2">
                 Rotation Angle (<InlineMath>\theta</InlineMath>)
               </h4>
@@ -283,17 +327,17 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <span className="text-sm text-gray-600">
                 <InlineMath>\theta</InlineMath> = {rotationAngle}°
               </span>
-              <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-                <p className="text-xs text-blue-900 font-semibold mb-1">
-                  💡 Key Insight: Rotation Invariance
-                </p>
-                <p className="text-xs text-blue-900">
-                  <strong>θ=0°:</strong> Ellipse aligned with axes. Gradient descent follows axes efficiently.<br/>
-                  <strong>θ=45°:</strong> Maximum misalignment! GD zigzags badly, while Newton/L-BFGS are unaffected.<br/>
-                  <strong>Second-order methods are rotation-invariant</strong> — they adapt to any coordinate system.
-                  First-order methods depend on your choice of coordinates!
-                </p>
-              </div>
+            </div>
+            <div className="flex-1 p-3 bg-blue-100 rounded-lg">
+              <p className="text-xs text-blue-900 font-semibold mb-1">
+                💡 Key Insight: Rotation Invariance
+              </p>
+              <p className="text-xs text-blue-900">
+                <strong><InlineMath>\theta=0°</InlineMath>:</strong> Ellipse aligned with axes. Gradient descent follows axes efficiently.<br/>
+                <strong><InlineMath>\theta=45°</InlineMath>:</strong> Maximum misalignment! GD zigzags badly, while Newton/L-BFGS are unaffected.<br/>
+                <strong>Second-order methods are rotation-invariant</strong> — they adapt to any coordinate system.
+                First-order methods depend on your choice of coordinates!
+              </p>
             </div>
           </div>
         </div>
@@ -303,8 +347,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       {currentProblem === 'ill-conditioned-quadratic' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="max-w-md">
-            <div>
+          <div className="flex gap-4">
+            <div className="w-64">
               <h4 className="font-medium text-gray-700 mb-2">
                 Condition Number (<InlineMath>\kappa</InlineMath>)
               </h4>
@@ -320,9 +364,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <span className="text-sm text-gray-600">
                 <InlineMath>\kappa</InlineMath> = {conditionNumber.toFixed(conditionNumber < 10 ? 1 : 0)}
               </span>
-              <p className="text-xs text-gray-500 mt-2">
-                Higher κ creates more elongated ellipses, making optimization harder.
-                κ=1 is perfectly round (well-conditioned), κ=1000 is very elongated (ill-conditioned).
+            </div>
+            <div className="flex-1 p-3 bg-blue-100 rounded-lg self-center">
+              <p className="text-xs text-blue-900">
+                Higher <InlineMath>\kappa</InlineMath> creates more elongated ellipses, making optimization harder.
+                <InlineMath>\kappa=1</InlineMath> is perfectly round (well-conditioned), <InlineMath>\kappa=1000</InlineMath> is very elongated (ill-conditioned).
               </p>
             </div>
           </div>
@@ -333,8 +379,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       {currentProblem === 'rosenbrock' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="max-w-md">
-            <div>
+          <div className="flex gap-4">
+            <div className="w-64">
               <h4 className="font-medium text-gray-700 mb-2">
                 Valley Steepness (<InlineMath>b</InlineMath>)
               </h4>
@@ -350,11 +396,60 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <span className="text-sm text-gray-600">
                 <InlineMath>b</InlineMath> = {rosenbrockB.toFixed(rosenbrockB < 100 ? 0 : 0)}
               </span>
-              <p className="text-xs text-gray-500 mt-2">
-                Higher b creates steeper, narrower valleys.
-                b=10 is gentle (GD can navigate), b=1000 is extreme (first-order methods struggle).
+            </div>
+            <div className="flex-1 p-3 bg-blue-100 rounded-lg self-center">
+              <p className="text-xs text-blue-900">
+                Higher <InlineMath>b</InlineMath> creates steeper, narrower valleys.
+                <InlineMath>b=10</InlineMath> is gentle (GD can navigate), <InlineMath>b=1000</InlineMath> is extreme (first-order methods struggle).
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Parameters for Separating Hyperplane */}
+      {currentProblem === 'separating-hyperplane' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
+          <div className="flex gap-4">
+            <div className="w-64">
+              <h4 className="font-medium text-gray-700 mb-2">Variant:</h4>
+              <select
+                value={separatingHyperplaneVariant}
+                onChange={(e) =>
+                  onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
+              >
+                <option value="hard-margin">Hard-Margin SVM</option>
+                <option value="soft-margin">Soft-Margin SVM</option>
+                <option value="perceptron">Perceptron</option>
+                <option value="squared-hinge">Squared-Hinge</option>
+              </select>
+            </div>
+            <div className="flex-1 p-3 bg-green-100 rounded-lg self-center">
+              <p className="text-xs text-green-900">
+                Different objective functions lead to different separating hyperplanes.
+                Try switching variants to see how the optimization behavior changes!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info for Saddle Point */}
+      {currentProblem === 'non-convex-saddle' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-3">Key Insights</h3>
+          <div className="p-3 bg-blue-100 rounded-lg">
+            <p className="text-xs text-blue-900 font-semibold mb-1">
+              💡 Saddle Points: Where Gradient Descent Can Get Stuck
+            </p>
+            <p className="text-xs text-blue-900">
+              <strong>At origin (0,0):</strong> Gradient is zero, but it's NOT a minimum! It's a saddle point—a minimum in <InlineMath>w_0</InlineMath> direction, maximum in <InlineMath>w_1</InlineMath> direction.<br/>
+              <strong>First-order methods:</strong> Can get stuck at saddle points since <InlineMath>\nabla f=0</InlineMath>. They need careful initialization or momentum to escape.<br/>
+              <strong>Second-order methods:</strong> Use curvature information (Hessian) to detect saddle points. Negative eigenvalues reveal "escape directions" away from the saddle.
+            </p>
           </div>
         </div>
       )}
