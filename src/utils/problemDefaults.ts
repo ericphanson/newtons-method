@@ -8,7 +8,7 @@
 export interface ProblemDefaults {
   gdFixedAlpha: number;
   maxIter: number;
-  initialPoint: [number, number];
+  initialPoint: [number, number] | [number, number, number];
   // Line search algorithms (GD-LS, Newton, L-BFGS) work well with same defaults
   c1: number;
   lbfgsM: number;
@@ -60,6 +60,15 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
         initialPoint: [-1.5, 1.5]  // Symmetrical starting point
       };
 
+    case 'separating-hyperplane':
+      return {
+        gdFixedAlpha: 0.1,
+        maxIter: 100,
+        initialPoint: [0, 0, 0],  // 3D: [w0, w1, bias]
+        c1: 1e-4,
+        lbfgsM: 10,
+      };
+
     case 'quadratic':
     default:
       return {
@@ -82,6 +91,8 @@ export function getProblemNote(problem: string): string {
       return 'Elongated valley - GD needs small α to avoid zigzagging';
     case 'non-convex-saddle':
       return 'Unbounded below - gradient methods diverge to -∞';
+    case 'separating-hyperplane':
+      return 'Finds optimal separating hyperplane. Try different variants to see how objective functions affect the solution.';
     case 'quadratic':
       return 'Well-conditioned - standard parameters work well';
     default:
