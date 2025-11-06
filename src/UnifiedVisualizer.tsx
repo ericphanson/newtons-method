@@ -225,6 +225,22 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, data, lambda]);
 
+  // Clear iterations when problem parameters change
+  useEffect(() => {
+    setGdFixedIterations([]);
+    setGdFixedCurrentIter(0);
+    setGdLSIterations([]);
+    setGdLSCurrentIter(0);
+    setNewtonIterations([]);
+    setNewtonCurrentIter(0);
+    setLbfgsIterations([]);
+    setLbfgsCurrentIter(0);
+    setComparisonLeftIterations([]);
+    setComparisonRightIterations([]);
+    setComparisonLeftIter(0);
+    setComparisonRightIter(0);
+  }, [conditionNumber, rosenbrockB]);
+
   // Default configuration for reset functionality
   const defaultConfig = useRef({
     gdFixedAlpha: 0.1,
