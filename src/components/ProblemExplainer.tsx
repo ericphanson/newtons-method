@@ -58,9 +58,9 @@ export function ProblemExplainer() {
         </div>
       </CollapsibleSection>
 
-      {/* Quadratic Bowl */}
+      {/* Rotated Ellipse */}
       <CollapsibleSection
-        title="Quadratic Bowl (Strongly Convex)"
+        title="Rotated Ellipse (Rotation Invariance)"
         defaultExpanded={false}
         storageKey="problem-explainer-quadratic"
       >
@@ -69,41 +69,56 @@ export function ProblemExplainer() {
             <strong>Type:</strong> Strongly Convex
           </p>
 
+          <p>
+            <strong>Parameter:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°)
+          </p>
+
           <div>
             <p className="font-semibold">Objective Function:</p>
             <BlockMath>
-              {String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2)`}
+              {String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}
             </BlockMath>
+            <p className="text-sm mt-1">
+              where <InlineMath>R(\theta)</InlineMath> is a 2D rotation matrix
+            </p>
           </div>
 
           <div>
-            <p className="font-semibold">Hessian (constant):</p>
+            <p className="font-semibold">Hessian (depends on θ):</p>
             <BlockMath>
-              {String.raw`H = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}`}
+              {String.raw`H = R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
             </BlockMath>
+            <p className="text-sm mt-1">
+              Condition number: <InlineMath>\kappa = 5</InlineMath> (moderate, eigenvalues 5 and 1)
+            </p>
           </div>
 
           <p>
-            <strong>What it does:</strong> Simplest possible convex function - a perfect bowl
-            centered at origin.
+            <strong>What it does:</strong> An elliptical bowl (5:1 aspect ratio) rotated by angle θ.
+            The same problem in different coordinate systems.
           </p>
 
           <p>
-            <strong>Why it's interesting:</strong> Ideal conditions for demonstrating convergence.
-            Newton's method finds minimum in exactly 1 step!
+            <strong>Why it's interesting:</strong> <strong>This is the ONLY problem that demonstrates coordinate system dependence.</strong>
+            Shows how rotation affects gradient descent but not Newton/L-BFGS.
           </p>
 
           <p>
-            <strong>Challenge:</strong> None - this is the "easy mode" that shows what
-            success looks like.
+            <strong>Key pedagogical insight - Rotation Invariance:</strong>
           </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li><strong>θ=0°:</strong> Axis-aligned ellipse. Gradient descent is efficient along axes.</li>
+            <li><strong>θ=45°:</strong> Maximum misalignment. Gradient descent zigzags badly between steep/shallow directions.</li>
+            <li><strong>Newton & L-BFGS:</strong> Performance unchanged by rotation! They adapt to the coordinate system.</li>
+          </ul>
 
           <div className="bg-green-50 rounded p-3">
             <p className="text-sm font-semibold mb-1">Perfect for demonstrating:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Newton's quadratic convergence (1-2 iterations)</li>
-              <li>L-BFGS superlinear convergence</li>
-              <li>GD with optimal step size (smooth spiral)</li>
+              <li>Rotation invariance of second-order methods</li>
+              <li>How coordinate systems affect gradient descent</li>
+              <li>Why Newton/L-BFGS handle arbitrary orientations</li>
+              <li>The difference between intrinsic (κ) and extrinsic (rotation) difficulty</li>
             </ul>
           </div>
         </div>
@@ -120,44 +135,65 @@ export function ProblemExplainer() {
             <strong>Type:</strong> Strongly Convex (but ill-conditioned)
           </p>
 
+          <p>
+            <strong>Parameter:</strong> <InlineMath>\kappa</InlineMath> (condition number, 1 to 1000, default 100)
+          </p>
+
           <div>
             <p className="font-semibold">Objective Function:</p>
             <BlockMath>
-              {String.raw`f(w) = \frac{1}{2}(100w_0^2 + w_1^2)`}
+              {String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}
             </BlockMath>
           </div>
 
           <div>
             <p className="font-semibold">Hessian:</p>
             <BlockMath>
-              {String.raw`H = \begin{bmatrix} 100 & 0 \\ 0 & 1 \end{bmatrix}`}
+              {String.raw`H = \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix}`}
             </BlockMath>
             <p className="text-sm mt-1">
-              Condition number: <InlineMath>\kappa = 100</InlineMath>
+              Condition number: <InlineMath>\kappa</InlineMath> (controlled by parameter)
             </p>
           </div>
 
           <p>
-            <strong>What it does:</strong> Creates an elongated ellipse (100:1 aspect ratio).
+            <strong>What it does:</strong> Creates an axis-aligned elongated ellipse with κ:1 aspect ratio.
           </p>
 
           <p>
-            <strong>Why it's interesting:</strong> Shows what goes wrong with poor scaling.
+            <strong>Why it's interesting:</strong> Shows what goes wrong with poor scaling in axis-aligned problems.
             Gradient descent zig-zags perpendicular to contours.
           </p>
 
           <p>
-            <strong>Challenge:</strong> Gradient descent is very slow. Newton's method handles
-            ill-conditioning gracefully.
+            <strong>Adjusting κ:</strong>
+          </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li><strong>κ=1:</strong> Perfectly conditioned (circular). All methods converge efficiently.</li>
+            <li><strong>κ=100:</strong> Moderately ill-conditioned. Gradient descent shows clear slowdown.</li>
+            <li><strong>κ=1000:</strong> Extremely ill-conditioned. Gradient descent becomes nearly unusable.</li>
+          </ul>
+
+          <p>
+            <strong>Challenge:</strong> Gradient descent slows dramatically as κ increases. Newton's method handles
+            ill-conditioning gracefully by using curvature information.
           </p>
 
           <div className="bg-purple-50 rounded p-3">
             <p className="text-sm font-semibold mb-1">Compare algorithms:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>GD Fixed: 100+ iterations, zig-zagging</li>
-              <li>Newton: ~5 iterations, ignores ill-conditioning</li>
+              <li>GD Fixed: Iterations scale with κ, heavy zig-zagging</li>
+              <li>Newton: ~5 iterations regardless of κ</li>
               <li>L-BFGS: Learns curvature, adapts quickly</li>
             </ul>
+          </div>
+
+          <div className="bg-blue-50 rounded p-3 mt-3">
+            <p className="text-sm font-semibold mb-1">Note: Axis-aligned conditioning</p>
+            <p className="text-sm">
+              This problem is axis-aligned (steep in w₀, shallow in w₁). Compare with Rotated Ellipse
+              to see the difference between intrinsic conditioning (κ) and coordinate system effects (rotation).
+            </p>
           </div>
         </div>
       </CollapsibleSection>
@@ -173,10 +209,14 @@ export function ProblemExplainer() {
             <strong>Type:</strong> Non-Convex
           </p>
 
+          <p>
+            <strong>Parameter:</strong> <InlineMath>b</InlineMath> (valley steepness, 10 to 1000, default 100)
+          </p>
+
           <div>
             <p className="font-semibold">Objective Function:</p>
             <BlockMath>
-              {String.raw`f(w) = (1-w_0)^2 + 100(w_1-w_0^2)^2`}
+              {String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}
             </BlockMath>
           </div>
 
@@ -186,13 +226,23 @@ export function ProblemExplainer() {
           </p>
 
           <p>
-            <strong>Why it's interesting:</strong> Classic non-convex test function. The valley
-            is easy to find but hard to follow. Curvature changes dramatically.
+            <strong>Why it's interesting:</strong> Classic non-convex test function demonstrating curved ill-conditioning.
+            The valley is easy to find but hard to follow. Curvature changes dramatically along the path.
           </p>
+
+          <p>
+            <strong>Adjusting b (valley steepness):</strong>
+          </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li><strong>b=10:</strong> Gentle valley walls. Gradient descent can navigate reasonably well.</li>
+            <li><strong>b=100:</strong> Moderately steep valley. First-order methods struggle but progress.</li>
+            <li><strong>b=1000:</strong> Extremely steep valley. First-order methods nearly trapped; second-order essential.</li>
+          </ul>
 
           <p>
             <strong>Challenge:</strong> Non-convexity means Newton's Hessian can have negative
             eigenvalues. Fixed step size that works in flat regions overshoots in the valley.
+            Unlike axis-aligned problems, the difficulty here is from curved geometry.
           </p>
 
           <div className="bg-orange-50 rounded p-3">
@@ -201,7 +251,17 @@ export function ProblemExplainer() {
               <li>GD Line Search adapts to varying curvature</li>
               <li>Newton needs damping (line search) to stay stable</li>
               <li>L-BFGS builds curvature approximation over time</li>
+              <li>Higher b values: sharper turns, more challenging navigation</li>
             </ul>
+          </div>
+
+          <div className="bg-purple-50 rounded p-3 mt-3">
+            <p className="text-sm font-semibold mb-1">Note: Curved conditioning</p>
+            <p className="text-sm">
+              This problem demonstrates curved ill-conditioning (non-linear valley). Compare with
+              Ill-Conditioned Quadratic (axis-aligned) and Rotated Ellipse (rotation effects) to
+              understand different sources of optimization difficulty.
+            </p>
           </div>
         </div>
       </CollapsibleSection>
@@ -272,7 +332,7 @@ export function ProblemExplainer() {
             <p className="font-semibold text-gray-900">For learning basics:</p>
             <ul className="text-gray-700 list-disc ml-5">
               <li>Start with Logistic Regression</li>
-              <li>Try Quadratic Bowl for "ideal" behavior</li>
+              <li>Try Rotated Ellipse for rotation invariance</li>
             </ul>
           </div>
           <div>
