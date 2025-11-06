@@ -105,6 +105,9 @@ const UnifiedVisualizer = () => {
     w1: [-3, 3] as [number, number],
   });
 
+  // Logistic regression global minimum (computed)
+  const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | null>(null);
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -170,6 +173,33 @@ const UnifiedVisualizer = () => {
     // Problem and bounds are now synced via getCurrentProblem
   }, [getCurrentProblem, visualizationBounds]);
 
+  // Calculate global minimum for logistic regression when data changes
+  useEffect(() => {
+    if (currentProblem === 'logistic-regression') {
+      try {
+        const problemFuncs = logisticRegressionToProblemFunctions(data, lambda);
+        // Run L-BFGS with tight convergence to find global minimum
+        const result = runLBFGS(problemFuncs, {
+          maxIter: 1000,
+          m: 10,
+          c1: 0.0001,
+          lambda,
+          initialPoint: [0, 0, 0],
+          tolerance: 1e-10, // Very tight tolerance for accurate minimum
+        });
+        if (result.length > 0) {
+          const lastIter = result[result.length - 1];
+          setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1]]);
+        }
+      } catch (error) {
+        console.warn('Failed to compute logistic regression global minimum:', error);
+        setLogisticGlobalMin(null);
+      }
+    } else {
+      setLogisticGlobalMin(null);
+    }
+  }, [currentProblem, data, lambda]);
+
   // Default configuration for reset functionality
   const defaultConfig = useRef({
     gdFixedAlpha: 0.1,
@@ -197,6 +227,17 @@ const UnifiedVisualizer = () => {
       maxW1 = Math.max(maxW1, it.wNew[1]);
     }
 
+    // Include global minimum in bounds if it exists
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    if (globalMin) {
+      const [gm0, gm1] = globalMin;
+      minW0 = Math.min(minW0, gm0);
+      maxW0 = Math.max(maxW0, gm0);
+      minW1 = Math.min(minW1, gm1);
+      maxW1 = Math.max(maxW1, gm1);
+    }
+
     // If algorithm diverged (NaN/Infinity values), return default bounds
     if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
       console.warn('Newton: Algorithm diverged (NaN/Infinity detected), using default bounds');
@@ -221,7 +262,7 @@ const UnifiedVisualizer = () => {
       w0Range: w0Range + 2 * pad0,
       w1Range: w1Range + 2 * pad1
     };
-  }, [newtonIterations]);
+  }, [newtonIterations, currentProblem, logisticGlobalMin]);
 
   const lbfgsParamBounds = React.useMemo(() => {
     if (!lbfgsIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
@@ -234,6 +275,17 @@ const UnifiedVisualizer = () => {
       maxW0 = Math.max(maxW0, it.wNew[0]);
       minW1 = Math.min(minW1, it.wNew[1]);
       maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    // Include global minimum in bounds if it exists
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    if (globalMin) {
+      const [gm0, gm1] = globalMin;
+      minW0 = Math.min(minW0, gm0);
+      maxW0 = Math.max(maxW0, gm0);
+      minW1 = Math.min(minW1, gm1);
+      maxW1 = Math.max(maxW1, gm1);
     }
 
     // If algorithm diverged (NaN/Infinity values), return default bounds
@@ -260,7 +312,7 @@ const UnifiedVisualizer = () => {
       w0Range: w0Range + 2 * pad0,
       w1Range: w1Range + 2 * pad1
     };
-  }, [lbfgsIterations]);
+  }, [lbfgsIterations, currentProblem, logisticGlobalMin]);
 
   const gdFixedParamBounds = React.useMemo(() => {
     if (!gdFixedIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
@@ -273,6 +325,17 @@ const UnifiedVisualizer = () => {
       maxW0 = Math.max(maxW0, it.wNew[0]);
       minW1 = Math.min(minW1, it.wNew[1]);
       maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    // Include global minimum in bounds if it exists
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    if (globalMin) {
+      const [gm0, gm1] = globalMin;
+      minW0 = Math.min(minW0, gm0);
+      maxW0 = Math.max(maxW0, gm0);
+      minW1 = Math.min(minW1, gm1);
+      maxW1 = Math.max(maxW1, gm1);
     }
 
     // If algorithm diverged (NaN/Infinity values), return default bounds
@@ -299,7 +362,7 @@ const UnifiedVisualizer = () => {
       w0Range: w0Range + 2 * pad0,
       w1Range: w1Range + 2 * pad1
     };
-  }, [gdFixedIterations]);
+  }, [gdFixedIterations, currentProblem, logisticGlobalMin]);
 
   const gdLSParamBounds = React.useMemo(() => {
     if (!gdLSIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
@@ -312,6 +375,17 @@ const UnifiedVisualizer = () => {
       maxW0 = Math.max(maxW0, it.wNew[0]);
       minW1 = Math.min(minW1, it.wNew[1]);
       maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    // Include global minimum in bounds if it exists
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    if (globalMin) {
+      const [gm0, gm1] = globalMin;
+      minW0 = Math.min(minW0, gm0);
+      maxW0 = Math.max(maxW0, gm0);
+      minW1 = Math.min(minW1, gm1);
+      maxW1 = Math.max(maxW1, gm1);
     }
 
     // If algorithm diverged (NaN/Infinity values), return default bounds
@@ -338,7 +412,7 @@ const UnifiedVisualizer = () => {
       w0Range: w0Range + 2 * pad0,
       w1Range: w1Range + 2 * pad1
     };
-  }, [gdLSIterations]);
+  }, [gdLSIterations, currentProblem, logisticGlobalMin]);
 
   // Helper: Convert iterations to 3D points [w0, w1, -loss]
   const gdFixed3DTrajectory = useMemo(() => {
@@ -591,6 +665,11 @@ const UnifiedVisualizer = () => {
   // Recompute algorithms when shared state changes
   useEffect(() => {
     try {
+      // Preserve current position as percentage
+      const oldPercentage = gdFixedIterations.length > 0
+        ? gdFixedCurrentIter / Math.max(1, gdFixedIterations.length - 1)
+        : 0;
+
       const problemFuncs = getCurrentProblemFunctions();
       const initialPoint = currentProblem === 'logistic-regression'
         ? [initialW0, initialW1, 0]
@@ -603,7 +682,12 @@ const UnifiedVisualizer = () => {
         tolerance: gdFixedTolerance,
       });
       setGdFixedIterations(iterations);
-      setGdFixedCurrentIter(0);
+
+      // Restore position at same percentage
+      const newIter = iterations.length > 0
+        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
+        : 0;
+      setGdFixedCurrentIter(newIter);
     } catch (error) {
       console.error('GD Fixed error:', error);
       setGdFixedIterations([]);
@@ -612,6 +696,11 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     try {
+      // Preserve current position as percentage
+      const oldPercentage = gdLSIterations.length > 0
+        ? gdLSCurrentIter / Math.max(1, gdLSIterations.length - 1)
+        : 0;
+
       const problemFuncs = getCurrentProblemFunctions();
       const initialPoint = currentProblem === 'logistic-regression'
         ? [initialW0, initialW1, 0]
@@ -624,7 +713,12 @@ const UnifiedVisualizer = () => {
         tolerance: gdLSTolerance,
       });
       setGdLSIterations(iterations);
-      setGdLSCurrentIter(0);
+
+      // Restore position at same percentage
+      const newIter = iterations.length > 0
+        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
+        : 0;
+      setGdLSCurrentIter(newIter);
     } catch (error) {
       console.error('GD Line Search error:', error);
       setGdLSIterations([]);
@@ -633,6 +727,11 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     try {
+      // Preserve current position as percentage
+      const oldPercentage = newtonIterations.length > 0
+        ? newtonCurrentIter / Math.max(1, newtonIterations.length - 1)
+        : 0;
+
       const problemFuncs = getCurrentProblemFunctions();
       const initialPoint = currentProblem === 'logistic-regression'
         ? [initialW0, initialW1, 0]
@@ -645,7 +744,12 @@ const UnifiedVisualizer = () => {
         tolerance: newtonTolerance,
       });
       setNewtonIterations(iterations);
-      setNewtonCurrentIter(0);
+
+      // Restore position at same percentage
+      const newIter = iterations.length > 0
+        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
+        : 0;
+      setNewtonCurrentIter(newIter);
     } catch (error) {
       console.error('Newton error:', error);
       setNewtonIterations([]);
@@ -654,6 +758,11 @@ const UnifiedVisualizer = () => {
 
   useEffect(() => {
     try {
+      // Preserve current position as percentage
+      const oldPercentage = lbfgsIterations.length > 0
+        ? lbfgsCurrentIter / Math.max(1, lbfgsIterations.length - 1)
+        : 0;
+
       const problemFuncs = getCurrentProblemFunctions();
       const initialPoint = currentProblem === 'logistic-regression'
         ? [initialW0, initialW1, 0]
@@ -673,7 +782,12 @@ const UnifiedVisualizer = () => {
         console.log('Last iteration:', iterations[iterations.length - 1]);
       }
       setLbfgsIterations(iterations);
-      setLbfgsCurrentIter(0);
+
+      // Restore position at same percentage
+      const newIter = iterations.length > 0
+        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
+        : 0;
+      setLbfgsCurrentIter(newIter);
     } catch (error) {
       console.error('L-BFGS error:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
@@ -967,11 +1081,12 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    if (problemDef) {
+    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
-        globalMinimum: problemDef.globalMinimum,
-        criticalPoint: problemDef.criticalPoint,
+        globalMinimum,
+        criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
         canvasHeight: h
@@ -1148,11 +1263,12 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    if (problemDef) {
+    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
-        globalMinimum: problemDef.globalMinimum,
-        criticalPoint: problemDef.criticalPoint,
+        globalMinimum,
+        criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
         canvasHeight: h
@@ -1330,11 +1446,12 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    if (problemDef) {
+    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
-        globalMinimum: problemDef.globalMinimum,
-        criticalPoint: problemDef.criticalPoint,
+        globalMinimum,
+        criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
         canvasHeight: h
@@ -1420,11 +1537,12 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    if (problemDef) {
+    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
-        globalMinimum: problemDef.globalMinimum,
-        criticalPoint: problemDef.criticalPoint,
+        globalMinimum,
+        criticalPoint: problemDef?.criticalPoint,
         bounds: { minW0, maxW0, minW1, maxW1 },
         canvasWidth: w,
         canvasHeight: h
@@ -2271,6 +2389,27 @@ const UnifiedVisualizer = () => {
                 Next
                 <ArrowRight size={18} />
               </button>
+            </div>
+
+            {/* Iteration Slider */}
+            <div className="flex items-center gap-4 mt-4">
+              <input
+                type="range"
+                min="0"
+                max={Math.max(0, totalIters - 1)}
+                value={currentIterNum}
+                onChange={(e) => {
+                  const newIter = Number(e.target.value);
+                  if (selectedTab === 'gd-fixed') setGdFixedCurrentIter(newIter);
+                  else if (selectedTab === 'gd-linesearch') setGdLSCurrentIter(newIter);
+                  else if (selectedTab === 'newton') setNewtonCurrentIter(newIter);
+                  else setLbfgsCurrentIter(newIter);
+                }}
+                className="flex-1"
+              />
+              <span className="text-sm font-medium text-gray-700 min-w-[60px]">
+                {currentIterNum + 1} / {totalIters}
+              </span>
             </div>
           </div>
 
