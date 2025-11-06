@@ -2297,7 +2297,7 @@ const UnifiedVisualizer = () => {
                 className="flex-1"
               />
               <span className="text-sm font-medium text-gray-700 min-w-[60px]">
-                {currentIterNum + 1} / {totalIters}
+                {totalIters > 0 ? `${currentIterNum + 1} / ${totalIters}` : '0 / 0'}
               </span>
             </div>
           </div>
