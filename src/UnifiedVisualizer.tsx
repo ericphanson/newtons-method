@@ -1989,61 +1989,65 @@ const UnifiedVisualizer = () => {
                 />
               )}
 
-              {/* 3. Metrics Section */}
-              {gdFixedIterations.length > 0 && gdFixedIterations[gdFixedCurrentIter] && (
-                <IterationMetrics
-                  algorithm="gd-fixed"
-                  iterNum={gdFixedCurrentIter}
-                  totalIters={gdFixedIterations.length}
-                  loss={gdFixedIterations[gdFixedCurrentIter].newLoss}
-                  gradNorm={gdFixedIterations[gdFixedCurrentIter].gradNorm}
-                  weights={gdFixedIterations[gdFixedCurrentIter].wNew}
-                  alpha={gdFixedIterations[gdFixedCurrentIter].alpha}
-                  gradient={gdFixedIterations[gdFixedCurrentIter].grad}
-                  direction={gdFixedIterations[gdFixedCurrentIter].direction}
-                  prevLoss={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].newLoss : undefined}
-                  prevGradNorm={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].gradNorm : undefined}
-                  tolerance={gdFixedTolerance}
-                />
-              )}
+              {/* 3. Side-by-Side: Canvas + Metrics */}
+              <div className="flex gap-4 mb-6">
+                {/* Left: Parameter Space Visualization */}
+                <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape. Orange path = trajectory. Red dot = current position.
+                  </p>
 
-              {/* Rest of GD Fixed content (visualizations, experiments, etc.) */}
-              {/* Objective Function Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
-                </p>
+                  <canvas
+                    ref={gdFixedParamCanvasRef}
+                    style={{width: '100%', height: '500px'}}
+                    className="border border-gray-300 rounded"
+                  />
 
-                <canvas
-                  ref={gdFixedParamCanvasRef}
-                  style={{width: '700px', height: '500px'}}
-                  className="border border-gray-300 rounded"
-                />
+                  {/* Legend for optimum markers */}
+                  {currentProblem !== 'logistic-regression' && (
+                    <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                      {(() => {
+                        const problem = getProblem(currentProblem);
+                        if (!problem) return null;
+                        return (
+                          <>
+                            {problem.globalMinimum && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">★</span>
+                                <span>Global minimum</span>
+                              </div>
+                            )}
+                            {problem.criticalPoint && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">☆</span>
+                                <span>Critical point (saddle)</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
 
-                {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && (
-                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
-                    {(() => {
-                      const problem = getProblem(currentProblem);
-                      if (!problem) return null;
-                      return (
-                        <>
-                          {problem.globalMinimum && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">★</span>
-                              <span>Global minimum</span>
-                            </div>
-                          )}
-                          {problem.criticalPoint && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">☆</span>
-                              <span>Critical point (saddle)</span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
+                {/* Right: Metrics Column */}
+                {gdFixedIterations.length > 0 && gdFixedIterations[gdFixedCurrentIter] && (
+                  <div className="w-80 bg-white rounded-lg shadow-md p-4">
+                    <IterationMetrics
+                      algorithm="gd-fixed"
+                      iterNum={gdFixedCurrentIter}
+                      totalIters={gdFixedIterations.length}
+                      loss={gdFixedIterations[gdFixedCurrentIter].newLoss}
+                      gradNorm={gdFixedIterations[gdFixedCurrentIter].gradNorm}
+                      weights={gdFixedIterations[gdFixedCurrentIter].wNew}
+                      alpha={gdFixedIterations[gdFixedCurrentIter].alpha}
+                      gradient={gdFixedIterations[gdFixedCurrentIter].grad}
+                      direction={gdFixedIterations[gdFixedCurrentIter].direction}
+                      prevLoss={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].newLoss : undefined}
+                      prevGradNorm={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].gradNorm : undefined}
+                      tolerance={gdFixedTolerance}
+                    />
                   </div>
                 )}
               </div>
@@ -2504,59 +2508,63 @@ const UnifiedVisualizer = () => {
                 />
               )}
 
-              {/* 3. Metrics Section */}
-              {gdLSIterations.length > 0 && gdLSIterations[gdLSCurrentIter] && (
-                <IterationMetrics
-                  algorithm="gd-linesearch"
-                  iterNum={gdLSCurrentIter}
-                  totalIters={gdLSIterations.length}
-                  loss={gdLSIterations[gdLSCurrentIter].newLoss}
-                  gradNorm={gdLSIterations[gdLSCurrentIter].gradNorm}
-                  weights={gdLSIterations[gdLSCurrentIter].wNew}
-                  alpha={gdLSIterations[gdLSCurrentIter].alpha}
-                  gradient={gdLSIterations[gdLSCurrentIter].grad}
-                  direction={gdLSIterations[gdLSCurrentIter].direction}
-                  prevLoss={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].newLoss : undefined}
-                  prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
-                  lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
-                  lineSearchCanvasRef={gdLSLineSearchCanvasRef}
-                  tolerance={gdLSTolerance}
-                />
-              )}
+              {/* 3. Side-by-Side: Canvas + Metrics */}
+              <div className="flex gap-4 mb-6">
+                {/* Left: Parameter Space Visualization */}
+                <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape. Orange path = trajectory. Red dot = current position.
+                  </p>
 
-              {/* Rest of GD LS content (visualizations, line search canvas, etc.) */}
-              {/* Objective Function Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
-                </p>
+                  <canvas ref={gdLSParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
-                <canvas ref={gdLSParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                  {/* Legend for optimum markers */}
+                  {currentProblem !== 'logistic-regression' && (
+                    <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                      {(() => {
+                        const problem = getProblem(currentProblem);
+                        if (!problem) return null;
+                        return (
+                          <>
+                            {problem.globalMinimum && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">★</span>
+                                <span>Global minimum</span>
+                              </div>
+                            )}
+                            {problem.criticalPoint && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">☆</span>
+                                <span>Critical point (saddle)</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
 
-                {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && (
-                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
-                    {(() => {
-                      const problem = getProblem(currentProblem);
-                      if (!problem) return null;
-                      return (
-                        <>
-                          {problem.globalMinimum && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">★</span>
-                              <span>Global minimum</span>
-                            </div>
-                          )}
-                          {problem.criticalPoint && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">☆</span>
-                              <span>Critical point (saddle)</span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
+                {/* Right: Metrics Column */}
+                {gdLSIterations.length > 0 && gdLSIterations[gdLSCurrentIter] && (
+                  <div className="w-80 bg-white rounded-lg shadow-md p-4">
+                    <IterationMetrics
+                      algorithm="gd-linesearch"
+                      iterNum={gdLSCurrentIter}
+                      totalIters={gdLSIterations.length}
+                      loss={gdLSIterations[gdLSCurrentIter].newLoss}
+                      gradNorm={gdLSIterations[gdLSCurrentIter].gradNorm}
+                      weights={gdLSIterations[gdLSCurrentIter].wNew}
+                      alpha={gdLSIterations[gdLSCurrentIter].alpha}
+                      gradient={gdLSIterations[gdLSCurrentIter].grad}
+                      direction={gdLSIterations[gdLSCurrentIter].direction}
+                      prevLoss={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].newLoss : undefined}
+                      prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
+                      lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
+                      lineSearchCanvasRef={gdLSLineSearchCanvasRef}
+                      tolerance={gdLSTolerance}
+                    />
                   </div>
                 )}
               </div>
@@ -3164,63 +3172,67 @@ const UnifiedVisualizer = () => {
                 />
               )}
 
-              {/* 3. Metrics Section */}
-              {newtonIterations.length > 0 && newtonIterations[newtonCurrentIter] && (
-                <IterationMetrics
-                  algorithm="newton"
-                  iterNum={newtonCurrentIter}
-                  totalIters={newtonIterations.length}
-                  loss={newtonIterations[newtonCurrentIter].newLoss}
-                  gradNorm={newtonIterations[newtonCurrentIter].gradNorm}
-                  weights={newtonIterations[newtonCurrentIter].wNew}
-                  alpha={newtonIterations[newtonCurrentIter].alpha}
-                  gradient={newtonIterations[newtonCurrentIter].grad}
-                  direction={newtonIterations[newtonCurrentIter].direction}
-                  prevLoss={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].newLoss : undefined}
-                  prevGradNorm={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].gradNorm : undefined}
-                  eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
-                  conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
-                  lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
-                  lineSearchCanvasRef={newtonLineSearchCanvasRef}
-                  hessianCanvasRef={newtonHessianCanvasRef}
-                  hessian={newtonIterations[newtonCurrentIter].hessian}
-                  tolerance={newtonTolerance}
-                />
-              )}
+              {/* 3. Side-by-Side: Canvas + Metrics */}
+              <div className="flex gap-4 mb-6">
+                {/* Left: Parameter Space Visualization */}
+                <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape. Orange path = trajectory. Red dot = current position.
+                  </p>
 
-              {/* Rest of Newton content (visualizations, Hessian canvas, line search canvas, etc.) */}
-              {/* Objective Function Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
-                </p>
+                  <canvas ref={newtonParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
-                <canvas ref={newtonParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                  {/* Legend for optimum markers */}
+                  {currentProblem !== 'logistic-regression' && (
+                    <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                      {(() => {
+                        const problem = getProblem(currentProblem);
+                        if (!problem) return null;
+                        return (
+                          <>
+                            {problem.globalMinimum && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">★</span>
+                                <span>Global minimum</span>
+                              </div>
+                            )}
+                            {problem.criticalPoint && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">☆</span>
+                                <span>Critical point (saddle)</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
 
-                {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && (
-                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
-                    {(() => {
-                      const problem = getProblem(currentProblem);
-                      if (!problem) return null;
-                      return (
-                        <>
-                          {problem.globalMinimum && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">★</span>
-                              <span>Global minimum</span>
-                            </div>
-                          )}
-                          {problem.criticalPoint && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">☆</span>
-                              <span>Critical point (saddle)</span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
+                {/* Right: Metrics Column */}
+                {newtonIterations.length > 0 && newtonIterations[newtonCurrentIter] && (
+                  <div className="w-80 bg-white rounded-lg shadow-md p-4">
+                    <IterationMetrics
+                      algorithm="newton"
+                      iterNum={newtonCurrentIter}
+                      totalIters={newtonIterations.length}
+                      loss={newtonIterations[newtonCurrentIter].newLoss}
+                      gradNorm={newtonIterations[newtonCurrentIter].gradNorm}
+                      weights={newtonIterations[newtonCurrentIter].wNew}
+                      alpha={newtonIterations[newtonCurrentIter].alpha}
+                      gradient={newtonIterations[newtonCurrentIter].grad}
+                      direction={newtonIterations[newtonCurrentIter].direction}
+                      prevLoss={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].newLoss : undefined}
+                      prevGradNorm={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].gradNorm : undefined}
+                      eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
+                      conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
+                      lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
+                      lineSearchCanvasRef={newtonLineSearchCanvasRef}
+                      hessianCanvasRef={newtonHessianCanvasRef}
+                      hessian={newtonIterations[newtonCurrentIter].hessian}
+                      tolerance={newtonTolerance}
+                    />
                   </div>
                 )}
               </div>
@@ -3758,59 +3770,63 @@ const UnifiedVisualizer = () => {
                 />
               )}
 
-              {/* 3. Metrics Section */}
-              {lbfgsIterations.length > 0 && lbfgsIterations[lbfgsCurrentIter] && (
-                <IterationMetrics
-                  algorithm="lbfgs"
-                  iterNum={lbfgsCurrentIter}
-                  totalIters={lbfgsIterations.length}
-                  loss={lbfgsIterations[lbfgsCurrentIter].newLoss}
-                  gradNorm={lbfgsIterations[lbfgsCurrentIter].gradNorm}
-                  weights={lbfgsIterations[lbfgsCurrentIter].wNew}
-                  alpha={lbfgsIterations[lbfgsCurrentIter].alpha}
-                  gradient={lbfgsIterations[lbfgsCurrentIter].grad}
-                  direction={lbfgsIterations[lbfgsCurrentIter].direction}
-                  prevLoss={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].newLoss : undefined}
-                  prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
-                  lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
-                  lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
-                  tolerance={lbfgsTolerance}
-                />
-              )}
+              {/* 3. Side-by-Side: Canvas + Metrics */}
+              <div className="flex gap-4 mb-6">
+                {/* Left: Parameter Space Visualization */}
+                <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape. Orange path = trajectory. Red dot = current position.
+                  </p>
 
-              {/* Rest of L-BFGS content (visualizations, line search canvas, memory table, etc.) */}
-              {/* Objective Function Visualization */}
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>) showing the loss landscape. Lighter colors = lower loss. Orange path = trajectory across iterations. Red dot = current position.
-                </p>
+                  <canvas ref={lbfgsParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
-                <canvas ref={lbfgsParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
+                  {/* Legend for optimum markers */}
+                  {currentProblem !== 'logistic-regression' && (
+                    <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                      {(() => {
+                        const problem = getProblem(currentProblem);
+                        if (!problem) return null;
+                        return (
+                          <>
+                            {problem.globalMinimum && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">★</span>
+                                <span>Global minimum</span>
+                              </div>
+                            )}
+                            {problem.criticalPoint && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">☆</span>
+                                <span>Critical point (saddle)</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
 
-                {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && (
-                  <div className="mt-3 flex gap-4 text-sm text-gray-700">
-                    {(() => {
-                      const problem = getProblem(currentProblem);
-                      if (!problem) return null;
-                      return (
-                        <>
-                          {problem.globalMinimum && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">★</span>
-                              <span>Global minimum</span>
-                            </div>
-                          )}
-                          {problem.criticalPoint && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">☆</span>
-                              <span>Critical point (saddle)</span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
+                {/* Right: Metrics Column */}
+                {lbfgsIterations.length > 0 && lbfgsIterations[lbfgsCurrentIter] && (
+                  <div className="w-80 bg-white rounded-lg shadow-md p-4">
+                    <IterationMetrics
+                      algorithm="lbfgs"
+                      iterNum={lbfgsCurrentIter}
+                      totalIters={lbfgsIterations.length}
+                      loss={lbfgsIterations[lbfgsCurrentIter].newLoss}
+                      gradNorm={lbfgsIterations[lbfgsCurrentIter].gradNorm}
+                      weights={lbfgsIterations[lbfgsCurrentIter].wNew}
+                      alpha={lbfgsIterations[lbfgsCurrentIter].alpha}
+                      gradient={lbfgsIterations[lbfgsCurrentIter].grad}
+                      direction={lbfgsIterations[lbfgsCurrentIter].direction}
+                      prevLoss={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].newLoss : undefined}
+                      prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
+                      lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
+                      lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
+                      tolerance={lbfgsTolerance}
+                    />
                   </div>
                 )}
               </div>
