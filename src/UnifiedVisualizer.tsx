@@ -24,7 +24,6 @@ import { Toast } from './components/Toast';
 import { ProblemExplainer } from './components/ProblemExplainer';
 import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
-import { ObjectiveFunction3D } from './components/ObjectiveFunction3D';
 import { drawContours, drawOptimumMarkers } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblemDefaults, getProblemNote } from './utils/problemDefaults';
@@ -117,9 +116,6 @@ const UnifiedVisualizer = () => {
   const [comparisonRightIter, setComparisonRightIter] = useState(0);
   const [comparisonLeftIterations, setComparisonLeftIterations] = useState<any[]>([]);
   const [comparisonRightIterations, setComparisonRightIterations] = useState<any[]>([]);
-
-  // Visualization mode state (2D/3D toggle)
-  const [visualizationMode, setVisualizationMode] = useState<'2d' | '3d'>('2d');
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -449,49 +445,6 @@ const UnifiedVisualizer = () => {
       w1Range: w1Range + 2 * pad1
     };
   }, [gdLSIterations, currentProblem, logisticGlobalMin]);
-
-  // Helper: Convert iterations to 3D points [w0, w1, -loss]
-  const gdFixed3DTrajectory = useMemo(() => {
-    if (!gdFixedIterations || gdFixedIterations.length === 0) return [];
-
-    return gdFixedIterations.map(iter => {
-      const w = iter.wNew;
-      // For 3D problems (logistic regression), use only first 2 dimensions
-      const w0 = w[0];
-      const w1 = w[1];
-      const loss = iter.loss;
-      return [w0, w1, -loss]; // Negate loss so lower values appear "down"
-    });
-  }, [gdFixedIterations]);
-
-  // GD Line Search 3D trajectory
-  const gdLS3DTrajectory = useMemo(() => {
-    if (!gdLSIterations || gdLSIterations.length === 0) return [];
-    return gdLSIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
-  }, [gdLSIterations]);
-
-  // Newton 3D trajectory
-  const newton3DTrajectory = useMemo(() => {
-    if (!newtonIterations || newtonIterations.length === 0) return [];
-    return newtonIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
-  }, [newtonIterations]);
-
-  // L-BFGS 3D trajectory
-  const lbfgs3DTrajectory = useMemo(() => {
-    if (!lbfgsIterations || lbfgsIterations.length === 0) return [];
-    return lbfgsIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
-  }, [lbfgsIterations]);
-
-  // Comparison mode 3D trajectories
-  const comparisonLeft3DTrajectory = useMemo(() => {
-    if (!comparisonLeftIterations || comparisonLeftIterations.length === 0) return [];
-    return comparisonLeftIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
-  }, [comparisonLeftIterations]);
-
-  const comparisonRight3DTrajectory = useMemo(() => {
-    if (!comparisonRightIterations || comparisonRightIterations.length === 0) return [];
-    return comparisonRightIterations.map(iter => [iter.wNew[0], iter.wNew[1], -iter.loss]);
-  }, [comparisonRightIterations]);
 
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -2003,33 +1956,15 @@ const UnifiedVisualizer = () => {
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">Algorithm Comparison</h2>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D View
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D View
-                    </button>
-                    <button
-                      onClick={() => {
-                        setComparisonMode('none');
-                        setCurrentExperiment(null);
-                      }}
-                      className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
-                    >
-                      Exit Comparison
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setComparisonMode('none');
+                      setCurrentExperiment(null);
+                    }}
+                    className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+                  >
+                    Exit Comparison
+                  </button>
                 </div>
 
                 <p className="text-gray-700 mb-4">{
@@ -2059,66 +1994,17 @@ const UnifiedVisualizer = () => {
                 />
 
                 <div className="mt-6">
-                  {visualizationMode === '2d' ? (
-                    <ComparisonCanvas
-                      leftIterations={comparisonLeftIterations}
-                      leftCurrentIter={comparisonLeftIter}
-                      leftColor="#3b82f6"
-                      rightIterations={comparisonRightIterations}
-                      rightCurrentIter={comparisonRightIter}
-                      rightColor="#10b981"
-                      width={800}
-                      height={600}
-                      title="Optimization Trajectories"
-                    />
-                  ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h3 className="text-center font-semibold mb-2 text-blue-700">
-                          {comparisonMode === 'gd-ls-compare' ? 'GD Fixed (α=0.1)' :
-                           comparisonMode === 'lbfgs-compare' ? 'L-BFGS' :
-                           'Newton'}
-                        </h3>
-                        <ObjectiveFunction3D
-                          objectiveFn={(w) => {
-                            try {
-                              const problemFuncs = getCurrentProblemFunctions();
-                              return problemFuncs.objective(w);
-                            } catch {
-                              return 0;
-                            }
-                          }}
-                          bounds={visualizationBounds}
-                          trajectory={comparisonLeft3DTrajectory}
-                          currentIter={comparisonLeftIter}
-                          width={580}
-                          height={450}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-center font-semibold mb-2 text-green-700">
-                          {comparisonMode === 'gd-ls-compare' ? 'GD Line Search' :
-                           comparisonMode === 'lbfgs-compare' ? 'Newton' :
-                           'GD Line Search'}
-                        </h3>
-                        <ObjectiveFunction3D
-                          objectiveFn={(w) => {
-                            try {
-                              const problemFuncs = getCurrentProblemFunctions();
-                              return problemFuncs.objective(w);
-                            } catch {
-                              return 0;
-                            }
-                          }}
-                          bounds={visualizationBounds}
-                          trajectory={comparisonRight3DTrajectory}
-                          currentIter={comparisonRightIter}
-                          width={580}
-                          height={450}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <ComparisonCanvas
+                    leftIterations={comparisonLeftIterations}
+                    leftCurrentIter={comparisonLeftIter}
+                    leftColor="#3b82f6"
+                    rightIterations={comparisonRightIterations}
+                    rightCurrentIter={comparisonRightIter}
+                    rightColor="#10b981"
+                    width={800}
+                    height={600}
+                    title="Optimization Trajectories"
+                  />
                 </div>
               </div>
             </>
@@ -2486,61 +2372,19 @@ const UnifiedVisualizer = () => {
             <>
               {/* Objective Function Visualization */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D Contour
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D Surface
-                    </button>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
                 </p>
 
-                {visualizationMode === '2d' ? (
-                  <canvas
-                    ref={gdFixedParamCanvasRef}
-                    style={{width: '700px', height: '500px'}}
-                    className="border border-gray-300 rounded"
-                  />
-                ) : (
-                  <ObjectiveFunction3D
-                    objectiveFn={(w) => {
-                      try {
-                        const problemFuncs = getCurrentProblemFunctions();
-                        return problemFuncs.objective(w);
-                      } catch {
-                        return 0;
-                      }
-                    }}
-                    bounds={visualizationBounds}
-                    trajectory={gdFixed3DTrajectory}
-                    currentIter={gdFixedCurrentIter}
-                    width={700}
-                    height={500}
-                  />
-                )}
+                <canvas
+                  ref={gdFixedParamCanvasRef}
+                  style={{width: '700px', height: '500px'}}
+                  className="border border-gray-300 rounded"
+                />
 
                 {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                {currentProblem !== 'logistic-regression' && (
                   <div className="mt-3 flex gap-4 text-sm text-gray-700">
                     {(() => {
                       const problem = getProblem(currentProblem);
@@ -3017,53 +2861,15 @@ const UnifiedVisualizer = () => {
             <>
               {/* Objective Function Visualization */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D Contour
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D Surface
-                    </button>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
                 </p>
 
-                {visualizationMode === '2d' ? (
-                  <canvas ref={gdLSParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
-                ) : (
-                  <ObjectiveFunction3D
-                    objectiveFn={(w) => {
-                      try {
-                        const problemFuncs = getCurrentProblemFunctions();
-                        return problemFuncs.objective(w);
-                      } catch {
-                        return 0;
-                      }
-                    }}
-                    bounds={visualizationBounds}
-                    trajectory={gdLS3DTrajectory}
-                    currentIter={gdLSCurrentIter}
-                    width={700}
-                    height={500}
-                  />
-                )}
+                <canvas ref={gdLSParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
 
                 {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                {currentProblem !== 'logistic-regression' && (
                   <div className="mt-3 flex gap-4 text-sm text-gray-700">
                     {(() => {
                       const problem = getProblem(currentProblem);
@@ -3720,53 +3526,15 @@ const UnifiedVisualizer = () => {
             <>
               {/* Objective Function Visualization */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D Contour
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D Surface
-                    </button>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
                 </p>
 
-                {visualizationMode === '2d' ? (
-                  <canvas ref={newtonParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
-                ) : (
-                  <ObjectiveFunction3D
-                    objectiveFn={(w) => {
-                      try {
-                        const problemFuncs = getCurrentProblemFunctions();
-                        return problemFuncs.objective(w);
-                      } catch {
-                        return 0;
-                      }
-                    }}
-                    bounds={visualizationBounds}
-                    trajectory={newton3DTrajectory}
-                    currentIter={newtonCurrentIter}
-                    width={700}
-                    height={500}
-                  />
-                )}
+                <canvas ref={newtonParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
 
                 {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                {currentProblem !== 'logistic-regression' && (
                   <div className="mt-3 flex gap-4 text-sm text-gray-700">
                     {(() => {
                       const problem = getProblem(currentProblem);
@@ -4366,53 +4134,15 @@ const UnifiedVisualizer = () => {
             <>
               {/* Objective Function Visualization */}
               <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">Objective Function</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setVisualizationMode('2d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '2d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      2D Contour
-                    </button>
-                    <button
-                      onClick={() => setVisualizationMode('3d')}
-                      className={`px-3 py-1 rounded text-sm ${
-                        visualizationMode === '3d' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      3D Surface
-                    </button>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Objective Function</h3>
                 <p className="text-sm text-gray-600 mb-3">
                   Loss landscape over parameter space (<InlineMath>w_0</InlineMath>, <InlineMath>w_1</InlineMath>). Trajectory shows optimization path.
                 </p>
 
-                {visualizationMode === '2d' ? (
-                  <canvas ref={lbfgsParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
-                ) : (
-                  <ObjectiveFunction3D
-                    objectiveFn={(w) => {
-                      try {
-                        const problemFuncs = getCurrentProblemFunctions();
-                        return problemFuncs.objective(w);
-                      } catch {
-                        return 0;
-                      }
-                    }}
-                    bounds={visualizationBounds}
-                    trajectory={lbfgs3DTrajectory}
-                    currentIter={lbfgsCurrentIter}
-                    width={700}
-                    height={500}
-                  />
-                )}
+                <canvas ref={lbfgsParamCanvasRef} style={{width: '700px', height: '500px'}} className="border border-gray-300 rounded" />
 
                 {/* Legend for optimum markers */}
-                {currentProblem !== 'logistic-regression' && visualizationMode === '2d' && (
+                {currentProblem !== 'logistic-regression' && (
                   <div className="mt-3 flex gap-4 text-sm text-gray-700">
                     {(() => {
                       const problem = getProblem(currentProblem);
