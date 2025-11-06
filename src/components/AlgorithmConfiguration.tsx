@@ -53,9 +53,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 <label className="text-sm font-medium text-gray-700">
                   Step Size <InlineMath>\alpha</InlineMath>:
                 </label>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-                  EDITABLE
-                </span>
               </div>
               <input
                 type="range"
@@ -76,9 +73,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             <div>
               <div className="flex items-baseline gap-2 mb-2">
                 <label className="text-sm font-medium text-gray-700">Tolerance:</label>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-                  EDITABLE
-                </span>
               </div>
               <input
                 type="range"
@@ -108,9 +102,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 <label className="text-sm font-medium text-gray-700">
                   Armijo c<sub>1</sub>:
                 </label>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-                  EDITABLE
-                </span>
               </div>
               <input
                 type="range"
@@ -148,9 +139,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             <div>
               <div className="flex items-baseline gap-2 mb-2">
                 <label className="text-sm font-medium text-gray-700">Tolerance:</label>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-                  EDITABLE
-                </span>
               </div>
               <input
                 type="range"
@@ -192,9 +180,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             <div>
               <div className="flex items-baseline gap-2 mb-2">
                 <label className="text-sm font-medium text-gray-700">Memory M:</label>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-                  EDITABLE
-                </span>
               </div>
               <input
                 type="number"
@@ -215,9 +200,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         <div>
           <div className="flex items-baseline gap-2 mb-2">
             <label className="text-sm font-medium text-gray-700">Max Iterations:</label>
-            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-              EDITABLE
-            </span>
           </div>
           <input
             type="number"
@@ -232,9 +214,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         <div>
           <div className="flex items-baseline gap-2 mb-2">
             <label className="text-sm font-medium text-gray-700">Initial Point:</label>
-            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold">
-              EDITABLE
-            </span>
           </div>
           <div className="flex gap-2 items-baseline mb-2">
             <span className="text-sm text-gray-600">

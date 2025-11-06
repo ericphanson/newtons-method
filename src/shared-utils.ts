@@ -169,11 +169,11 @@ export const setupCanvas = (canvas: HTMLCanvasElement) => {
 };
 
 /**
- * Format number to 6 decimal places
+ * Format number to 4 decimal places
  * @param val Number to format
  * @returns Formatted string
  */
-export const fmt = (val: number): string => val.toFixed(6);
+export const fmt = (val: number): string => val.toFixed(4);
 
 /**
  * Format vector to string with 4 decimal places per element

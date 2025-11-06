@@ -201,16 +201,14 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             <div className="text-xs text-gray-700 mt-0.5">κ = {conditionNumber.toFixed(1)}</div>
           )}
           {hessianCanvasRef && (
-            <details className="mt-1">
-              <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-900">
-                Matrix ▼
-              </summary>
+            <div className="mt-1">
+              <div className="text-xs text-gray-600 mb-1">Matrix</div>
               <canvas
                 ref={hessianCanvasRef}
                 style={{ width: '100%', height: '100px' }}
-                className="border border-gray-200 rounded mt-1"
+                className="border border-gray-200 rounded"
               />
-            </details>
+            </div>
           )}
         </div>
       )}
