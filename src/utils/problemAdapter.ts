@@ -67,5 +67,5 @@ export function separatingHyperplaneToProblemFunctions(
       break;
   }
 
-  return { objective, gradient, hessian };
+  return { objective, gradient, hessian, dimensionality: 3 };
 }
