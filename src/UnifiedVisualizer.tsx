@@ -3670,7 +3670,7 @@ const UnifiedVisualizer = () => {
               </CollapsibleSection>
 
             </>
-          ) : (
+          ) : selectedTab === 'lbfgs' ? (
             <>
               {/* 1. Configuration Section */}
               <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
