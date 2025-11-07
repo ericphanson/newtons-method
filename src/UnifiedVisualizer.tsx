@@ -15,6 +15,7 @@ import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+import { runDiagonalPreconditioner, DiagonalPrecondIteration } from './algorithms/diagonal-preconditioner';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
 import type { ProblemFunctions, AlgorithmSummary } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
@@ -109,6 +110,14 @@ const UnifiedVisualizer = () => {
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0.01);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
+
+  // Diagonal Preconditioner state
+  const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
+  const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
+  const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
+  const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
+  const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-6);
+  const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
 
   // Shared algorithm state
   const [maxIter, setMaxIter] = useState(100);
