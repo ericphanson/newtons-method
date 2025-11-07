@@ -101,7 +101,7 @@ export function ProblemExplainer() {
 
           <h4 className="font-semibold text-lg mt-4">Why These Formulations Make Sense</h4>
           <p className="text-sm">
-            All four variants balance two goals: (1) <strong>correctly classify the data</strong>, and
+            All three variants balance two goals: (1) <strong>correctly classify the data</strong>, and
             (2) <strong>find a simple, robust boundary</strong>. The term <InlineMath>{String.raw`\frac{1}{2}\|w\|^2`}</InlineMath> keeps
             weights small (maximizes margin), while different loss terms handle classification errors differently.
           </p>
@@ -111,45 +111,20 @@ export function ProblemExplainer() {
             If <InlineMath>{'y_i z_i < 0'}</InlineMath>, it's misclassified.
           </p>
 
-          <h4 className="font-semibold text-lg mt-4">Four Variants</h4>
+          <h4 className="font-semibold text-lg mt-4">Three Variants</h4>
 
           <div className="ml-4 space-y-4">
             <div>
-              <h5 className="font-semibold text-base text-blue-700">1. Hard-Margin SVM (Default)</h5>
+              <h5 className="font-semibold text-base text-blue-700">1. Soft-Margin SVM</h5>
               <div className="mt-1">
                 <p className="font-semibold text-sm">Objective:</p>
                 <BlockMath>
-                  {String.raw`\min \frac{1}{2}\|w\|^2 \quad \text{subject to } y_i z_i \geq 1 \text{ for all } i`}
-                </BlockMath>
-                <p className="text-xs text-gray-600 mt-1">
-                  (In practice, we use a smooth penalty formulation instead of hard constraints)
-                </p>
-              </div>
-              <p className="mt-2 text-sm">
-                <strong>What it does:</strong> Finds the widest "margin" (gap) between the two classes.
-                Minimizing <InlineMath>{String.raw`\|w\|^2`}</InlineMath> makes the margin wider.
-              </p>
-              <p className="mt-1 text-sm">
-                <strong>The constraint:</strong> <InlineMath>{'y_i z_i \\geq 1'}</InlineMath> means every point must be
-                not just on the correct side, but at least distance 1 from the boundary (scaled by <InlineMath>{String.raw`\|w\|`}</InlineMath>).
-              </p>
-              <p className="mt-1 text-sm">
-                <strong>Failure mode:</strong> If data is not perfectly separable, gradients become very large
-                as the algorithm tries to satisfy impossible constraints.
-              </p>
-            </div>
-
-            <div>
-              <h5 className="font-semibold text-base text-blue-700">2. Soft-Margin SVM</h5>
-              <div className="mt-1">
-                <p className="font-semibold text-sm">Objective:</p>
-                <BlockMath>
-                  {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i \max(0, 1 - y_i z_i)`}
+                  {String.raw`\min \frac{1}{2}\|w\|^2 + \lambda \sum_i \max(0, 1 - y_i z_i)`}
                 </BlockMath>
               </div>
               <p className="mt-2 text-sm">
                 <strong>What it does:</strong> Uses <em>hinge loss</em> <InlineMath>{String.raw`\max(0, 1 - y_i z_i)`}</InlineMath> to
-                allow some misclassifications with penalty C=1.0.
+                allow some misclassifications with adjustable penalty <InlineMath>\lambda</InlineMath>.
               </p>
               <p className="mt-1 text-sm">
                 <strong>How the loss works:</strong> If <InlineMath>{'y_i z_i \\geq 1'}</InlineMath> (point is far on correct side),
@@ -157,17 +132,17 @@ export function ProblemExplainer() {
                 loss increases linearly. This creates a "soft" margin that tolerates some errors.
               </p>
               <p className="mt-1 text-sm">
-                <strong>Why it's practical:</strong> More robust than hard-margin. Balances margin maximization with allowing errors
+                <strong>Why it's practical:</strong> Most robust choice for real-world data. Balances margin maximization with allowing errors
                 in overlapping data.
               </p>
             </div>
 
             <div>
-              <h5 className="font-semibold text-base text-blue-700">3. Perceptron Criterion</h5>
+              <h5 className="font-semibold text-base text-blue-700">2. Perceptron Criterion</h5>
               <div className="mt-1">
                 <p className="font-semibold text-sm">Objective:</p>
                 <BlockMath>
-                  {String.raw`\min \sum_i \max(0, -y_i z_i) + 0.01 \cdot \frac{1}{2}\|w\|^2`}
+                  {String.raw`\min \sum_i \max(0, -y_i z_i) + \frac{\lambda}{2}\|w\|^2`}
                 </BlockMath>
               </div>
               <p className="mt-2 text-sm">
@@ -179,7 +154,7 @@ export function ProblemExplainer() {
                 even if they're very close to the boundary. This is different from SVM which wants a margin.
               </p>
               <p className="mt-1 text-sm">
-                <strong>The regularization term:</strong> Small regularization (0.01) prevents weights from becoming too large
+                <strong>The regularization term:</strong> Adjustable regularization <InlineMath>\lambda</InlineMath> prevents weights from becoming too large
                 or collapsing to zero. Without it, the algorithm might produce unstable solutions.
               </p>
               <p className="mt-1 text-sm">
@@ -189,15 +164,15 @@ export function ProblemExplainer() {
             </div>
 
             <div>
-              <h5 className="font-semibold text-base text-blue-700">4. Squared-Hinge Loss</h5>
+              <h5 className="font-semibold text-base text-blue-700">3. Squared-Hinge Loss</h5>
               <div className="mt-1">
                 <p className="font-semibold text-sm">Objective:</p>
                 <BlockMath>
-                  {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i [\max(0, 1 - y_i z_i)]^2`}
+                  {String.raw`\min \frac{1}{2}\|w\|^2 + \lambda \sum_i [\max(0, 1 - y_i z_i)]^2`}
                 </BlockMath>
               </div>
               <p className="mt-2 text-sm">
-                <strong>What it does:</strong> Similar to soft-margin SVM, but squares the hinge loss.
+                <strong>What it does:</strong> Similar to soft-margin SVM, but squares the hinge loss with adjustable penalty <InlineMath>\lambda</InlineMath>.
               </p>
               <p className="mt-1 text-sm">
                 <strong>How the loss works:</strong> Same as hinge loss, but <em>quadratic</em> instead of linear.
@@ -218,11 +193,7 @@ export function ProblemExplainer() {
           <h4 className="font-semibold text-lg mt-4">Key Insights</h4>
           <ul className="list-disc ml-6 space-y-1">
             <li>
-              <strong>Hard-Margin</strong> works beautifully on separable data but fails catastrophically
-              on overlapping classes
-            </li>
-            <li>
-              <strong>Soft-Margin</strong> is the practical choice - handles real-world data with noise
+              <strong>Soft-Margin</strong> is the most practical choice - handles real-world data with noise while maximizing margin
             </li>
             <li>
               <strong>Perceptron</strong> is simplest but doesn't maximize margin (less robust to new data)
@@ -236,8 +207,8 @@ export function ProblemExplainer() {
             <p className="text-sm font-semibold mb-2">Try This:</p>
             <ul className="text-sm list-disc ml-5 space-y-1">
               <li>
-                Start with <strong>hard-margin</strong> on well-separated data (increase crescent separation).
-                Then reduce separation to see it struggle.
+                <strong>Adjust λ</strong> (regularization slider) to see how it affects the decision boundary.
+                Higher λ emphasizes correct classification over margin size; lower λ maximizes margin.
               </li>
               <li>
                 Compare <strong>soft-margin</strong> vs <strong>squared-hinge</strong> on overlapping data.

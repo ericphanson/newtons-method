@@ -3,18 +3,15 @@ import { DataPoint } from '../shared-utils';
 /**
  * Separating Hyperplane variants for binary classification
  *
- * Four variants demonstrating different objective functions:
- * - Hard-Margin: ||w||²/2 (fails on non-separable data)
- * - Soft-Margin: ||w||²/2 + C·Σmax(0, 1-y·z) (C=1.0)
- * - Perceptron: Σmax(0, -y·z)
- * - Squared-Hinge: ||w||²/2 + C·Σ[max(0, 1-y·z)]² (C=1.0)
+ * Three variants demonstrating different objective functions:
+ * - Soft-Margin: ||w||²/2 + λ·Σmax(0, 1-y·z)
+ * - Perceptron: Σmax(0, -y·z) + (λ/2)||w||²
+ * - Squared-Hinge: ||w||²/2 + λ·Σ[max(0, 1-y·z)]²
  *
  * Model: y_i ∈ {-1, +1}, z_i = w0*x1 + w1*x2 + w2
  * Uses 3D weights [w0, w1, w2] where w2 is the bias term.
+ * Parameter λ (lambda) controls regularization strength.
  */
-
-// Fixed regularization parameter for soft-margin and squared-hinge
-const C = 1.0;
 
 /**
  * Convert binary labels from {0,1} to {-1,+1} format for SVM
@@ -32,67 +29,13 @@ function computeZ(w: number[], point: DataPoint): number {
 }
 
 /**
- * Hard-Margin SVM: Minimize ||w||²/2
- * Assumes data is linearly separable.
- * Will produce large gradients if data is not separable.
- */
-export function hardMarginObjective(
-  w: number[],
-  dataPoints: DataPoint[]
-): number {
-  const [w0, w1] = w;
-  // Just the regularization term (margin maximization)
-  return 0.5 * (w0 * w0 + w1 * w1);
-}
-
-export function hardMarginGradient(
-  w: number[],
-  dataPoints: DataPoint[]
-): number[] {
-  const [w0, w1, w2] = w;
-
-  let grad0 = w0;
-  let grad1 = w1;
-  let grad2 = 0;
-
-  // Add constraint violations as penalties
-  for (const point of dataPoints) {
-    const y = convertLabel(point.y);
-    const z = computeZ(w, point);
-    const margin = y * z;
-
-    // If point violates margin constraint (y·z < 1), add large penalty gradient
-    if (margin < 1) {
-      const penalty = 1000 * (1 - margin); // Large penalty for violations
-      grad0 -= penalty * y * point.x1;
-      grad1 -= penalty * y * point.x2;
-      grad2 -= penalty * y;
-    }
-  }
-
-  return [grad0, grad1, grad2];
-}
-
-export function hardMarginHessian(
-  w: number[],
-  dataPoints: DataPoint[]
-): number[][] {
-  // Hessian of ||w||²/2 is identity for w0, w1
-  // For simplicity, return approximate Hessian
-  return [
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0.01] // Small value for bias to avoid singularity
-  ];
-}
-
-/**
- * Soft-Margin SVM: ||w||²/2 + C·Σmax(0, 1-y·z)
- * Uses hinge loss. C=1.0 fixed.
+ * Soft-Margin SVM: ||w||²/2 + λ·Σmax(0, 1-y·z)
+ * Uses hinge loss with adjustable regularization λ.
  */
 export function softMarginObjective(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number {
   const [w0, w1] = w;
   let loss = 0.5 * (w0 * w0 + w1 * w1);
@@ -101,7 +44,7 @@ export function softMarginObjective(
     const y = convertLabel(point.y);
     const z = computeZ(w, point);
     const hingeLoss = Math.max(0, 1 - y * z);
-    loss += C * hingeLoss;
+    loss += lambda * hingeLoss;
   }
 
   return loss / dataPoints.length;
@@ -109,9 +52,10 @@ export function softMarginObjective(
 
 export function softMarginGradient(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number[] {
-  const [w0, w1, w2] = w;
+  const [w0, w1, _w2] = w;
 
   let grad0 = w0;
   let grad1 = w1;
@@ -121,11 +65,11 @@ export function softMarginGradient(
     const y = convertLabel(point.y);
     const z = computeZ(w, point);
 
-    // Subgradient: if 1 - y·z > 0, gradient is -C·y·x
+    // Subgradient: if 1 - y·z > 0, gradient is -λ·y·x
     if (1 - y * z > 0) {
-      grad0 -= C * y * point.x1;
-      grad1 -= C * y * point.x2;
-      grad2 -= C * y;
+      grad0 -= lambda * y * point.x1;
+      grad1 -= lambda * y * point.x2;
+      grad2 -= lambda * y;
     }
   }
 
@@ -137,8 +81,9 @@ export function softMarginGradient(
 }
 
 export function softMarginHessian(
-  w: number[],
-  dataPoints: DataPoint[]
+  _w: number[],
+  _dataPoints: DataPoint[],
+  _lambda: number
 ): number[][] {
   // Hinge loss is not twice differentiable, return approximate Hessian
   // Use identity for regularization term
@@ -150,13 +95,13 @@ export function softMarginHessian(
 }
 
 /**
- * Perceptron Criterion: Σmax(0, -y·z) + small regularization
- * Minimizes misclassification loss.
- * Note: Added small regularization (0.01 * ||w||²/2) to prevent weights collapsing to zero.
+ * Perceptron Criterion: Σmax(0, -y·z) + (λ/2)||w||²
+ * Minimizes misclassification loss with adjustable regularization λ.
  */
 export function perceptronObjective(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number {
   const [w0, w1] = w;
   let loss = 0;
@@ -167,17 +112,18 @@ export function perceptronObjective(
     loss += Math.max(0, -y * z);
   }
 
-  // Add small regularization to prevent weights from going to zero
-  const regularization = 0.01 * 0.5 * (w0 * w0 + w1 * w1);
+  // Add regularization to prevent weights from going to zero
+  const regularization = lambda * 0.5 * (w0 * w0 + w1 * w1);
 
   return loss / dataPoints.length + regularization;
 }
 
 export function perceptronGradient(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number[] {
-  const [w0, w1, w2] = w;
+  const [w0, w1, _w2] = w;
   let grad0 = 0;
   let grad1 = 0;
   let grad2 = 0;
@@ -194,34 +140,36 @@ export function perceptronGradient(
     }
   }
 
-  // Add regularization gradient: 0.01 * w (but not for bias)
-  grad0 = grad0 / dataPoints.length + 0.01 * w0;
-  grad1 = grad1 / dataPoints.length + 0.01 * w1;
+  // Add regularization gradient: λ * w (but not for bias)
+  grad0 = grad0 / dataPoints.length + lambda * w0;
+  grad1 = grad1 / dataPoints.length + lambda * w1;
   grad2 = grad2 / dataPoints.length;
 
   return [grad0, grad1, grad2];
 }
 
 export function perceptronHessian(
-  w: number[],
-  dataPoints: DataPoint[]
+  _w: number[],
+  _dataPoints: DataPoint[],
+  lambda: number
 ): number[][] {
   // Perceptron loss is piecewise linear, Hessian is from regularization term
-  // H = 0.01 * I for w0, w1; small value for bias to avoid singularity
+  // H = λ * I for w0, w1; small value for bias to avoid singularity
   return [
-    [0.01, 0, 0],
-    [0, 0.01, 0],
+    [lambda, 0, 0],
+    [0, lambda, 0],
     [0, 0, 0.01]
   ];
 }
 
 /**
- * Squared-Hinge Loss: ||w||²/2 + C·Σ[max(0, 1-y·z)]²
- * Smooth variant of hinge loss. C=1.0 fixed.
+ * Squared-Hinge Loss: ||w||²/2 + λ·Σ[max(0, 1-y·z)]²
+ * Smooth variant of hinge loss with adjustable regularization λ.
  */
 export function squaredHingeObjective(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number {
   const [w0, w1] = w;
   let loss = 0.5 * (w0 * w0 + w1 * w1);
@@ -230,7 +178,7 @@ export function squaredHingeObjective(
     const y = convertLabel(point.y);
     const z = computeZ(w, point);
     const hingeLoss = Math.max(0, 1 - y * z);
-    loss += C * hingeLoss * hingeLoss;
+    loss += lambda * hingeLoss * hingeLoss;
   }
 
   return loss / dataPoints.length;
@@ -238,9 +186,10 @@ export function squaredHingeObjective(
 
 export function squaredHingeGradient(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number[] {
-  const [w0, w1, w2] = w;
+  const [w0, w1, _w2] = w;
 
   let grad0 = w0;
   let grad1 = w1;
@@ -252,8 +201,8 @@ export function squaredHingeGradient(
     const margin = 1 - y * z;
 
     if (margin > 0) {
-      // Gradient: -2C·(1-y·z)·y·x
-      const factor = -2 * C * margin * y;
+      // Gradient: -2λ·(1-y·z)·y·x
+      const factor = -2 * lambda * margin * y;
       grad0 += factor * point.x1;
       grad1 += factor * point.x2;
       grad2 += factor;
@@ -269,10 +218,11 @@ export function squaredHingeGradient(
 
 export function squaredHingeHessian(
   w: number[],
-  dataPoints: DataPoint[]
+  dataPoints: DataPoint[],
+  lambda: number
 ): number[][] {
   // Squared hinge is twice differentiable
-  // H = I + 2C·Σ[1(margin>0)·x·x^T]
+  // H = I + 2λ·Σ[1(margin>0)·x·x^T]
   let h00 = 1;
   let h01 = 0;
   let h02 = 0;
@@ -285,7 +235,7 @@ export function squaredHingeHessian(
     const z = computeZ(w, point);
 
     if (1 - y * z > 0) {
-      const factor = 2 * C * y * y; // y² = 1 always
+      const factor = 2 * lambda * y * y; // y² = 1 always
       h00 += factor * point.x1 * point.x1;
       h01 += factor * point.x1 * point.x2;
       h02 += factor * point.x1;

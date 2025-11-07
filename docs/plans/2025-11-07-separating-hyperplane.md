@@ -2,7 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add a new "Separating Hyperplane" problem that demonstrates four different objective functions (hard-margin SVM, soft-margin SVM, perceptron, squared-hinge) and their different behaviors on the same dataset.
+**Goal:** Add a new "Separating Hyperplane" problem that demonstrates three different objective functions (soft-margin SVM, perceptron, squared-hinge) and their different behaviors on the same dataset.
+
+**Note:** Hard-margin SVM was removed as it's a constrained optimization problem that doesn't fit well with the unconstrained variants.
 
 **Architecture:** Follow the logistic regression pattern - create a utils file with variant-specific functions, integrate into UI with variant selector dropdown, reuse existing crescent dataset generation. This is a 3D problem [w0, w1, w2] where w2 is the bias term.
 
@@ -27,8 +29,7 @@ import { DataPoint } from '../shared-utils';
 /**
  * Separating Hyperplane variants for binary classification
  *
- * Four variants demonstrating different objective functions:
- * - Hard-Margin: ||w||²/2 (fails on non-separable data)
+ * Three variants demonstrating different objective functions:
  * - Soft-Margin: ||w||²/2 + C·Σmax(0, 1-y·z) (C=1.0)
  * - Perceptron: Σmax(0, -y·z)
  * - Squared-Hinge: ||w||²/2 + C·Σ[max(0, 1-y·z)]² (C=1.0)
@@ -348,7 +349,7 @@ export function squaredHingeHessian(
 
 ```bash
 git add src/utils/separatingHyperplane.ts
-git commit -m "feat(problems): add separating hyperplane utils with 4 variants"
+git commit -m "feat(problems): add separating hyperplane utils with 3 variants"
 ```
 
 Run: `git status` to verify clean state
@@ -381,7 +382,6 @@ Add after the `ProblemType` definition:
 
 ```typescript
 export type SeparatingHyperplaneVariant =
-  | 'hard-margin'
   | 'soft-margin'
   | 'perceptron'
   | 'squared-hinge';
@@ -428,11 +428,6 @@ export function separatingHyperplaneToProblemFunctions(
   let hessian: (w: number[]) => number[][];
 
   switch (variant) {
-    case 'hard-margin':
-      objective = (w) => SH.hardMarginObjective(w, data);
-      gradient = (w) => SH.hardMarginGradient(w, data);
-      hessian = (w) => SH.hardMarginHessian(w, data);
-      break;
     case 'soft-margin':
       objective = (w) => SH.softMarginObjective(w, data);
       gradient = (w) => SH.softMarginGradient(w, data);
@@ -521,7 +516,7 @@ Find where other state variables are declared (around line 110-130), add:
 
 ```typescript
 const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
-  useState<SeparatingHyperplaneVariant>('hard-margin');
+  useState<SeparatingHyperplaneVariant>('soft-margin');
 ```
 
 **Step 3: Update getCurrentProblem callback**
@@ -631,7 +626,6 @@ Find where parameter controls are rendered (around line 265-360). Add variant se
         onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
       }
     >
-      <option value="hard-margin">Hard-Margin SVM</option>
       <option value="soft-margin">Soft-Margin SVM</option>
       <option value="perceptron">Perceptron</option>
       <option value="squared-hinge">Squared-Hinge</option>
@@ -647,13 +641,6 @@ Find where problem formulations are displayed (around line 158-169). Add:
 ```typescript
 {problemType === 'separating-hyperplane' && (
   <div className="math-display">
-    {separatingHyperplaneVariant === 'hard-margin' && (
-      <div>
-        <strong>Hard-Margin:</strong> min ||w||²/2
-        <br />
-        <small>Maximizes margin, requires separable data</small>
-      </div>
-    )}
     {separatingHyperplaneVariant === 'soft-margin' && (
       <div>
         <strong>Soft-Margin:</strong> min ||w||²/2 + C·Σmax(0, 1-yᵢzᵢ)
@@ -689,7 +676,7 @@ const handleProblemChange = (newProblemType: ProblemType) => {
 
   // Reset separating hyperplane variant
   if (newProblemType === 'separating-hyperplane') {
-    onSeparatingHyperplaneVariantChange?.('hard-margin');
+    onSeparatingHyperplaneVariantChange?.('soft-margin');
   }
 
   // ... rest of existing code ...
@@ -724,30 +711,20 @@ Find where other problem explanations are (look for CollapsibleSection component
       it's a hyperplane. The equation is: <code>w₀·x₁ + w₁·x₂ + w₂ = 0</code>
     </p>
 
-    <h4>Four Variants</h4>
+    <h4>Three Variants</h4>
 
     <div style={{marginLeft: '1em'}}>
-      <h5>1. Hard-Margin SVM (Default)</h5>
-      <p>
-        <strong>Objective:</strong> min ||w||²/2
-      </p>
-      <p>
-        Maximizes the margin between classes. Assumes data is perfectly linearly separable.
-        <strong>Failure mode:</strong> If data is not separable, gradients become very large
-        as the algorithm tries to satisfy impossible constraints.
-      </p>
-
-      <h5>2. Soft-Margin SVM</h5>
+      <h5>1. Soft-Margin SVM</h5>
       <p>
         <strong>Objective:</strong> min ||w||²/2 + C·Σmax(0, 1-yᵢzᵢ)
       </p>
       <p>
         Uses <em>hinge loss</em> to allow some misclassifications with penalty C=1.0.
-        More practical than hard-margin. Points outside the margin contribute to loss.
+        Most practical choice for real-world data. Points outside the margin contribute to loss.
         Balances margin maximization with allowing errors.
       </p>
 
-      <h5>3. Perceptron Criterion</h5>
+      <h5>2. Perceptron Criterion</h5>
       <p>
         <strong>Objective:</strong> min Σmax(0, -yᵢzᵢ)
       </p>
@@ -757,7 +734,7 @@ Find where other problem explanations are (look for CollapsibleSection component
         <strong>Result:</strong> Often finds solutions closer to the data than SVM variants.
       </p>
 
-      <h5>4. Squared-Hinge Loss</h5>
+      <h5>3. Squared-Hinge Loss</h5>
       <p>
         <strong>Objective:</strong> min ||w||²/2 + C·Σ[max(0, 1-yᵢzᵢ)]²
       </p>
@@ -771,11 +748,7 @@ Find where other problem explanations are (look for CollapsibleSection component
     <h4>Key Insights</h4>
     <ul>
       <li>
-        <strong>Hard-Margin</strong> works beautifully on separable data but fails catastrophically
-        on overlapping classes
-      </li>
-      <li>
-        <strong>Soft-Margin</strong> is the practical choice - handles real-world data with noise
+        <strong>Soft-Margin</strong> is the most practical choice - handles real-world data with noise while maximizing margin
       </li>
       <li>
         <strong>Perceptron</strong> is simplest but doesn't maximize margin (less robust to new data)
@@ -787,10 +760,6 @@ Find where other problem explanations are (look for CollapsibleSection component
 
     <h4>Try This</h4>
     <ul>
-      <li>
-        Start with <strong>hard-margin</strong> on well-separated data (increase crescent separation).
-        Then reduce separation to see it struggle.
-      </li>
       <li>
         Compare <strong>soft-margin</strong> vs <strong>squared-hinge</strong> on overlapping data.
         Notice how squared-hinge gives smoother convergence with Newton's method.
@@ -838,13 +807,13 @@ Expected: Server starts on http://localhost:5173 (or similar)
 
 1. Open browser to localhost
 2. Select "Separating Hyperplane" from problem dropdown
-3. Verify variant dropdown appears with 4 options
-4. Verify default is "Hard-Margin SVM"
+3. Verify variant dropdown appears with 3 options
+4. Verify default is "Soft-Margin SVM"
 5. Verify mathematical formulation displays correctly
 
 **Step 3: Test variant switching**
 
-1. Switch between all 4 variants
+1. Switch between all 3 variants
 2. Verify formulation display updates for each
 3. Verify no console errors
 
@@ -852,35 +821,26 @@ Expected: Server starts on http://localhost:5173 (or similar)
 
 1. Generate crescent dataset (default settings)
 2. Run Gradient Descent with:
-   - Hard-Margin variant
    - Soft-Margin variant
    - Perceptron variant
    - Squared-Hinge variant
 3. Verify each produces different trajectories
 4. Verify convergence behavior differs between variants
 
-**Step 5: Test failure modes**
-
-1. Increase crescent overlap (make data non-separable)
-2. Run Hard-Margin variant
-3. Verify it struggles (large gradients, poor convergence)
-4. Switch to Soft-Margin variant
-5. Verify it handles overlapping data better
-
-**Step 6: Test Newton's method**
+**Step 5: Test Newton's method**
 
 1. Use Squared-Hinge variant (smooth Hessian)
 2. Run Newton's method
 3. Verify fast convergence
 4. Compare to Soft-Margin (should work but possibly slower)
 
-**Step 7: Check ProblemExplainer**
+**Step 6: Check ProblemExplainer**
 
 1. Verify explanation section appears and is readable
-2. Check that all 4 variants are explained
+2. Check that all 3 variants are explained
 3. Verify pedagogical content is clear
 
-**Step 8: Final verification commit**
+**Step 7: Final verification commit**
 
 ```bash
 git add -A
@@ -893,12 +853,11 @@ git commit -m "test: verify separating hyperplane implementation"
 
 After all tasks complete, verify:
 
-- [ ] All 4 variants compile without TypeScript errors
+- [ ] All 3 variants compile without TypeScript errors
 - [ ] Problem appears in dropdown
 - [ ] Variant selector works and updates formulation
 - [ ] Each variant produces different optimization trajectories
-- [ ] Hard-margin struggles on non-separable data (expected behavior)
-- [ ] Soft-margin and squared-hinge handle overlapping data
+- [ ] Soft-margin and squared-hinge handle overlapping data well
 - [ ] ProblemExplainer content is comprehensive and clear
 - [ ] No console errors or warnings
 - [ ] UI is responsive and controls work smoothly

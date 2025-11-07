@@ -67,7 +67,7 @@ const UnifiedVisualizer = () => {
   const [conditionNumber, setConditionNumber] = useState(100);
   const [rosenbrockB, setRosenbrockB] = useState(100);
   const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
-    useState<SeparatingHyperplaneVariant>('hard-margin');
+    useState<SeparatingHyperplaneVariant>('soft-margin');
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
@@ -177,7 +177,7 @@ const UnifiedVisualizer = () => {
       };
     } else if (currentProblem === 'separating-hyperplane') {
       // Return separating hyperplane wrapped as problem interface
-      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
+      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
       return {
         name: 'Separating Hyperplane',
         description: `Separating hyperplane (${separatingHyperplaneVariant})`,
@@ -227,7 +227,7 @@ const UnifiedVisualizer = () => {
       if (!data || data.length === 0) {
         throw new Error('Separating hyperplane requires dataset');
       }
-      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
+      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
     } else {
       const problem = getProblem(currentProblem);
       if (!problem) {
@@ -253,7 +253,7 @@ const UnifiedVisualizer = () => {
       try {
         const problemFuncs = currentProblem === 'logistic-regression'
           ? logisticRegressionToProblemFunctions(data, lambda)
-          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
+          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
         // Run L-BFGS with tight convergence to find global minimum
         const result = runLBFGS(problemFuncs, {
           maxIter: 1000,
@@ -1239,9 +1239,18 @@ const UnifiedVisualizer = () => {
 
     const maxAlpha = Math.max(...alphaRange);
     const allValues = [...lossValues, ...armijoValues];
-    const minLoss = Math.min(...allValues);
-    const maxLoss = Math.max(...allValues);
-    const lossRange = maxLoss - minLoss;
+    let minLoss = Math.min(...allValues);
+    let maxLoss = Math.max(...allValues);
+    let lossRange = maxLoss - minLoss;
+
+    // Ensure minimum y-axis span of 0.001 for better visualization when loss is nearly constant
+    const MIN_Y_SPAN = 0.001;
+    if (lossRange < MIN_Y_SPAN) {
+      const center = (minLoss + maxLoss) / 2;
+      minLoss = center - MIN_Y_SPAN / 2;
+      maxLoss = center + MIN_Y_SPAN / 2;
+      lossRange = maxLoss - minLoss;
+    }
 
     const margin = { left: 60, right: 40, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
@@ -1992,6 +2001,7 @@ const UnifiedVisualizer = () => {
                       lossHistory={gdFixedIterations.map(iter => iter.newLoss)}
                       alphaHistory={gdFixedIterations.map(iter => iter.alpha)}
                       tolerance={gdFixedTolerance}
+                      onIterationChange={setGdFixedCurrentIter}
                     />
                   </div>
                 )}
@@ -2510,6 +2520,7 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
+                      onIterationChange={setGdLSCurrentIter}
                     />
                   </div>
                 )}
@@ -3179,6 +3190,7 @@ const UnifiedVisualizer = () => {
                       hessianCanvasRef={newtonHessianCanvasRef}
                       hessian={newtonIterations[newtonCurrentIter].hessian}
                       tolerance={newtonTolerance}
+                      onIterationChange={setNewtonCurrentIter}
                     />
                   </div>
                 )}
@@ -3774,6 +3786,7 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}
+                      onIterationChange={setLbfgsCurrentIter}
                     />
                   </div>
                 )}

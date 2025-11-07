@@ -50,7 +50,7 @@ function runTest(config: TestConfig): TestResult {
     alpha = 0.1,
     c1 = 0.0001,
     m = 5,
-    variant = 'hard-margin',
+    variant = 'soft-margin',
     lambda = 0.001
   } = config;
 
@@ -299,7 +299,7 @@ function testAllCombinations(): TestResult[] {
     'separating-hyperplane'
   ];
   const algorithms: TestConfig['algorithm'][] = ['gd-fixed', 'gd-linesearch', 'newton', 'lbfgs'];
-  const separatingHyperplaneVariants: SeparatingHyperplaneVariant[] = ['hard-margin', 'soft-margin', 'perceptron', 'squared-hinge'];
+  const separatingHyperplaneVariants: SeparatingHyperplaneVariant[] = ['soft-margin', 'perceptron', 'squared-hinge'];
 
   const configs: TestConfig[] = [];
 

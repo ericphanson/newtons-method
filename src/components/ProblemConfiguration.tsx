@@ -89,7 +89,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
     // Reset separating hyperplane variant
     if (newProblem === 'separating-hyperplane') {
-      onSeparatingHyperplaneVariantChange?.('hard-margin');
+      onSeparatingHyperplaneVariantChange?.('soft-margin');
     }
 
     const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
@@ -100,7 +100,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
   // Get contextual tips based on current parameters
   const getContextualTip = (): string | null => {
-    if (currentProblem !== 'logistic-regression') return null;
+    if (currentProblem !== 'logistic-regression' && currentProblem !== 'separating-hyperplane') return null;
 
     // Tips for lambda (regularization)
     if (lambda > 0.001) {
@@ -173,32 +173,25 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <InlineMath>{'y \\in \\{-1, +1\\}'}</InlineMath> (class label),{' '}
               <InlineMath>z = w_0 x_1 + w_1 x_2 + w_2</InlineMath> (decision value)
             </div>
-            {separatingHyperplaneVariant === 'hard-margin' && (
-              <div>
-                <strong>Hard-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2`}</InlineMath>
-                <br />
-                <small>Maximizes margin between classes, requires perfectly separable data</small>
-              </div>
-            )}
             {separatingHyperplaneVariant === 'soft-margin' && (
               <div>
-                <strong>Soft-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum \max(0, 1-y_i z_i)`}</InlineMath>
+                <strong>Soft-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + \lambda \sum \max(0, 1-y_i z_i)`}</InlineMath>
                 <br />
-                <small>Hinge loss allows misclassifications with penalty (C=1.0)</small>
+                <small>Hinge loss allows misclassifications with adjustable penalty λ</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'perceptron' && (
               <div>
-                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i) + 0.01 \|w\|^2/2`}</InlineMath>
+                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i) + \frac{\lambda}{2} \|w\|^2`}</InlineMath>
                 <br />
-                <small>Penalizes only misclassified points (small regularization prevents weight collapse)</small>
+                <small>Penalizes only misclassified points with adjustable regularization λ</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'squared-hinge' && (
               <div>
-                <strong>Squared-Hinge:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum [\max(0, 1-y_i z_i)]^2`}</InlineMath>
+                <strong>Squared-Hinge:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + \lambda \sum [\max(0, 1-y_i z_i)]^2`}</InlineMath>
                 <br />
-                <small>Smooth variant with quadratic penalty, twice differentiable (C=1.0)</small>
+                <small>Smooth variant with adjustable quadratic penalty λ, twice differentiable</small>
               </div>
             )}
           </div>
@@ -246,7 +239,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
                 >
-                  <option value="hard-margin">Hard-Margin SVM</option>
                   <option value="soft-margin">Soft-Margin SVM</option>
                   <option value="perceptron">Perceptron</option>
                   <option value="squared-hinge">Squared-Hinge</option>
@@ -279,7 +271,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
             {/* Controls Sidebar */}
             <div className="w-64 space-y-4">
-              {currentProblem === 'logistic-regression' && (
+              {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
                 <div>
                   <h4 className="font-medium text-gray-700 mb-2">
                     Regularization (<InlineMath>\lambda</InlineMath>)

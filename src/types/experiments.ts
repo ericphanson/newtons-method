@@ -7,7 +7,6 @@ export type ProblemType =
   | 'separating-hyperplane';
 
 export type SeparatingHyperplaneVariant =
-  | 'hard-margin'
   | 'soft-margin'
   | 'perceptron'
   | 'squared-hinge';

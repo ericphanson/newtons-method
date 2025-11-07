@@ -32,6 +32,9 @@ interface IterationMetricsProps {
   hessian?: number[][];
 
   tolerance: number;
+
+  // Callbacks
+  onIterationChange?: (iter: number) => void;
 }
 
 export const IterationMetrics: React.FC<IterationMetricsProps> = ({
@@ -52,9 +55,19 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   lineSearchTrials,
   lineSearchCanvasRef,
   hessianCanvasRef,
-  hessian,
-  tolerance,
+  onIterationChange,
 }) => {
+
+  // Handle sparkline clicks to jump to iteration
+  const handleSparklineClick = (e: React.MouseEvent<SVGSVGElement>, dataLength: number) => {
+    if (!onIterationChange) return;
+    const svg = e.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const clickedIndex = Math.round((x / rect.width) * (dataLength - 1));
+    const clampedIndex = Math.max(0, Math.min(dataLength - 1, clickedIndex));
+    onIterationChange(clampedIndex);
+  };
 
   // Prepare sparkline data - show full history including future iterations
   const sparklineData = gradNormHistory && gradNormHistory.length > 0
@@ -93,7 +106,14 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           <span className="font-mono font-bold">{fmt(gradNorm)}</span>
         </div>
         {sparklineData.length > 1 && (
-          <svg width="100%" height="24" viewBox="0 0 100 20" preserveAspectRatio="none" className="overflow-visible">
+          <svg
+            width="100%"
+            height="24"
+            viewBox="0 0 100 20"
+            preserveAspectRatio="none"
+            className="overflow-visible cursor-pointer"
+            onClick={(e) => handleSparklineClick(e, sparklineData.length)}
+          >
             {/* Sparkline path */}
             <path
               d={sparklineData.map((val, i) => {
@@ -127,7 +147,14 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           <span className="font-mono font-bold">{fmt(loss)}</span>
         </div>
         {lossSparklineData.length > 1 && (
-          <svg width="100%" height="24" viewBox="0 0 100 20" preserveAspectRatio="none" className="overflow-visible">
+          <svg
+            width="100%"
+            height="24"
+            viewBox="0 0 100 20"
+            preserveAspectRatio="none"
+            className="overflow-visible cursor-pointer"
+            onClick={(e) => handleSparklineClick(e, lossSparklineData.length)}
+          >
             {/* Sparkline path */}
             <path
               d={lossSparklineData.map((val, i) => {
@@ -161,7 +188,14 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           <span className="font-mono font-bold">{fmt(alpha)}</span>
         </div>
         {alphaSparklineData.length > 1 && (
-          <svg width="100%" height="24" viewBox="0 0 100 20" preserveAspectRatio="none" className="overflow-visible">
+          <svg
+            width="100%"
+            height="24"
+            viewBox="0 0 100 20"
+            preserveAspectRatio="none"
+            className="overflow-visible cursor-pointer"
+            onClick={(e) => handleSparklineClick(e, alphaSparklineData.length)}
+          >
             {/* Sparkline path */}
             <path
               d={alphaSparklineData.map((val, i) => {

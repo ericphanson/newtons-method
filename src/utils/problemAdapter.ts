@@ -38,32 +38,28 @@ export function logisticRegressionToProblemFunctions(
  */
 export function separatingHyperplaneToProblemFunctions(
   data: DataPoint[],
-  variant: SeparatingHyperplaneVariant
+  variant: SeparatingHyperplaneVariant,
+  lambda: number
 ): ProblemFunctions {
   let objective: (w: number[]) => number;
   let gradient: (w: number[]) => number[];
   let hessian: (w: number[]) => number[][];
 
   switch (variant) {
-    case 'hard-margin':
-      objective = (w) => SH.hardMarginObjective(w, data);
-      gradient = (w) => SH.hardMarginGradient(w, data);
-      hessian = (w) => SH.hardMarginHessian(w, data);
-      break;
     case 'soft-margin':
-      objective = (w) => SH.softMarginObjective(w, data);
-      gradient = (w) => SH.softMarginGradient(w, data);
-      hessian = (w) => SH.softMarginHessian(w, data);
+      objective = (w) => SH.softMarginObjective(w, data, lambda);
+      gradient = (w) => SH.softMarginGradient(w, data, lambda);
+      hessian = (w) => SH.softMarginHessian(w, data, lambda);
       break;
     case 'perceptron':
-      objective = (w) => SH.perceptronObjective(w, data);
-      gradient = (w) => SH.perceptronGradient(w, data);
-      hessian = (w) => SH.perceptronHessian(w, data);
+      objective = (w) => SH.perceptronObjective(w, data, lambda);
+      gradient = (w) => SH.perceptronGradient(w, data, lambda);
+      hessian = (w) => SH.perceptronHessian(w, data, lambda);
       break;
     case 'squared-hinge':
-      objective = (w) => SH.squaredHingeObjective(w, data);
-      gradient = (w) => SH.squaredHingeGradient(w, data);
-      hessian = (w) => SH.squaredHingeHessian(w, data);
+      objective = (w) => SH.squaredHingeObjective(w, data, lambda);
+      gradient = (w) => SH.squaredHingeGradient(w, data, lambda);
+      hessian = (w) => SH.squaredHingeHessian(w, data, lambda);
       break;
   }
 
