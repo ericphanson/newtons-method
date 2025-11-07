@@ -72,7 +72,7 @@ const UnifiedVisualizer = () => {
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
-    if (saved && ['algorithms', 'gd-fixed', 'gd-linesearch', 'newton', 'lbfgs'].includes(saved)) {
+    if (saved && ['algorithms', 'gd-fixed', 'gd-linesearch', 'diagonal-precond', 'newton', 'lbfgs'].includes(saved)) {
       return saved as Algorithm;
     }
     return 'algorithms';

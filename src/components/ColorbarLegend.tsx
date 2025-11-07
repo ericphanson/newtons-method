@@ -41,7 +41,6 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
 
     if (isMultiModal) {
       // Draw discrete swatches for each minimum in a multi-column grid
-      const swatchHeight = itemsPerColumn * 30;
       hues.forEach((hue, idx) => {
         const col = Math.floor(idx / itemsPerColumn);
         const row = idx % itemsPerColumn;
