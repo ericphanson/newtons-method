@@ -115,7 +115,8 @@ const UnifiedVisualizer = () => {
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
-  const [, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Will be used in Task 10 when IterationMetrics is integrated
+  const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
   const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
   const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
