@@ -148,8 +148,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </div>
         )}
 
-        {/* Gradient Tolerance (gtol) - shown for all algorithms that use it (including Newton without line search) */}
-        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || algorithm === 'newton') && (
+        {/* Gradient Tolerance (gtol) - shown for gd-linesearch and lbfgs (Newton has its own below) */}
+        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs') && (
           <div>
             <div className="flex items-center gap-3 mb-2">
               <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Gradient Tolerance (gtol):</label>
@@ -161,14 +161,11 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 value={Math.log10(
                   algorithm === 'gd-linesearch'
                     ? (props.gdLSTolerance ?? 1e-6)
-                    : algorithm === 'newton'
-                    ? (props.newtonTolerance ?? 1e-6)
                     : (props.lbfgsTolerance ?? 1e-6)
                 )}
                 onChange={(e) => {
                   const val = Math.pow(10, parseFloat(e.target.value));
                   if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
-                  else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
                   else props.onLbfgsToleranceChange?.(val);
                 }}
                 className="flex-1"
@@ -176,8 +173,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               <div className="text-sm text-gray-600 w-16 text-right">
                 {algorithm === 'gd-linesearch'
                   ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
-                  : algorithm === 'newton'
-                  ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
                   : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
               </div>
             </div>
@@ -190,9 +185,9 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         {algorithm === 'newton' && (
           <>
             {/* Line Search and c1 in same row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex gap-4">
               {/* Line Search */}
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Line Search:</label>
                   <select
@@ -210,7 +205,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
 
               {/* Armijo c1 - always visible, disabled when line search is none */}
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                     Armijo c<sub>1</sub>:
@@ -272,7 +267,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   min="-12"
                   max="-4"
                   step="0.1"
-                  value={Math.log10(props.newtonFtol ?? 1e-9)}
+                  value={Math.log10(props.newtonFtol ?? 2.22e-9)}
                   onChange={(e) => {
                     const val = Math.pow(10, parseFloat(e.target.value));
                     props.onNewtonFtolChange?.(val);
@@ -280,7 +275,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   className="flex-1"
                 />
                 <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonFtol ?? 1e-9)?.toExponential(1)}
+                  {(props.newtonFtol ?? 2.22e-9)?.toExponential(1)}
                 </div>
               </div>
               <p className="text-xs text-gray-500">
@@ -297,7 +292,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   min="-12"
                   max="-4"
                   step="0.1"
-                  value={Math.log10(props.newtonXtol ?? 1e-9)}
+                  value={Math.log10(props.newtonXtol ?? 1e-5)}
                   onChange={(e) => {
                     const val = Math.pow(10, parseFloat(e.target.value));
                     props.onNewtonXtolChange?.(val);
@@ -305,7 +300,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   className="flex-1"
                 />
                 <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonXtol ?? 1e-9)?.toExponential(1)}
+                  {(props.newtonXtol ?? 1e-5)?.toExponential(1)}
                 </div>
               </div>
               <p className="text-xs text-gray-500">
