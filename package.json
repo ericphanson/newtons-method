@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "test-combo": "tsx scripts/test-combinations.ts",
     "test-all": "tsx scripts/test-combinations.ts --all",
-    "export-datasets": "tsx scripts/export-datasets.ts"
+    "export-datasets": "tsx scripts/export-datasets.ts",
+    "validate": "cd python && uv run python validate_with_python.py --all",
+    "validate:verbose": "cd python && uv run python validate_with_python.py --all --verbose",
+    "validate:quiet": "cd python && uv run python validate_with_python.py --all --quiet"
   },
   "dependencies": {
     "d3-array": "^3.2.4",
