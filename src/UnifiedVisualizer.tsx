@@ -3196,6 +3196,33 @@ const UnifiedVisualizer = () => {
                       Full proof requires Lipschitz continuity of the Hessian and bounds on eigenvalues.
                     </p>
                   </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-indigo-800 mb-2">With Hessian Damping</h3>
+                    <p>The damped Hessian adds a diagonal regularization term:</p>
+                    <BlockMath>
+                      {'H_{\\text{damped}} = H + \\lambda_{\\text{damp}} \\cdot I'}
+                    </BlockMath>
+                    <p className="mt-2">The Newton direction becomes:</p>
+                    <BlockMath>
+                      {'p = -(H + \\lambda_{\\text{damp}} \\cdot I)^{-1} \\nabla f'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      <strong>This interpolates between two extremes:</strong>
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
+                      <li>
+                        <InlineMath>{`\\lambda_{\\text{damp}} = 0`}</InlineMath>: Pure Newton's method
+                      </li>
+                      <li>
+                        <InlineMath>{`\\lambda_{\\text{damp}} \\to \\infty`}</InlineMath>: Approaches gradient descent <InlineMath>{`(p \\approx -\\nabla f / \\lambda_{\\text{damp}})`}</InlineMath>
+                      </li>
+                    </ul>
+                    <p className="text-sm mt-2 text-gray-600">
+                      Damping improves numerical stability by ensuring <InlineMath>{`H_{\\text{damped}}`}</InlineMath> is
+                      positive definite, even when H has small or negative eigenvalues.
+                    </p>
+                  </div>
                 </div>
               </CollapsibleSection>
 
