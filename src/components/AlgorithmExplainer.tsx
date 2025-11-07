@@ -171,20 +171,24 @@ export function AlgorithmExplainer() {
           <div>
             <p className="font-semibold">Update Rule:</p>
             <BlockMath>
-              {String.raw`w_{k+1} = w_k - H^{-1}(w_k) \nabla f(w_k)`}
+              {String.raw`w_{k+1} = w_k - (H + \lambda_{\text{damp}} \cdot I)^{-1}(w_k) \nabla f(w_k)`}
             </BlockMath>
             <p className="text-sm mt-1">
               where <InlineMath>H(w)</InlineMath> is the Hessian (matrix of second derivatives)
             </p>
+            <p className="text-sm mt-1">
+              (with <InlineMath>{String.raw`\lambda_{\text{damp}} = 0.01`}</InlineMath> by default for numerical stability)
+            </p>
           </div>
 
           <div>
-            <p className="font-semibold">With Line Search (Damped Newton):</p>
+            <p className="font-semibold">With Variable Step Size:</p>
             <BlockMath>
-              {String.raw`w_{k+1} = w_k - \alpha_k H^{-1}(w_k) \nabla f(w_k)`}
+              {String.raw`w_{k+1} = w_k - \alpha_k (H + \lambda_{\text{damp}} \cdot I)^{-1}(w_k) \nabla f(w_k)`}
             </BlockMath>
             <p className="text-sm mt-1">
-              Backtracking line search makes it robust to non-convexity
+              where <InlineMath>{String.raw`\alpha_k`}</InlineMath> is chosen via backtracking line search
+              for robustness to non-convexity (different from Hessian damping)
             </p>
           </div>
 

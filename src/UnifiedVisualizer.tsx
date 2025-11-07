@@ -2823,7 +2823,8 @@ const UnifiedVisualizer = () => {
                     <p>
                       Gradient descent uses first derivatives. Newton's method uses second derivatives
                       (the <strong>Hessian matrix</strong>) to see the curvature and take smarter steps
-                      toward the minimum.
+                      toward the minimum. We add Hessian damping (Levenberg-Marquardt regularization) for
+                      numerical stability.
                     </p>
                   </div>
 
@@ -2832,7 +2833,8 @@ const UnifiedVisualizer = () => {
                     <ol className="list-decimal ml-6 space-y-1">
                       <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
                       <li>Compute Hessian <InlineMath>H(w)</InlineMath> (matrix of all second derivatives)</li>
-                      <li>Solve <InlineMath>Hp = -\nabla f</InlineMath> for search direction <InlineMath>p</InlineMath> (Newton direction)</li>
+                      <li>Add damping: <InlineMath>{'H_d = H + \\lambda_{\\text{damp}} \\cdot I'}</InlineMath> where <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath> = Hessian damping parameter</li>
+                      <li>Solve <InlineMath>H_d p = -\nabla f</InlineMath> for search direction <InlineMath>p</InlineMath></li>
                       <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
                       <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
                     </ol>
@@ -2864,9 +2866,10 @@ const UnifiedVisualizer = () => {
 
                   <div>
                     <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Damping Parameter</h3>
+                    <p className="mb-2">The default 0.01 works for most problems. Adjust when:</p>
                     <ul className="list-disc ml-6 space-y-1">
-                      <li><strong>Hessian Damping (λ_damp):</strong> Keep at 0.01 (default) for most problems.</li>
-                      <li>Lower to 0 for pure Newton's method, increase to 0.1+ for very ill-conditioned problems.</li>
+                      <li>Lower to ~0 to see pure Newton's method behavior (may be unstable)</li>
+                      <li>Increase to 0.1+ for very ill-conditioned problems</li>
                     </ul>
                   </div>
 
@@ -2874,8 +2877,8 @@ const UnifiedVisualizer = () => {
                     <p className="font-bold text-sm">Assumptions:</p>
                     <ul className="text-sm list-disc ml-6">
                       <li>f is twice continuously differentiable</li>
-                      <li>Hessian is positive definite (strongly convex) for guaranteed convergence</li>
-                      <li>Line search used when H not positive definite or far from minimum</li>
+                      <li>Hessian damping ensures H_d is positive definite for numerical stability</li>
+                      <li>Line search used when far from minimum or in non-convex regions</li>
                     </ul>
                   </div>
                 </div>
