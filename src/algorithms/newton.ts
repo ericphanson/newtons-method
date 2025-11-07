@@ -9,7 +9,7 @@ import {
   add
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { ProblemFunctions, AlgorithmOptions } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
 
 export interface NewtonIteration {
   iter: number;
@@ -148,7 +148,7 @@ const computeEigenvalues = (A: number[][]): number[] => {
 export const runNewton = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { c1?: number; lambda?: number; hessianDamping?: number; lineSearch?: 'armijo' | 'none' }
-): NewtonIteration[] => {
+): AlgorithmResult<NewtonIteration> => {
   if (!problem.hessian) {
     throw new Error('Newton method requires Hessian function');
   }
@@ -243,7 +243,35 @@ export const runNewton = (
     }
   }
 
-  return iterations;
+  // Compute convergence summary
+  const lastIter = iterations[iterations.length - 1];
+  const finalGradNorm = lastIter ? lastIter.gradNorm : Infinity;
+  const finalLoss = lastIter ? lastIter.newLoss : Infinity;
+  const finalLocation = lastIter ? lastIter.wNew : w;
+
+  const converged = finalGradNorm < tolerance;
+  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
+
+  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  if (diverged) {
+    convergenceCriterion = 'diverged';
+  } else if (converged) {
+    convergenceCriterion = 'gradient';
+  } else {
+    convergenceCriterion = 'maxiter';
+  }
+
+  const summary: AlgorithmSummary = {
+    converged,
+    diverged,
+    finalLocation,
+    finalLoss,
+    finalGradNorm,
+    iterationCount: iterations.length,
+    convergenceCriterion
+  };
+
+  return { iterations, summary };
 };
 
 /**
