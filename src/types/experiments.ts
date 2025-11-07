@@ -23,12 +23,14 @@ export interface ExperimentPreset {
   description: string;
   problem: ProblemType;
   dataset?: DataPoint[];
+  separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
   hyperparameters: {
     alpha?: number;
     c1?: number;
     lambda?: number;
     m?: number; // for L-BFGS
     maxIter?: number;
+    hessianDamping?: number; // for Newton's method
   };
   initialPoint?: [number, number];
   expectation: string; // What to observe

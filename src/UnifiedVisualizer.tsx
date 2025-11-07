@@ -27,6 +27,7 @@ import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
+import { newtonExperiments } from './experiments/newton-presets';
 import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { AlgorithmConfiguration } from './components/AlgorithmConfiguration';
@@ -444,6 +445,9 @@ const UnifiedVisualizer = () => {
       if (experiment.hyperparameters.maxIter !== undefined) {
         setMaxIter(experiment.hyperparameters.maxIter);
       }
+      if (experiment.hyperparameters.hessianDamping !== undefined) {
+        setNewtonHessianDamping(experiment.hyperparameters.hessianDamping);
+      }
 
       // 2. Set initial point if specified
       if (experiment.initialPoint) {
@@ -454,6 +458,11 @@ const UnifiedVisualizer = () => {
       // 3. Switch problem if needed
       if (experiment.problem !== 'logistic-regression') {
         setCurrentProblem(experiment.problem);
+
+        // Set separating hyperplane variant if specified
+        if (experiment.problem === 'separating-hyperplane' && experiment.separatingHyperplaneVariant) {
+          setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
+        }
 
         const problem = getProblem(experiment.problem);
         if (problem) {
@@ -701,7 +710,7 @@ const UnifiedVisualizer = () => {
       console.error('Newton error:', error);
       setNewtonIterations([]);
     }
-  }, [currentProblem, lambda, newtonC1, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, newtonC1, newtonHessianDamping, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -3454,6 +3463,36 @@ const UnifiedVisualizer = () => {
                         <li>Convergence in ~2 iterations</li>
                         <li>All points classified correctly</li>
                       </ul>
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      <p className="font-semibold text-gray-900 text-sm mb-2">Try these experiments:</p>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => {
+                            const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-failure');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Perceptron Won't Converge"
+                        >
+                          <span>1. Show the problem (λ_damp = 0)</span>
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <button
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => {
+                            const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-damping-fix');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Perceptron with Damping Fix"
+                        >
+                          <span>2. Show the solution (λ_damp = 0.01)</span>
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
