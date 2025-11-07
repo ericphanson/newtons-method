@@ -82,7 +82,8 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         return;
       }
 
-      // Start new computation
+      // Start new computation - clear old basin to avoid showing stale data
+      setBasinData(null);
       setIsComputing(true);
       setProgress(0);
       const taskId = ++taskIdRef.current;
