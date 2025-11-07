@@ -2,13 +2,28 @@
 
 A pedagogical React app for understanding iterative optimization algorithms through interactive visualization.
 
-## Features
+## Algorithms
 
-- **4 Algorithm Tabs:**
-  1. **Gradient Descent (Fixed Step)** - Learn the basics of first-order optimization
-  2. **Gradient Descent (Line Search)** - See adaptive step size selection in action
-  3. **Newton's Method** - Understand second-order methods with Hessian visualization
-  4. **L-BFGS** - Explore memory-efficient quasi-Newton approximation
+The visualizer implements 5 optimization algorithms:
+
+1. **Gradient Descent (Fixed Step)** - Scalar step size α
+2. **Gradient Descent (Line Search)** - Adaptive scalar step size
+3. **Diagonal Preconditioner** - Per-coordinate step sizes (Hessian diagonal)
+4. **Newton's Method** - Full Hessian matrix H⁻¹
+5. **L-BFGS** - Limited-memory quasi-Newton approximation
+
+### Key Pedagogical Story: Step Size Sophistication
+
+The progression shows increasing sophistication in adapting to problem geometry:
+- **Scalar**: Same step everywhere
+- **Adaptive Scalar**: Adapts per iteration
+- **Diagonal**: Per-coordinate step sizes (what Adam does!)
+- **Full Matrix**: Rotation-invariant (Newton)
+- **Approximate Matrix**: Efficient approximation (L-BFGS)
+
+**Rotation Invariance Demo:** The diagonal preconditioner demonstrates coordinate dependence perfectly - it takes 1-2 iterations on axis-aligned problems but 40+ iterations on rotated problems. Newton takes 2 iterations regardless of rotation.
+
+## Features
 
 - **Shared Problem Setup:**
   - Logistic regression on 2D crescent dataset
