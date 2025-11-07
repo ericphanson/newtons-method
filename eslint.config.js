@@ -49,7 +49,7 @@ export default tseslint.config(
 
       // Relaxed rules - warnings instead of errors (tighten these as you clean up)
       '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-case-declarations': 'error',
       'prefer-const': 'error', // Re-enabled as error
       'no-self-assign': 'error',
