@@ -3,7 +3,7 @@ import { fmt, fmtVec, norm, sub } from '../shared-utils';
 import type { AlgorithmSummary } from '../algorithms/types';
 
 interface IterationMetricsProps {
-  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
   iterNum: number;
   totalIters: number;
 
@@ -32,6 +32,10 @@ interface IterationMetricsProps {
   // Hessian data (Newton only)
   hessianCanvasRef?: React.RefObject<HTMLCanvasElement>;
   hessian?: number[][];
+
+  // Diagonal preconditioner data
+  hessianDiagonal?: number[];
+  preconditioner?: number[];
 
   tolerance: number;
 
@@ -65,6 +69,8 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   lineSearchTrials,
   lineSearchCanvasRef,
   hessianCanvasRef,
+  hessianDiagonal,
+  preconditioner,
   summary,
   tolerance,
   ftol = 1e-9,
@@ -528,6 +534,36 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {/* Diagonal Preconditioner Specific Metrics */}
+      {algorithm === 'diagonal-precond' && hessianDiagonal && preconditioner && (
+        <div className="space-y-3">
+          <div className="border-t border-gray-200 pt-3">
+            <h4 className="text-xs font-semibold text-gray-600 uppercase mb-2">
+              Diagonal Preconditioner
+            </h4>
+
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="text-gray-600">Hessian Diagonal:</span>
+                <div className="font-mono text-xs mt-1 bg-gray-50 p-2 rounded">
+                  [{hessianDiagonal.map(x => x.toFixed(4)).join(', ')}]
+                </div>
+              </div>
+
+              <div>
+                <span className="text-gray-600">Preconditioner D:</span>
+                <div className="font-mono text-xs mt-1 bg-gray-50 p-2 rounded">
+                  [{preconditioner.map(x => x.toFixed(4)).join(', ')}]
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  D = diag(1/H₀₀, 1/H₁₁, ...) provides per-coordinate step sizes
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
