@@ -294,242 +294,89 @@ const UnifiedVisualizer = () => {
     initialW1: 1,
   });
 
+  // Helper function to calculate parameter bounds from iterations
+  const calculateParamBounds = useCallback((
+    iterations: Array<{ w: number[]; wNew: number[] }>,
+    algorithmName: string
+  ) => {
+    if (!iterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+
+    let minW0 = Infinity, maxW0 = -Infinity;
+    let minW1 = Infinity, maxW1 = -Infinity;
+
+    // Include initial point (starting position)
+    if (iterations.length > 0) {
+      const [w0_init, w1_init] = iterations[0].w;
+      minW0 = Math.min(minW0, w0_init);
+      maxW0 = Math.max(maxW0, w0_init);
+      minW1 = Math.min(minW1, w1_init);
+      maxW1 = Math.max(maxW1, w1_init);
+    }
+
+    for (const it of iterations) {
+      minW0 = Math.min(minW0, it.wNew[0]);
+      maxW0 = Math.max(maxW0, it.wNew[0]);
+      minW1 = Math.min(minW1, it.wNew[1]);
+      maxW1 = Math.max(maxW1, it.wNew[1]);
+    }
+
+    // Include global minimum in bounds if it exists
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
+    if (globalMin) {
+      const [gm0, gm1] = globalMin;
+      minW0 = Math.min(minW0, gm0);
+      maxW0 = Math.max(maxW0, gm0);
+      minW1 = Math.min(minW1, gm1);
+      maxW1 = Math.max(maxW1, gm1);
+    }
+
+    // If algorithm diverged (NaN/Infinity values), return default bounds
+    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
+      console.warn(`${algorithmName}: Algorithm diverged (NaN/Infinity detected), using default bounds`);
+      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+    }
+
+    let w0Range = maxW0 - minW0;
+    let w1Range = maxW1 - minW1;
+
+    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
+    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
+    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
+
+    const pad0 = w0Range * 0.2;
+    const pad1 = w1Range * 0.2;
+
+    return {
+      minW0: minW0 - pad0,
+      maxW0: maxW0 + pad0,
+      minW1: minW1 - pad1,
+      maxW1: maxW1 + pad1,
+      w0Range: w0Range + 2 * pad0,
+      w1Range: w1Range + 2 * pad1
+    };
+  }, [currentProblem, logisticGlobalMin]);
+
   // Calculate parameter bounds for both algorithms
-  const newtonParamBounds = React.useMemo(() => {
-    if (!newtonIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
+  const newtonParamBounds = React.useMemo(
+    () => calculateParamBounds(newtonIterations, 'Newton'),
+    [newtonIterations, calculateParamBounds]
+  );
 
-    let minW0 = Infinity, maxW0 = -Infinity;
-    let minW1 = Infinity, maxW1 = -Infinity;
+  const lbfgsParamBounds = React.useMemo(
+    () => calculateParamBounds(lbfgsIterations, 'L-BFGS'),
+    [lbfgsIterations, calculateParamBounds]
+  );
 
-    // Include initial point (starting position)
-    if (newtonIterations.length > 0) {
-      const [w0_init, w1_init] = newtonIterations[0].w;
-      minW0 = Math.min(minW0, w0_init);
-      maxW0 = Math.max(maxW0, w0_init);
-      minW1 = Math.min(minW1, w1_init);
-      maxW1 = Math.max(maxW1, w1_init);
-    }
+  const gdFixedParamBounds = React.useMemo(
+    () => calculateParamBounds(gdFixedIterations, 'GD Fixed'),
+    [gdFixedIterations, calculateParamBounds]
+  );
 
-    for (const it of newtonIterations) {
-      minW0 = Math.min(minW0, it.wNew[0]);
-      maxW0 = Math.max(maxW0, it.wNew[0]);
-      minW1 = Math.min(minW1, it.wNew[1]);
-      maxW1 = Math.max(maxW1, it.wNew[1]);
-    }
-
-    // Include global minimum in bounds if it exists
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
-    if (globalMin) {
-      const [gm0, gm1] = globalMin;
-      minW0 = Math.min(minW0, gm0);
-      maxW0 = Math.max(maxW0, gm0);
-      minW1 = Math.min(minW1, gm1);
-      maxW1 = Math.max(maxW1, gm1);
-    }
-
-    // If algorithm diverged (NaN/Infinity values), return default bounds
-    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
-      console.warn('Newton: Algorithm diverged (NaN/Infinity detected), using default bounds');
-      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-    }
-
-    let w0Range = maxW0 - minW0;
-    let w1Range = maxW1 - minW1;
-
-    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
-    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
-    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
-
-    const pad0 = w0Range * 0.2;
-    const pad1 = w1Range * 0.2;
-
-    return {
-      minW0: minW0 - pad0,
-      maxW0: maxW0 + pad0,
-      minW1: minW1 - pad1,
-      maxW1: maxW1 + pad1,
-      w0Range: w0Range + 2 * pad0,
-      w1Range: w1Range + 2 * pad1
-    };
-  }, [newtonIterations, currentProblem, logisticGlobalMin]);
-
-  const lbfgsParamBounds = React.useMemo(() => {
-    if (!lbfgsIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-
-    let minW0 = Infinity, maxW0 = -Infinity;
-    let minW1 = Infinity, maxW1 = -Infinity;
-
-    // Include initial point (starting position)
-    if (lbfgsIterations.length > 0) {
-      const [w0_init, w1_init] = lbfgsIterations[0].w;
-      minW0 = Math.min(minW0, w0_init);
-      maxW0 = Math.max(maxW0, w0_init);
-      minW1 = Math.min(minW1, w1_init);
-      maxW1 = Math.max(maxW1, w1_init);
-    }
-
-    for (const it of lbfgsIterations) {
-      minW0 = Math.min(minW0, it.wNew[0]);
-      maxW0 = Math.max(maxW0, it.wNew[0]);
-      minW1 = Math.min(minW1, it.wNew[1]);
-      maxW1 = Math.max(maxW1, it.wNew[1]);
-    }
-
-    // Include global minimum in bounds if it exists
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
-    if (globalMin) {
-      const [gm0, gm1] = globalMin;
-      minW0 = Math.min(minW0, gm0);
-      maxW0 = Math.max(maxW0, gm0);
-      minW1 = Math.min(minW1, gm1);
-      maxW1 = Math.max(maxW1, gm1);
-    }
-
-    // If algorithm diverged (NaN/Infinity values), return default bounds
-    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
-      console.warn('L-BFGS: Algorithm diverged (NaN/Infinity detected), using default bounds');
-      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-    }
-
-    let w0Range = maxW0 - minW0;
-    let w1Range = maxW1 - minW1;
-
-    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
-    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
-    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
-
-    const pad0 = w0Range * 0.2;
-    const pad1 = w1Range * 0.2;
-
-    return {
-      minW0: minW0 - pad0,
-      maxW0: maxW0 + pad0,
-      minW1: minW1 - pad1,
-      maxW1: maxW1 + pad1,
-      w0Range: w0Range + 2 * pad0,
-      w1Range: w1Range + 2 * pad1
-    };
-  }, [lbfgsIterations, currentProblem, logisticGlobalMin]);
-
-  const gdFixedParamBounds = React.useMemo(() => {
-    if (!gdFixedIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-
-    let minW0 = Infinity, maxW0 = -Infinity;
-    let minW1 = Infinity, maxW1 = -Infinity;
-
-    // Include initial point (starting position)
-    if (gdFixedIterations.length > 0) {
-      const [w0_init, w1_init] = gdFixedIterations[0].w;
-      minW0 = Math.min(minW0, w0_init);
-      maxW0 = Math.max(maxW0, w0_init);
-      minW1 = Math.min(minW1, w1_init);
-      maxW1 = Math.max(maxW1, w1_init);
-    }
-
-    for (const it of gdFixedIterations) {
-      minW0 = Math.min(minW0, it.wNew[0]);
-      maxW0 = Math.max(maxW0, it.wNew[0]);
-      minW1 = Math.min(minW1, it.wNew[1]);
-      maxW1 = Math.max(maxW1, it.wNew[1]);
-    }
-
-    // Include global minimum in bounds if it exists
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
-    if (globalMin) {
-      const [gm0, gm1] = globalMin;
-      minW0 = Math.min(minW0, gm0);
-      maxW0 = Math.max(maxW0, gm0);
-      minW1 = Math.min(minW1, gm1);
-      maxW1 = Math.max(maxW1, gm1);
-    }
-
-    // If algorithm diverged (NaN/Infinity values), return default bounds
-    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
-      console.warn('GD Fixed: Algorithm diverged (NaN/Infinity detected), using default bounds');
-      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-    }
-
-    let w0Range = maxW0 - minW0;
-    let w1Range = maxW1 - minW1;
-
-    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
-    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
-    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
-
-    const pad0 = w0Range * 0.2;
-    const pad1 = w1Range * 0.2;
-
-    return {
-      minW0: minW0 - pad0,
-      maxW0: maxW0 + pad0,
-      minW1: minW1 - pad1,
-      maxW1: maxW1 + pad1,
-      w0Range: w0Range + 2 * pad0,
-      w1Range: w1Range + 2 * pad1
-    };
-  }, [gdFixedIterations, currentProblem, logisticGlobalMin]);
-
-  const gdLSParamBounds = React.useMemo(() => {
-    if (!gdLSIterations.length) return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-
-    let minW0 = Infinity, maxW0 = -Infinity;
-    let minW1 = Infinity, maxW1 = -Infinity;
-
-    // Include initial point (starting position)
-    if (gdLSIterations.length > 0) {
-      const [w0_init, w1_init] = gdLSIterations[0].w;
-      minW0 = Math.min(minW0, w0_init);
-      maxW0 = Math.max(maxW0, w0_init);
-      minW1 = Math.min(minW1, w1_init);
-      maxW1 = Math.max(maxW1, w1_init);
-    }
-
-    for (const it of gdLSIterations) {
-      minW0 = Math.min(minW0, it.wNew[0]);
-      maxW0 = Math.max(maxW0, it.wNew[0]);
-      minW1 = Math.min(minW1, it.wNew[1]);
-      maxW1 = Math.max(maxW1, it.wNew[1]);
-    }
-
-    // Include global minimum in bounds if it exists
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
-    if (globalMin) {
-      const [gm0, gm1] = globalMin;
-      minW0 = Math.min(minW0, gm0);
-      maxW0 = Math.max(maxW0, gm0);
-      minW1 = Math.min(minW1, gm1);
-      maxW1 = Math.max(maxW1, gm1);
-    }
-
-    // If algorithm diverged (NaN/Infinity values), return default bounds
-    if (!isFinite(minW0) || !isFinite(maxW0) || !isFinite(minW1) || !isFinite(maxW1)) {
-      console.warn('GD Line Search: Algorithm diverged (NaN/Infinity detected), using default bounds');
-      return { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3, w0Range: 6, w1Range: 6 };
-    }
-
-    let w0Range = maxW0 - minW0;
-    let w1Range = maxW1 - minW1;
-
-    // Handle single-point case (e.g., only 1 iteration): create reasonable window around point
-    if (w0Range === 0) w0Range = Math.max(2, Math.abs(minW0) * 0.5);
-    if (w1Range === 0) w1Range = Math.max(2, Math.abs(minW1) * 0.5);
-
-    const pad0 = w0Range * 0.2;
-    const pad1 = w1Range * 0.2;
-
-    return {
-      minW0: minW0 - pad0,
-      maxW0: maxW0 + pad0,
-      minW1: minW1 - pad1,
-      maxW1: maxW1 + pad1,
-      w0Range: w0Range + 2 * pad0,
-      w1Range: w1Range + 2 * pad1
-    };
-  }, [gdLSIterations, currentProblem, logisticGlobalMin]);
+  const gdLSParamBounds = React.useMemo(
+    () => calculateParamBounds(gdLSIterations, 'GD Line Search'),
+    [gdLSIterations, calculateParamBounds]
+  );
 
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1220,8 +1067,8 @@ const UnifiedVisualizer = () => {
     const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
     const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
 
-    // Draw trajectory path
-    ctx.strokeStyle = '#f97316';
+    // Draw trajectory path (colorblind-safe magenta contrasts well with blue contours)
+    ctx.strokeStyle = '#C71585'; // Dark magenta (colorblind-safe)
     ctx.lineWidth = 2;
     ctx.beginPath();
     // Start from initial point (w of first iteration)
@@ -1236,8 +1083,8 @@ const UnifiedVisualizer = () => {
     }
     ctx.stroke();
 
-    // Draw small red dots at each iteration point
-    ctx.fillStyle = '#dc2626';
+    // Draw small dots at each iteration point (colorblind-safe purple)
+    ctx.fillStyle = '#8B1FA3'; // Dark purple (colorblind-safe)
     for (let i = 0; i <= currentIter; i++) {
       const [w0_pt, w1_pt] = iterations[i].wNew;
       ctx.beginPath();
@@ -1247,7 +1094,7 @@ const UnifiedVisualizer = () => {
 
     // Draw current position (larger dot)
     const [w0, w1] = iterations[currentIter].wNew;
-    ctx.fillStyle = '#dc2626';
+    ctx.fillStyle = '#8B1FA3'; // Dark purple (colorblind-safe)
     ctx.beginPath();
     ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
     ctx.fill();
@@ -1269,135 +1116,9 @@ const UnifiedVisualizer = () => {
     const iter = newtonIterations[newtonCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = newtonParamBounds;
-
-    const resolution = 60;
-    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
-
-    for (let i = 0; i < resolution; i++) {
-      const row: number[] = [];
-      for (let j = 0; j < resolution; j++) {
-        const w0 = minW0 + (i / resolution) * w0Range;
-        const w1 = minW1 + (j / resolution) * w1Range;
-        // Use problem interface for loss computation
-        const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, 0])
-          : problem.objective([w0, w1]);
-        row.push(loss);
-      }
-      lossGrid.push(row);
-    }
-
-    // Define margins for axes (extra space on right for colorbar)
-    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
-    const plotWidth = w - margins.left - margins.right;
-    const plotHeight = h - margins.top - margins.bottom;
-
-    // Calculate min/max for colorbar
-    const flatLossGrid = lossGrid.flat();
-    const minLoss = Math.min(...flatLossGrid);
-    const maxLoss = Math.max(...flatLossGrid);
-
-    // Draw light background
-    ctx.fillStyle = '#f9fafb';
-    ctx.fillRect(0, 0, w, h);
-
-    // Draw filled contour bands (heatmap)
-    drawHeatmap({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw contour lines
-    drawContours({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw colorbar
-    drawColorbar({
-      ctx,
-      canvasWidth: w,
-      canvasHeight: h,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      numLevels: 12,
-      margins
-    });
-
-    // Draw optimum markers (global minimum or critical points)
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
-    if (globalMinimum || problemDef?.criticalPoint) {
-      drawOptimumMarkers({
-        ctx,
-        globalMinimum,
-        criticalPoint: problemDef?.criticalPoint,
-        bounds: { minW0, maxW0, minW1, maxW1 },
-        canvasWidth: w,
-        canvasHeight: h,
-        margins
-      });
-    }
-
-    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
-    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
-
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    // Start from initial point (w of first iteration)
-    if (newtonIterations.length > 0) {
-      const [w0_init, w1_init] = newtonIterations[0].w;
-      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
-      // Draw to each wNew
-      for (let i = 0; i <= newtonCurrentIter; i++) {
-        const [w0, w1] = newtonIterations[i].wNew;
-        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
-      }
-    }
-    ctx.stroke();
-
-    // Draw small red dots at each iteration point
-    ctx.fillStyle = '#dc2626';
-    for (let i = 0; i <= newtonCurrentIter; i++) {
-      const [w0_pt, w1_pt] = newtonIterations[i].wNew;
-      ctx.beginPath();
-      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    const [w0, w1] = iter.wNew;
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw axes with ticks and labels
-    drawAxes({
-      ctx,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      margins
-    });
-  }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab]);
+    drawParameterSpacePlot(canvas, newtonParamBounds, newtonIterations, newtonCurrentIter, problem);
+  }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
 
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
@@ -1580,135 +1301,9 @@ const UnifiedVisualizer = () => {
     const iter = lbfgsIterations[lbfgsCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = lbfgsParamBounds;
-
-    const resolution = 60;
-    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
-
-    for (let i = 0; i < resolution; i++) {
-      const row: number[] = [];
-      for (let j = 0; j < resolution; j++) {
-        const w0 = minW0 + (i / resolution) * w0Range;
-        const w1 = minW1 + (j / resolution) * w1Range;
-        // Use problem interface for loss computation
-        const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, 0])
-          : problem.objective([w0, w1]);
-        row.push(loss);
-      }
-      lossGrid.push(row);
-    }
-
-    // Define margins for axes (extra space on right for colorbar)
-    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
-    const plotWidth = w - margins.left - margins.right;
-    const plotHeight = h - margins.top - margins.bottom;
-
-    // Calculate min/max for colorbar
-    const flatLossGrid = lossGrid.flat();
-    const minLoss = Math.min(...flatLossGrid);
-    const maxLoss = Math.max(...flatLossGrid);
-
-    // Draw light background
-    ctx.fillStyle = '#f9fafb';
-    ctx.fillRect(0, 0, w, h);
-
-    // Draw filled contour bands (heatmap)
-    drawHeatmap({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw contour lines
-    drawContours({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw colorbar
-    drawColorbar({
-      ctx,
-      canvasWidth: w,
-      canvasHeight: h,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      numLevels: 12,
-      margins
-    });
-
-    // Draw optimum markers (global minimum or critical points)
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
-    if (globalMinimum || problemDef?.criticalPoint) {
-      drawOptimumMarkers({
-        ctx,
-        globalMinimum,
-        criticalPoint: problemDef?.criticalPoint,
-        bounds: { minW0, maxW0, minW1, maxW1 },
-        canvasWidth: w,
-        canvasHeight: h,
-        margins
-      });
-    }
-
-    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
-    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
-
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    // Start from initial point (w of first iteration)
-    if (lbfgsIterations.length > 0) {
-      const [w0_init, w1_init] = lbfgsIterations[0].w;
-      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
-      // Draw to each wNew
-      for (let i = 0; i <= lbfgsCurrentIter; i++) {
-        const [w0, w1] = lbfgsIterations[i].wNew;
-        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
-      }
-    }
-    ctx.stroke();
-
-    // Draw small red dots at each iteration point
-    ctx.fillStyle = '#dc2626';
-    for (let i = 0; i <= lbfgsCurrentIter; i++) {
-      const [w0_pt, w1_pt] = lbfgsIterations[i].wNew;
-      ctx.beginPath();
-      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    const [w0, w1] = iter.wNew;
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw axes with ticks and labels
-    drawAxes({
-      ctx,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      margins
-    });
-  }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab]);
+    drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgsIterations, lbfgsCurrentIter, problem);
+  }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
 
   // Draw L-BFGS line search
   useEffect(() => {
@@ -1727,139 +1322,9 @@ const UnifiedVisualizer = () => {
     const iter = gdFixedIterations[gdFixedCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdFixedParamBounds;
-
-    const resolution = 60;
-    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
-
-    // Compute loss landscape as 2D grid
-    for (let i = 0; i < resolution; i++) {
-      const row: number[] = [];
-      for (let j = 0; j < resolution; j++) {
-        const w0 = minW0 + (i / resolution) * w0Range;
-        const w1 = minW1 + (j / resolution) * w1Range;
-        // Use problem interface for loss computation
-        const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, 0])
-          : problem.objective([w0, w1]);
-        row.push(loss);
-      }
-      lossGrid.push(row);
-    }
-
-    // Define margins for axes (extra space on right for colorbar)
-    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
-    const plotWidth = w - margins.left - margins.right;
-    const plotHeight = h - margins.top - margins.bottom;
-
-    // Calculate min/max for colorbar
-    const flatLossGrid = lossGrid.flat();
-    const minLoss = Math.min(...flatLossGrid);
-    const maxLoss = Math.max(...flatLossGrid);
-
-    // Draw light background
-    ctx.fillStyle = '#f9fafb';
-    ctx.fillRect(0, 0, w, h);
-
-    // Draw filled contour bands (heatmap)
-    drawHeatmap({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw contour lines
-    drawContours({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw colorbar
-    drawColorbar({
-      ctx,
-      canvasWidth: w,
-      canvasHeight: h,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      numLevels: 12,
-      margins
-    });
-
-    // Draw optimum markers (global minimum or critical points)
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
-    if (globalMinimum || problemDef?.criticalPoint) {
-      drawOptimumMarkers({
-        ctx,
-        globalMinimum,
-        criticalPoint: problemDef?.criticalPoint,
-        bounds: { minW0, maxW0, minW1, maxW1 },
-        canvasWidth: w,
-        canvasHeight: h,
-        margins
-      });
-    }
-
-    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
-    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
-
-    // Draw trajectory path
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    // Start from initial point (w of first iteration)
-    if (gdFixedIterations.length > 0) {
-      const [w0_init, w1_init] = gdFixedIterations[0].w;
-      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
-      // Draw to each wNew
-      for (let i = 0; i <= gdFixedCurrentIter; i++) {
-        const [w0, w1] = gdFixedIterations[i].wNew;
-        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
-      }
-    }
-    ctx.stroke();
-
-    // Draw small red dots at each iteration point
-    ctx.fillStyle = '#dc2626';
-    for (let i = 0; i <= gdFixedCurrentIter; i++) {
-      const [w0_pt, w1_pt] = gdFixedIterations[i].wNew;
-      ctx.beginPath();
-      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    // Draw current position
-    const [w0, w1] = iter.wNew;
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw axis labels
-    // Draw axes with ticks and labels
-    drawAxes({
-      ctx,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      margins
-    });
-  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab]);
+    drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixedIterations, gdFixedCurrentIter, problem);
+  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
 
   // Draw GD Line Search parameter space
   useEffect(() => {
@@ -1868,135 +1333,9 @@ const UnifiedVisualizer = () => {
     const iter = gdLSIterations[gdLSCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = gdLSParamBounds;
-
-    const resolution = 60;
-    const lossGrid: number[][] = [];
     const problem = getCurrentProblem();
-
-    for (let i = 0; i < resolution; i++) {
-      const row: number[] = [];
-      for (let j = 0; j < resolution; j++) {
-        const w0 = minW0 + (i / resolution) * w0Range;
-        const w1 = minW1 + (j / resolution) * w1Range;
-        // Use problem interface for loss computation
-        const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, 0])
-          : problem.objective([w0, w1]);
-        row.push(loss);
-      }
-      lossGrid.push(row);
-    }
-
-    // Define margins for axes (extra space on right for colorbar)
-    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
-    const plotWidth = w - margins.left - margins.right;
-    const plotHeight = h - margins.top - margins.bottom;
-
-    // Calculate min/max for colorbar
-    const flatLossGrid = lossGrid.flat();
-    const minLoss = Math.min(...flatLossGrid);
-    const maxLoss = Math.max(...flatLossGrid);
-
-    // Draw light background
-    ctx.fillStyle = '#f9fafb';
-    ctx.fillRect(0, 0, w, h);
-
-    // Draw filled contour bands (heatmap)
-    drawHeatmap({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw contour lines
-    drawContours({
-      ctx,
-      values: lossGrid,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      numLevels: 12,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      margins
-    });
-
-    // Draw colorbar
-    drawColorbar({
-      ctx,
-      canvasWidth: w,
-      canvasHeight: h,
-      minValue: minLoss,
-      maxValue: maxLoss,
-      numLevels: 12,
-      margins
-    });
-
-    // Draw optimum markers (global minimum or critical points)
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
-    if (globalMinimum || problemDef?.criticalPoint) {
-      drawOptimumMarkers({
-        ctx,
-        globalMinimum,
-        criticalPoint: problemDef?.criticalPoint,
-        bounds: { minW0, maxW0, minW1, maxW1 },
-        canvasWidth: w,
-        canvasHeight: h,
-        margins
-      });
-    }
-
-    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
-    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
-
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    // Start from initial point (w of first iteration)
-    if (gdLSIterations.length > 0) {
-      const [w0_init, w1_init] = gdLSIterations[0].w;
-      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
-      // Draw to each wNew
-      for (let i = 0; i <= gdLSCurrentIter; i++) {
-        const [w0, w1] = gdLSIterations[i].wNew;
-        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
-      }
-    }
-    ctx.stroke();
-
-    // Draw small red dots at each iteration point
-    ctx.fillStyle = '#dc2626';
-    for (let i = 0; i <= gdLSCurrentIter; i++) {
-      const [w0_pt, w1_pt] = gdLSIterations[i].wNew;
-      ctx.beginPath();
-      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    const [w0, w1] = iter.wNew;
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw axes with ticks and labels
-    drawAxes({
-      ctx,
-      bounds: { minW0, maxW0, minW1, maxW1 },
-      canvasWidth: w,
-      canvasHeight: h,
-      margins
-    });
-  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab]);
+    drawParameterSpacePlot(canvas, gdLSParamBounds, gdLSIterations, gdLSCurrentIter, problem);
+  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
 
   // Draw GD Line Search plot
   useEffect(() => {
@@ -2186,19 +1525,21 @@ const UnifiedVisualizer = () => {
           {selectedTab === 'gd-fixed' ? (
             <>
               {/* 1. Configuration Section */}
-              <AlgorithmConfiguration
-                algorithm="gd-fixed"
-                maxIter={maxIter}
-                onMaxIterChange={setMaxIter}
-                initialW0={initialW0}
-                onInitialW0Change={setInitialW0}
-                initialW1={initialW1}
-                onInitialW1Change={setInitialW1}
-                gdFixedAlpha={gdFixedAlpha}
-                onGdFixedAlphaChange={setGdFixedAlpha}
-                gdFixedTolerance={gdFixedTolerance}
-                onGdFixedToleranceChange={setGdFixedTolerance}
-              />
+              <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
+                <AlgorithmConfiguration
+                  algorithm="gd-fixed"
+                  maxIter={maxIter}
+                  onMaxIterChange={setMaxIter}
+                  initialW0={initialW0}
+                  onInitialW0Change={setInitialW0}
+                  initialW1={initialW1}
+                  onInitialW1Change={setInitialW1}
+                  gdFixedAlpha={gdFixedAlpha}
+                  onGdFixedAlphaChange={setGdFixedAlpha}
+                  gdFixedTolerance={gdFixedTolerance}
+                  onGdFixedToleranceChange={setGdFixedTolerance}
+                />
+              </CollapsibleSection>
 
               {/* 2. Playback Section */}
               {gdFixedIterations.length > 0 && (
@@ -2707,19 +2048,21 @@ const UnifiedVisualizer = () => {
           ) : selectedTab === 'gd-linesearch' ? (
             <>
               {/* 1. Configuration Section */}
-              <AlgorithmConfiguration
-                algorithm="gd-linesearch"
-                maxIter={maxIter}
-                onMaxIterChange={setMaxIter}
-                initialW0={initialW0}
-                onInitialW0Change={setInitialW0}
-                initialW1={initialW1}
-                onInitialW1Change={setInitialW1}
-                gdLSC1={gdLSC1}
-                onGdLSC1Change={setGdLSC1}
-                gdLSTolerance={gdLSTolerance}
-                onGdLSToleranceChange={setGdLSTolerance}
-              />
+              <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
+                <AlgorithmConfiguration
+                  algorithm="gd-linesearch"
+                  maxIter={maxIter}
+                  onMaxIterChange={setMaxIter}
+                  initialW0={initialW0}
+                  onInitialW0Change={setInitialW0}
+                  initialW1={initialW1}
+                  onInitialW1Change={setInitialW1}
+                  gdLSC1={gdLSC1}
+                  onGdLSC1Change={setGdLSC1}
+                  gdLSTolerance={gdLSTolerance}
+                  onGdLSToleranceChange={setGdLSTolerance}
+                />
+              </CollapsibleSection>
 
               {/* 2. Playback Section */}
               {gdLSIterations.length > 0 && (
@@ -3373,21 +2716,23 @@ const UnifiedVisualizer = () => {
           ) : selectedTab === 'newton' ? (
             <>
               {/* 1. Configuration Section */}
-              <AlgorithmConfiguration
-                algorithm="newton"
-                maxIter={maxIter}
-                onMaxIterChange={setMaxIter}
-                initialW0={initialW0}
-                onInitialW0Change={setInitialW0}
-                initialW1={initialW1}
-                onInitialW1Change={setInitialW1}
-                newtonC1={newtonC1}
-                onNewtonC1Change={setNewtonC1}
-                newtonHessianDamping={newtonHessianDamping}
-                onNewtonHessianDampingChange={setNewtonHessianDamping}
-                newtonTolerance={newtonTolerance}
-                onNewtonToleranceChange={setNewtonTolerance}
-              />
+              <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
+                <AlgorithmConfiguration
+                  algorithm="newton"
+                  maxIter={maxIter}
+                  onMaxIterChange={setMaxIter}
+                  initialW0={initialW0}
+                  onInitialW0Change={setInitialW0}
+                  initialW1={initialW1}
+                  onInitialW1Change={setInitialW1}
+                  newtonC1={newtonC1}
+                  onNewtonC1Change={setNewtonC1}
+                  newtonHessianDamping={newtonHessianDamping}
+                  onNewtonHessianDampingChange={setNewtonHessianDamping}
+                  newtonTolerance={newtonTolerance}
+                  onNewtonToleranceChange={setNewtonTolerance}
+                />
+              </CollapsibleSection>
 
               {/* 2. Playback Section */}
               {newtonIterations.length > 0 && (
@@ -3510,6 +2855,14 @@ const UnifiedVisualizer = () => {
                       <li>Smooth, twice-differentiable objectives</li>
                       <li>Near a local minimum (quadratic convergence)</li>
                       <li>When you can afford O(n³) computation per iteration</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Damping Parameter</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Hessian Damping (λ_damp):</strong> Keep at 0.01 (default) for most problems.</li>
+                      <li>Lower to 0 for pure Newton's method, increase to 0.1+ for very ill-conditioned problems.</li>
                     </ul>
                   </div>
 
@@ -3973,21 +3326,23 @@ const UnifiedVisualizer = () => {
           ) : (
             <>
               {/* 1. Configuration Section */}
-              <AlgorithmConfiguration
-                algorithm="lbfgs"
-                maxIter={maxIter}
-                onMaxIterChange={setMaxIter}
-                initialW0={initialW0}
-                onInitialW0Change={setInitialW0}
-                initialW1={initialW1}
-                onInitialW1Change={setInitialW1}
-                lbfgsC1={lbfgsC1}
-                onLbfgsC1Change={setLbfgsC1}
-                lbfgsM={lbfgsM}
-                onLbfgsMChange={setLbfgsM}
-                lbfgsTolerance={lbfgsTolerance}
-                onLbfgsToleranceChange={setLbfgsTolerance}
-              />
+              <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
+                <AlgorithmConfiguration
+                  algorithm="lbfgs"
+                  maxIter={maxIter}
+                  onMaxIterChange={setMaxIter}
+                  initialW0={initialW0}
+                  onInitialW0Change={setInitialW0}
+                  initialW1={initialW1}
+                  onInitialW1Change={setInitialW1}
+                  lbfgsC1={lbfgsC1}
+                  onLbfgsC1Change={setLbfgsC1}
+                  lbfgsM={lbfgsM}
+                  onLbfgsMChange={setLbfgsM}
+                  lbfgsTolerance={lbfgsTolerance}
+                  onLbfgsToleranceChange={setLbfgsTolerance}
+                />
+              </CollapsibleSection>
 
               {/* 2. Playback Section */}
               {lbfgsIterations.length > 0 && (
