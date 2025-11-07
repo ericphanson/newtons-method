@@ -1,5 +1,7 @@
 import React from 'react';
 import { InlineMath } from './Math';
+import { BasinPicker } from './BasinPicker';
+import { ProblemFunctions } from '../algorithms/types';
 
 interface AlgorithmConfigurationProps {
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
@@ -40,6 +42,12 @@ interface AlgorithmConfigurationProps {
   onLbfgsHessianDampingChange?: (val: number) => void;
   lbfgsTolerance?: number;
   onLbfgsToleranceChange?: (val: number) => void;
+
+  // For basin picker
+  problemFuncs: ProblemFunctions;
+  problem: any;
+  bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
+  biasSlice?: number;
 }
 
 export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (props) => {
@@ -310,44 +318,30 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           <p className="text-xs text-gray-500">Maximum iterations before stopping</p>
         </div>
 
-        {/* Initial Point (all algorithms) */}
-        <div>
-          <div className="flex items-baseline gap-2 mb-2">
-            <label className="text-sm font-medium text-gray-700">Initial Point:</label>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 w-8">
-                <InlineMath>w_0</InlineMath>:
-              </span>
-              <input
-                type="range"
-                min="-10"
-                max="10"
-                step="0.1"
-                value={props.initialW0}
-                onChange={(e) => props.onInitialW0Change(Number(e.target.value))}
-                className="flex-1"
-              />
-              <div className="text-sm text-gray-600 w-12 text-right">{props.initialW0.toFixed(1)}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 w-8">
-                <InlineMath>w_1</InlineMath>:
-              </span>
-              <input
-                type="range"
-                min="-10"
-                max="10"
-                step="0.1"
-                value={props.initialW1}
-                onChange={(e) => props.onInitialW1Change(Number(e.target.value))}
-                className="flex-1"
-              />
-              <div className="text-sm text-gray-600 w-12 text-right">{props.initialW1.toFixed(1)}</div>
-            </div>
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Starting position in parameter space</p>
+        {/* Basin Picker (replaces sliders) */}
+        <div className="col-span-2">
+          <BasinPicker
+            problem={props.problem}
+            algorithm={algorithm}
+            algorithmParams={{
+              maxIter: props.maxIter,
+              alpha: props.gdFixedAlpha,
+              c1: props.gdLSC1 || props.newtonC1 || props.lbfgsC1,
+              m: props.lbfgsM,
+              hessianDamping: props.newtonHessianDamping || props.lbfgsHessianDamping,
+              lineSearch: props.newtonLineSearch,
+              tolerance: 1e-5,
+              lambda: 0,
+              biasSlice: props.biasSlice
+            }}
+            problemFuncs={props.problemFuncs}
+            initialPoint={[props.initialW0, props.initialW1, props.biasSlice || 0]}
+            onInitialPointChange={(point) => {
+              props.onInitialW0Change(point[0]);
+              props.onInitialW1Change(point[1]);
+            }}
+            bounds={props.bounds}
+          />
         </div>
       </div>
     </div>
