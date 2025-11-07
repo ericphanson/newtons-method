@@ -186,7 +186,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </label>
                 <input
                   type="range"
-                  min={Math.log10(0.0001)}
+                  min={Math.log10(1e-10)}
                   max={Math.log10(1)}
                   step="0.01"
                   value={Math.log10(props.newtonHessianDamping ?? 0.01)}
@@ -202,10 +202,10 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500">
-                  Regularization for numerical stability (0.0001 to 1.0, logarithmic scale)
+                  Regularization for numerical stability (~0 to 1.0, logarithmic scale)
                 </p>
                 <p className="text-xs text-gray-600">
-                  <span className="font-medium">Tip:</span> Use 0.0001 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+                  <span className="font-medium">Tip:</span> Use ~0 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
                 </p>
               </div>
             </div>
