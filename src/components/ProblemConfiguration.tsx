@@ -227,6 +227,33 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
 
+          {/* Variant selector for separating hyperplane */}
+          {currentProblem === 'separating-hyperplane' && (
+            <div className="mb-4 flex gap-4 items-center">
+              <div className="w-64">
+                <label className="block font-medium text-gray-700 mb-2">Variant:</label>
+                <select
+                  value={separatingHyperplaneVariant}
+                  onChange={(e) =>
+                    onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
+                >
+                  <option value="hard-margin">Hard-Margin SVM</option>
+                  <option value="soft-margin">Soft-Margin SVM</option>
+                  <option value="perceptron">Perceptron</option>
+                  <option value="squared-hinge">Squared-Hinge</option>
+                </select>
+              </div>
+              <div className="flex-1 p-3 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-xs text-green-900">
+                  Different objective functions lead to different separating hyperplanes.
+                  Try switching variants to see how the optimization behavior changes!
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-6">
             {/* Data Space Canvas */}
             <div className="flex-1">
@@ -403,36 +430,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               <p className="text-xs text-blue-900">
                 Higher <InlineMath>b</InlineMath> creates steeper, narrower valleys.
                 <InlineMath>b=10</InlineMath> is gentle (GD can navigate), <InlineMath>b=1000</InlineMath> is extreme (first-order methods struggle).
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Parameters for Separating Hyperplane */}
-      {currentProblem === 'separating-hyperplane' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="flex gap-4">
-            <div className="w-64">
-              <h4 className="font-medium text-gray-700 mb-2">Variant:</h4>
-              <select
-                value={separatingHyperplaneVariant}
-                onChange={(e) =>
-                  onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
-              >
-                <option value="hard-margin">Hard-Margin SVM</option>
-                <option value="soft-margin">Soft-Margin SVM</option>
-                <option value="perceptron">Perceptron</option>
-                <option value="squared-hinge">Squared-Hinge</option>
-              </select>
-            </div>
-            <div className="flex-1 p-3 bg-green-100 rounded-lg self-center">
-              <p className="text-xs text-green-900">
-                Different objective functions lead to different separating hyperplanes.
-                Try switching variants to see how the optimization behavior changes!
               </p>
             </div>
           </div>
