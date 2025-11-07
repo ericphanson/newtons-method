@@ -212,15 +212,17 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
 
         // Log convergence statistics
         if (result.data) {
-          let converged = 0, notConverged = 0, diverged = 0;
+          let converged = 0, stalled = 0, notConverged = 0, diverged = 0;
           result.data.grid.forEach(row => {
             row.forEach(point => {
-              if (point.converged) converged++;
-              else if (point.diverged) diverged++;
+              if (point.diverged) diverged++;
+              else if (point.stalled) stalled++;
+              else if (point.converged) converged++;
               else notConverged++;
             });
           });
-          console.log(`📊 Convergence: ${converged} converged, ${notConverged} not converged, ${diverged} diverged (total: ${converged + notConverged + diverged})`);
+          const total = converged + stalled + notConverged + diverged;
+          console.log(`📊 Convergence: ${converged} converged (gradient), ${stalled} stalled (ftol/xtol), ${notConverged} not converged (maxiter), ${diverged} diverged (total: ${total})`);
         }
 
         // CACHE DISABLED FOR DEBUGGING

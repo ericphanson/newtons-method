@@ -27,13 +27,25 @@ export function encodeBasinColors(basinData: BasinData): ColorEncoding[][] {
   const maxIter = Math.max(...validPoints.map(p => p.iterations));
 
   // Step 4: Encode each grid point
+  // Lightness encoding:
+  // - 10: Diverged (very dark/black)
+  // - 20: Not converged - maxiter (dark gray)
+  // - 25: Stalled - ftol/xtol (medium dark gray)
+  // - 30-80: Converged - gradient (colored by basin, brightness by speed)
   return basinData.grid.map((row, i) =>
     row.map((point, j) => {
       if (point.diverged) {
-        return { hue: 0, lightness: 10 }; // Very dark
+        return { hue: 0, lightness: 10 }; // Very dark (black)
       }
       if (!point.converged) {
-        return { hue: 0, lightness: 20 }; // Dark gray
+        return { hue: 0, lightness: 20 }; // Dark gray (not converged)
+      }
+      if (point.stalled) {
+        // Stalled points get a fixed medium-dark lightness with hue based on basin
+        const pointIndex = i * basinData.resolution + j;
+        const clusterId = clusterIds[pointIndex];
+        const hue = clusterId >= 0 ? clusterHues[clusterId] : 0;
+        return { hue, lightness: 25 }; // Medium dark (stalled)
       }
 
       const pointIndex = i * basinData.resolution + j;

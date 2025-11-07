@@ -1,5 +1,6 @@
 import React from 'react';
 import { fmt, fmtVec } from '../shared-utils';
+import type { AlgorithmSummary } from '../algorithms/types';
 
 interface IterationMetricsProps {
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
@@ -33,6 +34,9 @@ interface IterationMetricsProps {
 
   tolerance: number;
 
+  // Convergence summary
+  summary?: AlgorithmSummary | null;
+
   // Callbacks
   onIterationChange?: (iter: number) => void;
 }
@@ -55,6 +59,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   lineSearchTrials,
   lineSearchCanvasRef,
   hessianCanvasRef,
+  summary,
   onIterationChange,
 }) => {
 
@@ -98,6 +103,37 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           Iter {iterNum + 1} / {totalIters}
         </div>
       </div>
+
+      {/* Convergence Status */}
+      {summary && (
+        <div className={`p-2 rounded border ${
+          summary.diverged
+            ? 'border-red-300 bg-red-50'
+            : summary.stalled
+            ? 'border-yellow-300 bg-yellow-50'
+            : summary.converged
+            ? 'border-green-300 bg-green-50'
+            : 'border-gray-300 bg-gray-50'
+        }`}>
+          <div className="flex items-center gap-2 mb-1">
+            {summary.converged && !summary.stalled && (
+              <span className="text-green-600 font-semibold">✓ Converged</span>
+            )}
+            {summary.stalled && (
+              <span className="text-yellow-600 font-semibold">⚠ Stalled</span>
+            )}
+            {summary.diverged && (
+              <span className="text-red-600 font-semibold">✗ Diverged</span>
+            )}
+            {summary.convergenceCriterion === 'maxiter' && (
+              <span className="text-gray-600 font-semibold">⋯ Max Iterations</span>
+            )}
+          </div>
+          <div className="text-xs text-gray-700">
+            {summary.terminationMessage}
+          </div>
+        </div>
+      )}
 
       {/* Gradient Norm with Sparkline */}
       <div className="space-y-1">

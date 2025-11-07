@@ -18,8 +18,17 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
 
     // Set up high DPI rendering
     const dpr = window.devicePixelRatio || 1;
-    const logicalWidth = 100;
-    const logicalHeight = isMultiModal ? hues.length * 30 + 130 : 115;
+
+    // Calculate layout for multi-column display when there are many minima
+    const numMinima = hues.length;
+    const maxItemsPerColumn = 8;
+    const numColumns = isMultiModal ? Math.ceil(numMinima / maxItemsPerColumn) : 1;
+    const itemsPerColumn = isMultiModal ? Math.ceil(numMinima / numColumns) : 0;
+
+    const columnWidth = 85;
+    const colorbarWidth = 80; // Width for the iterations colorbar column
+    const logicalWidth = isMultiModal ? numColumns * columnWidth + colorbarWidth : 100;
+    const logicalHeight = isMultiModal ? Math.max(itemsPerColumn * 30, 115) : 115;
 
     canvas.width = logicalWidth * dpr;
     canvas.height = logicalHeight * dpr;
@@ -31,30 +40,33 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
     ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
     if (isMultiModal) {
-      // Draw discrete swatches for each minimum
-      const swatchHeight = hues.length * 30;
+      // Draw discrete swatches for each minimum in a multi-column grid
+      const swatchHeight = itemsPerColumn * 30;
       hues.forEach((hue, idx) => {
-        const y = idx * 30;
+        const col = Math.floor(idx / itemsPerColumn);
+        const row = idx % itemsPerColumn;
+        const x = col * columnWidth + 10;
+        const y = row * 30;
+
         ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
-        ctx.fillRect(10, y + 5, 20, 20);
+        ctx.fillRect(x, y + 5, 20, 20);
 
         // Draw border around swatch
         ctx.strokeStyle = '#d1d5db';
         ctx.lineWidth = 1;
-        ctx.strokeRect(10, y + 5, 20, 20);
+        ctx.strokeRect(x, y + 5, 20, 20);
 
         ctx.fillStyle = '#000';
         ctx.font = '12px sans-serif';
-        ctx.fillText(`Min ${idx + 1}`, 35, y + 17);
+        ctx.fillText(`Min ${idx + 1}`, x + 25, y + 17);
       });
 
-      // Add grayscale colorbar below the swatches
-      const gapHeight = 15;
-      const gradientTop = swatchHeight + gapHeight;
+      // Add grayscale colorbar as rightmost column
       const labelHeight = 15;
-      const gradientLeft = 10;
+      const gradientLeft = numColumns * columnWidth + 10;
       const gradientWidth = 20;
       const gradientHeight = 100;
+      const gradientTop = 0;
 
       // Draw "iterations" label
       ctx.font = '9px sans-serif';

@@ -6,10 +6,12 @@ import {
   dot,
   norm,
   scale,
-  add
+  add,
+  sub
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
+import { getTerminationMessage } from './terminationUtils';
 
 export interface NewtonIteration {
   iter: number;
@@ -153,8 +155,17 @@ export const runNewton = (
     throw new Error('Newton method requires Hessian function');
   }
 
-  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5, lineSearch = 'armijo' } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5, lineSearch = 'armijo', termination } = options;
+
+  // Extract termination thresholds (backward compatible with tolerance parameter)
+  const gtol = termination?.gtol ?? tolerance;
+  const ftol = termination?.ftol ?? 1e-9;
+  const xtol = termination?.xtol ?? 1e-9;
+
   const iterations: NewtonIteration[] = [];
+  let previousLoss: number | null = null;
+  let previousW: number[] | null = null;
+  let terminationReason: ConvergenceCriterion | null = null;
 
   // Note: lambda is accepted for API consistency but unused here since
   // regularization is already baked into ProblemFunctions
@@ -172,6 +183,43 @@ export const runNewton = (
     const gradNorm = norm(grad);
     const eigenvalues = computeEigenvalues(hessian);
     const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
+
+    // Early divergence detection
+    if (!isFinite(loss) || !isFinite(gradNorm)) {
+      terminationReason = 'diverged';
+      // Still store the iteration data before breaking
+      iterations.push({
+        iter,
+        w: [...w],
+        loss,
+        grad: [...grad],
+        gradNorm,
+        hessian: hessian.map(row => [...row]),
+        eigenvalues: [...eigenvalues],
+        conditionNumber,
+        direction: [0, 0],
+        alpha: 0,
+        wNew: [...w],
+        newLoss: loss,
+        lineSearchTrials: [],
+        lineSearchCurve: { alphaRange: [], lossValues: [], armijoValues: [] }
+      });
+      break;
+    }
+
+    // Check gradient norm convergence
+    if (gradNorm < gtol) {
+      terminationReason = 'gradient';
+      // Will store iteration at end of loop
+    }
+
+    // Check function value stalling
+    if (previousLoss !== null && ftol > 0) {
+      const funcChange = Math.abs(loss - previousLoss);
+      if (funcChange < ftol && terminationReason === null) {
+        terminationReason = 'ftol';
+      }
+    }
 
     // Apply Hessian damping: H_damped = H + λ_damp * I
     const dampedHessian = hessian.map((row, i) =>
@@ -218,6 +266,14 @@ export const runNewton = (
     const wNew = add(w, scale(direction, acceptedAlpha));
     const newLoss = problem.objective(wNew);
 
+    // Check step size stalling
+    if (xtol > 0) {
+      const stepSize = norm(sub(wNew, w));
+      if (stepSize < xtol && terminationReason === null) {
+        terminationReason = 'xtol';
+      }
+    }
+
     iterations.push({
       iter,
       w: [...w],
@@ -235,12 +291,20 @@ export const runNewton = (
       lineSearchCurve: lineSearchResult.curve
     });
 
+    // Update for next iteration
+    previousLoss = newLoss;
+    previousW = [...w];
     w = wNew;
 
-    // Early stopping if converged
-    if (gradNorm < tolerance) {
+    // Early stopping if any termination criterion met
+    if (terminationReason !== null) {
       break;
     }
+  }
+
+  // If loop completed without early termination
+  if (terminationReason === null) {
+    terminationReason = 'maxiter';
   }
 
   // Compute convergence summary
@@ -249,26 +313,39 @@ export const runNewton = (
   const finalLoss = lastIter ? lastIter.newLoss : Infinity;
   const finalLocation = lastIter ? lastIter.wNew : w;
 
-  const converged = finalGradNorm < tolerance;
-  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
+  // Compute final step size and function change if we have previous iteration data
+  const finalStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
+  const finalFunctionChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
 
-  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
-  if (diverged) {
-    convergenceCriterion = 'diverged';
-  } else if (converged) {
-    convergenceCriterion = 'gradient';
-  } else {
-    convergenceCriterion = 'maxiter';
-  }
+  // Determine convergence flags
+  const converged = ['gradient', 'ftol', 'xtol'].includes(terminationReason);
+  const diverged = terminationReason === 'diverged';
+  const stalled = ['ftol', 'xtol'].includes(terminationReason);
+
+  // Generate human-readable termination message
+  const terminationMessage = getTerminationMessage(terminationReason, {
+    gradNorm: finalGradNorm,
+    gtol,
+    stepSize: finalStepSize,
+    xtol,
+    funcChange: finalFunctionChange,
+    ftol,
+    iters: iterations.length,
+    maxIter
+  });
 
   const summary: AlgorithmSummary = {
     converged,
     diverged,
+    stalled,
     finalLocation,
     finalLoss,
     finalGradNorm,
+    finalStepSize,
+    finalFunctionChange,
     iterationCount: iterations.length,
-    convergenceCriterion
+    convergenceCriterion: terminationReason,
+    terminationMessage
   };
 
   return { iterations, summary };

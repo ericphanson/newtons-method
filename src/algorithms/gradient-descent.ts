@@ -1,5 +1,6 @@
 import { DataPoint, computeLossAndGradient, norm, scale, add } from '../shared-utils';
-import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
+import { getTerminationMessage } from './terminationUtils';
 
 export interface GradientDescentIteration {
   iter: number;
@@ -82,7 +83,7 @@ export const runGradientDescent = (
   const converged = finalGradNorm < tolerance;
   const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
 
-  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  let convergenceCriterion: ConvergenceCriterion;
   if (diverged) {
     convergenceCriterion = 'diverged';
   } else if (converged) {
@@ -91,14 +92,23 @@ export const runGradientDescent = (
     convergenceCriterion = 'maxiter';
   }
 
+  const terminationMessage = getTerminationMessage(convergenceCriterion, {
+    gradNorm: finalGradNorm,
+    gtol: tolerance,
+    iters: iterations.length,
+    maxIter
+  });
+
   const summary: AlgorithmSummary = {
     converged,
     diverged,
+    stalled: false, // GD with fixed step doesn't have stalling detection yet
     finalLocation,
     finalLoss,
     finalGradNorm,
     iterationCount: iterations.length,
-    convergenceCriterion
+    convergenceCriterion,
+    terminationMessage
   };
 
   return { iterations, summary };

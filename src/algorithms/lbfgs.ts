@@ -9,7 +9,8 @@ import {
   sub
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
+import { getTerminationMessage } from './terminationUtils';
 
 export interface MemoryPair {
   s: number[];
@@ -205,7 +206,7 @@ export const runLBFGS = (
   const converged = finalGradNorm < tolerance;
   const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
 
-  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  let convergenceCriterion: ConvergenceCriterion;
   if (diverged) {
     convergenceCriterion = 'diverged';
   } else if (converged) {
@@ -214,14 +215,23 @@ export const runLBFGS = (
     convergenceCriterion = 'maxiter';
   }
 
+  const terminationMessage = getTerminationMessage(convergenceCriterion, {
+    gradNorm: finalGradNorm,
+    gtol: tolerance,
+    iters: iterations.length,
+    maxIter
+  });
+
   const summary: AlgorithmSummary = {
     converged,
     diverged,
+    stalled: false, // L-BFGS doesn't have stalling detection yet
     finalLocation,
     finalLoss,
     finalGradNorm,
     iterationCount: iterations.length,
-    convergenceCriterion
+    convergenceCriterion,
+    terminationMessage
   };
 
   return { iterations, summary };
