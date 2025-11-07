@@ -934,9 +934,27 @@ const UnifiedVisualizer = () => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    // Transform canvas coordinates to data space: [-2.5, 2.5] x [-2, 2]
-    const x1 = (x / rect.width) * 5 - 2.5;
-    const x2 = 2 - (y / rect.height) * 4;
+
+    // Compute data bounds (same as in drawing code)
+    const padding = 0.3;
+    let minX1 = Infinity, maxX1 = -Infinity, minX2 = Infinity, maxX2 = -Infinity;
+    for (const point of data) {
+      minX1 = Math.min(minX1, point.x1);
+      maxX1 = Math.max(maxX1, point.x1);
+      minX2 = Math.min(minX2, point.x2);
+      maxX2 = Math.max(maxX2, point.x2);
+    }
+    minX1 -= padding;
+    maxX1 += padding;
+    minX2 -= padding;
+    maxX2 += padding;
+
+    const rangeX1 = maxX1 - minX1;
+    const rangeX2 = maxX2 - minX2;
+
+    // Transform canvas coordinates to data space
+    const x1 = (x / rect.width) * rangeX1 + minX1;
+    const x2 = maxX2 - (y / rect.height) * rangeX2;
     setCustomPoints([...customPoints, { x1, x2, y: addPointMode - 1 }]);
   };
 
@@ -949,9 +967,25 @@ const UnifiedVisualizer = () => {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
 
-    // Better scaling for crescent dataset: fits data in [-2.5, 2.5] x [-2, 2]
-    const toCanvasX = (x1: number) => ((x1 + 2.5) / 5) * w;
-    const toCanvasY = (x2: number) => ((2 - x2) / 4) * h;
+    // Compute data bounds dynamically with padding
+    const padding = 0.3;
+    let minX1 = Infinity, maxX1 = -Infinity, minX2 = Infinity, maxX2 = -Infinity;
+    for (const point of data) {
+      minX1 = Math.min(minX1, point.x1);
+      maxX1 = Math.max(maxX1, point.x1);
+      minX2 = Math.min(minX2, point.x2);
+      maxX2 = Math.max(maxX2, point.x2);
+    }
+    minX1 -= padding;
+    maxX1 += padding;
+    minX2 -= padding;
+    maxX2 += padding;
+
+    const rangeX1 = maxX1 - minX1;
+    const rangeX2 = maxX2 - minX2;
+
+    const toCanvasX = (x1: number) => ((x1 - minX1) / rangeX1) * w;
+    const toCanvasY = (x2: number) => ((maxX2 - x2) / rangeX2) * h;
 
     // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixedIterations[gdFixedCurrentIter] :
@@ -964,11 +998,12 @@ const UnifiedVisualizer = () => {
         ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        for (let x1 = -2.5; x1 <= 2.5; x1 += 0.1) {
+        const step = rangeX1 / 50; // Use 50 points across the range
+        for (let x1 = minX1; x1 <= maxX1; x1 += step) {
           const x2 = -(w0 * x1 + w2) / w1;
           const cx = toCanvasX(x1);
           const cy = toCanvasY(x2);
-          if (x1 === -2.5) ctx.moveTo(cx, cy);
+          if (x1 === minX1) ctx.moveTo(cx, cy);
           else ctx.lineTo(cx, cy);
         }
         ctx.stroke();
