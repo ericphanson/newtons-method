@@ -25,7 +25,7 @@ import { ComparisonView } from './components/ComparisonView';
 import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
-import { drawContours, drawOptimumMarkers, drawAxes } from './utils/contourDrawing';
+import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
 import { getExperimentsForAlgorithm } from './experiments';
 import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
@@ -1122,6 +1122,146 @@ const UnifiedVisualizer = () => {
     ctx.fillText('Hessian Matrix H', startX, 20);
   }, [newtonIterations, newtonCurrentIter, selectedTab]);
 
+  // Helper function to draw parameter space plot
+  const drawParameterSpacePlot = (
+    canvas: HTMLCanvasElement,
+    bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number; w0Range: number; w1Range: number },
+    iterations: Array<{ w: number[]; wNew: number[] }>,
+    currentIter: number,
+    problem: ProblemFunctions
+  ) => {
+    const { ctx, width: w, height: h } = setupCanvas(canvas);
+    const { minW0, maxW0, minW1, maxW1, w0Range, w1Range } = bounds;
+
+    const resolution = 60;
+    const lossGrid: number[][] = [];
+
+    // Compute loss landscape as 2D grid
+    for (let i = 0; i < resolution; i++) {
+      const row: number[] = [];
+      for (let j = 0; j < resolution; j++) {
+        const w0 = minW0 + (i / resolution) * w0Range;
+        const w1 = minW1 + (j / resolution) * w1Range;
+        // Use problem interface for loss computation
+        const loss = problem.dimensionality === 3
+          ? problem.objective([w0, w1, 0])
+          : problem.objective([w0, w1]);
+        row.push(loss);
+      }
+      lossGrid.push(row);
+    }
+
+    // Define margins for axes (extra space on right for colorbar)
+    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
+
+    // Calculate min/max for colorbar
+    const flatLossGrid = lossGrid.flat();
+    const minLoss = Math.min(...flatLossGrid);
+    const maxLoss = Math.max(...flatLossGrid);
+
+    // Draw light background
+    ctx.fillStyle = '#f9fafb';
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw filled contour bands (heatmap)
+    drawHeatmap({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw contour lines
+    drawContours({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw colorbar
+    drawColorbar({
+      ctx,
+      canvasWidth: w,
+      canvasHeight: h,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      numLevels: 12,
+      margins
+    });
+
+    // Draw optimum markers (global minimum or critical points)
+    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
+    if (globalMinimum || problemDef?.criticalPoint) {
+      drawOptimumMarkers({
+        ctx,
+        globalMinimum,
+        criticalPoint: problemDef?.criticalPoint,
+        bounds: { minW0, maxW0, minW1, maxW1 },
+        canvasWidth: w,
+        canvasHeight: h,
+        margins
+      });
+    }
+
+    const toCanvasX = (w0: number) => margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+    const toCanvasY = (w1: number) => margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
+
+    // Draw trajectory path
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Start from initial point (w of first iteration)
+    if (iterations.length > 0) {
+      const [w0_init, w1_init] = iterations[0].w;
+      ctx.moveTo(toCanvasX(w0_init), toCanvasY(w1_init));
+      // Draw to each wNew
+      for (let i = 0; i <= currentIter; i++) {
+        const [w0, w1] = iterations[i].wNew;
+        ctx.lineTo(toCanvasX(w0), toCanvasY(w1));
+      }
+    }
+    ctx.stroke();
+
+    // Draw small red dots at each iteration point
+    ctx.fillStyle = '#dc2626';
+    for (let i = 0; i <= currentIter; i++) {
+      const [w0_pt, w1_pt] = iterations[i].wNew;
+      ctx.beginPath();
+      ctx.arc(toCanvasX(w0_pt), toCanvasY(w1_pt), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    // Draw current position (larger dot)
+    const [w0, w1] = iterations[currentIter].wNew;
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(toCanvasX(w0), toCanvasY(w1), 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Draw axes with ticks and labels
+    drawAxes({
+      ctx,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
+  };
+
   // Draw Newton's parameter space
   useEffect(() => {
     const canvas = newtonParamCanvasRef.current;
@@ -1609,14 +1749,32 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
-    // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    // Define margins for axes (extra space on right for colorbar)
+    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
+
+    // Calculate min/max for colorbar
+    const flatLossGrid = lossGrid.flat();
+    const minLoss = Math.min(...flatLossGrid);
+    const maxLoss = Math.max(...flatLossGrid);
 
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
+
+    // Draw filled contour bands (heatmap)
+    drawHeatmap({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
 
     // Draw contour lines
     drawContours({
@@ -1625,6 +1783,19 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw colorbar
+    drawColorbar({
+      ctx,
+      canvasWidth: w,
+      canvasHeight: h,
+      minValue: minLoss,
+      maxValue: maxLoss,
       numLevels: 12,
       margins
     });
@@ -1718,14 +1889,32 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
-    // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    // Define margins for axes (extra space on right for colorbar)
+    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
+
+    // Calculate min/max for colorbar
+    const flatLossGrid = lossGrid.flat();
+    const minLoss = Math.min(...flatLossGrid);
+    const maxLoss = Math.max(...flatLossGrid);
 
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
+
+    // Draw filled contour bands (heatmap)
+    drawHeatmap({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
 
     // Draw contour lines
     drawContours({
@@ -1734,6 +1923,19 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw colorbar
+    drawColorbar({
+      ctx,
+      canvasWidth: w,
+      canvasHeight: h,
+      minValue: minLoss,
+      maxValue: maxLoss,
       numLevels: 12,
       margins
     });

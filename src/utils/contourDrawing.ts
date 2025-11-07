@@ -3,10 +3,6 @@
 import { contours } from 'd3-contour';
 import { range } from 'd3-array';
 
-/**
- * Draw contour lines on a canvas using d3-contour
- */
-
 interface ContourOptions {
   ctx: CanvasRenderingContext2D;
   values: number[][];  // 2D grid of loss values
@@ -19,6 +15,110 @@ interface ContourOptions {
   margins?: { left: number; right: number; top: number; bottom: number };
 }
 
+/**
+ * Draw filled contour bands on canvas (like a topographic map)
+ */
+export function drawHeatmap(options: ContourOptions): void {
+  const {
+    ctx,
+    values,
+    bounds,
+    canvasWidth,
+    canvasHeight,
+    numLevels = 15,
+    margins = { left: 60, right: 70, top: 20, bottom: 60 }
+  } = options;
+
+  // Flatten 2D array and check for valid values
+  const flatValues = values.flat();
+  if (flatValues.some(v => !isFinite(v))) {
+    console.warn('Filled contours drawing skipped: NaN/Infinity values detected in loss grid');
+    return;
+  }
+
+  const minValue = options.minValue ?? Math.min(...flatValues);
+  const maxValue = options.maxValue ?? Math.max(...flatValues);
+  const valueRange = maxValue - minValue;
+
+  if (valueRange === 0) return; // Flat surface, no contours
+
+  const resolution = values.length;
+  const { minW0, maxW0, minW1, maxW1 } = bounds;
+  const w0Range = maxW0 - minW0;
+  const w1Range = maxW1 - minW1;
+
+  // Calculate plot area dimensions
+  const plotWidth = canvasWidth - margins.left - margins.right;
+  const plotHeight = canvasHeight - margins.top - margins.bottom;
+
+  // Create contour generator with same thresholds as line contours
+  const contourGenerator = contours()
+    .size([resolution, resolution])
+    .smooth(true)
+    .thresholds(range(numLevels).map(i => {
+      const t = (i + 1) / (numLevels + 1);
+      const exponential = Math.pow(t, 2.5);
+      return minValue + exponential * valueRange;
+    }));
+
+  // Generate contours
+  const contourData = contourGenerator(flatValues);
+
+  // Helper function to get color for a contour level (light blue to medium-dark blue)
+  const getContourColor = (idx: number) => {
+    const normalized = idx / Math.max(1, numLevels - 1);
+    // Light blue (low values) to medium-dark blue (high values) - not too dark
+    const r = Math.floor(173 - normalized * 103); // 173 -> 70
+    const g = Math.floor(216 - normalized * 106); // 216 -> 110
+    const b = Math.floor(230 - normalized * 20);   // 230 -> 210
+    return { r, g, b };
+  };
+
+  // First, fill entire plot area with the lowest color (ensures no white at minimum)
+  const lowestColor = getContourColor(0);
+  ctx.fillStyle = `rgba(${lowestColor.r},${lowestColor.g},${lowestColor.b},0.5)`;
+  ctx.fillRect(margins.left, margins.top, plotWidth, plotHeight);
+
+  // Draw filled contour bands between levels
+  for (let idx = 0; idx < contourData.length; idx++) {
+    const contour = contourData[idx];
+    const color = getContourColor(idx + 1); // Use next color up for the fill
+    ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},0.5)`;
+
+    if (contour.coordinates && contour.coordinates.length > 0) {
+      contour.coordinates.forEach(polygon => {
+        polygon.forEach(ring => {
+          ctx.beginPath();
+          ring.forEach((point, i) => {
+            // Map from grid coordinates to canvas coordinates
+            const gridX = point[0];
+            const gridY = point[1];
+
+            // Convert to parameter space
+            const w0 = minW0 + (gridX / resolution) * w0Range;
+            const w1 = minW1 + (gridY / resolution) * w1Range;
+
+            // Convert to canvas coordinates (within plot area)
+            const canvasX = margins.left + ((w0 - minW0) / w0Range) * plotWidth;
+            const canvasY = margins.top + ((maxW1 - w1) / w1Range) * plotHeight;
+
+            if (i === 0) {
+              ctx.moveTo(canvasX, canvasY);
+            } else {
+              ctx.lineTo(canvasX, canvasY);
+            }
+          });
+          ctx.closePath();
+          ctx.fill();
+        });
+      });
+    }
+  }
+}
+
+/**
+ * Draw contour lines on a canvas using d3-contour
+ */
 export function drawContours(options: ContourOptions): void {
   const {
     ctx,
@@ -72,19 +172,10 @@ export function drawContours(options: ContourOptions): void {
   contourData.forEach((contour, idx) => {
     const normalized = idx / (numLevels - 1);
 
-    // Color from blue (low) to red (high)
-    let r, g, b;
-    if (normalized < 0.5) {
-      const t = normalized / 0.5;
-      r = Math.floor(0 + t * 50);
-      g = Math.floor(100 + t * 150);
-      b = Math.floor(255 * (1 - t * 0.3));
-    } else {
-      const t = (normalized - 0.5) / 0.5;
-      r = Math.floor(50 + t * 205);
-      g = Math.floor(250 * (1 - t * 0.8));
-      b = Math.floor(178 * (1 - t));
-    }
+    // Light blue (low) to medium-dark blue (high) gradient
+    const r = Math.floor(173 - normalized * 103); // 173 -> 70 (not too dark)
+    const g = Math.floor(216 - normalized * 106); // 216 -> 110 (not too dark)
+    const b = Math.floor(230 - normalized * 20);   // 230 -> 210 (stays blue)
 
     ctx.strokeStyle = `rgb(${r},${g},${b})`;
     ctx.lineWidth = 1.2;
@@ -170,6 +261,110 @@ export function drawStarMarker(
     ctx.stroke();
   }
 
+  ctx.restore();
+}
+
+/**
+ * Draw a colorbar showing the mapping from colors to loss values
+ */
+interface ColorbarOptions {
+  ctx: CanvasRenderingContext2D;
+  canvasWidth: number;
+  canvasHeight: number;
+  minValue: number;
+  maxValue: number;
+  numLevels: number;
+  margins?: { left: number; right: number; top: number; bottom: number };
+}
+
+export function drawColorbar(options: ColorbarOptions): void {
+  const {
+    ctx,
+    canvasWidth,
+    canvasHeight,
+    minValue,
+    maxValue,
+    numLevels,
+    margins = { left: 60, right: 70, top: 20, bottom: 60 }
+  } = options;
+
+  // Colorbar dimensions and position (outside plot area, to the right)
+  const barWidth = 20;
+  const barHeight = canvasHeight - margins.top - margins.bottom;
+  const barX = canvasWidth - margins.right + 10; // Start 10px after the plot area
+  const barY = margins.top;
+
+  // Helper function to get color (light blue to medium-dark blue gradient)
+  const getContourColor = (idx: number) => {
+    const normalized = idx / Math.max(1, numLevels - 1);
+    // Light blue (low values) to medium-dark blue (high values) - not too dark
+    const r = Math.floor(173 - normalized * 103); // 173 -> 70
+    const g = Math.floor(216 - normalized * 106); // 216 -> 110
+    const b = Math.floor(230 - normalized * 20);   // 230 -> 210
+    return { r, g, b };
+  };
+
+  // Draw gradient bar from bottom (low values) to top (high values)
+  const segments = 100;
+  for (let i = 0; i < segments; i++) {
+    const normalizedPos = i / segments; // 0 at bottom, 1 at top
+    const colorIdx = normalizedPos * (numLevels - 1);
+    const color = getContourColor(colorIdx);
+
+    ctx.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+    const segmentHeight = barHeight / segments;
+    const y = barY + barHeight - (i + 1) * segmentHeight; // Draw from bottom up
+    ctx.fillRect(barX, y, barWidth, segmentHeight + 1);
+  }
+
+  // Draw border around colorbar
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+  // Draw ticks and labels
+  ctx.fillStyle = '#374151';
+  ctx.strokeStyle = '#374151';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+
+  const numTicks = 5;
+  const valueRange = maxValue - minValue;
+
+  for (let i = 0; i < numTicks; i++) {
+    const t = i / (numTicks - 1);
+    const exponential = Math.pow(t, 2.5); // Same exponential scaling as contours
+    const value = minValue + exponential * valueRange;
+
+    // Tick position (from bottom to top)
+    const tickY = barY + barHeight - t * barHeight;
+
+    // Draw tick mark
+    ctx.beginPath();
+    ctx.moveTo(barX + barWidth, tickY);
+    ctx.lineTo(barX + barWidth + 4, tickY);
+    ctx.stroke();
+
+    // Format and draw label
+    let label: string;
+    if (Math.abs(value) < 0.01 && value !== 0) {
+      label = value.toExponential(1);
+    } else if (Math.abs(value) >= 1000) {
+      label = value.toExponential(1);
+    } else {
+      label = value.toFixed(2);
+    }
+
+    ctx.fillText(label, barX + barWidth + 8, tickY);
+  }
+
+  // Draw "Loss" label
+  ctx.save();
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('Loss', barX + barWidth / 2, barY - 5);
   ctx.restore();
 }
 
