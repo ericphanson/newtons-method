@@ -181,7 +181,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         algorithm,
         algorithmParams,
         bounds,
-        20, // resolution
+        10, // resolution
         taskIdRef,
         taskId,
         (completed, total) => {
