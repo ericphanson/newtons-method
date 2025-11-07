@@ -16,7 +16,7 @@ import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
-import type { ProblemFunctions } from './algorithms/types';
+import type { ProblemFunctions, AlgorithmSummary } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
@@ -34,7 +34,7 @@ import { AlgorithmConfiguration } from './components/AlgorithmConfiguration';
 import { IterationPlayback } from './components/IterationPlayback';
 import { IterationMetrics } from './components/IterationMetrics';
 
-type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
 const LoadingSpinner = () => (
   <svg
@@ -80,18 +80,21 @@ const UnifiedVisualizer = () => {
 
   // GD Fixed step state
   const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
+  const [gdFixedSummary, setGdFixedSummary] = useState<AlgorithmSummary | null>(null);
   const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
 
   // GD Line search state
   const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
+  const [gdLSSummary, setGdLSSummary] = useState<AlgorithmSummary | null>(null);
   const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
 
   // Newton state
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
+  const [newtonSummary, setNewtonSummary] = useState<AlgorithmSummary | null>(null);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('armijo');
@@ -100,6 +103,7 @@ const UnifiedVisualizer = () => {
 
   // L-BFGS state
   const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
+  const [lbfgsSummary, setLbfgsSummary] = useState<AlgorithmSummary | null>(null);
   const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
@@ -689,6 +693,7 @@ const UnifiedVisualizer = () => {
       });
       const iterations = result.iterations;
       setGdFixedIterations(iterations);
+      setGdFixedSummary(result.summary);
 
       // Restore position at same percentage
       const newIter = iterations.length > 0
@@ -722,6 +727,7 @@ const UnifiedVisualizer = () => {
       });
       const iterations = result.iterations;
       setGdLSIterations(iterations);
+      setGdLSSummary(result.summary);
 
       // Restore position at same percentage
       const newIter = iterations.length > 0
@@ -757,6 +763,7 @@ const UnifiedVisualizer = () => {
       });
       const iterations = result.iterations;
       setNewtonIterations(iterations);
+      setNewtonSummary(result.summary);
 
       // Restore position at same percentage
       const newIter = iterations.length > 0
@@ -799,6 +806,7 @@ const UnifiedVisualizer = () => {
         console.log('Last iteration:', iterations[iterations.length - 1]);
       }
       setLbfgsIterations(iterations);
+      setLbfgsSummary(result.summary);
 
       // Restore position at same percentage
       const newIter = iterations.length > 0
@@ -1713,6 +1721,7 @@ const UnifiedVisualizer = () => {
                       lossHistory={gdFixedIterations.map(iter => iter.newLoss)}
                       alphaHistory={gdFixedIterations.map(iter => iter.alpha)}
                       tolerance={gdFixedTolerance}
+                      summary={gdFixedSummary}
                       onIterationChange={setGdFixedCurrentIter}
                     />
                   </div>
@@ -2207,6 +2216,7 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
+                      summary={gdLSSummary}
                       onIterationChange={setGdLSCurrentIter}
                     />
                   </div>
@@ -2859,6 +2869,7 @@ const UnifiedVisualizer = () => {
                       hessianCanvasRef={newtonHessianCanvasRef}
                       hessian={newtonIterations[newtonCurrentIter].hessian}
                       tolerance={newtonTolerance}
+                      summary={newtonSummary}
                       onIterationChange={setNewtonCurrentIter}
                     />
                   </div>
@@ -3652,6 +3663,7 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}
+                      summary={lbfgsSummary}
                       onIterationChange={setLbfgsCurrentIter}
                     />
                   </div>
