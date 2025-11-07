@@ -113,6 +113,7 @@ const UnifiedVisualizer = () => {
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
+  const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
   const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
   const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
