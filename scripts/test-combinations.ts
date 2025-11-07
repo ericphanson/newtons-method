@@ -271,7 +271,7 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         config.algorithm = next as any;
         i++;
         break;
-      case '--initial':
+      case '--initial': {
         const initialValues = next.split(',').map(Number);
         // Support both 2D and 3D initial points
         if (initialValues.length === 2) {
@@ -283,6 +283,7 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         }
         i++;
         break;
+      }
       case '--maxIter':
         config.maxIter = parseInt(next);
         i++;
