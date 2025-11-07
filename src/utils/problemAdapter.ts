@@ -49,12 +49,12 @@ export function separatingHyperplaneToProblemFunctions(
     case 'soft-margin':
       objective = (w) => SH.softMarginObjective(w, data, lambda);
       gradient = (w) => SH.softMarginGradient(w, data, lambda);
-      hessian = (w) => SH.softMarginHessian(w, data, lambda);
+      hessian = (_w) => SH.softMarginHessian();
       break;
     case 'perceptron':
       objective = (w) => SH.perceptronObjective(w, data, lambda);
       gradient = (w) => SH.perceptronGradient(w, data, lambda);
-      hessian = (w) => SH.perceptronHessian(w, data, lambda);
+      hessian = (_w) => SH.perceptronHessian(lambda);
       break;
     case 'squared-hinge':
       objective = (w) => SH.squaredHingeObjective(w, data, lambda);
