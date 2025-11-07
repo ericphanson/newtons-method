@@ -1,0 +1,374 @@
+
+> lbfgs-visualizer@0.0.0 validate
+> cd python && uv run python validate_with_python.py --all
+
+
+============================================================
+Running 32 test cases...
+============================================================
+
+
+Testing: quadratic + gd-fixed... ❌ FAIL
+
+quadratic + gd-fixed
+  ❌ FAIL
+    Python: converged=True, iters=68, loss=2.07e-13, grad_norm=9.09e-07
+    TS:     converged=False, iters=100, loss=3.53e-10, grad_norm=2.95e-05
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: quadratic + gd-linesearch... ⚠️  SUSPICIOUS
+
+quadratic + gd-linesearch
+  ⚠️  SUSPICIOUS
+    Python: converged=True, iters=3, loss=1.63e-17, grad_norm=8.08e-09
+    TS:     converged=True, iters=32, loss=7.02e-14, grad_norm=5.94e-07
+    - Iteration count differs 10.7x: Python=3, TS=32
+
+Testing: quadratic + newton... ✅ PASS
+
+Testing: quadratic + lbfgs... ⚠️  SUSPICIOUS
+
+quadratic + lbfgs
+  ⚠️  SUSPICIOUS
+    Python: converged=True, iters=2, loss=2.47e-32, grad_norm=3.14e-16
+    TS:     converged=True, iters=9, loss=1.11e-17, grad_norm=9.58e-07
+    - Iteration count differs 4.5x: Python=2, TS=9
+
+Testing: ill-conditioned-quadratic + gd-fixed... ⚠️  SUSPICIOUS
+
+ill-conditioned-quadratic + gd-fixed
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=1000, loss=1.00e+02, grad_norm=2.00e+02
+    TS:     converged=False, iters=1000, loss=9.32e-10, grad_norm=4.36e-05
+    - Both diverged (unexpected for this problem)
+
+Testing: ill-conditioned-quadratic + gd-linesearch... ❌ FAIL
+
+ill-conditioned-quadratic + gd-linesearch
+  ❌ FAIL
+    Python: converged=True, iters=4, loss=1.95e-32, grad_norm=2.79e-15
+    TS:     converged=False, iters=100, loss=6.39e-03, grad_norm=1.95e-01
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: ill-conditioned-quadratic + newton... ✅ PASS
+
+Testing: ill-conditioned-quadratic + lbfgs... ✅ PASS
+
+Testing: rosenbrock + gd-fixed... ✅ PASS
+
+Testing: rosenbrock + gd-linesearch... ✅ PASS
+
+Testing: rosenbrock + newton... ✅ PASS
+
+Testing: rosenbrock + lbfgs... ✅ PASS
+
+Testing: non-convex-saddle + gd-fixed... ✅ PASS
+
+Testing: non-convex-saddle + gd-linesearch.../Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:295: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:295: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:91: RuntimeWarning: overflow encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:91: RuntimeWarning: invalid value encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:299: RuntimeWarning: overflow encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:299: RuntimeWarning: invalid value encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:295: RuntimeWarning: overflow encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:295: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_optimize.py:1808: RuntimeWarning: overflow encountered in dot
+  beta_k = max(0, np.dot(yk, gfkp1) / deltak)
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/numpy/linalg/_linalg.py:2792: RuntimeWarning: overflow encountered in dot
+  sqnorm = x.dot(x)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_optimize.py:1799: RuntimeWarning: overflow encountered in dot
+  deltak = np.dot(gfk, gfk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:91: RuntimeWarning: invalid value encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:89: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:299: RuntimeWarning: invalid value encountered in dot
+  derphi0 = np.dot(gfk, pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_linesearch.py:295: RuntimeWarning: invalid value encountered in dot
+  return np.dot(gval[0], pk)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_optimize.py:1808: RuntimeWarning: invalid value encountered in scalar divide
+  beta_k = max(0, np.dot(yk, gfkp1) / deltak)
+/Users/eph/newtons-method/python/.venv/lib/python3.11/site-packages/scipy/optimize/_optimize.py:1809: RuntimeWarning: invalid value encountered in multiply
+  pkp1 = -gfkp1 + beta_k * pk
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+ ✅ PASS
+
+Testing: non-convex-saddle + newton... ❌ FAIL
+
+non-convex-saddle + newton
+  ❌ FAIL
+    Python: converged=True, iters=1, loss=0.00e+00, grad_norm=2.83e+00
+    TS:     converged=False, iters=100, loss=-5.00e-07, grad_norm=1.41e-02
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: non-convex-saddle + lbfgs.../Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: overflow encountered in scalar power
+  return w[0] ** 2 - w[1] ** 2
+/Users/eph/newtons-method/python/problems.py:77: RuntimeWarning: invalid value encountered in scalar subtract
+  return w[0] ** 2 - w[1] ** 2
+ ✅ PASS
+
+Testing: logistic-regression + gd-fixed... ⚠️  SUSPICIOUS
+
+logistic-regression + gd-fixed
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=100, loss=5.32e-01, grad_norm=7.97e-02
+    TS:     converged=False, iters=100, loss=inf, grad_norm=inf
+    - Both diverged (unexpected for this problem)
+
+Testing: logistic-regression + gd-linesearch... ❌ FAIL
+
+logistic-regression + gd-linesearch
+  ❌ FAIL
+    Python: converged=True, iters=19, loss=3.14e-01, grad_norm=8.99e-06
+    TS:     converged=False, iters=100, loss=inf, grad_norm=inf
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: logistic-regression + newton... ❌ FAIL
+
+logistic-regression + newton
+  ❌ FAIL
+    Python: converged=True, iters=7, loss=3.14e-01, grad_norm=2.13e-08
+    TS:     converged=False, iters=100, loss=inf, grad_norm=inf
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: logistic-regression + lbfgs... ❌ FAIL
+
+logistic-regression + lbfgs
+  ❌ FAIL
+    Python: converged=True, iters=15, loss=3.14e-01, grad_norm=6.90e-08
+    TS:     converged=False, iters=100, loss=inf, grad_norm=inf
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[soft-margin] + gd-fixed... ⚠️  SUSPICIOUS
+
+separating-hyperplane[soft-margin] + gd-fixed
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=100, loss=1.04e+00, grad_norm=2.20e-02
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Both diverged (unexpected for this problem)
+
+Testing: separating-hyperplane[soft-margin] + gd-linesearch... ⚠️  SUSPICIOUS
+
+separating-hyperplane[soft-margin] + gd-linesearch
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=12, loss=1.04e+00, grad_norm=2.21e-03
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Both diverged (unexpected for this problem)
+
+Testing: separating-hyperplane[soft-margin] + newton... ⚠️  SUSPICIOUS
+
+separating-hyperplane[soft-margin] + newton
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=2, loss=1.12e+00, grad_norm=2.20e-01
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Both diverged (unexpected for this problem)
+
+Testing: separating-hyperplane[soft-margin] + lbfgs... ❌ FAIL
+
+separating-hyperplane[soft-margin] + lbfgs
+  ❌ FAIL
+    Python: converged=True, iters=25, loss=1.04e+00, grad_norm=1.79e-04
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[perceptron] + gd-fixed... ❌ FAIL
+
+separating-hyperplane[perceptron] + gd-fixed
+  ❌ FAIL
+    Python: converged=True, iters=1, loss=0.00e+00, grad_norm=0.00e+00
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[perceptron] + gd-linesearch... ❌ FAIL
+
+separating-hyperplane[perceptron] + gd-linesearch
+  ❌ FAIL
+    Python: converged=True, iters=0, loss=0.00e+00, grad_norm=0.00e+00
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[perceptron] + newton... ❌ FAIL
+
+separating-hyperplane[perceptron] + newton
+  ❌ FAIL
+    Python: converged=True, iters=1, loss=0.00e+00, grad_norm=0.00e+00
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[perceptron] + lbfgs... ❌ FAIL
+
+separating-hyperplane[perceptron] + lbfgs
+  ❌ FAIL
+    Python: converged=True, iters=0, loss=0.00e+00, grad_norm=0.00e+00
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[squared-hinge] + gd-fixed... ⚠️  SUSPICIOUS
+
+separating-hyperplane[squared-hinge] + gd-fixed
+  ⚠️  SUSPICIOUS
+    Python: converged=False, iters=100, loss=8.90e-01, grad_norm=8.75e-03
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Both diverged (unexpected for this problem)
+
+Testing: separating-hyperplane[squared-hinge] + gd-linesearch... ❌ FAIL
+
+separating-hyperplane[squared-hinge] + gd-linesearch
+  ❌ FAIL
+    Python: converged=True, iters=10, loss=8.90e-01, grad_norm=2.04e-13
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[squared-hinge] + newton... ❌ FAIL
+
+separating-hyperplane[squared-hinge] + newton
+  ❌ FAIL
+    Python: converged=True, iters=5, loss=8.90e-01, grad_norm=7.11e-16
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+Testing: separating-hyperplane[squared-hinge] + lbfgs... ❌ FAIL
+
+separating-hyperplane[squared-hinge] + lbfgs
+  ❌ FAIL
+    Python: converged=True, iters=11, loss=8.90e-01, grad_norm=1.88e-08
+    TS:     converged=False, iters=1, loss=inf, grad_norm=0.00e+00
+    - Convergence mismatch: Python=converged, TS=diverged
+
+============================================================
+RESULTS: 32 tests
+============================================================
+✅ PASS:       10 tests
+⚠️  SUSPICIOUS: 8 tests
+❌ FAIL:       14 tests
+
+============================================================
+FAILURES:
+============================================================
+
+❌ quadratic + gd-fixed
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ ill-conditioned-quadratic + gd-linesearch
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ non-convex-saddle + newton
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ logistic-regression + gd-linesearch
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ logistic-regression + newton
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ logistic-regression + lbfgs
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[soft-margin] + lbfgs
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[perceptron] + gd-fixed
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[perceptron] + gd-linesearch
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[perceptron] + newton
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[perceptron] + lbfgs
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[squared-hinge] + gd-linesearch
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[squared-hinge] + newton
+   - Convergence mismatch: Python=converged, TS=diverged
+
+❌ separating-hyperplane[squared-hinge] + lbfgs
+   - Convergence mismatch: Python=converged, TS=diverged
+
+============================================================
+SUSPICIOUS:
+============================================================
+
+⚠️  quadratic + gd-linesearch
+   - Iteration count differs 10.7x: Python=3, TS=32
+
+⚠️  quadratic + lbfgs
+   - Iteration count differs 4.5x: Python=2, TS=9
+
+⚠️  ill-conditioned-quadratic + gd-fixed
+   - Both diverged (unexpected for this problem)
+
+⚠️  logistic-regression + gd-fixed
+   - Both diverged (unexpected for this problem)
+
+⚠️  separating-hyperplane[soft-margin] + gd-fixed
+   - Both diverged (unexpected for this problem)
+
+⚠️  separating-hyperplane[soft-margin] + gd-linesearch
+   - Both diverged (unexpected for this problem)
+
+⚠️  separating-hyperplane[soft-margin] + newton
+   - Both diverged (unexpected for this problem)
+
+⚠️  separating-hyperplane[squared-hinge] + gd-fixed
+   - Both diverged (unexpected for this problem)

@@ -1,5 +1,33 @@
 import { ProblemDefinition } from '../types/experiments';
 
+// Simple quadratic bowl: f(w) = w0^2 + w1^2
+// Well-conditioned problem with circular level sets
+export const quadraticProblem: ProblemDefinition = {
+  name: 'Quadratic Bowl',
+  description: 'Simple quadratic bowl: f(w) = w0^2 + w1^2 (well-conditioned)',
+
+  objective: (w: number[]): number => {
+    const [w0, w1] = w;
+    return w0 * w0 + w1 * w1;
+  },
+
+  gradient: (w: number[]): number[] => {
+    const [w0, w1] = w;
+    return [2 * w0, 2 * w1];
+  },
+
+  hessian: (_w: number[]): number[][] => {
+    return [[2, 0], [0, 2]];
+  },
+
+  domain: {
+    w0: [-3, 3],
+    w1: [-3, 3],
+  },
+
+  globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
+};
+
 // Rotated ellipse: demonstrates coordinate system dependence
 // f(w) = 0.5 * w^T * R * diag(5, 1) * R^T * w, where R is rotation by θ
 // Factory function that creates a parametrized rotated quadratic
@@ -46,11 +74,35 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
   };
 }
 
-// Default instance with θ=0° (axis-aligned) for backward compatibility
-export const quadraticProblem: ProblemDefinition = createRotatedQuadratic(0);
-
 // Ill-conditioned quadratic: elongated ellipse
-// f(w) = 0.5 * (κ*w0^2 + w1^2)
+// f(w) = w0^2 + κ*w1^2
+// Matches Python validation suite: f(w) = w0^2 + 100*w1^2
+export const illConditionedQuadratic: ProblemDefinition = {
+  name: 'Ill-Conditioned Quadratic',
+  description: 'Elongated ellipse: f(w) = w0^2 + 100*w1^2 (condition number κ=100)',
+
+  objective: (w: number[]): number => {
+    const [w0, w1] = w;
+    return w0 * w0 + 100 * w1 * w1;
+  },
+
+  gradient: (w: number[]): number[] => {
+    const [w0, w1] = w;
+    return [2 * w0, 200 * w1];
+  },
+
+  hessian: (_w: number[]): number[][] => {
+    return [[2, 0], [0, 200]];
+  },
+
+  domain: {
+    w0: [-3, 3],
+    w1: [-3, 3],
+  },
+
+  globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
+};
+
 // Factory function that creates a parametrized ill-conditioned quadratic
 export function createIllConditionedQuadratic(conditionNumber: number = 100): ProblemDefinition {
   return {
@@ -58,25 +110,24 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
     description: `Elongated ellipse with condition number κ=${conditionNumber}`,
 
     objective: (w: number[]): number => {
-      return 0.5 * (conditionNumber * w[0] * w[0] + w[1] * w[1]);
+      const [w0, w1] = w;
+      return w0 * w0 + conditionNumber * w1 * w1;
     },
 
     gradient: (w: number[]): number[] => {
-      return [conditionNumber * w[0], w[1]];
+      const [w0, w1] = w;
+      return [2 * w0, 2 * conditionNumber * w1];
     },
 
     hessian: (_w: number[]): number[][] => {
-      return [[conditionNumber, 0], [0, 1]];
+      return [[2, 0], [0, 2 * conditionNumber]];
     },
 
     domain: {
-      w0: [-0.5, 0.5],
+      w0: [-3, 3],
       w1: [-3, 3],
     },
 
     globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
   };
 }
-
-// Default instance with κ=100 for backward compatibility
-export const illConditionedQuadratic: ProblemDefinition = createIllConditionedQuadratic(100);
