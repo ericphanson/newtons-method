@@ -10,7 +10,7 @@ export function ProblemExplainer() {
     <div className="space-y-6 p-6 max-w-4xl">
       <h2 className="text-2xl font-bold text-gray-900">Problem Types</h2>
       <p className="text-gray-700">
-        The visualizer supports 6 different optimization problems. Each demonstrates
+        The visualizer supports 8 different optimization problems. Each demonstrates
         different algorithmic behaviors and challenges.
       </p>
 
@@ -509,6 +509,161 @@ export function ProblemExplainer() {
         </div>
       </CollapsibleSection>
 
+      {/* Himmelblau's Function */}
+      <CollapsibleSection
+        title="Himmelblau's Function (Four Global Minima)"
+        defaultExpanded={false}
+        storageKey="problem-explainer-himmelblau"
+      >
+        <div className="space-y-3 text-gray-800">
+          <p>
+            <strong>Type:</strong> Multimodal (four equivalent global minima)
+          </p>
+
+          <div>
+            <p className="font-semibold">Objective Function:</p>
+            <BlockMath>
+              {String.raw`f(w) = (w_0^2 + w_1 - 11)^2 + (w_0 + w_1^2 - 7)^2`}
+            </BlockMath>
+          </div>
+
+          <div>
+            <p className="font-semibold">Four Global Minima (all f = 0):</p>
+            <ul className="text-sm list-disc ml-5">
+              <li>(3.0, 2.0)</li>
+              <li>(-2.805118, 3.131312)</li>
+              <li>(-3.779310, -3.283186)</li>
+              <li>(3.584428, -1.848126)</li>
+            </ul>
+          </div>
+
+          <p>
+            <strong>What it does:</strong> A classic multimodal test function with four valleys
+            of equal depth, creating symmetric basins of convergence.
+          </p>
+
+          <p>
+            <strong>Why it's interesting:</strong> Perfect for visualizing basins of convergence!
+            This is the <strong>first problem in the visualizer with multiple local minima</strong>,
+            demonstrating how initial conditions determine which minimum Newton's method converges to.
+          </p>
+
+          <p>
+            <strong>Key Insight - Basins of Convergence:</strong>
+          </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li>
+              <strong>Basin boundaries:</strong> Complex fractal-like patterns where nearby starting
+              points can converge to different minima
+            </li>
+            <li>
+              <strong>Symmetry:</strong> All four minima are equally deep (f = 0), making this a
+              perfectly symmetric optimization landscape
+            </li>
+            <li>
+              <strong>Sensitivity:</strong> Small changes in initial position can dramatically change
+              which minimum you reach
+            </li>
+          </ul>
+
+          <div className="bg-indigo-50 rounded p-3">
+            <p className="text-sm font-semibold mb-1">Perfect for exploring:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li>Basin visualization tool to see which starting points lead to each minimum</li>
+              <li>How Newton's method follows steepest descent into nearest valley</li>
+              <li>Symmetric competition between equally attractive minima</li>
+              <li>Why initial conditions matter in multimodal optimization</li>
+            </ul>
+          </div>
+
+          <div className="bg-blue-50 rounded p-3 mt-3">
+            <p className="text-sm font-semibold mb-1">Named after:</p>
+            <p className="text-sm">
+              David Mautner Himmelblau (1972), a pioneer in optimization methods. This function
+              has become a standard benchmark for testing optimization algorithms' ability to
+              handle multiple minima.
+            </p>
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* Three-Hump Camel */}
+      <CollapsibleSection
+        title="Three-Hump Camel (Asymmetric Basins)"
+        defaultExpanded={false}
+        storageKey="problem-explainer-three-hump-camel"
+      >
+        <div className="space-y-3 text-gray-800">
+          <p>
+            <strong>Type:</strong> Multimodal (one global + two local minima)
+          </p>
+
+          <div>
+            <p className="font-semibold">Objective Function:</p>
+            <BlockMath>
+              {String.raw`f(w) = 2w_0^2 - 1.05w_0^4 + \frac{w_0^6}{6} + w_0 w_1 + w_1^2`}
+            </BlockMath>
+          </div>
+
+          <div>
+            <p className="font-semibold">Three Minima:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li><strong>Global:</strong> (0, 0) with f = 0</li>
+              <li><strong>Local:</strong> approximately (1.7, -0.85) with f ≈ 0.0</li>
+              <li><strong>Local:</strong> approximately (-1.7, 0.85) with f ≈ 0.0</li>
+            </ul>
+          </div>
+
+          <p>
+            <strong>What it does:</strong> A standard multimodal benchmark with three valleys
+            - one deep global minimum and two shallow local minima.
+          </p>
+
+          <p>
+            <strong>Why it's interesting:</strong> Demonstrates <strong>asymmetric basin structure</strong>
+            where the deeper global minimum has a larger basin of attraction than the shallow local minima.
+            Shows how optimization quality (depth) relates to basin size.
+          </p>
+
+          <p>
+            <strong>Key Insight - Competitive Basins:</strong>
+          </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li>
+              <strong>Dominant basin:</strong> The global minimum at origin has a much larger basin
+              of convergence - most starting points lead here
+            </li>
+            <li>
+              <strong>Local minima basins:</strong> Two smaller side basins for the local minima
+              (only nearby starting points converge to these)
+            </li>
+            <li>
+              <strong>Asymmetry:</strong> Unlike Himmelblau (symmetric), this shows realistic scenarios
+              where some minima are "better" and more accessible
+            </li>
+          </ul>
+
+          <div className="bg-green-50 rounded p-3">
+            <p className="text-sm font-semibold mb-1">Perfect for understanding:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li>How basin size relates to minimum quality (deeper = larger basin)</li>
+              <li>Why random initialization often finds the global minimum (largest basin)</li>
+              <li>Competition between global and local optima</li>
+              <li>Simple polynomial form makes the mathematics easy to understand</li>
+            </ul>
+          </div>
+
+          <div className="bg-yellow-50 rounded p-3 mt-3 border border-yellow-200">
+            <p className="text-sm font-semibold mb-1">⚠️ Local Minima Trap:</p>
+            <p className="text-sm">
+              Starting points near (±1.7, ∓0.85) can converge to local minima instead of the
+              global minimum. This demonstrates why multi-start strategies (trying multiple
+              initial points) are important in real-world optimization!
+            </p>
+          </div>
+        </div>
+      </CollapsibleSection>
+
       {/* How to Use */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <h3 className="font-semibold text-gray-900 mb-2">How to Choose a Problem</h3>
@@ -531,6 +686,14 @@ export function ProblemExplainer() {
               <li>Ill-Conditioned for scaling issues</li>
               <li>Rosenbrock for varying curvature</li>
               <li>Saddle Point for Newton failures</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-semibold text-gray-900">For exploring basins:</p>
+            <ul className="text-gray-700 list-disc ml-5">
+              <li>Himmelblau for symmetric basin boundaries</li>
+              <li>Three-Hump Camel for asymmetric basins</li>
+              <li>Use basin visualization to see convergence patterns</li>
             </ul>
           </div>
         </div>

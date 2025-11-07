@@ -4,7 +4,9 @@ export type ProblemType =
   | 'ill-conditioned-quadratic'
   | 'rosenbrock'
   | 'non-convex-saddle'
-  | 'separating-hyperplane';
+  | 'separating-hyperplane'
+  | 'himmelblau'
+  | 'three-hump-camel';
 
 export type SeparatingHyperplaneVariant =
   | 'soft-margin'

@@ -139,6 +139,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
             <option value="rosenbrock">Rosenbrock Function</option>
             <option value="non-convex-saddle">Saddle Point</option>
+            <option value="himmelblau">Himmelblau's Function</option>
+            <option value="three-hump-camel">Three-Hump Camel</option>
             <option value="separating-hyperplane">Separating Hyperplane</option>
           </select>
           <button
@@ -210,6 +212,12 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               )}
               {currentProblem === 'non-convex-saddle' && (
                 <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
+              )}
+              {currentProblem === 'himmelblau' && (
+                <InlineMath>{String.raw`f(w) = (w_0^2 + w_1 - 11)^2 + (w_0 + w_1^2 - 7)^2`}</InlineMath>
+              )}
+              {currentProblem === 'three-hump-camel' && (
+                <InlineMath>{String.raw`f(w) = 2w_0^2 - 1.05w_0^4 + \frac{w_0^6}{6} + w_0 w_1 + w_1^2`}</InlineMath>
               )}
             </div>
             <div>

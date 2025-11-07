@@ -2,6 +2,8 @@ import { ProblemDefinition } from '../types/experiments';
 import { quadraticProblem, createRotatedQuadratic, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
 import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock';
 import { saddleProblem } from './saddle';
+import { himmelblauProblem } from './himmelblau';
+import { threeHumpCamelProblem } from './threeHumpCamel';
 
 /**
  * Registry of all available optimization problems
@@ -12,6 +14,8 @@ export const problemRegistry: Record<string, ProblemDefinition> = {
   'ill-conditioned-quadratic': illConditionedQuadratic,
   'rosenbrock': rosenbrockProblem,
   'non-convex-saddle': saddleProblem,
+  'himmelblau': himmelblauProblem,
+  'three-hump-camel': threeHumpCamelProblem,
 };
 
 /**
@@ -30,5 +34,7 @@ export {
   createIllConditionedQuadratic,
   rosenbrockProblem,
   createRosenbrockProblem,
-  saddleProblem
+  saddleProblem,
+  himmelblauProblem,
+  threeHumpCamelProblem
 };

@@ -60,6 +60,22 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
         initialPoint: [-1.5, 1.5]  // Symmetrical starting point
       };
 
+    case 'himmelblau':
+      return {
+        ...DEFAULT_CONFIG,
+        gdFixedAlpha: 0.1,     // Standard works well
+        maxIter: 200,
+        initialPoint: [0, 0]   // Central point - could converge to any of 4 minima!
+      };
+
+    case 'three-hump-camel':
+      return {
+        ...DEFAULT_CONFIG,
+        gdFixedAlpha: 0.1,     // Standard works well
+        maxIter: 200,
+        initialPoint: [1, 0.5] // Starts in local minimum basin to show basin structure
+      };
+
     case 'separating-hyperplane':
       return {
         gdFixedAlpha: 0.1,
@@ -91,6 +107,10 @@ export function getProblemNote(problem: string): string {
       return 'Elongated valley - GD needs small α to avoid zigzagging';
     case 'non-convex-saddle':
       return 'Unbounded below - gradient methods diverge to -∞';
+    case 'himmelblau':
+      return 'Four equivalent global minima - basin visualization shows which starting points lead to each';
+    case 'three-hump-camel':
+      return 'One global + two local minima - larger basin for deeper minimum';
     case 'separating-hyperplane':
       return 'Finds optimal separating hyperplane. Try different variants to see how objective functions affect the solution.';
     case 'quadratic':
