@@ -161,7 +161,26 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     ctx.fill();
   }, [basinData, initialPoint]);
 
-  // TODO: Add click handling
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!basinData || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = event.clientX - rect.left;
+    const canvasY = event.clientY - rect.top;
+
+    const { minW0, maxW0, minW1, maxW1 } = basinData.bounds;
+
+    const w0 = minW0 + (canvasX / canvas.width) * (maxW0 - minW0);
+    const w1 = maxW1 - (canvasY / canvas.height) * (maxW1 - minW1);
+
+    // Handle 3D problems
+    if (problemFuncs.dimensionality === 3) {
+      onInitialPointChange([w0, w1, algorithmParams.biasSlice || 0]);
+    } else {
+      onInitialPointChange([w0, w1]);
+    }
+  };
 
   return (
     <div className="mb-4">
@@ -181,6 +200,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         height={250}
         className="border border-gray-300 cursor-crosshair"
         style={{ width: 250, height: 250 }}
+        onClick={handleCanvasClick}
       />
 
       {isComputing && (
