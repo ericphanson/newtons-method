@@ -107,6 +107,15 @@ export async function computeBasinIncremental(
   let pointIndex = 0;
   const totalPoints = resolution * resolution;
 
+  // Timing instrumentation
+  console.group('🕐 Basin Computation Timing');
+  console.log(`Resolution: ${resolution}x${resolution} = ${totalPoints} points`);
+  console.log(`Algorithm: ${algorithm}`);
+  const overallStart = performance.now();
+  let totalPointComputeTime = 0;
+  let frameCount = 0;
+  let totalFrameTime = 0;
+
   while (pointIndex < totalPoints) {
     // Yield to browser
     await new Promise(resolve => requestAnimationFrame(resolve));
@@ -114,10 +123,12 @@ export async function computeBasinIncremental(
     // Check cancellation
     if (taskIdRef.current !== currentTaskId) {
       console.log('Basin computation cancelled');
+      console.groupEnd();
       return null;
     }
 
     const frameStart = performance.now();
+    frameCount++;
 
     // Compute as many points as we can in our time budget
     while (pointIndex < totalPoints) {
@@ -134,6 +145,10 @@ export async function computeBasinIncremental(
           ? [w0, w1, algorithmParams.biasSlice || 0]
           : [w0, w1];
 
+      // Time individual point computation (sample every 10th point)
+      const shouldProfile = pointIndex % 10 === 0;
+      const pointStart = shouldProfile ? performance.now() : 0;
+
       // Run algorithm from this starting point
       const result = computeBasinPoint(
         initialPoint,
@@ -141,6 +156,14 @@ export async function computeBasinIncremental(
         algorithm,
         algorithmParams
       );
+
+      if (shouldProfile) {
+        const pointTime = performance.now() - pointStart;
+        totalPointComputeTime += pointTime;
+        if (pointIndex < 50) {
+          console.log(`  Point ${pointIndex}/${totalPoints}: ${pointTime.toFixed(2)}ms`);
+        }
+      }
 
       basinData.grid[i][j] = result;
       pointIndex++;
@@ -151,11 +174,27 @@ export async function computeBasinIncremental(
       }
     }
 
+    const frameTime = performance.now() - frameStart;
+    totalFrameTime += frameTime;
+
     // Report progress
     if (onProgress) {
       onProgress(pointIndex, totalPoints);
     }
   }
+
+  const overallTime = performance.now() - overallStart;
+
+  // Final timing summary
+  console.log('');
+  console.log('📊 TIMING SUMMARY:');
+  console.log(`  Total time: ${overallTime.toFixed(2)}ms (${(overallTime / 1000).toFixed(2)}s)`);
+  console.log(`  Average per point (sampled): ${(totalPointComputeTime / (totalPoints / 10)).toFixed(2)}ms`);
+  console.log(`  Estimated total compute time: ${((totalPointComputeTime / (totalPoints / 10)) * totalPoints).toFixed(2)}ms`);
+  console.log(`  Frame count: ${frameCount}`);
+  console.log(`  Average frame time: ${(totalFrameTime / frameCount).toFixed(2)}ms`);
+  console.log(`  RAF overhead: ${(overallTime - totalFrameTime).toFixed(2)}ms (${((overallTime - totalFrameTime) / overallTime * 100).toFixed(1)}%)`);
+  console.groupEnd();
 
   return basinData;
 }

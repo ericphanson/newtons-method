@@ -77,6 +77,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       // Check cache first
       const cached = basinCache.get(cacheKey);
       if (cached) {
+        console.log('🎯 Basin data retrieved from cache');
         setBasinData(cached.data);
         setIsComputing(false);
         return;
@@ -87,6 +88,16 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       setIsComputing(true);
       setProgress(0);
       const taskId = ++taskIdRef.current;
+
+      console.group('🚀 Basin Computation Started');
+      console.log(`Timestamp: ${new Date().toISOString()}`);
+      console.log(`Resolution: 20x20 = 400 points`);
+      console.log(`Algorithm: ${algorithm}`);
+      console.log(`Problem: ${problem.name}`);
+      console.log(`Bounds:`, bounds);
+      console.groupEnd();
+
+      const componentStart = performance.now();
 
       const result = await computeBasinIncremental(
         problemFuncs,
@@ -101,7 +112,17 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         }
       );
 
+      const componentEnd = performance.now();
+      const totalTime = componentEnd - componentStart;
+
       if (result) {
+        console.group('✅ Basin Computation Finished');
+        console.log(`Timestamp: ${new Date().toISOString()}`);
+        console.log(`Total time (including RAF overhead): ${totalTime.toFixed(2)}ms (${(totalTime / 1000).toFixed(2)}s)`);
+        console.log(`Expected benchmark time: ~130ms`);
+        console.log(`Actual vs expected: ${(totalTime / 130).toFixed(1)}x slower`);
+        console.groupEnd();
+
         // Store in cache
         basinCache.set(cacheKey, {
           key: cacheKey,
