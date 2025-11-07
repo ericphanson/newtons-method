@@ -4623,8 +4623,6 @@ const UnifiedVisualizer = () => {
                 )}
               </div>
             </>
-          )}
-            </>
           ) : selectedTab === 'diagonal-precond' ? (
             <>
               {/* Diagonal Preconditioner Tab Content */}
