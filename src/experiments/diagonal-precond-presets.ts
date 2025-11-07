@@ -9,7 +9,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 10,
+      maxIter: 50,
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Converges in 1-2 iterations! D=diag(1/H₀₀, 1/H₁₁) perfectly inverts diagonal Hessian',
@@ -22,7 +22,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Takes 40+ iterations! Hessian has off-diagonal terms that D cannot capture',
@@ -35,7 +35,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Diagonal precond (2 iters) vs GD+LS (30+ iters) when problem aligns with axes',
@@ -69,7 +69,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Even diagonal precond works well on circular problem - all methods converge similarly',

@@ -303,7 +303,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Step tolerance
+                  Avg absolute step/dim (scipy-style)
                 </p>
               </div>
             </div>
@@ -319,7 +319,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   min={-11}
                   max={Math.log10(1)}
                   step="0.01"
-                  value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
+                  value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0)}
                   onChange={(e) => {
                     const sliderVal = parseFloat(e.target.value);
                     const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
@@ -371,7 +371,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   min={-11}
                   max={Math.log10(1)}
                   step="0.01"
-                  value={props.lbfgsHessianDamping === 0 ? -11 : Math.log10(props.lbfgsHessianDamping ?? 0.01)}
+                  value={props.lbfgsHessianDamping === 0 ? -11 : Math.log10(props.lbfgsHessianDamping ?? 0)}
                   onChange={(e) => {
                     const sliderVal = parseFloat(e.target.value);
                     const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
@@ -388,7 +388,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   Regularization for numerical stability (0 to 1.0, logarithmic scale)
                 </p>
                 <p className="text-xs text-gray-600">
-                  <span className="font-medium">Tip:</span> Use 0 for pure L-BFGS, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+                  <span className="font-medium">Tip:</span> Use 0 for pure L-BFGS (default), 0.01 for stability, 0.1+ for very ill-conditioned problems
                 </p>
               </div>
             </div>

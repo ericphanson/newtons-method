@@ -267,11 +267,14 @@ export const runNewton = (
     const wNew = add(w, scale(direction, acceptedAlpha));
     const newLoss = problem.objective(wNew);
 
-    // Check step size stalling (scipy-style: relative tolerance)
+    // Check step size stalling (scipy-style: average absolute step per dimension)
     if (xtol > 0) {
-      const stepSize = norm(sub(wNew, w));
-      const relativeStepSize = stepSize / Math.max(norm(wNew), 1.0);
-      if (relativeStepSize < xtol && terminationReason === null) {
+      const step = sub(wNew, w);
+      const stepSize = norm(step);
+      const dimension = w.length;
+      // Use RMS step size per dimension (similar to scipy's L1/dimension but with L2 norm)
+      const avgStepSize = stepSize / Math.sqrt(dimension);
+      if (avgStepSize < xtol && terminationReason === null) {
         terminationReason = 'xtol';
       }
     }

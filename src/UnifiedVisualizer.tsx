@@ -99,10 +99,10 @@ const UnifiedVisualizer = () => {
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('armijo');
-  const [newtonHessianDamping, setNewtonHessianDamping] = useState(0.01);
+  const [newtonHessianDamping, setNewtonHessianDamping] = useState(0);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
-  const [newtonFtol, setNewtonFtol] = useState(1e-9);
-  const [newtonXtol, setNewtonXtol] = useState(1e-9);
+  const [newtonFtol, setNewtonFtol] = useState(2.22e-9);
+  const [newtonXtol, setNewtonXtol] = useState(1e-5);
 
   // L-BFGS state
   const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
@@ -110,7 +110,7 @@ const UnifiedVisualizer = () => {
   const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
-  const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0.01);
+  const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
 
   // Diagonal Preconditioner state
@@ -123,7 +123,7 @@ const UnifiedVisualizer = () => {
   const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
 
   // Shared algorithm state
-  const [maxIter, setMaxIter] = useState(100);
+  const [maxIter, setMaxIter] = useState(50);
   const [initialW0, setInitialW0] = useState(-1);
   const [initialW1, setInitialW1] = useState(1);
 

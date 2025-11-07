@@ -9,7 +9,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Line search adapts step size, fixed step is consistent but slower',
@@ -26,7 +26,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Step size adapts to landscape, converges robustly',
@@ -39,7 +39,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.00001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Accepts steps with minimal decrease, wastes iterations',
@@ -52,7 +52,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.5,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Too conservative, tiny steps, slow progress',
@@ -65,7 +65,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 100,
+      maxIter: 50,
     },
     initialPoint: [-1.5, 2],
     expectation: 'Observe: Adapts to narrow valley, fixed step would fail here',

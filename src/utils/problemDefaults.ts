@@ -16,7 +16,7 @@ export interface ProblemDefaults {
 
 const DEFAULT_CONFIG: ProblemDefaults = {
   gdFixedAlpha: 0.1,
-  maxIter: 100,
+  maxIter: 50,
   initialPoint: [-1, 1],
   c1: 0.0001,
   lbfgsM: 5
@@ -40,7 +40,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.001,  // Very small due to steep gradients
-        maxIter: 100,          // Standard default
+        maxIter: 50,          // Standard default
         initialPoint: [-0.5, 1.5]  // Harder starting point: all algos take >3 iterations
       };
 
@@ -48,7 +48,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.01,    // Small to avoid oscillation
-        maxIter: 100,          // Standard default
+        maxIter: 50,          // Standard default
         initialPoint: [-2, 2]  // Challenging point for ill-conditioned problem
       };
 
@@ -56,7 +56,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.1,
-        maxIter: 100,          // Standard default
+        maxIter: 50,          // Standard default
         initialPoint: [-1.5, 1.5]  // Symmetrical starting point
       };
 
@@ -64,7 +64,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.1,     // Standard works well
-        maxIter: 100,
+        maxIter: 50,
         initialPoint: [0, 0]   // Central point - could converge to any of 4 minima!
       };
 
@@ -72,14 +72,14 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.1,     // Standard works well
-        maxIter: 100,
+        maxIter: 50,
         initialPoint: [1, 0.5] // Starts in local minimum basin to show basin structure
       };
 
     case 'separating-hyperplane':
       return {
         gdFixedAlpha: 0.1,
-        maxIter: 100,
+        maxIter: 50,
         initialPoint: [0.2, 0.2, 0],  // 3D: [w0, w1, bias] - non-zero to ensure perceptron moves
         c1: 1e-4,
         lbfgsM: 10,
@@ -90,7 +90,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.1,     // Standard works great on quadratic
-        maxIter: 100,
+        maxIter: 50,
         initialPoint: [-3, 3]  // Corners of domain for longer paths
       };
   }
