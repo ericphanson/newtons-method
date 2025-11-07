@@ -9,7 +9,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Newton converges in ~5 iterations, GD would take 100+',
@@ -26,7 +26,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.1,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: 1-2 iterations to convergence, all eigenvalues positive, α=1 accepted',
@@ -39,7 +39,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [0.5, 0.5],
     expectation: 'Observe: Hessian has one negative eigenvalue, Newton direction may be ascent',
@@ -52,7 +52,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [-1.5, 2],
     expectation: 'Observe: Backtracking reduces α, prevents divergence, acts like damped Newton',
@@ -65,7 +65,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Newton converges in ~5 iterations (GD would take 100+)',
@@ -78,7 +78,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Newton\'s H⁻¹ automatically rotates the step to point down the valley',
@@ -92,7 +92,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
-      maxIter: 200,
+      maxIter: 100,
       hessianDamping: 0,
       lineSearch: 'none',
     },
@@ -108,7 +108,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
-      maxIter: 200,
+      maxIter: 100,
       hessianDamping: 0,
       lineSearch: 'armijo',
     },
@@ -124,7 +124,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
-      maxIter: 200,
+      maxIter: 100,
       hessianDamping: 1.0,
       lineSearch: 'none',
     },

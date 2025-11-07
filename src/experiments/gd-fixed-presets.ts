@@ -9,7 +9,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     hyperparameters: {
       alpha: 0.1,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Steady decrease in loss, smooth trajectory toward minimum',
@@ -22,7 +22,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     hyperparameters: {
       alpha: 2.5,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Loss increases exponentially, trajectory spirals outward, true divergence',
@@ -35,7 +35,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     hyperparameters: {
       alpha: 0.001,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Tiny progress per step, would take thousands of iterations',
@@ -48,7 +48,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     hyperparameters: {
       alpha: 0.01,
       lambda: 0,
-      maxIter: 200,
+      maxIter: 100,
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Zig-zag pattern perpendicular to contours, slow convergence',

@@ -7,7 +7,8 @@ import {
   add
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
+import { getTerminationMessage } from './terminationUtils';
 
 export interface GDLineSearchIteration {
   iter: number;
@@ -107,7 +108,7 @@ export const runGradientDescentLineSearch = (
   const converged = finalGradNorm < tolerance;
   const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
 
-  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  let convergenceCriterion: ConvergenceCriterion;
   if (diverged) {
     convergenceCriterion = 'diverged';
   } else if (converged) {
@@ -116,14 +117,23 @@ export const runGradientDescentLineSearch = (
     convergenceCriterion = 'maxiter';
   }
 
+  const terminationMessage = getTerminationMessage(convergenceCriterion, {
+    gradNorm: finalGradNorm,
+    gtol: tolerance,
+    iters: iterations.length,
+    maxIter
+  });
+
   const summary: AlgorithmSummary = {
     converged,
     diverged,
+    stalled: false, // GD with line search doesn't have stalling detection yet
     finalLocation,
     finalLoss,
     finalGradNorm,
     iterationCount: iterations.length,
-    convergenceCriterion
+    convergenceCriterion,
+    terminationMessage
   };
 
   return { iterations, summary };
@@ -135,7 +145,7 @@ export const runGradientDescentLineSearch = (
  */
 export const runGradientDescentLineSearchLegacy = (
   data: DataPoint[],
-  maxIter: number = 80,
+  maxIter: number = 100,
   lambda: number = 0.0001,
   c1: number = 0.0001
 ): GDLineSearchIteration[] => {
