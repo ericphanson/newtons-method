@@ -940,12 +940,12 @@ const UnifiedVisualizer = () => {
     const toCanvasX = (x1: number) => ((x1 + 3) / 6) * w;
     const toCanvasY = (x2: number) => ((2.5 - x2) / 5) * h;
 
-    // Draw decision boundary only for logistic regression
+    // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixedIterations[gdFixedCurrentIter] :
                        selectedTab === 'gd-linesearch' ? gdLSIterations[gdLSCurrentIter] :
                        selectedTab === 'newton' ? newtonIterations[newtonCurrentIter] :
                        lbfgsIterations[lbfgsCurrentIter];
-    if (currentProblem === 'logistic-regression' && currentIter) {
+    if ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && currentIter) {
       const [w0, w1, w2] = currentIter.wNew;
       if (Math.abs(w1) > 1e-6) {
         ctx.strokeStyle = '#10b981';
@@ -1068,24 +1068,6 @@ const UnifiedVisualizer = () => {
     ctx.fillStyle = '#111827';
     ctx.textAlign = 'left';
     ctx.fillText('Hessian Matrix H', startX, 20);
-
-    // Eigenvalues
-    const eigY = startY + 250;
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText('Eigenvalues (curvature):', 20, eigY);
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#374151';
-    iter.eigenvalues.forEach((eig, i) => {
-      ctx.fillText(`λ${i + 1} = ${eig.toExponential(2)}`, 20, eigY + 20 + i * 18);
-    });
-
-    // Condition number
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillStyle = '#111827';
-    ctx.fillText(`Condition number: κ = ${iter.conditionNumber.toFixed(2)}`, 20, eigY + 80);
-    ctx.font = '10px sans-serif';
-    ctx.fillStyle = '#6b7280';
-    ctx.fillText('(λ_max/λ_min - higher = harder to optimize)', 20, eigY + 95);
   }, [newtonIterations, newtonCurrentIter, selectedTab]);
 
   // Draw Newton's parameter space
