@@ -47,16 +47,19 @@ export const himmelblauProblem: ProblemDefinition = {
     const term2 = w0 + w1 * w1 - 7;
 
     // Second derivatives (using product rule on gradient):
-    // ∂²f/∂w0² = 4 · 2w0 · 2w0 + 4(w0^2 + w1 - 11) + 0
-    //          = 8w0^2 + 4(w0^2 + w1 - 11) + 2
-    // ∂²f/∂w0∂w1 = 4 · 2w0 · 1 + 4 · 1 · 2w1
+    // ∂²f/∂w0² = ∂/∂w0[4w0·term1 + 2·term2]
+    //          = 4·term1 + 4w0·(2w0) + 2·(1)
+    //          = 4·term1 + 8w0² + 2
+    // ∂²f/∂w0∂w1 = ∂/∂w1[4w0·term1 + 2·term2]
+    //            = 4w0·(1) + 2·(2w1)
     //            = 4w0 + 4w1
-    // ∂²f/∂w1² = 2 + 4 · 2w1 · 2w1 + 4(w0 + w1^2 - 7)
-    //          = 2 + 8w1^2 + 4(w0 + w1^2 - 7)
-    const h00 = 12 * w0 * w0 - 4 * term1 + 2;
+    // ∂²f/∂w1² = ∂/∂w1[2·term1 + 4w1·term2]
+    //          = 2·(1) + 4·term2 + 4w1·(2w1)
+    //          = 2 + 4·term2 + 8w1²
+    const h00 = 4 * term1 + 8 * w0 * w0 + 2;
     const h01 = 4 * w0 + 4 * w1;
     const h10 = h01;  // Hessian is symmetric
-    const h11 = 12 * w1 * w1 + 4 * term2 + 2;
+    const h11 = 2 + 4 * term2 + 8 * w1 * w1;
 
     return [[h00, h01], [h10, h11]];
   },

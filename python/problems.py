@@ -106,9 +106,9 @@ def himmelblau() -> Problem:
     def hessian(w: np.ndarray) -> np.ndarray:
         term1 = w[0] ** 2 + w[1] - 11
         term2 = w[0] + w[1] ** 2 - 7
-        h00 = 12 * w[0] ** 2 - 4 * term1 + 2
+        h00 = 4 * term1 + 8 * w[0] ** 2 + 2
         h01 = 4 * w[0] + 4 * w[1]
-        h11 = 12 * w[1] ** 2 + 4 * term2 + 2
+        h11 = 2 + 4 * term2 + 8 * w[1] ** 2
         return np.array([[h00, h01], [h01, h11]])
 
     return Problem("himmelblau", objective, gradient, hessian)

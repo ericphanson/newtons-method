@@ -14,7 +14,7 @@ from comparator import compare_results, ComparisonStatus
 
 
 # Test case definitions
-PURE_PROBLEMS = ['quadratic', 'ill-conditioned-quadratic', 'rosenbrock', 'non-convex-saddle']
+PURE_PROBLEMS = ['quadratic', 'ill-conditioned-quadratic', 'rosenbrock', 'non-convex-saddle', 'himmelblau', 'three-hump-camel']
 ALGORITHMS = ['gd-fixed', 'gd-linesearch', 'newton', 'lbfgs']
 SVM_VARIANTS = ['soft-margin', 'perceptron', 'squared-hinge']
 
