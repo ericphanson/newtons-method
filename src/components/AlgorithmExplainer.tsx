@@ -157,6 +157,128 @@ export function AlgorithmExplainer() {
         </div>
       </CollapsibleSection>
 
+      {/* Diagonal Preconditioner */}
+      <CollapsibleSection
+        title="Diagonal Preconditioner"
+        defaultExpanded={false}
+        storageKey="algorithm-explainer-diagonal-precond"
+      >
+        <div className="space-y-3 text-gray-800">
+          <p>
+            <strong>Type:</strong> First-order method with per-coordinate step sizes
+          </p>
+
+          <div>
+            <p className="font-semibold">Update Rule:</p>
+            <BlockMath>
+              {String.raw`w_{k+1} = w_k - D_k \nabla f(w_k)`}
+            </BlockMath>
+            <p className="text-sm mt-1">
+              where <InlineMath>D_k</InlineMath> is a diagonal matrix with per-coordinate step sizes
+            </p>
+          </div>
+
+          <div>
+            <p className="font-semibold">Diagonal Preconditioner (using Hessian):</p>
+            <BlockMath>
+              {String.raw`D = \text{diag}(1/H_{00}, 1/H_{11}, ...)`}
+            </BlockMath>
+            <p className="text-sm mt-1">
+              Extracts diagonal from Hessian H and inverts it
+            </p>
+          </div>
+
+          <div className="bg-indigo-50 rounded p-3 border border-indigo-200">
+            <p className="font-semibold">Connection to Adam/RMSprop/AdaGrad:</p>
+            <p className="text-sm mt-1">
+              Modern adaptive optimizers use diagonal preconditioning! They estimate
+              the diagonal from gradient history rather than computing the Hessian:
+            </p>
+            <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
+              <li>
+                <strong>AdaGrad:</strong> <InlineMath>D = \text{diag}(1/\sqrt{\sum g_i^2})</InlineMath>
+              </li>
+              <li>
+                <strong>RMSprop:</strong> <InlineMath>D = \text{diag}(1/\sqrt{\text{EMA}(g^2)})</InlineMath>
+              </li>
+              <li>
+                <strong>Adam:</strong> RMSprop + momentum
+              </li>
+            </ul>
+            <p className="text-sm mt-2">
+              These methods work well because ML feature spaces usually have meaningful
+              coordinate axes (pixels, word embeddings, etc.)
+            </p>
+          </div>
+
+          <p>
+            <strong>How it works:</strong> Uses different step sizes for each coordinate
+            based on local curvature. Our implementation uses the exact Hessian diagonal
+            (pedagogical). In practice, Adam/RMSprop estimate this from gradient history
+            without computing Hessians (scalable to millions of parameters).
+          </p>
+
+          <p>
+            <strong>Convergence rate:</strong> Can achieve quadratic convergence on
+            axis-aligned problems! But degrades to linear on rotated problems.
+          </p>
+
+          <p>
+            <strong>Cost per iteration:</strong>
+          </p>
+          <ul className="text-sm list-disc ml-5">
+            <li><strong>Our implementation:</strong> Gradient + Hessian (same as Newton), no matrix inversion</li>
+            <li><strong>Adam/RMSprop:</strong> Just gradient + O(n) accumulator updates (very cheap!)</li>
+          </ul>
+
+          <div className="bg-yellow-50 rounded p-3">
+            <p className="text-sm font-semibold mb-1">Strengths:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li>Perfect on axis-aligned problems (1-2 iterations!)</li>
+              <li>Adapts step size to each coordinate independently</li>
+              <li>No matrix inversion needed (just divide by diagonal)</li>
+              <li>Widely used in practice (Adam, RMSprop, AdaGrad)</li>
+            </ul>
+          </div>
+
+          <div className="bg-red-50 rounded p-3 mt-2">
+            <p className="text-sm font-semibold mb-1">Weaknesses:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li><strong>Coordinate-dependent</strong> - performance varies with rotation</li>
+              <li>Ignores off-diagonal Hessian structure</li>
+              <li>Struggles on rotated problems (can be 20× slower!)</li>
+              <li>Requires Hessian computation (expensive) - our pedagogical implementation</li>
+              <li>Gradient-based variants (Adam/RMSprop) avoid Hessian but are approximate</li>
+            </ul>
+          </div>
+
+          <div className="bg-blue-50 rounded p-3 mt-2">
+            <p className="text-sm font-semibold mb-1">Best for:</p>
+            <ul className="text-sm list-disc ml-5">
+              <li>Problems where coordinates are meaningful</li>
+              <li>Axis-aligned or nearly axis-aligned problems</li>
+              <li>Understanding why Adam/RMSprop work (and when they don't)</li>
+              <li>Seeing the limitations of diagonal approximations</li>
+            </ul>
+          </div>
+
+          <div className="bg-purple-50 rounded p-3 mt-2 border border-purple-200">
+            <p className="text-sm font-semibold mb-1">The Rotation Invariance Story:</p>
+            <p className="text-sm">
+              This algorithm demonstrates the critical limitation of diagonal methods:
+            </p>
+            <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
+              <li><strong>θ=0° (aligned):</strong> H is diagonal → D=H⁻¹ exactly → 1-2 iterations!</li>
+              <li><strong>θ=45° (rotated):</strong> H has off-diagonals → D misses them → 40+ iterations</li>
+              <li><strong>Newton:</strong> Full H⁻¹ works identically at any angle → 2 iterations always</li>
+            </ul>
+            <p className="text-sm mt-2 font-semibold">
+              Only Newton's full matrix achieves rotation invariance!
+            </p>
+          </div>
+        </div>
+      </CollapsibleSection>
+
       {/* Newton's Method */}
       <CollapsibleSection
         title="Newton's Method"
@@ -388,6 +510,12 @@ export function AlgorithmExplainer() {
                 <td className="py-2">Robust GD, varying curvature</td>
               </tr>
               <tr className="border-b border-gray-200">
+                <td className="py-2 font-medium">Diag. Precond</td>
+                <td className="py-2">Quadratic*</td>
+                <td className="py-2">High (grad + Hessian)</td>
+                <td className="py-2">Axis-aligned problems, understanding Adam</td>
+              </tr>
+              <tr className="border-b border-gray-200">
                 <td className="py-2 font-medium">Newton</td>
                 <td className="py-2">Quadratic</td>
                 <td className="py-2">High (Hessian + solve)</td>
@@ -402,6 +530,9 @@ export function AlgorithmExplainer() {
             </tbody>
           </table>
         </div>
+        <p className="text-xs text-gray-500 mt-2">
+          *Quadratic convergence only on axis-aligned problems
+        </p>
       </div>
 
       {/* How to Use */}
@@ -416,16 +547,18 @@ export function AlgorithmExplainer() {
             <p className="font-semibold text-gray-900">For learning:</p>
             <ul className="text-gray-700 list-disc ml-5">
               <li>Start with GD Fixed on Quadratic Bowl</li>
-              <li>Compare GD Fixed vs Line Search on Rosenbrock</li>
-              <li>See Newton's quadratic convergence on Quadratic Bowl</li>
+              <li>Add Line Search to see adaptive step sizes</li>
+              <li>Try Diagonal Precond to see per-coordinate adaptation</li>
+              <li>See Newton's rotation invariance on Rotated Quadratic</li>
             </ul>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">For understanding tradeoffs:</p>
+            <p className="font-semibold text-gray-900">The rotation story:</p>
             <ul className="text-gray-700 list-disc ml-5">
-              <li>Compare all algorithms on Ill-Conditioned Quadratic</li>
-              <li>Watch Newton fail on Saddle Point (without line search)</li>
-              <li>See L-BFGS adapt on all problem types</li>
+              <li>Diagonal Precond tab: Run at θ=0° then θ=45°</li>
+              <li>Watch convergence degrade dramatically</li>
+              <li>Compare with Newton tab: identical at all angles</li>
+              <li>Understand why Adam works (meaningful axes)</li>
             </ul>
           </div>
         </div>
