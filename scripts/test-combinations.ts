@@ -94,10 +94,10 @@ function runTest(config: TestConfig): TestResult {
     const finalInitialPoint = initialPoint || defaultInitialPoint;
 
     // Run algorithm
-    let iterations: any[];
+    let algorithmResult: any;
     switch (algorithm) {
       case 'gd-fixed':
-        iterations = runGradientDescent(problemFuncs, {
+        algorithmResult = runGradientDescent(problemFuncs, {
           maxIter,
           alpha,
           lambda: 0,
@@ -105,7 +105,7 @@ function runTest(config: TestConfig): TestResult {
         });
         break;
       case 'gd-linesearch':
-        iterations = runGradientDescentLineSearch(problemFuncs, {
+        algorithmResult = runGradientDescentLineSearch(problemFuncs, {
           maxIter,
           c1,
           lambda: 0,
@@ -113,7 +113,7 @@ function runTest(config: TestConfig): TestResult {
         });
         break;
       case 'newton':
-        iterations = runNewton(problemFuncs, {
+        algorithmResult = runNewton(problemFuncs, {
           maxIter,
           c1,
           lambda: 0,
@@ -123,7 +123,7 @@ function runTest(config: TestConfig): TestResult {
         });
         break;
       case 'lbfgs':
-        iterations = runLBFGS(problemFuncs, {
+        algorithmResult = runLBFGS(problemFuncs, {
           maxIter,
           m,
           c1,
@@ -142,6 +142,8 @@ function runTest(config: TestConfig): TestResult {
           error: `Unknown algorithm: ${algorithm}`
         };
     }
+
+    const iterations = algorithmResult.iterations;
 
     if (iterations.length === 0) {
       return {
