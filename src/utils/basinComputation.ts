@@ -89,6 +89,26 @@ export function initializeBasinData(
 
 const FRAME_BUDGET_MS = 10;
 
+export interface BasinTimingData {
+  totalTime: number;
+  computeTime: number;
+  frameCount: number;
+  avgFrameTime: number;
+  rafOverhead: number;
+  rafOverheadPercent: number;
+  pointCount: number;
+  avgPerPoint: number;
+  estimatedTotalComputeTime: number;
+  resolution: number;
+  algorithm: string;
+  timestamp: string;
+}
+
+export interface BasinComputationResult {
+  data: BasinData | null;
+  timing: BasinTimingData | null;
+}
+
 /**
  * Compute basin incrementally with time-budgeted RAF loop
  * Returns null if cancelled (taskId changed)
@@ -102,7 +122,7 @@ export async function computeBasinIncremental(
   taskIdRef: { current: number },
   currentTaskId: number,
   onProgress?: (completed: number, total: number) => void
-): Promise<BasinData | null> {
+): Promise<BasinComputationResult> {
   const basinData = initializeBasinData(resolution, bounds);
   let pointIndex = 0;
   const totalPoints = resolution * resolution;
@@ -124,7 +144,7 @@ export async function computeBasinIncremental(
     if (taskIdRef.current !== currentTaskId) {
       console.log('Basin computation cancelled');
       console.groupEnd();
-      return null;
+      return { data: null, timing: null };
     }
 
     const frameStart = performance.now();
@@ -184,17 +204,41 @@ export async function computeBasinIncremental(
   }
 
   const overallTime = performance.now() - overallStart;
+  const avgPerPoint = totalPointComputeTime / (totalPoints / 10);
+  const estimatedTotalComputeTime = avgPerPoint * totalPoints;
+  const avgFrameTime = totalFrameTime / frameCount;
+  const rafOverhead = overallTime - totalFrameTime;
+  const rafOverheadPercent = (rafOverhead / overallTime) * 100;
 
   // Final timing summary
   console.log('');
   console.log('📊 TIMING SUMMARY:');
   console.log(`  Total time: ${overallTime.toFixed(2)}ms (${(overallTime / 1000).toFixed(2)}s)`);
-  console.log(`  Average per point (sampled): ${(totalPointComputeTime / (totalPoints / 10)).toFixed(2)}ms`);
-  console.log(`  Estimated total compute time: ${((totalPointComputeTime / (totalPoints / 10)) * totalPoints).toFixed(2)}ms`);
+  console.log(`  Average per point (sampled): ${avgPerPoint.toFixed(2)}ms`);
+  console.log(`  Estimated total compute time: ${estimatedTotalComputeTime.toFixed(2)}ms`);
   console.log(`  Frame count: ${frameCount}`);
-  console.log(`  Average frame time: ${(totalFrameTime / frameCount).toFixed(2)}ms`);
-  console.log(`  RAF overhead: ${(overallTime - totalFrameTime).toFixed(2)}ms (${((overallTime - totalFrameTime) / overallTime * 100).toFixed(1)}%)`);
+  console.log(`  Average frame time: ${avgFrameTime.toFixed(2)}ms`);
+  console.log(`  RAF overhead: ${rafOverhead.toFixed(2)}ms (${rafOverheadPercent.toFixed(1)}%)`);
   console.groupEnd();
 
-  return basinData;
+  // Create timing data object
+  const timingData: BasinTimingData = {
+    totalTime: overallTime,
+    computeTime: totalFrameTime,
+    frameCount,
+    avgFrameTime,
+    rafOverhead,
+    rafOverheadPercent,
+    pointCount: totalPoints,
+    avgPerPoint,
+    estimatedTotalComputeTime,
+    resolution,
+    algorithm,
+    timestamp: new Date().toISOString()
+  };
+
+  return {
+    data: basinData,
+    timing: timingData
+  };
 }

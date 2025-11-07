@@ -1,11 +1,48 @@
+/**
+ * BASIN TIMING DATA ACCESS
+ *
+ * After basin computation completes, timing data is available in the browser console:
+ *
+ *   window.basinTiming         // Latest timing data object
+ *   window.getBasinTiming()    // Returns formatted JSON string (copy-pasteable)
+ *
+ * Example:
+ *   > window.basinTiming
+ *   {
+ *     totalTime: 1234.56,
+ *     computeTime: 1100.23,
+ *     frameCount: 45,
+ *     avgFrameTime: 24.45,
+ *     rafOverhead: 134.33,
+ *     rafOverheadPercent: 10.9,
+ *     pointCount: 400,
+ *     avgPerPoint: 2.75,
+ *     estimatedTotalComputeTime: 1100.00,
+ *     resolution: 20,
+ *     algorithm: "newton",
+ *     timestamp: "2025-11-07T..."
+ *   }
+ *
+ *   > window.getBasinTiming()
+ *   Returns pretty-printed JSON string ready to copy/paste
+ */
+
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { BasinData, BasinCacheKey } from '../types/basin';
 import { ProblemFunctions } from '../algorithms/types';
 import { BasinCache } from '../utils/basinCache';
-import { computeBasinIncremental } from '../utils/basinComputation';
+import { computeBasinIncremental, BasinTimingData } from '../utils/basinComputation';
 import { encodeBasinColors } from '../utils/basinColorEncoding';
 import { ColorbarLegend } from './ColorbarLegend';
 import { clusterConvergenceLocations, assignHuesToClusters } from '../utils/basinClustering';
+
+// Extend window interface to expose timing data
+declare global {
+  interface Window {
+    basinTiming?: BasinTimingData;
+    getBasinTiming?: () => string;
+  }
+}
 
 interface BasinPickerProps {
   problem: any;
@@ -115,7 +152,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       const componentEnd = performance.now();
       const totalTime = componentEnd - componentStart;
 
-      if (result) {
+      if (result.data) {
         console.group('✅ Basin Computation Finished');
         console.log(`Timestamp: ${new Date().toISOString()}`);
         console.log(`Total time (including RAF overhead): ${totalTime.toFixed(2)}ms (${(totalTime / 1000).toFixed(2)}s)`);
@@ -123,14 +160,22 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         console.log(`Actual vs expected: ${(totalTime / 130).toFixed(1)}x slower`);
         console.groupEnd();
 
+        // Expose timing data on window for console access
+        if (result.timing) {
+          window.basinTiming = result.timing;
+          window.getBasinTiming = () => JSON.stringify(result.timing, null, 2);
+
+          console.log('💡 Timing data available: window.basinTiming or window.getBasinTiming()');
+        }
+
         // Store in cache
         basinCache.set(cacheKey, {
           key: cacheKey,
-          data: result,
+          data: result.data,
           timestamp: Date.now()
         });
 
-        setBasinData(result);
+        setBasinData(result.data);
         setIsComputing(false);
       }
     };
