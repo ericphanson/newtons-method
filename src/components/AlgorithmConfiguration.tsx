@@ -4,7 +4,7 @@ import { BasinPicker } from './BasinPicker';
 import { ProblemFunctions } from '../algorithms/types';
 
 interface AlgorithmConfigurationProps {
-  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
   // Shared parameters
   maxIter: number;
@@ -46,6 +46,15 @@ interface AlgorithmConfigurationProps {
   onLbfgsHessianDampingChange?: (val: number) => void;
   lbfgsTolerance?: number;
   onLbfgsToleranceChange?: (val: number) => void;
+
+  diagPrecondUseLineSearch?: boolean;
+  onDiagPrecondUseLineSearchChange?: (val: boolean) => void;
+  diagPrecondC1?: number;
+  onDiagPrecondC1Change?: (val: number) => void;
+  diagPrecondEpsilon?: number;
+  onDiagPrecondEpsilonChange?: (val: number) => void;
+  diagPrecondTolerance?: number;
+  onDiagPrecondToleranceChange?: (val: number) => void;
 
   // For basin picker
   problemFuncs: ProblemFunctions;
@@ -396,6 +405,109 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </>
         )}
 
+        {algorithm === 'diagonal-precond' && (
+          <div className="col-span-2 space-y-4">
+            {/* Use Line Search Toggle */}
+            <div>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={props.diagPrecondUseLineSearch ?? false}
+                  onChange={(e) => props.onDiagPrecondUseLineSearchChange?.(e.target.checked)}
+                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+                <span className="text-sm font-medium text-gray-700">Use Armijo Line Search</span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1 ml-7">
+                Enable backtracking line search for robustness (vs. full step α=1)
+              </p>
+            </div>
+
+            {/* Armijo c1 - shown when line search enabled */}
+            {props.diagPrecondUseLineSearch && (
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Armijo c<sub>1</sub>:
+                  </label>
+                  <input
+                    type="range"
+                    min="-5"
+                    max="-1"
+                    step="0.1"
+                    value={Math.log10(props.diagPrecondC1 ?? 1e-4)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onDiagPrecondC1Change?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {props.diagPrecondC1?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Line search parameter (smaller = stricter decrease requirement)
+                </p>
+              </div>
+            )}
+
+            {/* Epsilon (numerical stability) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Epsilon ε (stability):
+                </label>
+                <input
+                  type="range"
+                  min="-10"
+                  max="-6"
+                  step="0.5"
+                  value={Math.log10(props.diagPrecondEpsilon ?? 1e-8)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onDiagPrecondEpsilonChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.diagPrecondEpsilon?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Prevents division by zero in preconditioner: D = diag(1/(H_ii + ε))
+              </p>
+            </div>
+
+            {/* Gradient Tolerance */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Gradient Tolerance (gtol):
+                </label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-2"
+                  step="0.1"
+                  value={Math.log10(props.diagPrecondTolerance ?? 1e-6)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onDiagPrecondToleranceChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.diagPrecondTolerance?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Convergence threshold for gradient norm
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Max Iterations (all algorithms) */}
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -431,7 +543,12 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.newtonC1
                 : algorithm === 'lbfgs'
                 ? props.lbfgsC1
+                : algorithm === 'diagonal-precond'
+                ? props.diagPrecondC1
                 : undefined,
+              // Diagonal preconditioner specific
+              useLineSearch: algorithm === 'diagonal-precond' ? props.diagPrecondUseLineSearch : undefined,
+              epsilon: algorithm === 'diagonal-precond' ? props.diagPrecondEpsilon : undefined,
               // L-BFGS memory parameter
               m: props.lbfgsM,
               // Hessian damping (algorithm-specific)
@@ -449,6 +566,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.gdLSTolerance
                 : algorithm === 'newton'
                 ? props.newtonTolerance
+                : algorithm === 'diagonal-precond'
+                ? props.diagPrecondTolerance
                 : props.lbfgsTolerance,
               // 3D problem bias slice
               biasSlice: props.biasSlice

@@ -50,7 +50,7 @@ declare global {
 interface BasinPickerProps {
   problem: Record<string, unknown>;
   currentProblem?: string; // Name of current problem (e.g., 'logistic-regression', 'separating-hyperplane')
-  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
   algorithmParams: {
     maxIter?: number;
     alpha?: number;
@@ -61,6 +61,8 @@ interface BasinPickerProps {
     tolerance?: number;
     lambda?: number;
     biasSlice?: number;
+    useLineSearch?: boolean;
+    epsilon?: number;
   };
   problemFuncs: ProblemFunctions;
   initialPoint: [number, number] | [number, number, number];

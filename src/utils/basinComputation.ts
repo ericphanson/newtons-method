@@ -4,6 +4,7 @@ import { runNewton } from '../algorithms/newton';
 import { runLBFGS } from '../algorithms/lbfgs';
 import { runGradientDescent } from '../algorithms/gradient-descent';
 import { runGradientDescentLineSearch } from '../algorithms/gradient-descent-linesearch';
+import { runDiagonalPreconditioner } from '../algorithms/diagonal-preconditioner';
 
 /**
  * Compute basin point by running algorithm from a starting point
@@ -11,7 +12,7 @@ import { runGradientDescentLineSearch } from '../algorithms/gradient-descent-lin
 export function computeBasinPoint(
   initialPoint: [number, number] | [number, number, number],
   problemFuncs: ProblemFunctions,
-  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs',
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   algorithmParams: any
 ): BasinPoint {
@@ -28,6 +29,12 @@ export function computeBasinPoint(
         break;
       case 'gd-linesearch':
         result = runGradientDescentLineSearch(problemFuncs, {
+          ...algorithmParams,
+          initialPoint
+        });
+        break;
+      case 'diagonal-precond':
+        result = runDiagonalPreconditioner(problemFuncs, {
           ...algorithmParams,
           initialPoint
         });
@@ -123,7 +130,7 @@ export interface BasinComputationResult {
  */
 export async function computeBasinIncremental(
   problemFuncs: ProblemFunctions,
-  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs',
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   algorithmParams: any,
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number },
