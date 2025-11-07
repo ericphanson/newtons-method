@@ -4652,6 +4652,8 @@ const UnifiedVisualizer = () => {
               </div>
             </>
           ) : null}
+            </>
+          )}
         </div>
       </div>
 
