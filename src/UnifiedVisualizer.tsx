@@ -2476,10 +2476,6 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-gray-500 mt-4">
-                    Note: One-click experiment loading coming soon!
-                  </p>
                 </div>
               </CollapsibleSection>
 
