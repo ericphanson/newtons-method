@@ -15,8 +15,8 @@ const resolution = 20;
 console.log('Testing convergence from specific grid positions...\n');
 
 // Test several grid positions
-for (let i of [0, 5, 10, 15, 19]) {
-  for (let j of [0, 5, 10, 15, 19]) {
+for (const i of [0, 5, 10, 15, 19]) {
+  for (const j of [0, 5, 10, 15, 19]) {
     const w0 = bounds.minW0 + (j / (resolution - 1)) * (bounds.maxW0 - bounds.minW0);
     const w1 = bounds.minW1 + (i / (resolution - 1)) * (bounds.maxW1 - bounds.minW1);
     const biasSlice = 19.83;

@@ -42,7 +42,7 @@ export function clusterConvergenceLocations(basinData: BasinData): number[] {
 
   // Initial greedy clustering pass to find candidate clusters
   let clusterCentroids: Array<number[]> = [];
-  let pointToCluster = new Map<number, number>();
+  const pointToCluster = new Map<number, number>();
 
   // First pass: greedy cluster assignment
   locations.forEach(({ loc, index }) => {

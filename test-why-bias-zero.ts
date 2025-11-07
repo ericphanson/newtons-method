@@ -46,7 +46,7 @@ for (const bias of biases) {
 // Check the contributions
 console.log('\nBreakdown at w2=0.2:');
 const [w0, w1, w2] = w;
-let reg = 0.5 * (w0 * w0 + w1 * w1);
+const reg = 0.5 * (w0 * w0 + w1 * w1);
 console.log(`Regularization: ${reg.toFixed(4)}`);
 
 for (const point of testData) {
