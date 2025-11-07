@@ -47,7 +47,10 @@ export function computeBasinPoint(
     }
 
     return {
-      convergenceLoc: result.summary.finalLocation.slice(0, 2) as [number, number],
+      // Store full dimensionality (2D or 3D) - don't slice off bias for 3D problems
+      convergenceLoc: result.summary.finalLocation.length === 2
+        ? (result.summary.finalLocation.slice(0, 2) as [number, number])
+        : (result.summary.finalLocation.slice(0, 3) as [number, number, number]),
       iterations: result.summary.iterationCount,
       converged: result.summary.converged,
       diverged: result.summary.diverged
@@ -138,7 +141,9 @@ export async function computeBasinIncremental(
 
   while (pointIndex < totalPoints) {
     // Yield to browser
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    if (pointIndex % 20 === 0) {  // Only update every 20 points
+        await new Promise(resolve => requestAnimationFrame(resolve));
+      }
 
     // Check cancellation
     if (taskIdRef.current !== currentTaskId) {
@@ -198,7 +203,7 @@ export async function computeBasinIncremental(
     totalFrameTime += frameTime;
 
     // Report progress
-    if (onProgress) {
+    if (onProgress && pointIndex % 20 === 0) {  // Only update every 20 points
       onProgress(pointIndex, totalPoints);
     }
   }

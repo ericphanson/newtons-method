@@ -3,7 +3,7 @@
  */
 
 export interface BasinPoint {
-  convergenceLoc: [number, number];  // Where it converged (w0, w1)
+  convergenceLoc: [number, number] | [number, number, number];  // Where it converged - 2D: (w0, w1), 3D: (w0, w1, bias)
   iterations: number;                // Iteration count
   converged: boolean;                // Met convergence criteria
   diverged: boolean;                 // Hit NaN/Infinity

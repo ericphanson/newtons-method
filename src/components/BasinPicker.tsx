@@ -28,19 +28,22 @@
  */
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { BasinData, BasinCacheKey } from '../types/basin';
+import { BasinData } from '../types/basin';
 import { ProblemFunctions } from '../algorithms/types';
-import { BasinCache } from '../utils/basinCache';
+// CACHE DISABLED FOR DEBUGGING
+// import { BasinCacheKey } from '../types/basin';
+// import { BasinCache } from '../utils/basinCache';
 import { computeBasinIncremental, BasinTimingData } from '../utils/basinComputation';
 import { encodeBasinColors } from '../utils/basinColorEncoding';
 import { ColorbarLegend } from './ColorbarLegend';
 import { clusterConvergenceLocations, assignHuesToClusters } from '../utils/basinClustering';
 
-// Extend window interface to expose timing data
+// Extend window interface to expose timing data and basin data for debugging
 declare global {
   interface Window {
     basinTiming?: BasinTimingData;
     getBasinTiming?: () => string;
+    basinData?: BasinData | null;
   }
 }
 
@@ -55,7 +58,8 @@ interface BasinPickerProps {
 }
 
 // Global cache instance
-const basinCache = new BasinCache(8);
+// CACHE DISABLED FOR DEBUGGING
+// const basinCache = new BasinCache(8);
 
 export const BasinPicker: React.FC<BasinPickerProps> = ({
   problem,
@@ -93,14 +97,15 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     };
   }, []);
 
+  // CACHE DISABLED FOR DEBUGGING
   // Build cache key
-  const cacheKey: BasinCacheKey = {
-    problem: problem.name,
-    algorithm,
-    lambda: problem.lambda || 0,
-    rotationAngle: problem.rotationAngle,
-    variant: problem.variant
-  };
+  // const cacheKey: BasinCacheKey = {
+  //   problem: problem.name,
+  //   algorithm,
+  //   lambda: problem.lambda || 0,
+  //   rotationAngle: problem.rotationAngle,
+  //   variant: problem.variant
+  // };
 
   // Compute basin when params change
   useEffect(() => {
@@ -111,14 +116,16 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         return;
       }
 
+      // CACHE DISABLED FOR DEBUGGING
       // Check cache first
-      const cached = basinCache.get(cacheKey);
-      if (cached) {
-        console.log('🎯 Basin data retrieved from cache');
-        setBasinData(cached.data);
-        setIsComputing(false);
-        return;
-      }
+      // const cached = basinCache.get(cacheKey);
+      // if (cached) {
+      //   console.log('🎯 Basin data retrieved from cache');
+      //   setBasinData(cached.data);
+      //   setIsComputing(false);
+      //   return;
+      // }
+      console.log('⚠️ Cache disabled - computing fresh basin data');
 
       // Start new computation - clear old basin to avoid showing stale data
       setBasinData(null);
@@ -132,6 +139,15 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       console.log(`Algorithm: ${algorithm}`);
       console.log(`Problem: ${problem.name}`);
       console.log(`Bounds:`, bounds);
+      console.log(`Algorithm Params:`, algorithmParams);
+      console.log(`Problem Functions dimensionality:`, problemFuncs.dimensionality);
+      // Log a sample evaluation to see if problem functions work
+      const testPoint = [0, 0, algorithmParams.biasSlice || 0];
+      const grad = problemFuncs.gradient(testPoint);
+      console.log(`Test evaluation at [0,0,${algorithmParams.biasSlice || 0}]:`, {
+        loss: problemFuncs.objective(testPoint),
+        gradNorm: Math.sqrt(grad.reduce((sum: number, g: number) => sum + g*g, 0))
+      });
       console.groupEnd();
 
       const componentStart = performance.now();
@@ -168,12 +184,29 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
           console.log('💡 Timing data available: window.basinTiming or window.getBasinTiming()');
         }
 
+        // Expose basin data for debugging
+        window.basinData = result.data;
+
+        // Log convergence statistics
+        if (result.data) {
+          let converged = 0, notConverged = 0, diverged = 0;
+          result.data.grid.forEach(row => {
+            row.forEach(point => {
+              if (point.converged) converged++;
+              else if (point.diverged) diverged++;
+              else notConverged++;
+            });
+          });
+          console.log(`📊 Convergence: ${converged} converged, ${notConverged} not converged, ${diverged} diverged (total: ${converged + notConverged + diverged})`);
+        }
+
+        // CACHE DISABLED FOR DEBUGGING
         // Store in cache
-        basinCache.set(cacheKey, {
-          key: cacheKey,
-          data: result.data,
-          timestamp: Date.now()
-        });
+        // basinCache.set(cacheKey, {
+        //   key: cacheKey,
+        //   data: result.data,
+        //   timestamp: Date.now()
+        // });
 
         setBasinData(result.data);
         setIsComputing(false);
@@ -191,7 +224,17 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     bounds.maxW0,
     bounds.minW1,
     bounds.maxW1,
-    isVisible
+    isVisible,
+    // Algorithm parameters that affect basin computation
+    algorithmParams.maxIter,
+    algorithmParams.alpha,
+    algorithmParams.c1,
+    algorithmParams.m,
+    algorithmParams.hessianDamping,
+    algorithmParams.lineSearch,
+    algorithmParams.tolerance,
+    algorithmParams.lambda,
+    algorithmParams.biasSlice
   ]);
 
   // Render basin when data changes

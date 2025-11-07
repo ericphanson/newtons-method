@@ -324,14 +324,14 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             problem={props.problem}
             algorithm={algorithm}
             algorithmParams={{
-              maxIter: props.maxIter,
+              maxIter: 50,
               alpha: props.gdFixedAlpha,
               c1: props.gdLSC1 || props.newtonC1 || props.lbfgsC1,
               m: props.lbfgsM,
               hessianDamping: props.newtonHessianDamping || props.lbfgsHessianDamping,
               lineSearch: props.newtonLineSearch,
-              tolerance: 1e-5,
-              lambda: 0,
+              tolerance: 1e-4,
+              lambda: 1e-4,
               biasSlice: props.biasSlice
             }}
             problemFuncs={props.problemFuncs}
