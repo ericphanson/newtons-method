@@ -1794,10 +1794,10 @@ const UnifiedVisualizer = () => {
                         <div>
                           <p className="font-semibold text-purple-900">Struggle: Ill-Conditioned</p>
                           <p className="text-sm text-gray-700">
-                            Elongated landscape causes zig-zagging
+                            Elongated landscape causes zig-zagging because <InlineMath>\alpha</InlineMath> treats all directions equally
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Perpendicular steps to contours, slow progress
+                            GD can't adapt to 100× difference in curvature between axes
                           </p>
                         </div>
                       </div>
@@ -1837,8 +1837,8 @@ const UnifiedVisualizer = () => {
                       <div>
                         <p className="font-semibold">❌ "Just pick <InlineMath>\alpha=0.01</InlineMath> and it'll work"</p>
                         <p className="text-sm ml-6">
-                          ✓ Optimal <InlineMath>\alpha</InlineMath> depends on problem scaling<br/>
-                          ✓ May be too large for some problems, too small for others<br/>
+                          ✓ Optimal <InlineMath>\alpha</InlineMath> depends on problem scaling and coordinate choice<br/>
+                          ✓ Fixed step size treats all coordinates equally: rescale one variable (meters→kilometers) and <InlineMath>\alpha</InlineMath> becomes 1000× too large/small for that direction<br/>
                           ✓ Line search methods (next tab) solve this automatically
                         </p>
                       </div>
@@ -2178,6 +2178,12 @@ const UnifiedVisualizer = () => {
                       <li>Changes in landscape across iterations</li>
                       <li>Different regions of parameter space</li>
                     </ul>
+                    <p className="text-sm mt-3 text-gray-700">
+                      <strong>Note:</strong> Line search adapts <InlineMath>\alpha</InlineMath> iteration-by-iteration,
+                      which prevents divergence and speeds up convergence. However, it's still <strong>one step size
+                      for all directions</strong> at each iteration. On ill-conditioned problems, this causes
+                      zig-zagging (just less severe than fixed <InlineMath>\alpha</InlineMath>).
+                    </p>
                   </div>
 
                   <div>
@@ -2845,9 +2851,16 @@ const UnifiedVisualizer = () => {
                     <p>Newton direction (with damping):</p>
                     <BlockMath>{'p = -(H + \\lambda_{\\text{damp}} I)^{-1}\\nabla f'}</BlockMath>
                     <p className="text-sm mt-2">
-                      Intuition: <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
-                      natural coordinate system. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
+                      <strong>Intuition:</strong> <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
+                      natural coordinate system of the problem. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
                       numerical stability when <InlineMath>H</InlineMath> has tiny eigenvalues.
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Why this matters:</strong> If you rescale coordinates (e.g., x→1000x), both
+                      <InlineMath>\nabla f</InlineMath> and <InlineMath>H</InlineMath> transform in complementary ways,
+                      so <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> stays invariant. The Newton step automatically
+                      adapts to different scales in different directions, eliminating the zig-zagging that plagues
+                      gradient descent.
                     </p>
                     <p className="text-sm mt-1 text-gray-600">
                       (When λ_damp = 0, this is pure Newton's method: <InlineMath>{'p = -H^{-1}\\nabla f'}</InlineMath>)
@@ -2871,6 +2884,86 @@ const UnifiedVisualizer = () => {
                       <li>Lower to ~0 to see pure Newton's method behavior (may be unstable)</li>
                       <li>Increase to 0.1+ for very ill-conditioned problems</li>
                     </ul>
+                  </div>
+
+                  <div className="bg-purple-100 rounded p-4 mb-4">
+                    <h3 className="text-lg font-bold text-purple-900 mb-2">
+                      🎯 Why Newton Doesn't Zig-Zag (The Step Size Issue)
+                    </h3>
+
+                    <p className="mb-2">
+                      <strong>Gradient Descent (Fixed <InlineMath>\alpha</InlineMath>):</strong> <InlineMath>{'w_{k+1} = w_k - \\alpha\\nabla f'}</InlineMath>
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm mb-3">
+                      <li>One step size <InlineMath>\alpha</InlineMath> for all directions, forever</li>
+                      <li>On x² + 100y²: same <InlineMath>\alpha</InlineMath> for both directions despite 100× curvature difference</li>
+                      <li>Result: severe zig-zagging</li>
+                    </ul>
+
+                    <p className="mb-2">
+                      <strong>GD with Line Search:</strong> Adaptive <InlineMath>\alpha</InlineMath> each iteration
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm mb-3">
+                      <li>Still one <InlineMath>\alpha</InlineMath> for all directions at each step, but adapts as we go</li>
+                      <li>Much better than fixed <InlineMath>\alpha</InlineMath> - prevents divergence, speeds convergence</li>
+                      <li>But still zig-zags on ill-conditioned problems (just less severe)</li>
+                    </ul>
+
+                    <p className="mb-2">
+                      <strong>Newton's Method:</strong> <InlineMath>{'w_{k+1} = w_k - H^{-1}\\nabla f'}</InlineMath>
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li><InlineMath>{'H^{-1}'}</InlineMath> provides direction-specific step sizes based on curvature</li>
+                      <li>On x² + 100y²: automatically uses 100× smaller step in y-direction</li>
+                      <li>Result: no zig-zagging, straight to minimum</li>
+                    </ul>
+
+                    <p className="text-sm mt-3 italic text-purple-800">
+                      Line search: "One size fits all (per iteration)."
+                      Newton: "Custom fit for each direction."
+                    </p>
+                  </div>
+
+                  <div className="bg-amber-100 rounded p-4 mb-4">
+                    <h3 className="text-lg font-bold text-amber-900 mb-2">
+                      🤔 Why Not Just Use a Vector of Step Sizes?
+                    </h3>
+
+                    <p className="mb-3">
+                      Natural question: If different directions need different step sizes,
+                      why not use <InlineMath>\alpha</InlineMath> = (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>, ..., <InlineMath>\alpha_n</InlineMath>) - one step size per coordinate?
+                    </p>
+
+                    <p className="mb-2"><strong>Update rule would be:</strong></p>
+                    <BlockMath>{'w_{new} = w_{old} - (\\alpha_1 \\frac{\\partial f}{\\partial x_1}, \\alpha_2 \\frac{\\partial f}{\\partial x_2}, ...)'}</BlockMath>
+
+                    <p className="mb-3 mt-3">
+                      <strong>This handles different scales</strong> in each coordinate direction.
+                      But there's a problem...
+                    </p>
+
+                    <div className="bg-amber-200 rounded p-3 mb-3">
+                      <p className="font-semibold mb-2">What if the problem is ROTATED?</p>
+                      <p className="text-sm mb-2">
+                        Example: f(x,y) = (x+y)² + 100(x-y)²
+                      </p>
+                      <ul className="list-disc ml-6 space-y-1 text-sm">
+                        <li>The valley runs diagonally (along x+y=0), not along x or y axis</li>
+                        <li>No choice of (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>) can make the step point down the diagonal valley</li>
+                        <li>You need to ROTATE the step direction, not just scale coordinates</li>
+                      </ul>
+                    </div>
+
+                    <p className="mb-2"><strong>Newton's matrix <InlineMath>{'H^{-1}'}</InlineMath> solves this:</strong></p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>Full matrix can both SCALE (handle different curvatures) and ROTATE (align with problem geometry)</li>
+                      <li><InlineMath>{'H^{-1}\\nabla f'}</InlineMath> automatically points toward the minimum regardless of rotation</li>
+                      <li>This is why we need n² values (matrix) not just n values (vector)</li>
+                    </ul>
+
+                    <p className="text-sm mt-3 italic text-amber-800">
+                      Try the "Rotated Quadratic" experiment below to see this in action!
+                    </p>
                   </div>
 
                   <div className="bg-blue-100 rounded p-3">
@@ -3044,10 +3137,15 @@ const UnifiedVisualizer = () => {
                         <div>
                           <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
                           <p className="text-sm text-gray-700">
-                            Elongated ellipse (<InlineMath>\kappa=100</InlineMath>) where GD zig-zags but Newton excels
+                            Elongated ellipse (<InlineMath>\kappa=100</InlineMath>): 100× more curved in one direction
+                          </p>
+                          <p className="text-sm text-gray-700 mt-1">
+                            <strong>Why Newton wins:</strong> Even with line search, GD uses one <InlineMath>\alpha</InlineMath> for
+                            all directions at each step → still zig-zags. Newton's <InlineMath>{'H^{-1}'}</InlineMath> uses
+                            direction-specific steps based on curvature → straight to minimum.
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Newton converges in ~5 iterations (GD would take 100+)
+                            Observe: Newton ~5 iterations, GD needs 100+ (even with line search!)
                           </p>
                         </div>
                       </div>
@@ -3114,13 +3212,13 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>
-                        <strong>Negative eigenvalues</strong> → add line search, consider modified Newton (<InlineMath>H + \lambda I</InlineMath>)
+                        <strong>Instability / Huge steps</strong> → increase Hessian damping (λ_damp) to 0.1 or higher
                       </li>
                       <li>
-                        <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor)
+                        <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor), or λ_damp too high (try lowering toward 0.01)
                       </li>
                       <li>
-                        <strong>Numerical issues</strong> → Hessian ill-conditioned, use iterative solvers or quasi-Newton
+                        <strong>Numerical issues</strong> → Hessian severely ill-conditioned, increase λ_damp further or switch to L-BFGS
                       </li>
                       <li>
                         <strong>High cost</strong> → n too large, switch to L-BFGS
@@ -3315,7 +3413,8 @@ const UnifiedVisualizer = () => {
                     <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (ill-conditioned)</li>
-                      <li>Newton handles ill-conditioning <strong>better than gradient descent</strong></li>
+                      <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>{'H^{-1}'}</InlineMath> automatically provides direction-specific step sizes</li>
+                      <li>GD's single <InlineMath>\alpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
                       <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
                     </ul>
                   </div>
