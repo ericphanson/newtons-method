@@ -11,6 +11,7 @@
     "test-combo": "tsx scripts/test-combinations.ts",
     "test-all": "tsx scripts/test-combinations.ts --all",
     "export-datasets": "tsx scripts/export-datasets.ts",
+    "bench-basin": "tsx scripts/compute-basin-cli.ts",
     "validate": "cd python && uv run python validate_with_python.py --all",
     "validate:verbose": "cd python && uv run python validate_with_python.py --all --verbose",
     "validate:quiet": "cd python && uv run python validate_with_python.py --all --quiet"
