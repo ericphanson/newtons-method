@@ -116,7 +116,7 @@ export function ProblemExplainer() {
                 </BlockMath>
               </div>
               <p className="mt-2">
-                Classic perceptron algorithm. Only penalizes misclassified points (<InlineMath>y_i z_i &lt; 0</InlineMath>).
+                Classic perceptron algorithm. Only penalizes misclassified points (<InlineMath>{'y_i z_i < 0'}</InlineMath>).
                 Does not maximize margin - just finds any separating hyperplane.
               </p>
               <p className="mt-1">
