@@ -69,7 +69,46 @@ export function ProblemExplainer() {
           <p>
             The <strong>separating hyperplane</strong> problem finds a linear decision boundary
             that separates two classes of data points. In 2D, this is a line; in higher dimensions,
-            it's a hyperplane. The equation is: <InlineMath>w_0 \cdot x_1 + w_1 \cdot x_2 + w_2 = 0</InlineMath>
+            it's a hyperplane.
+          </p>
+
+          <div className="bg-blue-50 rounded p-3 border border-blue-200 mt-3">
+            <h5 className="font-semibold text-sm mb-2">Notation (for beginners)</h5>
+            <div className="space-y-1 text-sm">
+              <p>
+                <InlineMath>w = [w_0, w_1, w_2]</InlineMath> — The <strong>weights</strong> we're optimizing.
+                <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath> define the slope,
+                <InlineMath>w_2</InlineMath> is the bias (intercept).
+              </p>
+              <p>
+                <InlineMath>x = [x_1, x_2]</InlineMath> — A <strong>data point</strong> in 2D space (e.g., a red or blue dot).
+              </p>
+              <p>
+                <InlineMath>{'y \\in \\{-1, +1\\}'}</InlineMath> — The <strong>class label</strong>.
+                <InlineMath>y = -1</InlineMath> for class 0 (red), <InlineMath>y = +1</InlineMath> for class 1 (blue).
+              </p>
+              <p>
+                <InlineMath>z = w_0 x_1 + w_1 x_2 + w_2</InlineMath> — The <strong>decision value</strong>.
+                If <InlineMath>{'z > 0'}</InlineMath>, we predict class 1; if <InlineMath>{'z < 0'}</InlineMath>, we predict class 0.
+              </p>
+              <p className="pt-2 border-t border-blue-300 mt-2">
+                <strong>Decision Boundary:</strong> <InlineMath>w_0 x_1 + w_1 x_2 + w_2 = 0</InlineMath>
+                <br />
+                <span className="text-xs">This is the line where <InlineMath>z = 0</InlineMath>. Points on one side are predicted as class 0, points on the other side as class 1.</span>
+              </p>
+            </div>
+          </div>
+
+          <h4 className="font-semibold text-lg mt-4">Why These Formulations Make Sense</h4>
+          <p className="text-sm">
+            All four variants balance two goals: (1) <strong>correctly classify the data</strong>, and
+            (2) <strong>find a simple, robust boundary</strong>. The term <InlineMath>{String.raw`\frac{1}{2}\|w\|^2`}</InlineMath> keeps
+            weights small (maximizes margin), while different loss terms handle classification errors differently.
+          </p>
+          <p className="text-sm">
+            <strong>Key insight:</strong> The product <InlineMath>y_i z_i</InlineMath> tells us if point <InlineMath>i</InlineMath> is
+            correctly classified. If <InlineMath>{'y_i z_i > 0'}</InlineMath>, the point is on the correct side.
+            If <InlineMath>{'y_i z_i < 0'}</InlineMath>, it's misclassified.
           </p>
 
           <h4 className="font-semibold text-lg mt-4">Four Variants</h4>
@@ -80,14 +119,22 @@ export function ProblemExplainer() {
               <div className="mt-1">
                 <p className="font-semibold text-sm">Objective:</p>
                 <BlockMath>
-                  {String.raw`\min \frac{1}{2}\|w\|^2`}
+                  {String.raw`\min \frac{1}{2}\|w\|^2 \quad \text{subject to } y_i z_i \geq 1 \text{ for all } i`}
                 </BlockMath>
+                <p className="text-xs text-gray-600 mt-1">
+                  (In practice, we use a smooth penalty formulation instead of hard constraints)
+                </p>
               </div>
-              <p className="mt-2">
-                Maximizes the margin between classes. Assumes data is perfectly linearly separable.
+              <p className="mt-2 text-sm">
+                <strong>What it does:</strong> Finds the widest "margin" (gap) between the two classes.
+                Minimizing <InlineMath>{String.raw`\|w\|^2`}</InlineMath> makes the margin wider.
               </p>
-              <p className="mt-1">
-                <strong>Failure mode:</strong> If data is not separable, gradients become very large
+              <p className="mt-1 text-sm">
+                <strong>The constraint:</strong> <InlineMath>{'y_i z_i \\geq 1'}</InlineMath> means every point must be
+                not just on the correct side, but at least distance 1 from the boundary (scaled by <InlineMath>{String.raw`\|w\|`}</InlineMath>).
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>Failure mode:</strong> If data is not perfectly separable, gradients become very large
                 as the algorithm tries to satisfy impossible constraints.
               </p>
             </div>
@@ -100,10 +147,18 @@ export function ProblemExplainer() {
                   {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i \max(0, 1 - y_i z_i)`}
                 </BlockMath>
               </div>
-              <p className="mt-2">
-                Uses <em>hinge loss</em> to allow some misclassifications with penalty C=1.0.
-                More practical than hard-margin. Points outside the margin contribute to loss.
-                Balances margin maximization with allowing errors.
+              <p className="mt-2 text-sm">
+                <strong>What it does:</strong> Uses <em>hinge loss</em> <InlineMath>{String.raw`\max(0, 1 - y_i z_i)`}</InlineMath> to
+                allow some misclassifications with penalty C=1.0.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>How the loss works:</strong> If <InlineMath>{'y_i z_i \\geq 1'}</InlineMath> (point is far on correct side),
+                loss is 0. If <InlineMath>{'y_i z_i < 1'}</InlineMath> (point violates margin or is misclassified),
+                loss increases linearly. This creates a "soft" margin that tolerates some errors.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>Why it's practical:</strong> More robust than hard-margin. Balances margin maximization with allowing errors
+                in overlapping data.
               </p>
             </div>
 
@@ -115,13 +170,21 @@ export function ProblemExplainer() {
                   {String.raw`\min \sum_i \max(0, -y_i z_i) + 0.01 \cdot \frac{1}{2}\|w\|^2`}
                 </BlockMath>
               </div>
-              <p className="mt-2">
-                Classic perceptron algorithm. Only penalizes misclassified points (<InlineMath>{'y_i z_i < 0'}</InlineMath>).
-                Does not maximize margin - just finds any separating hyperplane.
-                <em>Note: Small regularization (0.01) added to prevent weights from collapsing to zero.</em>
+              <p className="mt-2 text-sm">
+                <strong>What it does:</strong> Classic perceptron algorithm. Only penalizes misclassified points.
               </p>
-              <p className="mt-1">
-                <strong>Result:</strong> Often finds solutions closer to the data than SVM variants.
+              <p className="mt-1 text-sm">
+                <strong>How the loss works:</strong> <InlineMath>{String.raw`\max(0, -y_i z_i)`}</InlineMath> is non-zero only when
+                <InlineMath>{'y_i z_i < 0'}</InlineMath> (misclassified). Correctly classified points contribute zero loss,
+                even if they're very close to the boundary. This is different from SVM which wants a margin.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>The regularization term:</strong> Small regularization (0.01) prevents weights from becoming too large
+                or collapsing to zero. Without it, the algorithm might produce unstable solutions.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>Result:</strong> Finds any separating hyperplane but doesn't maximize margin. Often finds solutions
+                closer to the data than SVM variants (less robust to new data).
               </p>
             </div>
 
@@ -133,12 +196,21 @@ export function ProblemExplainer() {
                   {String.raw`\min \frac{1}{2}\|w\|^2 + C \sum_i [\max(0, 1 - y_i z_i)]^2`}
                 </BlockMath>
               </div>
-              <p className="mt-2">
-                Smoothed version of hinge loss. Penalizes margin violations quadratically.
+              <p className="mt-2 text-sm">
+                <strong>What it does:</strong> Similar to soft-margin SVM, but squares the hinge loss.
               </p>
-              <p className="mt-1">
-                <strong>Advantage:</strong> Twice differentiable everywhere, better for Newton's method.
-                Gives more penalty to large violations than soft-margin SVM.
+              <p className="mt-1 text-sm">
+                <strong>How the loss works:</strong> Same as hinge loss, but <em>quadratic</em> instead of linear.
+                If <InlineMath>{'y_i z_i \\geq 1'}</InlineMath>, loss is 0. If <InlineMath>{'y_i z_i < 1'}</InlineMath>,
+                loss is <InlineMath>{String.raw`(1 - y_i z_i)^2`}</InlineMath>. Large violations get much heavier penalty.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>Advantage:</strong> The loss function is <em>twice differentiable everywhere</em> (smooth),
+                which makes Newton's method work better. Soft-margin SVM has a "kink" at <InlineMath>{'y_i z_i = 1'}</InlineMath>
+                where the second derivative doesn't exist.
+              </p>
+              <p className="mt-1 text-sm">
+                <strong>Trade-off:</strong> More sensitive to outliers (quadratic penalty), but smoother optimization landscape.
               </p>
             </div>
           </div>

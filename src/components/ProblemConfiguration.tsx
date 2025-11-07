@@ -166,32 +166,39 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           </div>
         ) : currentProblem === 'separating-hyperplane' ? (
           <div className="space-y-2 text-gray-800 text-sm bg-green-50 p-3 rounded">
+            <div className="mb-2 pb-2 border-b border-green-200">
+              <strong>Variables:</strong>{' '}
+              <InlineMath>w = [w_0, w_1, w_2]</InlineMath> (weights + bias),{' '}
+              <InlineMath>x = [x_1, x_2]</InlineMath> (data point),{' '}
+              <InlineMath>{'y \\in \\{-1, +1\\}'}</InlineMath> (class label),{' '}
+              <InlineMath>z = w_0 x_1 + w_1 x_2 + w_2</InlineMath> (decision value)
+            </div>
             {separatingHyperplaneVariant === 'hard-margin' && (
               <div>
                 <strong>Hard-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2`}</InlineMath>
                 <br />
-                <small>Maximizes margin, requires separable data</small>
+                <small>Maximizes margin between classes, requires perfectly separable data</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'soft-margin' && (
               <div>
                 <strong>Soft-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum \max(0, 1-y_i z_i)`}</InlineMath>
                 <br />
-                <small>Hinge loss, allows misclassifications (C=1.0)</small>
+                <small>Hinge loss allows misclassifications with penalty (C=1.0)</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'perceptron' && (
               <div>
                 <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i) + 0.01 \|w\|^2/2`}</InlineMath>
                 <br />
-                <small>Minimizes misclassifications (small regularization prevents weight collapse)</small>
+                <small>Penalizes only misclassified points (small regularization prevents weight collapse)</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'squared-hinge' && (
               <div>
                 <strong>Squared-Hinge:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + C \sum [\max(0, 1-y_i z_i)]^2`}</InlineMath>
                 <br />
-                <small>Smooth variant, twice differentiable (C=1.0)</small>
+                <small>Smooth variant with quadratic penalty, twice differentiable (C=1.0)</small>
               </div>
             )}
           </div>
