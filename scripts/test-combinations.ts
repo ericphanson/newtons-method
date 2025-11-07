@@ -8,22 +8,27 @@
  */
 
 import { getProblem } from '../src/problems';
-import { problemToProblemFunctions } from '../src/utils/problemAdapter';
+import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from '../src/utils/problemAdapter';
 import { runGradientDescent } from '../src/algorithms/gradient-descent';
 import { runGradientDescentLineSearch } from '../src/algorithms/gradient-descent-linesearch';
 import { runNewton } from '../src/algorithms/newton';
 import { runLBFGS } from '../src/algorithms/lbfgs';
 import { getProblemDefaults } from '../src/utils/problemDefaults';
+import { generateCrescents } from '../src/shared-utils';
+import type { SeparatingHyperplaneVariant } from '../src/types/experiments';
 
 interface TestConfig {
   problem: string;
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
-  initialPoint?: [number, number];
+  initialPoint?: [number, number] | [number, number, number];
   maxIter?: number;
   // Algorithm-specific params
   alpha?: number;  // For GD fixed
   c1?: number;     // For line search algorithms
   m?: number;      // For L-BFGS
+  // Problem-specific params
+  variant?: SeparatingHyperplaneVariant;  // For separating-hyperplane
+  lambda?: number; // For logistic-regression
 }
 
 interface TestResult {
@@ -40,29 +45,49 @@ function runTest(config: TestConfig): TestResult {
   const {
     problem: problemName,
     algorithm,
-    initialPoint = [-1, 1],
+    initialPoint,
     maxIter = 100,
     alpha = 0.1,
     c1 = 0.0001,
-    m = 5
+    m = 5,
+    variant = 'hard-margin',
+    lambda = 0.001
   } = config;
 
   try {
-    // Get problem
-    const problem = getProblem(problemName);
-    if (!problem) {
-      return {
-        config,
-        iterations: 0,
-        finalLoss: NaN,
-        finalGradNorm: NaN,
-        converged: false,
-        diverged: false,
-        error: `Problem '${problemName}' not found`
-      };
+    // Handle dataset-based problems (logistic-regression, separating-hyperplane)
+    let problemFuncs: any;
+    let defaultInitialPoint: [number, number] | [number, number, number];
+
+    if (problemName === 'logistic-regression') {
+      // Generate dataset for logistic regression
+      const data = generateCrescents(50, 0.5, 0.3);
+      problemFuncs = logisticRegressionToProblemFunctions(data, lambda);
+      defaultInitialPoint = [0, 0, 0];
+    } else if (problemName === 'separating-hyperplane') {
+      // Generate dataset for separating hyperplane
+      const data = generateCrescents(50, 0.5, 0.3);
+      problemFuncs = separatingHyperplaneToProblemFunctions(data, variant);
+      defaultInitialPoint = [0, 0, 0];
+    } else {
+      // Get problem from registry
+      const problem = getProblem(problemName);
+      if (!problem) {
+        return {
+          config,
+          iterations: 0,
+          finalLoss: NaN,
+          finalGradNorm: NaN,
+          converged: false,
+          diverged: false,
+          error: `Problem '${problemName}' not found`
+        };
+      }
+      problemFuncs = problemToProblemFunctions(problem);
+      defaultInitialPoint = [-1, 1];
     }
 
-    const problemFuncs = problemToProblemFunctions(problem);
+    const finalInitialPoint = initialPoint || defaultInitialPoint;
 
     // Run algorithm
     let iterations: any[];
@@ -72,7 +97,7 @@ function runTest(config: TestConfig): TestResult {
           maxIter,
           alpha,
           lambda: 0,
-          initialPoint
+          initialPoint: finalInitialPoint
         });
         break;
       case 'gd-linesearch':
@@ -80,7 +105,7 @@ function runTest(config: TestConfig): TestResult {
           maxIter,
           c1,
           lambda: 0,
-          initialPoint
+          initialPoint: finalInitialPoint
         });
         break;
       case 'newton':
@@ -88,7 +113,7 @@ function runTest(config: TestConfig): TestResult {
           maxIter,
           c1,
           lambda: 0,
-          initialPoint
+          initialPoint: finalInitialPoint
         });
         break;
       case 'lbfgs':
@@ -97,7 +122,7 @@ function runTest(config: TestConfig): TestResult {
           m,
           c1,
           lambda: 0,
-          initialPoint
+          initialPoint: finalInitialPoint
         });
         break;
       default:
@@ -265,8 +290,16 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
 
 // Test all combinations
 function testAllCombinations(): TestResult[] {
-  const problems = ['quadratic', 'ill-conditioned-quadratic', 'rosenbrock', 'non-convex-saddle'];
+  const problems = [
+    'quadratic',
+    'ill-conditioned-quadratic',
+    'rosenbrock',
+    'non-convex-saddle',
+    'logistic-regression',
+    'separating-hyperplane'
+  ];
   const algorithms: TestConfig['algorithm'][] = ['gd-fixed', 'gd-linesearch', 'newton', 'lbfgs'];
+  const separatingHyperplaneVariants: SeparatingHyperplaneVariant[] = ['hard-margin', 'soft-margin', 'perceptron', 'squared-hinge'];
 
   const configs: TestConfig[] = [];
 
@@ -275,25 +308,55 @@ function testAllCombinations(): TestResult[] {
       // Get problem-specific defaults
       const defaults = getProblemDefaults(problem);
 
-      // Default configs using problem-specific values
-      const config: TestConfig = {
-        problem,
-        algorithm,
-        initialPoint: defaults.initialPoint,
-        maxIter: defaults.maxIter
-      };
+      // For separating hyperplane, test all variants
+      if (problem === 'separating-hyperplane') {
+        for (const variant of separatingHyperplaneVariants) {
+          const config: TestConfig = {
+            problem,
+            algorithm,
+            initialPoint: defaults.initialPoint as [number, number, number],
+            maxIter: defaults.maxIter,
+            variant
+          };
 
-      // Algorithm-specific parameters
-      if (algorithm === 'gd-fixed') {
-        config.alpha = defaults.gdFixedAlpha;
-      } else {
-        config.c1 = defaults.c1;
-        if (algorithm === 'lbfgs') {
-          config.m = defaults.lbfgsM;
+          // Algorithm-specific parameters
+          if (algorithm === 'gd-fixed') {
+            config.alpha = defaults.gdFixedAlpha;
+          } else {
+            config.c1 = defaults.c1;
+            if (algorithm === 'lbfgs') {
+              config.m = defaults.lbfgsM;
+            }
+          }
+
+          configs.push(config);
         }
-      }
+      } else {
+        // Default configs using problem-specific values
+        const config: TestConfig = {
+          problem,
+          algorithm,
+          initialPoint: defaults.initialPoint,
+          maxIter: defaults.maxIter
+        };
 
-      configs.push(config);
+        // Algorithm-specific parameters
+        if (algorithm === 'gd-fixed') {
+          config.alpha = defaults.gdFixedAlpha;
+        } else {
+          config.c1 = defaults.c1;
+          if (algorithm === 'lbfgs') {
+            config.m = defaults.lbfgsM;
+          }
+        }
+
+        // Problem-specific parameters
+        if (problem === 'logistic-regression') {
+          config.lambda = 0.001;
+        }
+
+        configs.push(config);
+      }
     }
   }
 
