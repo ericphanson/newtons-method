@@ -52,7 +52,7 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-case-declarations': 'warn',
       'prefer-const': 'error', // Re-enabled as error
-      'no-self-assign': 'warn',
+      'no-self-assign': 'error',
     },
     settings: {
       react: {
