@@ -434,6 +434,11 @@ const UnifiedVisualizer = () => {
     [gdLSIterations, calculateParamBounds]
   );
 
+  const diagPrecondParamBounds = React.useMemo(
+    () => calculateParamBounds(diagPrecondIterations, 'Diagonal Precond'),
+    [diagPrecondIterations, calculateParamBounds]
+  );
+
   // Unified bounds for AlgorithmConfiguration (basin picker)
   // Fixed to -3 to 3 (not based on trajectory)
   const bounds = React.useMemo(() => {
@@ -474,6 +479,10 @@ const UnifiedVisualizer = () => {
   // L-BFGS canvas refs
   const lbfgsParamCanvasRef = useRef<HTMLCanvasElement>(null);
   const lbfgsLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Diagonal Preconditioner refs
+  const diagPrecondParamCanvasRef = useRef<HTMLCanvasElement>(null);
+  const diagPrecondLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Run Diagonal Preconditioner
   const runDiagPrecond = useCallback(() => {
@@ -1559,6 +1568,31 @@ const UnifiedVisualizer = () => {
 
     drawLineSearchPlot(canvas, iter);
   }, [gdLSIterations, gdLSCurrentIter, selectedTab]);
+
+  // Draw Diagonal Preconditioner parameter space
+  useEffect(() => {
+    const canvas = diagPrecondParamCanvasRef.current;
+    if (!canvas || selectedTab !== 'diagonal-precond') return;
+    const iter = diagPrecondIterations[diagPrecondCurrentIter];
+    if (!iter) return;
+
+    const problem = getCurrentProblem();
+    drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecondIterations, diagPrecondCurrentIter, problem);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
+  }, [diagPrecondCurrentIter, data, diagPrecondIterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+
+  // Draw Diagonal Preconditioner line search
+  useEffect(() => {
+    const canvas = diagPrecondLineSearchCanvasRef.current;
+    if (!canvas || selectedTab !== 'diagonal-precond') return;
+    const iter = diagPrecondIterations[diagPrecondCurrentIter];
+    if (!iter || !iter.lineSearchTrials) return;
+
+    // Only draw if we have the full line search curve data (which diagonal preconditioner currently doesn't generate)
+    // For now, we skip drawing until the algorithm is updated to include lineSearchCurve
+    // TODO: Either update diagonal-preconditioner algorithm to generate lineSearchCurve data,
+    // or create a simplified line search visualization that works with just lineSearchTrials
+  }, [diagPrecondIterations, diagPrecondCurrentIter, selectedTab]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
