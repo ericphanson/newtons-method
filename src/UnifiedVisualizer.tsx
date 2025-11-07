@@ -267,8 +267,9 @@ const UnifiedVisualizer = () => {
           initialPoint: [0, 0, 0],
           tolerance: 1e-10, // Very tight tolerance for accurate minimum
         });
-        if (result.length > 0) {
-          const lastIter = result[result.length - 1];
+        const iterations = result.iterations;
+        if (iterations.length > 0) {
+          const lastIter = iterations[iterations.length - 1];
           // Store all 3 coordinates for 3D problems (separating hyperplane)
           if (lastIter.wNew.length >= 3) {
             setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1], lastIter.wNew[2]]);
@@ -506,21 +507,23 @@ const UnifiedVisualizer = () => {
 
         // Run left algorithm
         if (leftConfig.algorithm === 'gd-fixed') {
-          leftIters = runGradientDescent(problemFuncs, {
+          const result = runGradientDescent(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             alpha: leftConfig.alpha ?? gdFixedAlpha,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             initialPoint,
           });
+          leftIters = result.iterations;
         } else if (leftConfig.algorithm === 'gd-linesearch') {
-          leftIters = runGradientDescentLineSearch(problemFuncs, {
+          const result = runGradientDescentLineSearch(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: leftConfig.c1 ?? gdLSC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             initialPoint,
           });
+          leftIters = result.iterations;
         } else if (leftConfig.algorithm === 'newton') {
-          leftIters = runNewton(problemFuncs, {
+          const result = runNewton(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: leftConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
@@ -528,8 +531,9 @@ const UnifiedVisualizer = () => {
             lineSearch: leftConfig.lineSearch ?? newtonLineSearch,
             initialPoint,
           });
+          leftIters = result.iterations;
         } else if (leftConfig.algorithm === 'lbfgs') {
-          leftIters = runLBFGS(problemFuncs, {
+          const result = runLBFGS(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             m: leftConfig.m ?? lbfgsM,
             c1: leftConfig.c1 ?? lbfgsC1,
@@ -537,25 +541,28 @@ const UnifiedVisualizer = () => {
             hessianDamping: lbfgsHessianDamping,
             initialPoint,
           });
+          leftIters = result.iterations;
         }
 
         // Run right algorithm
         if (rightConfig.algorithm === 'gd-fixed') {
-          rightIters = runGradientDescent(problemFuncs, {
+          const result = runGradientDescent(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             alpha: rightConfig.alpha ?? gdFixedAlpha,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             initialPoint,
           });
+          rightIters = result.iterations;
         } else if (rightConfig.algorithm === 'gd-linesearch') {
-          rightIters = runGradientDescentLineSearch(problemFuncs, {
+          const result = runGradientDescentLineSearch(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: rightConfig.c1 ?? gdLSC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             initialPoint,
           });
+          rightIters = result.iterations;
         } else if (rightConfig.algorithm === 'newton') {
-          rightIters = runNewton(problemFuncs, {
+          const result = runNewton(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: rightConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
@@ -563,8 +570,9 @@ const UnifiedVisualizer = () => {
             lineSearch: rightConfig.lineSearch ?? newtonLineSearch,
             initialPoint,
           });
+          rightIters = result.iterations;
         } else if (rightConfig.algorithm === 'lbfgs') {
-          rightIters = runLBFGS(problemFuncs, {
+          const result = runLBFGS(problemFuncs, {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             m: rightConfig.m ?? lbfgsM,
             c1: rightConfig.c1 ?? lbfgsC1,
@@ -572,6 +580,7 @@ const UnifiedVisualizer = () => {
             hessianDamping: lbfgsHessianDamping,
             initialPoint,
           });
+          rightIters = result.iterations;
         }
 
         setComparisonLeftIterations(leftIters);
@@ -637,13 +646,14 @@ const UnifiedVisualizer = () => {
       const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
-      const iterations = runGradientDescent(problemFuncs, {
+      const result = runGradientDescent(problemFuncs, {
         maxIter,
         alpha: gdFixedAlpha,
         lambda,
         initialPoint,
         tolerance: gdFixedTolerance,
       });
+      const iterations = result.iterations;
       setGdFixedIterations(iterations);
 
       // Restore position at same percentage
@@ -669,13 +679,14 @@ const UnifiedVisualizer = () => {
       const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
-      const iterations = runGradientDescentLineSearch(problemFuncs, {
+      const result = runGradientDescentLineSearch(problemFuncs, {
         maxIter,
         c1: gdLSC1,
         lambda,
         initialPoint,
         tolerance: gdLSTolerance,
       });
+      const iterations = result.iterations;
       setGdLSIterations(iterations);
 
       // Restore position at same percentage
@@ -701,7 +712,7 @@ const UnifiedVisualizer = () => {
       const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
-      const iterations = runNewton(problemFuncs, {
+      const result = runNewton(problemFuncs, {
         maxIter,
         c1: newtonC1,
         lambda,
@@ -710,6 +721,7 @@ const UnifiedVisualizer = () => {
         initialPoint,
         tolerance: newtonTolerance,
       });
+      const iterations = result.iterations;
       setNewtonIterations(iterations);
 
       // Restore position at same percentage
@@ -737,7 +749,7 @@ const UnifiedVisualizer = () => {
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
       console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1, hessianDamping: lbfgsHessianDamping });
-      const iterations = runLBFGS(problemFuncs, {
+      const result = runLBFGS(problemFuncs, {
         maxIter,
         m: lbfgsM,
         c1: lbfgsC1,
@@ -746,6 +758,7 @@ const UnifiedVisualizer = () => {
         initialPoint,
         tolerance: lbfgsTolerance,
       });
+      const iterations = result.iterations;
       console.log('L-BFGS completed:', iterations.length, 'iterations');
       if (iterations.length > 0) {
         console.log('First iteration:', iterations[0]);
