@@ -111,6 +111,10 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
       const funcChange = Math.abs(lossHistory[i] - lossHistory[i - 1]);
       const relativeFuncChange = funcChange / Math.max(Math.abs(lossHistory[i]), 1e-8);
       functionChangeHistory.push(relativeFuncChange);
+      // Debug: log if we see suspicious values
+      if (relativeFuncChange === 0 && funcChange === 0) {
+        console.log(`[IterationMetrics] Iter ${i}: Loss unchanged: ${lossHistory[i-1]} → ${lossHistory[i]}`);
+      }
     }
   }
   const hasFunctionChangeData = functionChangeHistory.length > 0;
@@ -121,6 +125,17 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   const currentFunctionChange = functionChangeHistory.length > iterNum && iterNum > 0
     ? functionChangeHistory[iterNum - 1]
     : (functionChangeHistory.length > 0 ? functionChangeHistory[functionChangeHistory.length - 1] : 0);
+
+  // Debug: compare with summary
+  if (summary && summary.finalFunctionChange !== undefined) {
+    console.log('[IterationMetrics] Function change comparison:', {
+      computed: currentFunctionChange,
+      fromSummary: summary.finalFunctionChange,
+      iterNum,
+      functionChangeHistory,
+      lossHistory: lossHistory?.slice(-3)
+    });
+  }
 
   // Compute step size history (relative step size between iterations)
   const stepSizeHistory: number[] = [];
@@ -322,7 +337,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             <span className="text-gray-600">Rel. Func. Change:</span>
             <span className="font-mono font-bold">{fmt(currentFunctionChange)}</span>
           </div>
-          {functionChangeHistory.length > 1 && (
+          {functionChangeHistory.length > 0 && (
             <svg
               width="100%"
               height="24"
@@ -379,7 +394,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             <span className="text-gray-600">Rel. Step Size:</span>
             <span className="font-mono font-bold">{fmt(currentStepSize)}</span>
           </div>
-          {stepSizeHistory.length > 1 && (
+          {stepSizeHistory.length > 0 && (
             <svg
               width="100%"
               height="24"

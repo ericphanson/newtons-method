@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npm run validate-katex && vite",
     "validate-katex": "tsx scripts/validate-katex.ts",
-    "build": "npm run validate-katex && tsc -b && vite build",
+    "build": "npm run validate-katex && npm run lint && tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "preview": "vite preview",
     "test-combo": "tsx scripts/test-combinations.ts",
     "test-all": "tsx scripts/test-combinations.ts --all",
@@ -26,6 +27,7 @@
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/d3-array": "^3.2.2",
     "@types/d3-contour": "^3.0.6",
     "@types/katex": "^0.16.7",
@@ -33,10 +35,15 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
     "tsx": "^4.19.2",
     "typescript": "~5.6.2",
+    "typescript-eslint": "^8.46.3",
     "vite": "^6.0.1"
   }
 }

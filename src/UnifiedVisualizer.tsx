@@ -813,11 +813,7 @@ const UnifiedVisualizer = () => {
         lambda,
         hessianDamping: lbfgsHessianDamping,
         initialPoint,
-        termination: {
-          gtol: lbfgsTolerance,
-          ftol: lbfgsFtol,
-          xtol: lbfgsXtol,
-        },
+        tolerance: lbfgsTolerance,
       });
       const iterations = result.iterations;
       console.log('L-BFGS completed:', iterations.length, 'iterations');
@@ -839,7 +835,7 @@ const UnifiedVisualizer = () => {
       setLbfgsIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, lbfgsFtol, lbfgsXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Run diagonal preconditioner
   const runDiagPrecond = useCallback(() => {
@@ -1732,10 +1728,6 @@ const UnifiedVisualizer = () => {
                   onGdFixedAlphaChange={setGdFixedAlpha}
                   gdFixedTolerance={gdFixedTolerance}
                   onGdFixedToleranceChange={setGdFixedTolerance}
-                  gdFixedFtol={gdFixedFtol}
-                  onGdFixedFtolChange={setGdFixedFtol}
-                  gdFixedXtol={gdFixedXtol}
-                  onGdFixedXtolChange={setGdFixedXtol}
                   problemFuncs={problemFuncs}
                   problem={problem}
                   bounds={bounds}
@@ -2229,10 +2221,6 @@ const UnifiedVisualizer = () => {
                   onGdLSC1Change={setGdLSC1}
                   gdLSTolerance={gdLSTolerance}
                   onGdLSToleranceChange={setGdLSTolerance}
-                  gdLSFtol={gdLSFtol}
-                  onGdLSFtolChange={setGdLSFtol}
-                  gdLSXtol={gdLSXtol}
-                  onGdLSXtolChange={setGdLSXtol}
                   problemFuncs={problemFuncs}
                   problem={problem}
                   bounds={bounds}
@@ -3690,10 +3678,6 @@ const UnifiedVisualizer = () => {
                   onLbfgsHessianDampingChange={setLbfgsHessianDamping}
                   lbfgsTolerance={lbfgsTolerance}
                   onLbfgsToleranceChange={setLbfgsTolerance}
-                  lbfgsFtol={lbfgsFtol}
-                  onLbfgsFtolChange={setLbfgsFtol}
-                  lbfgsXtol={lbfgsXtol}
-                  onLbfgsXtolChange={setLbfgsXtol}
                   problemFuncs={problemFuncs}
                   problem={problem}
                   bounds={bounds}
