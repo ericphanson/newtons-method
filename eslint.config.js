@@ -47,11 +47,11 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
 
-      // Relaxed rules - warnings instead of errors (tighten these as you clean up)
+      // Strict code quality rules (enforced as errors)
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       'no-case-declarations': 'error',
-      'prefer-const': 'error', // Re-enabled as error
+      'prefer-const': 'error',
       'no-self-assign': 'error',
     },
     settings: {
