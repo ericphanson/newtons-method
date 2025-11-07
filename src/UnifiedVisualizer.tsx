@@ -119,8 +119,8 @@ const UnifiedVisualizer = () => {
     w1: [-3, 3] as [number, number],
   });
 
-  // Logistic regression global minimum (computed)
-  const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | null>(null);
+  // Logistic regression / separating hyperplane global minimum (computed, can be 2D or 3D)
+  const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | [number, number, number] | null>(null);
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -266,7 +266,12 @@ const UnifiedVisualizer = () => {
         });
         if (result.length > 0) {
           const lastIter = result[result.length - 1];
-          setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1]]);
+          // Store all 3 coordinates for 3D problems (separating hyperplane)
+          if (lastIter.wNew.length >= 3) {
+            setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1], lastIter.wNew[2]]);
+          } else {
+            setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1]]);
+          }
         }
       } catch (error) {
         console.warn('Failed to compute dataset problem global minimum:', error);
@@ -346,6 +351,24 @@ const UnifiedVisualizer = () => {
 
     const pad0 = w0Range * 0.2;
     const pad1 = w1Range * 0.2;
+
+    // Make bounds symmetric around global minimum if one exists (for better contour visualization)
+    // Skip for separating-hyperplane - just include the minimum in bounds without centering
+    const shouldCenterOnGlobalMin = globalMin && currentProblem !== 'separating-hyperplane';
+    if (shouldCenterOnGlobalMin) {
+      const [gm0, gm1] = globalMin;
+      const maxDist0 = Math.max(Math.abs(minW0 - gm0), Math.abs(maxW0 - gm0)) + pad0;
+      const maxDist1 = Math.max(Math.abs(minW1 - gm1), Math.abs(maxW1 - gm1)) + pad1;
+
+      return {
+        minW0: gm0 - maxDist0,
+        maxW0: gm0 + maxDist0,
+        minW1: gm1 - maxDist1,
+        maxW1: gm1 + maxDist1,
+        w0Range: 2 * maxDist0,
+        w1Range: 2 * maxDist1
+      };
+    }
 
     return {
       minW0: minW0 - pad0,
@@ -983,6 +1006,11 @@ const UnifiedVisualizer = () => {
     const resolution = 60;
     const lossGrid: number[][] = [];
 
+    // For 3D problems, use the bias from the global minimum to slice the visualization
+    const biasSlice: number = ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3)
+      ? (logisticGlobalMin as [number, number, number])[2]
+      : 0;
+
     // Compute loss landscape as 2D grid
     for (let i = 0; i < resolution; i++) {
       const row: number[] = [];
@@ -991,7 +1019,7 @@ const UnifiedVisualizer = () => {
         const w1 = minW1 + (j / resolution) * w1Range;
         // Use problem interface for loss computation
         const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, 0])
+          ? problem.objective([w0, w1, biasSlice])
           : problem.objective([w0, w1]);
         row.push(loss);
       }
@@ -1051,7 +1079,9 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
+    const globalMinimum3D = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
+    // For drawing markers, only use the first 2 coordinates (projection onto 2D slice)
+    const globalMinimum = globalMinimum3D ? [globalMinimum3D[0], globalMinimum3D[1]] as [number, number] : undefined;
     if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
@@ -2083,6 +2113,13 @@ const UnifiedVisualizer = () => {
                     Loss landscape. Orange path = trajectory. Red dot = current position.
                   </p>
 
+                  {/* 2D slice notation for 3D problems */}
+                  {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
+                    <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
+                      <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
+                    </div>
+                  )}
+
                   <canvas ref={gdLSParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
                   {/* Legend for optimum markers */}
@@ -2758,6 +2795,13 @@ const UnifiedVisualizer = () => {
                   <p className="text-sm text-gray-600 mb-3">
                     Loss landscape. Orange path = trajectory. Red dot = current position.
                   </p>
+
+                  {/* 2D slice notation for 3D problems */}
+                  {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
+                    <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
+                      <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
+                    </div>
+                  )}
 
                   <canvas ref={newtonParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
@@ -3579,6 +3623,13 @@ const UnifiedVisualizer = () => {
                   <p className="text-sm text-gray-600 mb-3">
                     Loss landscape. Orange path = trajectory. Red dot = current position.
                   </p>
+
+                  {/* 2D slice notation for 3D problems */}
+                  {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
+                    <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
+                      <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
+                    </div>
+                  )}
 
                   <canvas ref={lbfgsParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
 
