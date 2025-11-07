@@ -213,10 +213,11 @@ export const runNewton = (
       // Will store iteration at end of loop
     }
 
-    // Check function value stalling
+    // Check function value stalling (scipy-style: relative tolerance)
     if (previousLoss !== null && ftol > 0) {
       const funcChange = Math.abs(loss - previousLoss);
-      if (funcChange < ftol && terminationReason === null) {
+      const relativeFuncChange = funcChange / Math.max(Math.abs(loss), 1e-8);
+      if (relativeFuncChange < ftol && terminationReason === null) {
         terminationReason = 'ftol';
       }
     }
@@ -266,10 +267,11 @@ export const runNewton = (
     const wNew = add(w, scale(direction, acceptedAlpha));
     const newLoss = problem.objective(wNew);
 
-    // Check step size stalling
+    // Check step size stalling (scipy-style: relative tolerance)
     if (xtol > 0) {
       const stepSize = norm(sub(wNew, w));
-      if (stepSize < xtol && terminationReason === null) {
+      const relativeStepSize = stepSize / Math.max(norm(wNew), 1.0);
+      if (relativeStepSize < xtol && terminationReason === null) {
         terminationReason = 'xtol';
       }
     }
@@ -313,9 +315,17 @@ export const runNewton = (
   const finalLoss = lastIter ? lastIter.newLoss : Infinity;
   const finalLocation = lastIter ? lastIter.wNew : w;
 
-  // Compute final step size and function change if we have previous iteration data
-  const finalStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
-  const finalFunctionChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
+  // Compute final step size and function change (absolute and relative)
+  const absoluteStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
+  const absoluteFuncChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
+
+  // Compute relative values (for scipy-style tolerance checking)
+  const finalStepSize = absoluteStepSize !== undefined
+    ? absoluteStepSize / Math.max(norm(finalLocation), 1.0)
+    : undefined;
+  const finalFunctionChange = absoluteFuncChange !== undefined
+    ? absoluteFuncChange / Math.max(Math.abs(finalLoss), 1e-8)
+    : undefined;
 
   // Determine convergence flags
   const converged = ['gradient', 'ftol', 'xtol'].includes(terminationReason);

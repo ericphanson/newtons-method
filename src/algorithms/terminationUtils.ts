@@ -23,10 +23,10 @@ export function getTerminationMessage(
       return `Converged: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
 
     case 'ftol':
-      return `Stalled: function change ${values.funcChange!.toExponential(2)} < ${values.ftol!.toExponential(2)}`;
+      return `Stalled: relative function change ${values.funcChange!.toExponential(2)} < ${values.ftol!.toExponential(2)}`;
 
     case 'xtol':
-      return `Stalled: step size ${values.stepSize!.toExponential(2)} < ${values.xtol!.toExponential(2)}`;
+      return `Stalled: relative step size ${values.stepSize!.toExponential(2)} < ${values.xtol!.toExponential(2)}`;
 
     case 'maxiter':
       return `Not converged: maximum iterations (${values.maxIter}) reached (grad norm: ${values.gradNorm.toExponential(2)})`;

@@ -32,15 +32,15 @@ export interface ProblemFunctions {
 
 export type ConvergenceCriterion =
   | 'gradient'      // ||grad|| < gtol (optimal convergence)
-  | 'ftol'          // |f(x_k) - f(x_{k-1})| < ftol (stalled on function value)
-  | 'xtol'          // ||x_k - x_{k-1}|| < xtol (stalled on step size)
+  | 'ftol'          // Relative function change < ftol (stalled, scipy-style)
+  | 'xtol'          // Relative step size < xtol (stalled, scipy-style)
   | 'maxiter'       // Hit maximum iterations (not converged)
   | 'diverged';     // NaN/Inf detected (failure)
 
 export interface TerminationThresholds {
-  gtol?: number;      // Gradient norm tolerance (default: 1e-5)
-  ftol?: number;      // Function value change tolerance (default: 1e-9)
-  xtol?: number;      // Step size tolerance (default: 1e-9)
+  gtol?: number;      // Gradient norm tolerance (absolute, default: 1e-5)
+  ftol?: number;      // Relative function change tolerance (default: 1e-9)
+  xtol?: number;      // Relative step size tolerance (default: 1e-9)
 }
 
 export interface AlgorithmOptions {
@@ -57,8 +57,8 @@ export interface AlgorithmSummary {
   finalLocation: number[];         // Where it ended up [w0, w1, ...]
   finalLoss: number;
   finalGradNorm: number;
-  finalStepSize?: number;          // ||x_k - x_{k-1}|| at termination
-  finalFunctionChange?: number;    // |f(x_k) - f(x_{k-1})| at termination
+  finalStepSize?: number;          // Relative step size: ||x_k - x_{k-1}|| / max(||x_k||, 1)
+  finalFunctionChange?: number;    // Relative function change: |f(x_k) - f(x_{k-1})| / max(|f(x_k)|, 1e-8)
   iterationCount: number;
   convergenceCriterion: ConvergenceCriterion;
   terminationMessage: string;      // Human-readable explanation
