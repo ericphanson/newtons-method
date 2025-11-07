@@ -188,6 +188,35 @@ export function AlgorithmExplainer() {
             </p>
           </div>
 
+          <div className="mt-3 bg-indigo-50 rounded p-3 border border-indigo-200">
+            <p className="font-semibold">Hessian Damping (Levenberg-Marquardt):</p>
+            <BlockMath>
+              {String.raw`H_{\text{damped}} = H + \lambda_{\text{damp}} \cdot I`}
+            </BlockMath>
+            <ul className="list-disc ml-6 space-y-1 text-sm">
+              <li>
+                <strong>What it does:</strong> Adds regularization to the Hessian before inversion,
+                making the linear system more numerically stable
+              </li>
+              <li>
+                <strong>Why it helps:</strong> Prevents huge Newton steps when H has tiny eigenvalues.
+                Example: Perceptron with λ=0.0001 → Hessian eigenvalues ≈ 0.0001 → direction magnitude ~10,000× gradient!
+              </li>
+              <li>
+                <strong>Connection to Levenberg-Marquardt:</strong> This is the core technique from the
+                Levenberg-Marquardt algorithm, which interpolates between Newton's method and gradient descent
+              </li>
+              <li>
+                <strong>Trade-offs:</strong> Lower λ_damp = more faithful to the original problem but less stable;
+                Higher λ_damp = more stable but adds implicit regularization to your optimization
+              </li>
+              <li>
+                <strong>Spectrum of behavior:</strong> When λ_damp = 0, you get pure Newton's method;
+                as λ_damp → ∞, the method approaches gradient descent (H becomes dominated by λI)
+              </li>
+            </ul>
+          </div>
+
           <p>
             <strong>How it works:</strong> Uses a quadratic approximation of the function
             to find the step direction. The Hessian captures local curvature, allowing
