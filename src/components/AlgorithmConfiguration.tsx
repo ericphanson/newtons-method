@@ -233,110 +233,131 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
             </div>
 
-            {/* Gradient Tolerance (gtol) */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Gradient Tolerance (gtol):</label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-2"
-                  step="0.1"
-                  value={Math.log10(props.newtonTolerance ?? 1e-6)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onNewtonToleranceChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonTolerance ?? 1e-6)?.toExponential(1)}
+            {/* Three tolerances in one row */}
+            <div className="flex gap-4">
+              {/* Gradient Tolerance (gtol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">gtol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-2"
+                    step="0.1"
+                    value={Math.log10(props.newtonTolerance ?? 1e-6)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onNewtonToleranceChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.newtonTolerance ?? 1e-6)?.toExponential(1)}
+                  </div>
                 </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Convergence threshold for gradient norm
-              </p>
-            </div>
-
-            {/* Function Tolerance (ftol) */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Function Tolerance (ftol):</label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-4"
-                  step="0.1"
-                  value={Math.log10(props.newtonFtol ?? 2.22e-9)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onNewtonFtolChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonFtol ?? 2.22e-9)?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Relative function change threshold (scipy-style)
-              </p>
-            </div>
-
-            {/* Step Tolerance (xtol) */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Step Tolerance (xtol):</label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-4"
-                  step="0.1"
-                  value={Math.log10(props.newtonXtol ?? 1e-5)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onNewtonXtolChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonXtol ?? 1e-5)?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Relative step size threshold (scipy-style)
-              </p>
-            </div>
-
-            {/* Hessian Damping */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  Hessian Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
-                </label>
-                <input
-                  type="range"
-                  min={-11}
-                  max={Math.log10(1)}
-                  step="0.01"
-                  value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
-                  onChange={(e) => {
-                    const sliderVal = parseFloat(e.target.value);
-                    const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
-                    props.onNewtonHessianDampingChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {props.newtonHessianDamping === 0 ? '0' : props.newtonHessianDamping?.toExponential(1)}
-                </div>
-              </div>
-              <div className="space-y-1">
                 <p className="text-xs text-gray-500">
-                  Regularization for numerical stability (0 to 1.0, logarithmic scale)
+                  Gradient tolerance
                 </p>
-                <p className="text-xs text-gray-600">
-                  <span className="font-medium">Tip:</span> Use 0 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+              </div>
+
+              {/* Function Tolerance (ftol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">ftol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-4"
+                    step="0.1"
+                    value={Math.log10(props.newtonFtol ?? 2.22e-9)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onNewtonFtolChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.newtonFtol ?? 2.22e-9)?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Function tolerance
+                </p>
+              </div>
+
+              {/* Step Tolerance (xtol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">xtol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-4"
+                    step="0.1"
+                    value={Math.log10(props.newtonXtol ?? 1e-5)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onNewtonXtolChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.newtonXtol ?? 1e-5)?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Step tolerance
+                </p>
+              </div>
+            </div>
+
+            {/* Hessian Damping and Max Iterations in one row */}
+            <div className="flex gap-4">
+              {/* Hessian Damping */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
+                  </label>
+                  <input
+                    type="range"
+                    min={-11}
+                    max={Math.log10(1)}
+                    step="0.01"
+                    value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
+                    onChange={(e) => {
+                      const sliderVal = parseFloat(e.target.value);
+                      const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
+                      props.onNewtonHessianDampingChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {props.newtonHessianDamping === 0 ? '0' : props.newtonHessianDamping?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Hessian regularization
+                </p>
+              </div>
+
+              {/* Max Iterations */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Max Iter:</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="400"
+                    step="1"
+                    value={props.maxIter}
+                    onChange={(e) => props.onMaxIterChange(Number(e.target.value))}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">{props.maxIter}</div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Maximum iterations
                 </p>
               </div>
             </div>
