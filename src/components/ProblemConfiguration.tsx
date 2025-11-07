@@ -222,8 +222,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         )}
       </div>
 
-      {/* Parameters section - only for logistic regression for now */}
-      {currentProblem === 'logistic-regression' && (
+      {/* Parameters section - for dataset-based problems */}
+      {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
 
@@ -245,23 +245,25 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
             {/* Controls Sidebar */}
             <div className="w-64 space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">
-                  Regularization (<InlineMath>\lambda</InlineMath>)
-                </h4>
-                <input
-                  type="range"
-                  min="-6"
-                  max="-2"
-                  step="0.1"
-                  value={Math.log10(lambda)}
-                  onChange={(e) => onLambdaChange(Math.pow(10, parseFloat(e.target.value)))}
-                  className="w-full"
-                />
-                <span className="text-sm text-gray-600">
-                  <InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}
-                </span>
-              </div>
+              {currentProblem === 'logistic-regression' && (
+                <div>
+                  <h4 className="font-medium text-gray-700 mb-2">
+                    Regularization (<InlineMath>\lambda</InlineMath>)
+                  </h4>
+                  <input
+                    type="range"
+                    min="-6"
+                    max="-2"
+                    step="0.1"
+                    value={Math.log10(lambda)}
+                    onChange={(e) => onLambdaChange(Math.pow(10, parseFloat(e.target.value)))}
+                    className="w-full"
+                  />
+                  <span className="text-sm text-gray-600">
+                    <InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}
+                  </span>
+                </div>
+              )}
 
               <div>
                 <h4 className="font-medium text-gray-700 mb-2">Dataset Editing</h4>
