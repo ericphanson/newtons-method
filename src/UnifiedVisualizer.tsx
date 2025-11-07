@@ -85,6 +85,8 @@ const UnifiedVisualizer = () => {
   const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
+  const [gdFixedFtol, setGdFixedFtol] = useState(1e-9);
+  const [gdFixedXtol, setGdFixedXtol] = useState(1e-9);
 
   // GD Line search state
   const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
@@ -92,6 +94,8 @@ const UnifiedVisualizer = () => {
   const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
+  const [gdLSFtol, setGdLSFtol] = useState(1e-9);
+  const [gdLSXtol, setGdLSXtol] = useState(1e-9);
 
   // Newton state
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
@@ -101,6 +105,8 @@ const UnifiedVisualizer = () => {
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('armijo');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0.01);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
+  const [newtonFtol, setNewtonFtol] = useState(1e-9);
+  const [newtonXtol, setNewtonXtol] = useState(1e-9);
 
   // L-BFGS state
   const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
@@ -110,6 +116,8 @@ const UnifiedVisualizer = () => {
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0.01);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
+  const [lbfgsFtol, setLbfgsFtol] = useState(1e-9);
+  const [lbfgsXtol, setLbfgsXtol] = useState(1e-9);
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
@@ -699,7 +707,11 @@ const UnifiedVisualizer = () => {
         alpha: gdFixedAlpha,
         lambda,
         initialPoint,
-        tolerance: gdFixedTolerance,
+        termination: {
+          gtol: gdFixedTolerance,
+          ftol: gdFixedFtol,
+          xtol: gdFixedXtol,
+        },
       });
       const iterations = result.iterations;
       setGdFixedIterations(iterations);
@@ -715,7 +727,7 @@ const UnifiedVisualizer = () => {
       setGdFixedIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentFixedStep above
-  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, gdFixedFtol, gdFixedXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -733,7 +745,11 @@ const UnifiedVisualizer = () => {
         c1: gdLSC1,
         lambda,
         initialPoint,
-        tolerance: gdLSTolerance,
+        termination: {
+          gtol: gdLSTolerance,
+          ftol: gdLSFtol,
+          xtol: gdLSXtol,
+        },
       });
       const iterations = result.iterations;
       setGdLSIterations(iterations);
@@ -749,7 +765,7 @@ const UnifiedVisualizer = () => {
       setGdLSIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentLineSearch above
-  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, gdLSFtol, gdLSXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -769,7 +785,11 @@ const UnifiedVisualizer = () => {
         hessianDamping: newtonHessianDamping,
         lineSearch: newtonLineSearch,
         initialPoint,
-        tolerance: newtonTolerance,
+        termination: {
+          gtol: newtonTolerance,
+          ftol: newtonFtol,
+          xtol: newtonXtol,
+        },
       });
       const iterations = result.iterations;
       setNewtonIterations(iterations);
@@ -786,7 +806,7 @@ const UnifiedVisualizer = () => {
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runNewton above
     // Missing a parameter here means changes won't trigger re-resolution (bug: newtonHessianDamping was missing)
-  }, [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -830,6 +850,62 @@ const UnifiedVisualizer = () => {
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+
+  // Run diagonal preconditioner
+  const runDiagPrecond = useCallback(() => {
+    const problemFuncs = getCurrentProblemFunctions();
+    const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+      ? [initialW0, initialW1, 0]
+      : [initialW0, initialW1];
+
+    const result = runDiagonalPreconditioner(problemFuncs, {
+      maxIter,
+      initialPoint,
+      tolerance: diagPrecondTolerance,
+      useLineSearch: diagPrecondUseLineSearch,
+      c1: diagPrecondC1,
+      lambda,
+      epsilon: diagPrecondEpsilon
+    });
+
+    setDiagPrecondIterations(result.iterations);
+    setDiagPrecondCurrentIter(0);
+    setDiagPrecondSummary(result.summary);
+
+    // Show toast with convergence info
+    if (result.summary.converged) {
+      setToast({
+        message: `Converged in ${result.iterations.length} iterations`,
+        type: 'success'
+      });
+    } else if (result.summary.diverged) {
+      setToast({
+        message: 'Algorithm diverged',
+        type: 'error'
+      });
+    } else {
+      setToast({
+        message: `Did not converge in ${maxIter} iterations`,
+        type: 'info'
+      });
+    }
+  }, [
+    currentProblem,
+    data,
+    lambda,
+    separatingHyperplaneVariant,
+    maxIter,
+    initialW0,
+    initialW1,
+    diagPrecondTolerance,
+    diagPrecondUseLineSearch,
+    diagPrecondC1,
+    diagPrecondEpsilon,
+    rotationAngle,
+    conditionNumber,
+    rosenbrockB,
+    getCurrentProblemFunctions
+  ]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -1731,6 +1807,8 @@ const UnifiedVisualizer = () => {
                       lossHistory={gdFixedIterations.map(iter => iter.newLoss)}
                       alphaHistory={gdFixedIterations.map(iter => iter.alpha)}
                       tolerance={gdFixedTolerance}
+                      ftol={1e-9}
+                      xtol={1e-9}
                       summary={gdFixedSummary}
                       onIterationChange={setGdFixedCurrentIter}
                     />
@@ -2226,6 +2304,8 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
+                      ftol={1e-9}
+                      xtol={1e-9}
                       summary={gdLSSummary}
                       onIterationChange={setGdLSCurrentIter}
                     />
@@ -2879,6 +2959,8 @@ const UnifiedVisualizer = () => {
                       hessianCanvasRef={newtonHessianCanvasRef}
                       hessian={newtonIterations[newtonCurrentIter].hessian}
                       tolerance={newtonTolerance}
+                      ftol={1e-9}
+                      xtol={1e-9}
                       summary={newtonSummary}
                       onIterationChange={setNewtonCurrentIter}
                     />
@@ -3673,6 +3755,8 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}
+                      ftol={1e-9}
+                      xtol={1e-9}
                       summary={lbfgsSummary}
                       onIterationChange={setLbfgsCurrentIter}
                     />
