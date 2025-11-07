@@ -19,7 +19,7 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
     // Set up high DPI rendering
     const dpr = window.devicePixelRatio || 1;
     const logicalWidth = 100;
-    const logicalHeight = isMultiModal ? hues.length * 30 : 115;
+    const logicalHeight = isMultiModal ? hues.length * 30 + 130 : 115;
 
     canvas.width = logicalWidth * dpr;
     canvas.height = logicalHeight * dpr;
@@ -31,7 +31,8 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
     ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
     if (isMultiModal) {
-      // Draw discrete swatches
+      // Draw discrete swatches for each minimum
+      const swatchHeight = hues.length * 30;
       hues.forEach((hue, idx) => {
         const y = idx * 30;
         ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
@@ -46,6 +47,56 @@ export const ColorbarLegend: React.FC<ColorbarLegendProps> = ({ hues, isMultiMod
         ctx.font = '12px sans-serif';
         ctx.fillText(`Min ${idx + 1}`, 35, y + 17);
       });
+
+      // Add grayscale colorbar below the swatches
+      const gapHeight = 15;
+      const gradientTop = swatchHeight + gapHeight;
+      const labelHeight = 15;
+      const gradientLeft = 10;
+      const gradientWidth = 20;
+      const gradientHeight = 100;
+
+      // Draw "iterations" label
+      ctx.font = '9px sans-serif';
+      ctx.fillStyle = '#666';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText('iterations', gradientLeft + gradientWidth / 2, gradientTop);
+
+      // Draw grayscale gradient
+      const gradientStart = gradientTop + labelHeight;
+      for (let i = 0; i < gradientHeight; i++) {
+        const lightness = 80 - (i / gradientHeight) * 50;
+        ctx.fillStyle = `hsl(0, 0%, ${lightness}%)`;
+        ctx.fillRect(gradientLeft, gradientStart + i, gradientWidth, 1);
+      }
+
+      // Draw border around gradient
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(gradientLeft, gradientStart, gradientWidth, gradientHeight);
+
+      // Draw labels with iteration counts
+      ctx.fillStyle = '#000';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'left';
+
+      if (iterationRange && iterationRange.max > 0) {
+        ctx.textBaseline = 'top';
+        ctx.fillText(`${iterationRange.min}`, gradientLeft + gradientWidth + 5, gradientStart);
+
+        const midIter = Math.round((iterationRange.min + iterationRange.max) / 2);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${midIter}`, gradientLeft + gradientWidth + 5, gradientStart + gradientHeight / 2);
+
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`${iterationRange.max}`, gradientLeft + gradientWidth + 5, gradientStart + gradientHeight);
+      } else {
+        ctx.textBaseline = 'top';
+        ctx.fillText('Fast', gradientLeft + gradientWidth + 5, gradientStart);
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('Slow', gradientLeft + gradientWidth + 5, gradientStart + gradientHeight);
+      }
     } else {
       // Draw "iterations" label at top
       const labelHeight = 15;
