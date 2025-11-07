@@ -49,6 +49,7 @@ declare global {
 
 interface BasinPickerProps {
   problem: any;
+  currentProblem?: string; // Name of current problem (e.g., 'logistic-regression', 'separating-hyperplane')
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs';
   algorithmParams: any;
   problemFuncs: ProblemFunctions;
@@ -63,6 +64,7 @@ interface BasinPickerProps {
 
 export const BasinPicker: React.FC<BasinPickerProps> = ({
   problem,
+  currentProblem,
   algorithm,
   algorithmParams,
   problemFuncs,
@@ -260,7 +262,11 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     algorithmParams.lineSearch,
     algorithmParams.tolerance,
     algorithmParams.lambda,
-    algorithmParams.biasSlice
+    algorithmParams.biasSlice,
+    // Full objects needed by computeBasinIncremental
+    algorithmParams,
+    bounds,
+    problemFuncs
   ]);
 
   // Render basin when data changes
@@ -460,12 +466,13 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
 
       <div className="text-xs text-gray-600 mb-1">
         Current: w₀ = {initialPoint[0].toFixed(3)}, w₁ = {initialPoint[1].toFixed(3)}
-        {problemFuncs.dimensionality === 3 && `, bias = ${(algorithmParams.biasSlice || 0).toFixed(3)}`}
+        {problemFuncs.dimensionality === 3 && `, w₂ = ${(algorithmParams.biasSlice || 0).toFixed(3)}`}
       </div>
 
-      {problemFuncs.dimensionality === 3 && (
-        <div className="text-xs text-gray-500 italic mb-1">
-          Viewing slice at bias = {(algorithmParams.biasSlice || 0).toFixed(2)}
+      {/* 2D slice notation for 3D problems - matches UnifiedVisualizer styling */}
+      {problemFuncs.dimensionality === 3 && (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
+        <div className="mb-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700" style={{ width: 'fit-content', maxWidth: '500px' }}>
+          <span className="font-medium">2D slice:</span> w₂ = {(algorithmParams.biasSlice || 0).toFixed(3)} (bias from optimal solution)
         </div>
       )}
 

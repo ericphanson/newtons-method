@@ -50,6 +50,7 @@ interface AlgorithmConfigurationProps {
   // For basin picker
   problemFuncs: ProblemFunctions;
   problem: any;
+  currentProblem?: string; // Name of current problem (e.g., 'logistic-regression', 'separating-hyperplane')
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
   biasSlice?: number;
 }
@@ -417,6 +418,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         <div className="col-span-2">
           <BasinPicker
             problem={props.problem}
+            currentProblem={props.currentProblem}
             algorithm={algorithm}
             algorithmParams={{
               maxIter: props.maxIter,
