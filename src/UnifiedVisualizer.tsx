@@ -93,7 +93,7 @@ const UnifiedVisualizer = () => {
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
-  const [newtonHessianDamping, _setNewtonHessianDamping] = useState(0.01);
+  const [newtonHessianDamping, setNewtonHessianDamping] = useState(0.01);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
 
   // L-BFGS state
@@ -1150,14 +1150,32 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
-    // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    // Define margins for axes (extra space on right for colorbar)
+    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
+
+    // Calculate min/max for colorbar
+    const flatLossGrid = lossGrid.flat();
+    const minLoss = Math.min(...flatLossGrid);
+    const maxLoss = Math.max(...flatLossGrid);
 
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
+
+    // Draw filled contour bands (heatmap)
+    drawHeatmap({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
 
     // Draw contour lines
     drawContours({
@@ -1166,6 +1184,19 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw colorbar
+    drawColorbar({
+      ctx,
+      canvasWidth: w,
+      canvasHeight: h,
+      minValue: minLoss,
+      maxValue: maxLoss,
       numLevels: 12,
       margins
     });
@@ -1430,14 +1461,32 @@ const UnifiedVisualizer = () => {
       lossGrid.push(row);
     }
 
-    // Define margins for axes
-    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    // Define margins for axes (extra space on right for colorbar)
+    const margins = { left: 60, right: 70, top: 20, bottom: 60 };
     const plotWidth = w - margins.left - margins.right;
     const plotHeight = h - margins.top - margins.bottom;
+
+    // Calculate min/max for colorbar
+    const flatLossGrid = lossGrid.flat();
+    const minLoss = Math.min(...flatLossGrid);
+    const maxLoss = Math.max(...flatLossGrid);
 
     // Draw light background
     ctx.fillStyle = '#f9fafb';
     ctx.fillRect(0, 0, w, h);
+
+    // Draw filled contour bands (heatmap)
+    drawHeatmap({
+      ctx,
+      values: lossGrid,
+      bounds: { minW0, maxW0, minW1, maxW1 },
+      canvasWidth: w,
+      canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
 
     // Draw contour lines
     drawContours({
@@ -1446,6 +1495,19 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
+      numLevels: 12,
+      minValue: minLoss,
+      maxValue: maxLoss,
+      margins
+    });
+
+    // Draw colorbar
+    drawColorbar({
+      ctx,
+      canvasWidth: w,
+      canvasHeight: h,
+      minValue: minLoss,
+      maxValue: maxLoss,
       numLevels: 12,
       margins
     });
@@ -3119,6 +3181,8 @@ const UnifiedVisualizer = () => {
                 onInitialW1Change={setInitialW1}
                 newtonC1={newtonC1}
                 onNewtonC1Change={setNewtonC1}
+                newtonHessianDamping={newtonHessianDamping}
+                onNewtonHessianDampingChange={setNewtonHessianDamping}
                 newtonTolerance={newtonTolerance}
                 onNewtonToleranceChange={setNewtonTolerance}
               />

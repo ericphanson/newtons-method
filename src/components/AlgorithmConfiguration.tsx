@@ -25,6 +25,8 @@ interface AlgorithmConfigurationProps {
 
   newtonC1?: number;
   onNewtonC1Change?: (val: number) => void;
+  newtonHessianDamping?: number;
+  onNewtonHessianDampingChange?: (val: number) => void;
   newtonTolerance?: number;
   onNewtonToleranceChange?: (val: number) => void;
 
@@ -169,6 +171,37 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
               <p className="text-xs text-gray-500">
                 Convergence threshold for gradient norm
+              </p>
+            </div>
+          </>
+        )}
+
+        {algorithm === 'newton' && (
+          <>
+            {/* Hessian Damping */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Hessian Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
+                </label>
+                <input
+                  type="range"
+                  min={Math.log10(0.0001)}
+                  max={Math.log10(1)}
+                  step="0.01"
+                  value={Math.log10(props.newtonHessianDamping ?? 0.01)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onNewtonHessianDampingChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.newtonHessianDamping?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Regularization for numerical stability (0.0001 to 1.0, logarithmic scale)
               </p>
             </div>
           </>
