@@ -70,4 +70,17 @@ export const newtonExperiments: ExperimentPreset[] = [
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Newton converges in ~5 iterations (GD would take 100+)',
   },
+  {
+    id: 'newton-rotated-quadratic',
+    name: 'Demo: Why a Vector of αs Isn\'t Enough',
+    description: 'Rotated ellipse - valley runs diagonally, no per-coordinate step sizes can align with it',
+    problem: 'quadratic',
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      maxIter: 10,
+    },
+    initialPoint: [2, 2],
+    expectation: 'Observe: Newton\'s H⁻¹ automatically rotates the step to point down the valley',
+  },
 ];

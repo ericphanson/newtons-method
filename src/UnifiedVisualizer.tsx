@@ -2910,10 +2910,10 @@ const UnifiedVisualizer = () => {
                     </ul>
 
                     <p className="mb-2">
-                      <strong>Newton's Method:</strong> <InlineMath>{'w_{k+1} = w_k - H^{-1}\\nabla f'}</InlineMath>
+                      <strong>Newton's Method:</strong> <InlineMath>{`w_{k+1} = w_k - H^{-1}\\nabla f`}</InlineMath>
                     </p>
                     <ul className="list-disc ml-6 space-y-1 text-sm">
-                      <li><InlineMath>{'H^{-1}'}</InlineMath> provides direction-specific step sizes based on curvature</li>
+                      <li><InlineMath>{`H^{-1}`}</InlineMath> provides direction-specific step sizes based on curvature</li>
                       <li>On x² + 100y²: automatically uses 100× smaller step in y-direction</li>
                       <li>Result: no zig-zagging, straight to minimum</li>
                     </ul>
@@ -2954,10 +2954,10 @@ const UnifiedVisualizer = () => {
                       </ul>
                     </div>
 
-                    <p className="mb-2"><strong>Newton's matrix <InlineMath>{'H^{-1}'}</InlineMath> solves this:</strong></p>
+                    <p className="mb-2"><strong>Newton's matrix <InlineMath>{`H^{-1}`}</InlineMath> solves this:</strong></p>
                     <ul className="list-disc ml-6 space-y-1 text-sm">
                       <li>Full matrix can both SCALE (handle different curvatures) and ROTATE (align with problem geometry)</li>
-                      <li><InlineMath>{'H^{-1}\\nabla f'}</InlineMath> automatically points toward the minimum regardless of rotation</li>
+                      <li><InlineMath>{`H^{-1}\\nabla f`}</InlineMath> automatically points toward the minimum regardless of rotation</li>
                       <li>This is why we need n² values (matrix) not just n values (vector)</li>
                     </ul>
 
@@ -3141,11 +3141,39 @@ const UnifiedVisualizer = () => {
                           </p>
                           <p className="text-sm text-gray-700 mt-1">
                             <strong>Why Newton wins:</strong> Even with line search, GD uses one <InlineMath>\alpha</InlineMath> for
-                            all directions at each step → still zig-zags. Newton's <InlineMath>{'H^{-1}'}</InlineMath> uses
+                            all directions at each step → still zig-zags. Newton's <InlineMath>{`H^{-1}`}</InlineMath> uses
                             direction-specific steps based on curvature → straight to minimum.
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Newton ~5 iterations, GD needs 100+ (even with line search!)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-amber-200 rounded p-3 bg-amber-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-amber-600 font-bold text-lg hover:text-amber-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('newton');
+                            const exp = experiments.find(e => e.id === 'newton-rotated-quadratic');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Demo - Why a Vector of αs Isn't Enough"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-amber-900">Demo: Why a Vector of αs Isn't Enough</p>
+                          <p className="text-sm text-gray-700">
+                            Rotated ellipse where the valley runs diagonally - no per-coordinate step sizes (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>) can align with it
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Watch how <InlineMath>{`H^{-1}`}</InlineMath> automatically rotates the step to point down the valley - this is why we need a matrix!
                           </p>
                         </div>
                       </div>
@@ -3413,7 +3441,7 @@ const UnifiedVisualizer = () => {
                     <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (ill-conditioned)</li>
-                      <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>{'H^{-1}'}</InlineMath> automatically provides direction-specific step sizes</li>
+                      <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>{`H^{-1}`}</InlineMath> automatically provides direction-specific step sizes</li>
                       <li>GD's single <InlineMath>\alpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
                       <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
                     </ul>
