@@ -70,9 +70,9 @@ export interface LBFGSIteration {
  */
 export const runLBFGS = (
   problem: ProblemFunctions,
-  options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number }
+  options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number; hessianDamping?: number }
 ): LBFGSIteration[] => {
-  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5 } = options;
+  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5, hessianDamping = 0.01 } = options;
   const iterations: LBFGSIteration[] = [];
   const M = m; // Memory parameter: number of (s, y) pairs to store
 
@@ -119,7 +119,12 @@ export const runLBFGS = (
       }
 
       const lastMem = memory[memory.length - 1];
-      const gamma = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      // Apply Hessian damping: exact analog to Newton's (H + λI)
+      // For L-BFGS: B_0 + λI where B_0 = (1/γ)I, so (B_0 + λI)^{-1} = γ/(1 + λγ) I
+      const gamma = hessianDamping > 0
+        ? gammaBase / (1 + hessianDamping * gammaBase)
+        : gammaBase;
       const r = scale(q, gamma);
 
       const secondLoop = [];
@@ -203,7 +208,8 @@ export const runLBFGSLegacy = (
   maxIter = 25,
   M = 5,
   lambda = 0.0001,
-  c1 = 0.0001
+  c1 = 0.0001,
+  hessianDamping = 0.01
 ): LBFGSIteration[] => {
   const iterations: LBFGSIteration[] = [];
   let w = [0.1, 0.1, 0.0];
@@ -240,7 +246,12 @@ export const runLBFGSLegacy = (
       }
 
       const lastMem = memory[memory.length - 1];
-      const gamma = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      // Apply Hessian damping: exact analog to Newton's (H + λI)
+      // For L-BFGS: B_0 + λI where B_0 = (1/γ)I, so (B_0 + λI)^{-1} = γ/(1 + λγ) I
+      const gamma = hessianDamping > 0
+        ? gammaBase / (1 + hessianDamping * gammaBase)
+        : gammaBase;
       const r = scale(q, gamma);
 
       const secondLoop = [];

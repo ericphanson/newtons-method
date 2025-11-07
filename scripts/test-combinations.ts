@@ -67,7 +67,7 @@ function runTest(config: TestConfig): TestResult {
     } else if (problemName === 'separating-hyperplane') {
       // Generate dataset for separating hyperplane
       const data = generateCrescents(50, 0.5, 0.3);
-      problemFuncs = separatingHyperplaneToProblemFunctions(data, variant);
+      problemFuncs = separatingHyperplaneToProblemFunctions(data, variant, lambda);
       defaultInitialPoint = [0, 0, 0];
     } else {
       // Get problem from registry
@@ -262,8 +262,15 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         i++;
         break;
       case '--initial':
-        const [w0, w1] = next.split(',').map(Number);
-        config.initialPoint = [w0, w1];
+        const initialValues = next.split(',').map(Number);
+        // Support both 2D and 3D initial points
+        if (initialValues.length === 2) {
+          config.initialPoint = [initialValues[0], initialValues[1]];
+        } else if (initialValues.length === 3) {
+          config.initialPoint = [initialValues[0], initialValues[1], initialValues[2]];
+        } else {
+          throw new Error(`Invalid initial point: expected 2 or 3 values, got ${initialValues.length}`);
+        }
         i++;
         break;
       case '--maxIter':
@@ -280,6 +287,14 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         break;
       case '--m':
         config.m = parseInt(next);
+        i++;
+        break;
+      case '--variant':
+        config.variant = next as SeparatingHyperplaneVariant;
+        i++;
+        break;
+      case '--lambda':
+        config.lambda = parseFloat(next);
         i++;
         break;
     }

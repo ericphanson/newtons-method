@@ -102,6 +102,7 @@ const UnifiedVisualizer = () => {
   const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
+  const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0.01);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
 
   // Shared algorithm state
@@ -262,6 +263,7 @@ const UnifiedVisualizer = () => {
           m: 10,
           c1: 0.0001,
           lambda,
+          hessianDamping: 0.01, // Use default damping for stability
           initialPoint: [0, 0, 0],
           tolerance: 1e-10, // Very tight tolerance for accurate minimum
         });
@@ -447,6 +449,7 @@ const UnifiedVisualizer = () => {
       }
       if (experiment.hyperparameters.hessianDamping !== undefined) {
         setNewtonHessianDamping(experiment.hyperparameters.hessianDamping);
+        setLbfgsHessianDamping(experiment.hyperparameters.hessianDamping);
       }
 
       // 2. Set initial point if specified
@@ -528,6 +531,7 @@ const UnifiedVisualizer = () => {
             m: leftConfig.m ?? lbfgsM,
             c1: leftConfig.c1 ?? lbfgsC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
+            hessianDamping: lbfgsHessianDamping,
             initialPoint,
           });
         }
@@ -561,6 +565,7 @@ const UnifiedVisualizer = () => {
             m: rightConfig.m ?? lbfgsM,
             c1: rightConfig.c1 ?? lbfgsC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
+            hessianDamping: lbfgsHessianDamping,
             initialPoint,
           });
         }
@@ -727,12 +732,13 @@ const UnifiedVisualizer = () => {
       const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
-      console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1 });
+      console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1, hessianDamping: lbfgsHessianDamping });
       const iterations = runLBFGS(problemFuncs, {
         maxIter,
         m: lbfgsM,
         c1: lbfgsC1,
         lambda,
+        hessianDamping: lbfgsHessianDamping,
         initialPoint,
         tolerance: lbfgsTolerance,
       });
@@ -754,7 +760,7 @@ const UnifiedVisualizer = () => {
       setLbfgsIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Keyboard navigation
   useEffect(() => {
