@@ -4621,18 +4621,89 @@ const UnifiedVisualizer = () => {
                   </p>
                 </div>
 
-                {/* Placeholder for controls and visualization */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <button
-                    onClick={runDiagPrecond}
-                    className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
-                  >
-                    Run Diagonal Preconditioner
-                  </button>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Iterations: {diagPrecondIterations.length}
-                  </p>
+            {/* Algorithm Configuration */}
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-3">Configuration</h4>
+
+              <div className="space-y-4">
+                {/* Use Line Search Toggle */}
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={diagPrecondUseLineSearch}
+                    onChange={(e) => setDiagPrecondUseLineSearch(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-gray-700">Use Armijo Line Search</span>
+                </label>
+
+                {/* C1 Parameter (if line search enabled) */}
+                {diagPrecondUseLineSearch && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      c₁ (Armijo parameter): {diagPrecondC1.toExponential(1)}
+                    </label>
+                    <input
+                      type="range"
+                      min="-5"
+                      max="-1"
+                      step="0.1"
+                      value={Math.log10(diagPrecondC1)}
+                      onChange={(e) => setDiagPrecondC1(Math.pow(10, parseFloat(e.target.value)))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>10⁻⁵ (lenient)</span>
+                      <span>10⁻¹ (strict)</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Epsilon (numerical stability) */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    ε (numerical stability): {diagPrecondEpsilon.toExponential(1)}
+                  </label>
+                  <input
+                    type="range"
+                    min="-10"
+                    max="-6"
+                    step="0.5"
+                    value={Math.log10(diagPrecondEpsilon)}
+                    onChange={(e) => setDiagPrecondEpsilon(Math.pow(10, parseFloat(e.target.value)))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>10⁻¹⁰</span>
+                    <span>10⁻⁶</span>
+                  </div>
                 </div>
+
+                {/* Max Iterations */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Max Iterations: {maxIter}
+                  </label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="200"
+                    step="10"
+                    value={maxIter}
+                    onChange={(e) => setMaxIter(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Run Button */}
+                <button
+                  onClick={runDiagPrecond}
+                  className="w-full px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-medium"
+                >
+                  Run Diagonal Preconditioner
+                </button>
+              </div>
+            </div>
               </div>
             </>
           ) : null}
