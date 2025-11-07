@@ -139,7 +139,7 @@ export function perceptronGradient(
   // Add regularization gradient: λ * w (but not for bias)
   grad0 = grad0 + lambda * w0;
   grad1 = grad1 + lambda * w1;
-  grad2 = grad2;
+  // grad2 (bias) is not regularized
 
   return [grad0, grad1, grad2];
 }
