@@ -2840,11 +2840,15 @@ const UnifiedVisualizer = () => {
 
                   <div>
                     <h3 className="text-lg font-bold text-blue-800 mb-2">Key Formula</h3>
-                    <p>Newton direction:</p>
-                    <BlockMath>{'p = -H^{-1}\\nabla f'}</BlockMath>
+                    <p>Newton direction (with damping):</p>
+                    <BlockMath>{'p = -(H + \\lambda_{\\text{damp}} I)^{-1}\\nabla f'}</BlockMath>
                     <p className="text-sm mt-2">
                       Intuition: <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
-                      natural coordinate system of the problem.
+                      natural coordinate system. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
+                      numerical stability when <InlineMath>H</InlineMath> has tiny eigenvalues.
+                    </p>
+                    <p className="text-sm mt-1 text-gray-600">
+                      (When λ_damp = 0, this is pure Newton's method: <InlineMath>{'p = -H^{-1}\\nabla f'}</InlineMath>)
                     </p>
                   </div>
 
