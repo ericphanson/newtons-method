@@ -86,3 +86,76 @@ export function initializeBasinData(
 
   return { resolution, bounds, grid };
 }
+
+const FRAME_BUDGET_MS = 10;
+
+/**
+ * Compute basin incrementally with time-budgeted RAF loop
+ * Returns null if cancelled (taskId changed)
+ */
+export async function computeBasinIncremental(
+  problemFuncs: ProblemFunctions,
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs',
+  algorithmParams: any,
+  bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number },
+  resolution: number,
+  taskIdRef: { current: number },
+  currentTaskId: number,
+  onProgress?: (completed: number, total: number) => void
+): Promise<BasinData | null> {
+  const basinData = initializeBasinData(resolution, bounds);
+  let pointIndex = 0;
+  const totalPoints = resolution * resolution;
+
+  while (pointIndex < totalPoints) {
+    // Yield to browser
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    // Check cancellation
+    if (taskIdRef.current !== currentTaskId) {
+      console.log('Basin computation cancelled');
+      return null;
+    }
+
+    const frameStart = performance.now();
+
+    // Compute as many points as we can in our time budget
+    while (pointIndex < totalPoints) {
+      const i = Math.floor(pointIndex / resolution);
+      const j = pointIndex % resolution;
+
+      // Compute starting point in parameter space
+      const w0 = bounds.minW0 + (j / (resolution - 1)) * (bounds.maxW0 - bounds.minW0);
+      const w1 = bounds.minW1 + (i / (resolution - 1)) * (bounds.maxW1 - bounds.minW1);
+
+      // Handle 3D problems (logistic regression, separating hyperplane)
+      const initialPoint: [number, number] | [number, number, number] =
+        problemFuncs.dimensionality === 3
+          ? [w0, w1, algorithmParams.biasSlice || 0]
+          : [w0, w1];
+
+      // Run algorithm from this starting point
+      const result = computeBasinPoint(
+        initialPoint,
+        problemFuncs,
+        algorithm,
+        algorithmParams
+      );
+
+      basinData.grid[i][j] = result;
+      pointIndex++;
+
+      // Check time budget
+      if (performance.now() - frameStart > FRAME_BUDGET_MS) {
+        break; // Yield to browser
+      }
+    }
+
+    // Report progress
+    if (onProgress) {
+      onProgress(pointIndex, totalPoints);
+    }
+  }
+
+  return basinData;
+}
