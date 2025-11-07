@@ -294,7 +294,7 @@ export const runNewton = (
     });
 
     // Update for next iteration
-    previousLoss = newLoss;
+    previousLoss = loss;  // Store BEFORE-step loss for next iteration's comparison
     previousW = [...w];
     w = wNew;
 

@@ -94,7 +94,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 <input
                   type="range"
                   min="-12"
-                  max="-4"
+                  max="-2"
                   step="0.1"
                   value={Math.log10(props.gdFixedTolerance ?? 1e-6)}
                   onChange={(e) => {
@@ -161,7 +161,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               <input
                 type="range"
                 min="-12"
-                max="-4"
+                max="-2"
                 step="0.1"
                 value={Math.log10(
                   algorithm === 'gd-linesearch'
