@@ -1730,6 +1730,7 @@ const UnifiedVisualizer = () => {
                   onGdFixedToleranceChange={setGdFixedTolerance}
                   problemFuncs={problemFuncs}
                   problem={problem}
+                  currentProblem={currentProblem}
                   bounds={bounds}
                   biasSlice={biasSlice}
                 />
@@ -2223,6 +2224,7 @@ const UnifiedVisualizer = () => {
                   onGdLSToleranceChange={setGdLSTolerance}
                   problemFuncs={problemFuncs}
                   problem={problem}
+                  currentProblem={currentProblem}
                   bounds={bounds}
                   biasSlice={biasSlice}
                 />
@@ -2879,6 +2881,7 @@ const UnifiedVisualizer = () => {
                   onNewtonXtolChange={setNewtonXtol}
                   problemFuncs={problemFuncs}
                   problem={problem}
+                  currentProblem={currentProblem}
                   bounds={bounds}
                   biasSlice={biasSlice}
                 />
@@ -3680,6 +3683,7 @@ const UnifiedVisualizer = () => {
                   onLbfgsToleranceChange={setLbfgsTolerance}
                   problemFuncs={problemFuncs}
                   problem={problem}
+                  currentProblem={currentProblem}
                   bounds={bounds}
                   biasSlice={biasSlice}
                 />
@@ -4704,6 +4708,92 @@ const UnifiedVisualizer = () => {
                 </button>
               </div>
             </div>
+
+            {/* Iteration Metrics */}
+            {diagPrecondIterations.length > 0 && (
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">
+                  Iteration {diagPrecondCurrentIter + 1} of {diagPrecondIterations.length}
+                </h4>
+
+                {(() => {
+                  const iter = diagPrecondIterations[diagPrecondCurrentIter];
+                  if (!iter) return null;
+
+                  return (
+                    <div className="space-y-2 text-sm">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-gray-600">Loss:</span>
+                          <span className="ml-2 font-mono">{iter.newLoss.toExponential(4)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Gradient Norm:</span>
+                          <span className="ml-2 font-mono">{iter.gradNorm.toExponential(4)}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-gray-600">Current Position:</span>
+                        <div className="font-mono text-xs mt-1">
+                          w = [{iter.wNew.map(x => x.toFixed(4)).join(', ')}]
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-gray-600">Hessian Diagonal:</span>
+                        <div className="font-mono text-xs mt-1">
+                          [{iter.hessianDiagonal.map(x => x.toFixed(4)).join(', ')}]
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-gray-600">Preconditioner:</span>
+                        <div className="font-mono text-xs mt-1">
+                          D = [{iter.preconditioner.map(x => x.toFixed(4)).join(', ')}]
+                        </div>
+                      </div>
+
+                      {iter.alpha !== undefined && (
+                        <div>
+                          <span className="text-gray-600">Step Size α:</span>
+                          <span className="ml-2 font-mono">{iter.alpha.toFixed(6)}</span>
+                        </div>
+                      )}
+
+                      <div>
+                        <span className="text-gray-600">Step Norm:</span>
+                        <span className="ml-2 font-mono">{iter.stepNorm.toExponential(4)}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Iteration Controls */}
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setDiagPrecondCurrentIter(Math.max(0, diagPrecondCurrentIter - 1))}
+                    disabled={diagPrecondCurrentIter === 0}
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 text-sm"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setDiagPrecondCurrentIter(Math.min(diagPrecondIterations.length - 1, diagPrecondCurrentIter + 1))}
+                    disabled={diagPrecondCurrentIter === diagPrecondIterations.length - 1}
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded disabled:opacity-50 text-sm"
+                  >
+                    Next
+                  </button>
+                  <button
+                    onClick={() => setDiagPrecondCurrentIter(diagPrecondIterations.length - 1)}
+                    className="px-3 py-1 bg-teal-600 text-white rounded text-sm"
+                  >
+                    Last
+                  </button>
+                </div>
+              </div>
+            )}
               </div>
             </>
           ) : null}
