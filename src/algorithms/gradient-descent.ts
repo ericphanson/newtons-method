@@ -1,7 +1,7 @@
 import { DataPoint, computeLossAndGradient, norm, scale, add } from '../shared-utils';
-import { ProblemFunctions, AlgorithmOptions } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
 
-export interface GDIteration {
+export interface GradientDescentIteration {
   iter: number;
   w: number[];
   loss: number;
@@ -12,6 +12,9 @@ export interface GDIteration {
   wNew: number[];
   newLoss: number;
 }
+
+// Backward compatibility alias
+export type GDIteration = GradientDescentIteration;
 
 /**
  * Gradient Descent with fixed step size
@@ -25,9 +28,9 @@ export interface GDIteration {
 export const runGradientDescent = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { alpha: number; lambda?: number }
-): GDIteration[] => {
+): AlgorithmResult<GradientDescentIteration> => {
   const { maxIter, alpha, lambda = 0, initialPoint, tolerance = 1e-6 } = options;
-  const iterations: GDIteration[] = [];
+  const iterations: GradientDescentIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
   // regularization is already baked into ProblemFunctions
@@ -70,7 +73,35 @@ export const runGradientDescent = (
     }
   }
 
-  return iterations;
+  // Compute convergence summary
+  const lastIter = iterations[iterations.length - 1];
+  const finalGradNorm = lastIter ? lastIter.gradNorm : Infinity;
+  const finalLoss = lastIter ? lastIter.newLoss : Infinity;
+  const finalLocation = lastIter ? lastIter.wNew : w;
+
+  const converged = finalGradNorm < tolerance;
+  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
+
+  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  if (diverged) {
+    convergenceCriterion = 'diverged';
+  } else if (converged) {
+    convergenceCriterion = 'gradient';
+  } else {
+    convergenceCriterion = 'maxiter';
+  }
+
+  const summary: AlgorithmSummary = {
+    converged,
+    diverged,
+    finalLocation,
+    finalLoss,
+    finalGradNorm,
+    iterationCount: iterations.length,
+    convergenceCriterion
+  };
+
+  return { iterations, summary };
 };
 
 /**
@@ -82,8 +113,8 @@ export const runGradientDescentLegacy = (
   maxIter: number = 100,
   alpha: number = 0.1,
   lambda: number = 0.0001
-): GDIteration[] => {
-  const iterations: GDIteration[] = [];
+): GradientDescentIteration[] => {
+  const iterations: GradientDescentIteration[] = [];
   let w = [0.1, 0.1, 0.0];  // Initial weights
 
   for (let iter = 0; iter < maxIter; iter++) {
