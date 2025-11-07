@@ -108,84 +108,84 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </>
         )}
 
+        {/* Armijo c1 - only shown when line search is enabled */}
         {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || (algorithm === 'newton' && props.newtonLineSearch === 'armijo')) && (
-          <>
-            {/* Armijo c1 */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  Armijo c<sub>1</sub>:
-                </label>
-                <input
-                  type="range"
-                  min="-5"
-                  max="-1"
-                  step="0.1"
-                  value={Math.log10(
-                    algorithm === 'gd-linesearch'
-                      ? (props.gdLSC1 ?? 1e-4)
-                      : algorithm === 'newton'
-                      ? (props.newtonC1 ?? 1e-4)
-                      : (props.lbfgsC1 ?? 1e-4)
-                  )}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    if (algorithm === 'gd-linesearch') props.onGdLSC1Change?.(val);
-                    else if (algorithm === 'newton') props.onNewtonC1Change?.(val);
-                    else props.onLbfgsC1Change?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {algorithm === 'gd-linesearch'
-                    ? props.gdLSC1?.toExponential(1)
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Armijo c<sub>1</sub>:
+              </label>
+              <input
+                type="range"
+                min="-5"
+                max="-1"
+                step="0.1"
+                value={Math.log10(
+                  algorithm === 'gd-linesearch'
+                    ? (props.gdLSC1 ?? 1e-4)
                     : algorithm === 'newton'
-                    ? props.newtonC1?.toExponential(1)
-                    : props.lbfgsC1?.toExponential(1)}
-                </div>
+                    ? (props.newtonC1 ?? 1e-4)
+                    : (props.lbfgsC1 ?? 1e-4)
+                )}
+                onChange={(e) => {
+                  const val = Math.pow(10, parseFloat(e.target.value));
+                  if (algorithm === 'gd-linesearch') props.onGdLSC1Change?.(val);
+                  else if (algorithm === 'newton') props.onNewtonC1Change?.(val);
+                  else props.onLbfgsC1Change?.(val);
+                }}
+                className="flex-1"
+              />
+              <div className="text-sm text-gray-600 w-16 text-right">
+                {algorithm === 'gd-linesearch'
+                  ? props.gdLSC1?.toExponential(1)
+                  : algorithm === 'newton'
+                  ? props.newtonC1?.toExponential(1)
+                  : props.lbfgsC1?.toExponential(1)}
               </div>
-              <p className="text-xs text-gray-500">
-                Line search parameter (smaller = stricter decrease requirement)
-              </p>
             </div>
+            <p className="text-xs text-gray-500">
+              Line search parameter (smaller = stricter decrease requirement)
+            </p>
+          </div>
+        )}
 
-            {/* Tolerance */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
-                <input
-                  type="range"
-                  min="-10"
-                  max="-1"
-                  step="0.1"
-                  value={Math.log10(
-                    algorithm === 'gd-linesearch'
-                      ? (props.gdLSTolerance ?? 1e-6)
-                      : algorithm === 'newton'
-                      ? (props.newtonTolerance ?? 1e-6)
-                      : (props.lbfgsTolerance ?? 1e-6)
-                  )}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
-                    else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
-                    else props.onLbfgsToleranceChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {algorithm === 'gd-linesearch'
-                    ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
+        {/* Tolerance - shown for all algorithms that use it (including Newton without line search) */}
+        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || algorithm === 'newton') && (
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
+              <input
+                type="range"
+                min="-10"
+                max="-1"
+                step="0.1"
+                value={Math.log10(
+                  algorithm === 'gd-linesearch'
+                    ? (props.gdLSTolerance ?? 1e-6)
                     : algorithm === 'newton'
-                    ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
-                    : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
-                </div>
+                    ? (props.newtonTolerance ?? 1e-6)
+                    : (props.lbfgsTolerance ?? 1e-6)
+                )}
+                onChange={(e) => {
+                  const val = Math.pow(10, parseFloat(e.target.value));
+                  if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
+                  else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
+                  else props.onLbfgsToleranceChange?.(val);
+                }}
+                className="flex-1"
+              />
+              <div className="text-sm text-gray-600 w-16 text-right">
+                {algorithm === 'gd-linesearch'
+                  ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
+                  : algorithm === 'newton'
+                  ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
+                  : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
               </div>
-              <p className="text-xs text-gray-500">
-                Convergence threshold for gradient norm
-              </p>
             </div>
-          </>
+            <p className="text-xs text-gray-500">
+              Convergence threshold for gradient norm
+            </p>
+          </div>
         )}
 
         {algorithm === 'newton' && (
@@ -324,14 +324,36 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             problem={props.problem}
             algorithm={algorithm}
             algorithmParams={{
-              maxIter: 50,
+              maxIter: props.maxIter,
+              // GD Fixed step size
               alpha: props.gdFixedAlpha,
-              c1: props.gdLSC1 || props.newtonC1 || props.lbfgsC1,
+              // Line search c1 parameter (algorithm-specific)
+              c1: algorithm === 'gd-linesearch'
+                ? props.gdLSC1
+                : algorithm === 'newton'
+                ? props.newtonC1
+                : algorithm === 'lbfgs'
+                ? props.lbfgsC1
+                : undefined,
+              // L-BFGS memory parameter
               m: props.lbfgsM,
-              hessianDamping: props.newtonHessianDamping || props.lbfgsHessianDamping,
+              // Hessian damping (algorithm-specific)
+              hessianDamping: algorithm === 'newton'
+                ? props.newtonHessianDamping
+                : algorithm === 'lbfgs'
+                ? props.lbfgsHessianDamping
+                : undefined,
+              // Newton line search method
               lineSearch: props.newtonLineSearch,
-              tolerance: 1e-4,
-              lambda: 1e-4,
+              // Tolerance (algorithm-specific)
+              tolerance: algorithm === 'gd-fixed'
+                ? props.gdFixedTolerance
+                : algorithm === 'gd-linesearch'
+                ? props.gdLSTolerance
+                : algorithm === 'newton'
+                ? props.newtonTolerance
+                : props.lbfgsTolerance,
+              // 3D problem bias slice
               biasSlice: props.biasSlice
             }}
             problemFuncs={props.problemFuncs}
