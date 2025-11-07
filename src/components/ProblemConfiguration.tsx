@@ -182,9 +182,9 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             )}
             {separatingHyperplaneVariant === 'perceptron' && (
               <div>
-                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i)`}</InlineMath>
+                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i) + 0.01 \|w\|^2/2`}</InlineMath>
                 <br />
-                <small>Minimizes misclassifications, no margin</small>
+                <small>Minimizes misclassifications (small regularization prevents weight collapse)</small>
               </div>
             )}
             {separatingHyperplaneVariant === 'squared-hinge' && (

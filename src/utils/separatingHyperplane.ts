@@ -150,13 +150,15 @@ export function softMarginHessian(
 }
 
 /**
- * Perceptron Criterion: Σmax(0, -y·z)
- * Minimizes misclassification loss only (no margin).
+ * Perceptron Criterion: Σmax(0, -y·z) + small regularization
+ * Minimizes misclassification loss.
+ * Note: Added small regularization (0.01 * ||w||²/2) to prevent weights collapsing to zero.
  */
 export function perceptronObjective(
   w: number[],
   dataPoints: DataPoint[]
 ): number {
+  const [w0, w1] = w;
   let loss = 0;
 
   for (const point of dataPoints) {
@@ -165,13 +167,17 @@ export function perceptronObjective(
     loss += Math.max(0, -y * z);
   }
 
-  return loss / dataPoints.length;
+  // Add small regularization to prevent weights from going to zero
+  const regularization = 0.01 * 0.5 * (w0 * w0 + w1 * w1);
+
+  return loss / dataPoints.length + regularization;
 }
 
 export function perceptronGradient(
   w: number[],
   dataPoints: DataPoint[]
 ): number[] {
+  const [w0, w1, w2] = w;
   let grad0 = 0;
   let grad1 = 0;
   let grad2 = 0;
@@ -188,18 +194,20 @@ export function perceptronGradient(
     }
   }
 
-  return [
-    grad0 / dataPoints.length,
-    grad1 / dataPoints.length,
-    grad2 / dataPoints.length
-  ];
+  // Add regularization gradient: 0.01 * w (but not for bias)
+  grad0 = grad0 / dataPoints.length + 0.01 * w0;
+  grad1 = grad1 / dataPoints.length + 0.01 * w1;
+  grad2 = grad2 / dataPoints.length;
+
+  return [grad0, grad1, grad2];
 }
 
 export function perceptronHessian(
   w: number[],
   dataPoints: DataPoint[]
 ): number[][] {
-  // Perceptron loss is piecewise linear, use small identity for stability
+  // Perceptron loss is piecewise linear, Hessian is from regularization term
+  // H = 0.01 * I for w0, w1; small value for bias to avoid singularity
   return [
     [0.01, 0, 0],
     [0, 0.01, 0],

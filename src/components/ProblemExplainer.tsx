@@ -112,12 +112,13 @@ export function ProblemExplainer() {
               <div className="mt-1">
                 <p className="font-semibold text-sm">Objective:</p>
                 <BlockMath>
-                  {String.raw`\min \sum_i \max(0, -y_i z_i)`}
+                  {String.raw`\min \sum_i \max(0, -y_i z_i) + 0.01 \cdot \frac{1}{2}\|w\|^2`}
                 </BlockMath>
               </div>
               <p className="mt-2">
                 Classic perceptron algorithm. Only penalizes misclassified points (<InlineMath>{'y_i z_i < 0'}</InlineMath>).
                 Does not maximize margin - just finds any separating hyperplane.
+                <em>Note: Small regularization (0.01) added to prevent weights from collapsing to zero.</em>
               </p>
               <p className="mt-1">
                 <strong>Result:</strong> Often finds solutions closer to the data than SVM variants.
