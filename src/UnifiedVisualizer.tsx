@@ -647,6 +647,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Fixed error:', error);
       setGdFixedIterations([]);
     }
+    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentFixedStep above
   }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -678,6 +679,7 @@ const UnifiedVisualizer = () => {
       console.error('GD Line Search error:', error);
       setGdLSIterations([]);
     }
+    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentLineSearch above
   }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -710,6 +712,8 @@ const UnifiedVisualizer = () => {
       console.error('Newton error:', error);
       setNewtonIterations([]);
     }
+    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runNewton above
+    // Missing a parameter here means changes won't trigger re-resolution (bug: newtonHessianDamping was missing)
   }, [currentProblem, lambda, newtonC1, newtonHessianDamping, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -749,6 +753,7 @@ const UnifiedVisualizer = () => {
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       setLbfgsIterations([]);
     }
+    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Keyboard navigation
