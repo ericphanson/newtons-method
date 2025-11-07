@@ -311,55 +311,32 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
             </div>
 
-            {/* Hessian Damping and Max Iterations in one row */}
-            <div className="flex gap-4">
-              {/* Hessian Damping */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                    Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
-                  </label>
-                  <input
-                    type="range"
-                    min={-11}
-                    max={Math.log10(1)}
-                    step="0.01"
-                    value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
-                    onChange={(e) => {
-                      const sliderVal = parseFloat(e.target.value);
-                      const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
-                      props.onNewtonHessianDampingChange?.(val);
-                    }}
-                    className="flex-1"
-                  />
-                  <div className="text-sm text-gray-600 w-16 text-right">
-                    {props.newtonHessianDamping === 0 ? '0' : props.newtonHessianDamping?.toExponential(1)}
-                  </div>
+            {/* Hessian Damping */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Hessian Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
+                </label>
+                <input
+                  type="range"
+                  min={-11}
+                  max={Math.log10(1)}
+                  step="0.01"
+                  value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
+                  onChange={(e) => {
+                    const sliderVal = parseFloat(e.target.value);
+                    const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
+                    props.onNewtonHessianDampingChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.newtonHessianDamping === 0 ? '0' : props.newtonHessianDamping?.toExponential(1)}
                 </div>
-                <p className="text-xs text-gray-500">
-                  Hessian regularization
-                </p>
               </div>
-
-              {/* Max Iterations */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Max Iter:</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="400"
-                    step="1"
-                    value={props.maxIter}
-                    onChange={(e) => props.onMaxIterChange(Number(e.target.value))}
-                    className="flex-1"
-                  />
-                  <div className="text-sm text-gray-600 w-16 text-right">{props.maxIter}</div>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Maximum iterations
-                </p>
-              </div>
+              <p className="text-xs text-gray-500">
+                Regularization for numerical stability (0 to 1.0, logarithmic scale)
+              </p>
             </div>
           </div>
         )}
