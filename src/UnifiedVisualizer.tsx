@@ -115,7 +115,6 @@ const UnifiedVisualizer = () => {
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Will be used in Task 10 when IterationMetrics is integrated
   const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
   const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
   const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
@@ -4727,6 +4726,82 @@ const UnifiedVisualizer = () => {
                   onReset={() => setDiagPrecondCurrentIter(0)}
                 />
               )}
+
+              {/* 3. Side-by-Side: Canvas + Metrics */}
+              <div className="flex gap-4 mb-6">
+                {/* Left: Parameter Space Visualization */}
+                <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Loss landscape. Orange path = trajectory. Red dot = current position.
+                  </p>
+
+                  {/* 2D slice notation for 3D problems */}
+                  {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
+                    <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
+                      <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
+                    </div>
+                  )}
+
+                  <canvas ref={diagPrecondParamCanvasRef} style={{width: '100%', height: '500px'}} className="border border-gray-300 rounded" />
+
+                  {/* Legend for optimum markers */}
+                  {currentProblem !== 'logistic-regression' && (
+                    <div className="mt-3 flex gap-4 text-sm text-gray-700">
+                      {(() => {
+                        const problem = getProblem(currentProblem);
+                        if (!problem) return null;
+                        return (
+                          <>
+                            {problem.globalMinimum && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">★</span>
+                                <span>Global minimum</span>
+                              </div>
+                            )}
+                            {problem.criticalPoint && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">☆</span>
+                                <span>Critical point (saddle)</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: Metrics Column */}
+                {diagPrecondIterations.length > 0 && diagPrecondIterations[diagPrecondCurrentIter] && (
+                  <div className="w-80 bg-white rounded-lg shadow-md p-4">
+                    <IterationMetrics
+                      algorithm="diagonal-precond"
+                      iterNum={diagPrecondCurrentIter}
+                      totalIters={diagPrecondIterations.length}
+                      loss={diagPrecondIterations[diagPrecondCurrentIter].newLoss}
+                      gradNorm={diagPrecondIterations[diagPrecondCurrentIter].gradNorm}
+                      weights={diagPrecondIterations[diagPrecondCurrentIter].wNew}
+                      alpha={diagPrecondIterations[diagPrecondCurrentIter].alpha ?? 1.0}
+                      gradient={diagPrecondIterations[diagPrecondCurrentIter].grad}
+                      direction={diagPrecondIterations[diagPrecondCurrentIter].direction}
+                      gradNormHistory={diagPrecondIterations.map(iter => iter.gradNorm)}
+                      lossHistory={diagPrecondIterations.map(iter => iter.newLoss)}
+                      alphaHistory={diagPrecondIterations.map(iter => iter.alpha ?? 1.0)}
+                      weightsHistory={diagPrecondIterations.map(iter => iter.wNew)}
+                      hessianDiagonal={diagPrecondIterations[diagPrecondCurrentIter].hessianDiagonal}
+                      preconditioner={diagPrecondIterations[diagPrecondCurrentIter].preconditioner}
+                      lineSearchTrials={diagPrecondIterations[diagPrecondCurrentIter].lineSearchTrials?.length}
+                      lineSearchCanvasRef={diagPrecondUseLineSearch ? diagPrecondLineSearchCanvasRef : undefined}
+                      tolerance={diagPrecondTolerance}
+                      ftol={1e-9}
+                      xtol={1e-9}
+                      summary={diagPrecondSummary}
+                      onIterationChange={setDiagPrecondCurrentIter}
+                    />
+                  </div>
+                )}
+              </div>
               </div>
             </>
           ) : null}
