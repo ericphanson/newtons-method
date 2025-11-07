@@ -196,10 +196,10 @@ export function AlgorithmExplainer() {
             </p>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
               <li>
-                <strong>AdaGrad:</strong> <InlineMath>D = \text{diag}(1/\sqrt{\sum g_i^2})</InlineMath>
+                <strong>AdaGrad:</strong> <InlineMath>{String.raw`D = \text{diag}(1/\sqrt{\sum g_i^2})`}</InlineMath>
               </li>
               <li>
-                <strong>RMSprop:</strong> <InlineMath>D = \text{diag}(1/\sqrt{\text{EMA}(g^2)})</InlineMath>
+                <strong>RMSprop:</strong> <InlineMath>{String.raw`D = \text{diag}(1/\sqrt{\text{EMA}(g^2)})`}</InlineMath>
               </li>
               <li>
                 <strong>Adam:</strong> RMSprop + momentum
