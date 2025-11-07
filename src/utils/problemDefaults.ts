@@ -64,7 +64,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         gdFixedAlpha: 0.1,
         maxIter: 100,
-        initialPoint: [0, 0, 0],  // 3D: [w0, w1, bias]
+        initialPoint: [0.2, 0.2, 0],  // 3D: [w0, w1, bias] - non-zero to ensure perceptron moves
         c1: 1e-4,
         lbfgsM: 10,
       };

@@ -934,8 +934,9 @@ const UnifiedVisualizer = () => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const x1 = (x / rect.width) * 6 - 3;
-    const x2 = 2.5 - (y / rect.height) * 5;
+    // Transform canvas coordinates to data space: [-2.5, 2.5] x [-2, 2]
+    const x1 = (x / rect.width) * 5 - 2.5;
+    const x2 = 2 - (y / rect.height) * 4;
     setCustomPoints([...customPoints, { x1, x2, y: addPointMode - 1 }]);
   };
 
@@ -948,8 +949,9 @@ const UnifiedVisualizer = () => {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
 
-    const toCanvasX = (x1: number) => ((x1 + 3) / 6) * w;
-    const toCanvasY = (x2: number) => ((2.5 - x2) / 5) * h;
+    // Better scaling for crescent dataset: fits data in [-2.5, 2.5] x [-2, 2]
+    const toCanvasX = (x1: number) => ((x1 + 2.5) / 5) * w;
+    const toCanvasY = (x2: number) => ((2 - x2) / 4) * h;
 
     // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixedIterations[gdFixedCurrentIter] :
@@ -962,11 +964,11 @@ const UnifiedVisualizer = () => {
         ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        for (let x1 = -3; x1 <= 3; x1 += 0.1) {
+        for (let x1 = -2.5; x1 <= 2.5; x1 += 0.1) {
           const x2 = -(w0 * x1 + w2) / w1;
           const cx = toCanvasX(x1);
           const cy = toCanvasY(x2);
-          if (x1 === -3) ctx.moveTo(cx, cy);
+          if (x1 === -2.5) ctx.moveTo(cx, cy);
           else ctx.lineTo(cx, cy);
         }
         ctx.stroke();
@@ -1187,13 +1189,11 @@ const UnifiedVisualizer = () => {
     });
   }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab]);
 
-  // Draw Newton's line search
-  useEffect(() => {
-    const canvas = newtonLineSearchCanvasRef.current;
-    if (!canvas || selectedTab !== 'newton') return;
-    const iter = newtonIterations[newtonCurrentIter];
-    if (!iter) return;
-
+  // Helper function to draw line search plot
+  const drawLineSearchPlot = (
+    canvas: HTMLCanvasElement,
+    iter: { loss: number; lineSearchCurve: { alphaRange: number[]; lossValues: number[]; armijoValues: number[] }; lineSearchTrials: Array<{ alpha: number; loss: number; satisfied: boolean }> }
+  ) => {
     const { ctx, width: w, height: h } = setupCanvas(canvas);
 
     ctx.fillStyle = '#ffffff';
@@ -1315,19 +1315,22 @@ const UnifiedVisualizer = () => {
     }
     ctx.stroke();
 
-    ctx.fillStyle = '#3b82f6';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(0), toCanvasY(iter.loss), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    trials.forEach((t) => {
+    // Draw trial points with numbers
+    trials.forEach((t, idx) => {
       const cx = toCanvasX(t.alpha);
       const cy = toCanvasY(t.loss);
 
       ctx.fillStyle = t.satisfied ? '#10b981' : '#dc2626';
       ctx.beginPath();
-      ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, t.satisfied ? 7 : 5, 0, 2 * Math.PI);
       ctx.fill();
+
+      // Draw trial number
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText((idx + 1).toString(), cx, cy);
     });
 
     ctx.fillStyle = '#374151';
@@ -1339,7 +1342,17 @@ const UnifiedVisualizer = () => {
     ctx.rotate(-Math.PI / 2);
     ctx.fillText('Loss', 0, 0);
     ctx.restore();
-  }, [newtonIterations, newtonCurrentIter, newtonC1, selectedTab]);
+  };
+
+  // Draw Newton's line search
+  useEffect(() => {
+    const canvas = newtonLineSearchCanvasRef.current;
+    if (!canvas || selectedTab !== 'newton') return;
+    const iter = newtonIterations[newtonCurrentIter];
+    if (!iter) return;
+
+    drawLineSearchPlot(canvas, iter);
+  }, [newtonIterations, newtonCurrentIter, selectedTab]);
 
   // Draw L-BFGS parameter space
   useEffect(() => {
@@ -1454,152 +1467,8 @@ const UnifiedVisualizer = () => {
     const iter = lbfgsIterations[lbfgsCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
-
-    const { alphaRange, lossValues, armijoValues } = iter.lineSearchCurve;
-    const trials = iter.lineSearchTrials;
-
-    const maxAlpha = Math.max(...alphaRange);
-    const allValues = [...lossValues, ...armijoValues];
-    const minLoss = Math.min(...allValues);
-    const maxLoss = Math.max(...allValues);
-    const lossRange = maxLoss - minLoss;
-
-    const margin = { left: 60, right: 40, top: 30, bottom: 50 };
-    const plotW = w - margin.left - margin.right;
-    const plotH = h - margin.top - margin.bottom;
-
-    const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
-    const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
-
-    // Helper function to generate nice tick values
-    const generateTicks = (min: number, max: number, targetCount: number = 5): number[] => {
-      const range = max - min;
-      if (range === 0) return [min];
-
-      const roughStep = range / (targetCount - 1);
-      const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
-      const normalized = roughStep / magnitude;
-
-      let niceStep;
-      if (normalized < 1.5) niceStep = 1;
-      else if (normalized < 3.5) niceStep = 2;
-      else if (normalized < 7.5) niceStep = 5;
-      else niceStep = 10;
-
-      const step = niceStep * magnitude;
-      const start = Math.ceil(min / step) * step;
-      const ticks: number[] = [];
-
-      for (let tick = start; tick <= max + step * 0.001; tick += step) {
-        ticks.push(tick);
-      }
-
-      return ticks.length > 0 ? ticks : [min, max];
-    };
-
-    // Format tick labels
-    const formatTick = (val: number): string => {
-      if (val === 0) return '0';
-      const abs = Math.abs(val);
-      if (abs >= 1000 || abs < 0.01) return val.toExponential(1);
-      if (abs >= 10) return val.toFixed(1);
-      if (abs >= 1) return val.toFixed(2);
-      return val.toFixed(3);
-    };
-
-    ctx.strokeStyle = '#9ca3af';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(margin.left, margin.top);
-    ctx.lineTo(margin.left, h - margin.bottom);
-    ctx.lineTo(w - margin.right, h - margin.bottom);
-    ctx.stroke();
-
-    // Draw x-axis ticks and labels
-    const xTicks = generateTicks(0, maxAlpha, 5);
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    xTicks.forEach(tick => {
-      const x = toCanvasX(tick);
-      ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x, h - margin.bottom);
-      ctx.lineTo(x, h - margin.bottom + 5);
-      ctx.stroke();
-      ctx.fillText(formatTick(tick), x, h - margin.bottom + 8);
-    });
-
-    // Draw y-axis ticks and labels
-    const yTicks = generateTicks(minLoss, maxLoss, 5);
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    yTicks.forEach(tick => {
-      const y = toCanvasY(tick);
-      ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(margin.left - 5, y);
-      ctx.lineTo(margin.left, y);
-      ctx.stroke();
-      ctx.fillText(formatTick(tick), margin.left - 8, y);
-    });
-
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    for (let i = 0; i < armijoValues.length; i++) {
-      const cx = toCanvasX(alphaRange[i]);
-      const cy = toCanvasY(armijoValues[i]);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    for (let i = 0; i < lossValues.length; i++) {
-      const cx = toCanvasX(alphaRange[i]);
-      const cy = toCanvasY(lossValues[i]);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
-    }
-    ctx.stroke();
-
-    ctx.fillStyle = '#3b82f6';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(0), toCanvasY(iter.loss), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    trials.forEach((t) => {
-      const cx = toCanvasX(t.alpha);
-      const cy = toCanvasY(t.loss);
-
-      ctx.fillStyle = t.satisfied ? '#10b981' : '#dc2626';
-      ctx.beginPath();
-      ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-
-    ctx.fillStyle = '#374151';
-    ctx.font = '13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Step size α', w / 2, h - 10);
-    ctx.save();
-    ctx.translate(15, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Loss', 0, 0);
-    ctx.restore();
-  }, [lbfgsIterations, lbfgsCurrentIter, lbfgsC1, selectedTab]);
+    drawLineSearchPlot(canvas, iter);
+  }, [lbfgsIterations, lbfgsCurrentIter, selectedTab]);
 
   // Draw GD Fixed parameter space
   useEffect(() => {
@@ -1824,158 +1693,8 @@ const UnifiedVisualizer = () => {
     const iter = gdLSIterations[gdLSCurrentIter];
     if (!iter) return;
 
-    const { ctx, width: w, height: h } = setupCanvas(canvas);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
-
-    const { alphaRange, lossValues, armijoValues } = iter.lineSearchCurve;
-    const trials = iter.lineSearchTrials;
-
-    const maxAlpha = Math.max(...alphaRange);
-    const allValues = [...lossValues, ...armijoValues];
-    const minLoss = Math.min(...allValues);
-    const maxLoss = Math.max(...allValues);
-    const lossRange = maxLoss - minLoss;
-
-    const margin = { left: 60, right: 40, top: 30, bottom: 50 };
-    const plotW = w - margin.left - margin.right;
-    const plotH = h - margin.top - margin.bottom;
-
-    const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
-    const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
-
-    // Helper function to generate nice tick values
-    const generateTicks = (min: number, max: number, targetCount: number = 5): number[] => {
-      const range = max - min;
-      if (range === 0) return [min];
-
-      const roughStep = range / (targetCount - 1);
-      const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
-      const normalized = roughStep / magnitude;
-
-      let niceStep;
-      if (normalized < 1.5) niceStep = 1;
-      else if (normalized < 3.5) niceStep = 2;
-      else if (normalized < 7.5) niceStep = 5;
-      else niceStep = 10;
-
-      const step = niceStep * magnitude;
-      const start = Math.ceil(min / step) * step;
-      const ticks: number[] = [];
-
-      for (let tick = start; tick <= max + step * 0.001; tick += step) {
-        ticks.push(tick);
-      }
-
-      return ticks.length > 0 ? ticks : [min, max];
-    };
-
-    // Format tick labels
-    const formatTick = (val: number): string => {
-      if (val === 0) return '0';
-      const abs = Math.abs(val);
-      if (abs >= 1000 || abs < 0.01) return val.toExponential(1);
-      if (abs >= 10) return val.toFixed(1);
-      if (abs >= 1) return val.toFixed(2);
-      return val.toFixed(3);
-    };
-
-    // Draw axes
-    ctx.strokeStyle = '#9ca3af';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(margin.left, margin.top);
-    ctx.lineTo(margin.left, h - margin.bottom);
-    ctx.lineTo(w - margin.right, h - margin.bottom);
-    ctx.stroke();
-
-    // Draw x-axis ticks and labels
-    const xTicks = generateTicks(0, maxAlpha, 5);
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    xTicks.forEach(tick => {
-      const x = toCanvasX(tick);
-      ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x, h - margin.bottom);
-      ctx.lineTo(x, h - margin.bottom + 5);
-      ctx.stroke();
-      ctx.fillText(formatTick(tick), x, h - margin.bottom + 8);
-    });
-
-    // Draw y-axis ticks and labels
-    const yTicks = generateTicks(minLoss, maxLoss, 5);
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    yTicks.forEach(tick => {
-      const y = toCanvasY(tick);
-      ctx.strokeStyle = '#9ca3af';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(margin.left - 5, y);
-      ctx.lineTo(margin.left, y);
-      ctx.stroke();
-      ctx.fillText(formatTick(tick), margin.left - 8, y);
-    });
-
-    // Draw Armijo boundary (dashed)
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    for (let i = 0; i < armijoValues.length; i++) {
-      const cx = toCanvasX(alphaRange[i]);
-      const cy = toCanvasY(armijoValues[i]);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw actual loss curve
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    for (let i = 0; i < lossValues.length; i++) {
-      const cx = toCanvasX(alphaRange[i]);
-      const cy = toCanvasY(lossValues[i]);
-      if (i === 0) ctx.moveTo(cx, cy);
-      else ctx.lineTo(cx, cy);
-    }
-    ctx.stroke();
-
-    // Draw starting point
-    ctx.fillStyle = '#3b82f6';
-    ctx.beginPath();
-    ctx.arc(toCanvasX(0), toCanvasY(iter.loss), 6, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw trials
-    trials.forEach((t) => {
-      const cx = toCanvasX(t.alpha);
-      const cy = toCanvasY(t.loss);
-
-      ctx.fillStyle = t.satisfied ? '#10b981' : '#dc2626';
-      ctx.beginPath();
-      ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-
-    // Labels
-    ctx.fillStyle = '#374151';
-    ctx.font = '13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Step size α', w / 2, h - 10);
-    ctx.save();
-    ctx.translate(15, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Loss', 0, 0);
-    ctx.restore();
-  }, [gdLSIterations, gdLSCurrentIter, gdLSC1, selectedTab]);
+    drawLineSearchPlot(canvas, iter);
+  }, [gdLSIterations, gdLSCurrentIter, selectedTab]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
@@ -2236,6 +1955,7 @@ const UnifiedVisualizer = () => {
                       direction={gdFixedIterations[gdFixedCurrentIter].direction}
                       prevLoss={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].newLoss : undefined}
                       prevGradNorm={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].gradNorm : undefined}
+                      gradNormHistory={gdFixedIterations.map(iter => iter.gradNorm)}
                       tolerance={gdFixedTolerance}
                     />
                   </div>
@@ -2751,6 +2471,7 @@ const UnifiedVisualizer = () => {
                       direction={gdLSIterations[gdLSCurrentIter].direction}
                       prevLoss={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].newLoss : undefined}
                       prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
+                      gradNormHistory={gdLSIterations.map(iter => iter.gradNorm)}
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
@@ -3415,6 +3136,7 @@ const UnifiedVisualizer = () => {
                       direction={newtonIterations[newtonCurrentIter].direction}
                       prevLoss={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].newLoss : undefined}
                       prevGradNorm={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].gradNorm : undefined}
+                      gradNormHistory={newtonIterations.map(iter => iter.gradNorm)}
                       eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
                       conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                       lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
@@ -4013,6 +3735,7 @@ const UnifiedVisualizer = () => {
                       direction={lbfgsIterations[lbfgsCurrentIter].direction}
                       prevLoss={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].newLoss : undefined}
                       prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
+                      gradNormHistory={lbfgsIterations.map(iter => iter.gradNorm)}
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}
