@@ -405,6 +405,32 @@ const UnifiedVisualizer = () => {
     [gdLSIterations, calculateParamBounds]
   );
 
+  // Unified bounds for AlgorithmConfiguration (basin picker)
+  const bounds = React.useMemo(() => {
+    const activeParamBounds = selectedTab === 'gd-fixed' ? gdFixedParamBounds
+      : selectedTab === 'gd-linesearch' ? gdLSParamBounds
+      : selectedTab === 'newton' ? newtonParamBounds
+      : lbfgsParamBounds;
+
+    return {
+      minW0: activeParamBounds.minW0,
+      maxW0: activeParamBounds.maxW0,
+      minW1: activeParamBounds.minW1,
+      maxW1: activeParamBounds.maxW1
+    };
+  }, [selectedTab, gdFixedParamBounds, gdLSParamBounds, newtonParamBounds, lbfgsParamBounds]);
+
+  // Bias slice for 3D problems (logistic regression, separating hyperplane)
+  const biasSlice = React.useMemo(() => {
+    return ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3)
+      ? (logisticGlobalMin as [number, number, number])[2]
+      : 0;
+  }, [currentProblem, logisticGlobalMin]);
+
+  // Get problem functions and problem for AlgorithmConfiguration
+  const problemFuncs = getCurrentProblemFunctions();
+  const problem = getCurrentProblem();
+
   // Canvas refs
   const dataCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -1603,6 +1629,10 @@ const UnifiedVisualizer = () => {
                   onGdFixedAlphaChange={setGdFixedAlpha}
                   gdFixedTolerance={gdFixedTolerance}
                   onGdFixedToleranceChange={setGdFixedTolerance}
+                  problemFuncs={problemFuncs}
+                  problem={problem}
+                  bounds={bounds}
+                  biasSlice={biasSlice}
                 />
               </CollapsibleSection>
 
@@ -2088,6 +2118,10 @@ const UnifiedVisualizer = () => {
                   onGdLSC1Change={setGdLSC1}
                   gdLSTolerance={gdLSTolerance}
                   onGdLSToleranceChange={setGdLSTolerance}
+                  problemFuncs={problemFuncs}
+                  problem={problem}
+                  bounds={bounds}
+                  biasSlice={biasSlice}
                 />
               </CollapsibleSection>
 
@@ -2732,6 +2766,10 @@ const UnifiedVisualizer = () => {
                   onNewtonHessianDampingChange={setNewtonHessianDamping}
                   newtonTolerance={newtonTolerance}
                   onNewtonToleranceChange={setNewtonTolerance}
+                  problemFuncs={problemFuncs}
+                  problem={problem}
+                  bounds={bounds}
+                  biasSlice={biasSlice}
                 />
               </CollapsibleSection>
 
@@ -3525,6 +3563,10 @@ const UnifiedVisualizer = () => {
                   onLbfgsHessianDampingChange={setLbfgsHessianDamping}
                   lbfgsTolerance={lbfgsTolerance}
                   onLbfgsToleranceChange={setLbfgsTolerance}
+                  problemFuncs={problemFuncs}
+                  problem={problem}
+                  bounds={bounds}
+                  biasSlice={biasSlice}
                 />
               </CollapsibleSection>
 
