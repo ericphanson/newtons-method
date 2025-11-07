@@ -1602,6 +1602,86 @@ git commit -m "feat(basin): add Himmelblau multi-modal test function"
 
 ---
 
+## Task 24: Gate Basin Computation Behind Tab Visibility
+
+**Files:**
+- Modify: `src/components/BasinPicker.tsx`
+
+**Step 1: Add visibility state tracking**
+
+Add after other state declarations:
+
+```typescript
+  const [isVisible, setIsVisible] = useState(true);
+```
+
+**Step 2: Add visibility change listener**
+
+Add effect to track page visibility:
+
+```typescript
+  // Track page visibility to prevent computation when tab is not active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+```
+
+**Step 3: Gate basin computation behind visibility**
+
+Modify the computation effect's async function to check visibility:
+
+```typescript
+  useEffect(() => {
+    const computeBasin = async () => {
+      // Don't compute if tab is not visible
+      if (!isVisible) {
+        console.log('Basin computation skipped - tab not visible');
+        return;
+      }
+
+      // ... rest of computation logic
+    };
+
+    computeBasin();
+  }, [
+    // ... existing dependencies
+    isVisible  // Add isVisible to dependencies
+  ]);
+```
+
+**Step 4: Test visibility gating**
+
+- Open app in browser
+- Start basin computation (should run normally)
+- Switch to another tab
+- Switch back to app tab
+- Basin should compute when tab becomes visible again
+
+**Step 5: Commit**
+
+```bash
+git add src/components/BasinPicker.tsx
+git commit -m "feat(basin): gate computation behind tab visibility
+
+Prevent basin computation when tab is not active to avoid
+performance issues when multiple tabs are open or during hot reload."
+```
+
+**Why this matters:**
+- Prevents 50 simultaneous basin computations if user has 50 tabs open
+- Avoids freezing computer during development hot reloads
+- Improves battery life by not computing when user isn't looking
+- Uses browser's Page Visibility API (document.hidden)
+
+---
+
 ## Success Criteria
 
 - [ ] All 4 algorithms return AlgorithmResult interface
