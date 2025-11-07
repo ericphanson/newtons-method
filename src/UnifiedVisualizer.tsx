@@ -364,23 +364,35 @@ const UnifiedVisualizer = () => {
       const maxDist0 = Math.max(Math.abs(minW0 - gm0), Math.abs(maxW0 - gm0)) + pad0;
       const maxDist1 = Math.max(Math.abs(minW1 - gm1), Math.abs(maxW1 - gm1)) + pad1;
 
+      // Ensure bounds include at least -3 to 3 (basin plot range)
+      const finalMinW0 = Math.min(gm0 - maxDist0, -3);
+      const finalMaxW0 = Math.max(gm0 + maxDist0, 3);
+      const finalMinW1 = Math.min(gm1 - maxDist1, -3);
+      const finalMaxW1 = Math.max(gm1 + maxDist1, 3);
+
       return {
-        minW0: gm0 - maxDist0,
-        maxW0: gm0 + maxDist0,
-        minW1: gm1 - maxDist1,
-        maxW1: gm1 + maxDist1,
-        w0Range: 2 * maxDist0,
-        w1Range: 2 * maxDist1
+        minW0: finalMinW0,
+        maxW0: finalMaxW0,
+        minW1: finalMinW1,
+        maxW1: finalMaxW1,
+        w0Range: finalMaxW0 - finalMinW0,
+        w1Range: finalMaxW1 - finalMinW1
       };
     }
 
+    // Ensure bounds include at least -3 to 3 (basin plot range)
+    const finalMinW0 = Math.min(minW0 - pad0, -3);
+    const finalMaxW0 = Math.max(maxW0 + pad0, 3);
+    const finalMinW1 = Math.min(minW1 - pad1, -3);
+    const finalMaxW1 = Math.max(maxW1 + pad1, 3);
+
     return {
-      minW0: minW0 - pad0,
-      maxW0: maxW0 + pad0,
-      minW1: minW1 - pad1,
-      maxW1: maxW1 + pad1,
-      w0Range: w0Range + 2 * pad0,
-      w1Range: w1Range + 2 * pad1
+      minW0: finalMinW0,
+      maxW0: finalMaxW0,
+      minW1: finalMinW1,
+      maxW1: finalMaxW1,
+      w0Range: finalMaxW0 - finalMinW0,
+      w1Range: finalMaxW1 - finalMinW1
     };
   }, [currentProblem, logisticGlobalMin]);
 
@@ -406,19 +418,15 @@ const UnifiedVisualizer = () => {
   );
 
   // Unified bounds for AlgorithmConfiguration (basin picker)
+  // Fixed to -3 to 3 (not based on trajectory)
   const bounds = React.useMemo(() => {
-    const activeParamBounds = selectedTab === 'gd-fixed' ? gdFixedParamBounds
-      : selectedTab === 'gd-linesearch' ? gdLSParamBounds
-      : selectedTab === 'newton' ? newtonParamBounds
-      : lbfgsParamBounds;
-
     return {
-      minW0: activeParamBounds.minW0,
-      maxW0: activeParamBounds.maxW0,
-      minW1: activeParamBounds.minW1,
-      maxW1: activeParamBounds.maxW1
+      minW0: -3,
+      maxW0: 3,
+      minW1: -3,
+      maxW1: 3
     };
-  }, [selectedTab, gdFixedParamBounds, gdLSParamBounds, newtonParamBounds, lbfgsParamBounds]);
+  }, []);
 
   // Bias slice for 3D problems (logistic regression, separating hyperplane)
   const biasSlice = React.useMemo(() => {

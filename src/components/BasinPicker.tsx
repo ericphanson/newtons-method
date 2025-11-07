@@ -85,6 +85,29 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     return assignHuesToClusters(numClusters);
   }, [basinData]);
 
+  // Compute iteration range for colorbar
+  const iterationRange = useMemo(() => {
+    if (!basinData) return { min: 0, max: 0 };
+    let minIter = Infinity;
+    let maxIter = -Infinity;
+
+    for (const row of basinData.grid) {
+      for (const point of row) {
+        if (point.converged) {
+          minIter = Math.min(minIter, point.iterations);
+          maxIter = Math.max(maxIter, point.iterations);
+        }
+      }
+    }
+
+    // Handle case where no points converged
+    if (!isFinite(minIter) || !isFinite(maxIter)) {
+      return { min: 0, max: 0 };
+    }
+
+    return { min: minIter, max: maxIter };
+  }, [basinData]);
+
   // Track page visibility to prevent computation when tab is not active
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -245,59 +268,147 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Set up high DPI rendering
+    const dpr = window.devicePixelRatio || 1;
+    const logicalWidth = 320;
+    const logicalHeight = 290;
+
+    canvas.width = logicalWidth * dpr;
+    canvas.height = logicalHeight * dpr;
+    canvas.style.width = `${logicalWidth}px`;
+    canvas.style.height = `${logicalHeight}px`;
+
+    ctx.scale(dpr, dpr);
+
+    // Margins for axes (in logical pixels)
+    const margins = { left: 70, right: 15, top: 15, bottom: 40 };
+    const plotWidth = logicalWidth - margins.left - margins.right;
+    const plotHeight = logicalHeight - margins.top - margins.bottom;
+
     // Encode colors
     const colors = encodeBasinColors(basinData);
 
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
-    // Draw basin
-    const cellWidth = canvas.width / basinData.resolution;
-    const cellHeight = canvas.height / basinData.resolution;
+    // Draw basin in the plot area
+    const cellWidth = plotWidth / basinData.resolution;
+    const cellHeight = plotHeight / basinData.resolution;
 
     for (let i = 0; i < basinData.resolution; i++) {
       for (let j = 0; j < basinData.resolution; j++) {
         const color = colors[i][j];
-        const x = j * cellWidth;
-        const y = i * cellHeight;
+        const x = margins.left + j * cellWidth;
+        const y = margins.top + i * cellHeight;
 
         ctx.fillStyle = `hsl(${color.hue}, 70%, ${color.lightness}%)`;
         ctx.fillRect(x, y, cellWidth, cellHeight);
       }
     }
 
-    // Draw crosshair
+    // Draw axes with ticks and labels
+    const { minW0, maxW0, minW1, maxW1 } = basinData.bounds;
+
+    ctx.strokeStyle = '#000';
+    ctx.fillStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.font = '11px sans-serif';
+
+    // X-axis (bottom)
+    ctx.beginPath();
+    ctx.moveTo(margins.left, logicalHeight - margins.bottom);
+    ctx.lineTo(logicalWidth - margins.right, logicalHeight - margins.bottom);
+    ctx.stroke();
+
+    // Y-axis (left)
+    ctx.beginPath();
+    ctx.moveTo(margins.left, margins.top);
+    ctx.lineTo(margins.left, logicalHeight - margins.bottom);
+    ctx.stroke();
+
+    // Generate tick positions (5 ticks per axis)
+    const numTicks = 5;
+
+    // X-axis ticks and labels
+    for (let i = 0; i < numTicks; i++) {
+      const fraction = i / (numTicks - 1);
+      const xPos = margins.left + fraction * plotWidth;
+      const value = minW0 + fraction * (maxW0 - minW0);
+
+      // Tick mark
+      ctx.beginPath();
+      ctx.moveTo(xPos, logicalHeight - margins.bottom);
+      ctx.lineTo(xPos, logicalHeight - margins.bottom + 5);
+      ctx.stroke();
+
+      // Label
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(value.toFixed(1), xPos, logicalHeight - margins.bottom + 8);
+    }
+
+    // Y-axis ticks and labels
+    for (let i = 0; i < numTicks; i++) {
+      const fraction = i / (numTicks - 1);
+      const yPos = logicalHeight - margins.bottom - fraction * plotHeight;
+      const value = minW1 + fraction * (maxW1 - minW1);
+
+      // Tick mark
+      ctx.beginPath();
+      ctx.moveTo(margins.left - 5, yPos);
+      ctx.lineTo(margins.left, yPos);
+      ctx.stroke();
+
+      // Label
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(value.toFixed(1), margins.left - 8, yPos);
+    }
+
+    // Axis labels
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#1f2937';
+
+    // X-axis label
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('w₀', margins.left + plotWidth / 2, logicalHeight - 2);
+
+    // Y-axis label (rotated)
+    ctx.save();
+    ctx.translate(28, margins.top + plotHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('w₁', 0, 0);
+    ctx.restore();
+
+    // Draw box around plot area
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.strokeRect(margins.left, margins.top, plotWidth, plotHeight);
+
+    // Draw initial point marker (circle with outline)
     const [w0, w1] = initialPoint;
     const xPos =
-      ((w0 - basinData.bounds.minW0) / (basinData.bounds.maxW0 - basinData.bounds.minW0)) *
-      canvas.width;
+      margins.left + ((w0 - minW0) / (maxW0 - minW0)) * plotWidth;
     const yPos =
-      ((basinData.bounds.maxW1 - w1) / (basinData.bounds.maxW1 - basinData.bounds.minW1)) *
-      canvas.height;
+      margins.top + ((maxW1 - w1) / (maxW1 - minW1)) * plotHeight;
 
-    ctx.strokeStyle = 'white';
+    // Outer circle (white with black outline)
+    ctx.beginPath();
+    ctx.arc(xPos, yPos, 6, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = '#1f2937';
     ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-
-    const size = 15;
-
-    // Horizontal line
-    ctx.beginPath();
-    ctx.moveTo(xPos - size, yPos);
-    ctx.lineTo(xPos + size, yPos);
     ctx.stroke();
 
-    // Vertical line
+    // Inner dot
     ctx.beginPath();
-    ctx.moveTo(xPos, yPos - size);
-    ctx.lineTo(xPos, yPos + size);
-    ctx.stroke();
-
-    // Center dot
-    ctx.setLineDash([]);
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(xPos, yPos, 3, 0, 2 * Math.PI);
+    ctx.arc(xPos, yPos, 2.5, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ef4444';
     ctx.fill();
   }, [basinData, initialPoint]);
 
@@ -309,10 +420,26 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     const canvasX = event.clientX - rect.left;
     const canvasY = event.clientY - rect.top;
 
+    // Account for margins (in logical pixels)
+    const logicalWidth = 320;
+    const logicalHeight = 290;
+    const margins = { left: 70, right: 15, top: 15, bottom: 40 };
+    const plotWidth = logicalWidth - margins.left - margins.right;
+    const plotHeight = logicalHeight - margins.top - margins.bottom;
+
+    // Convert to plot coordinates
+    const plotX = canvasX - margins.left;
+    const plotY = canvasY - margins.top;
+
+    // Only process clicks within the plot area
+    if (plotX < 0 || plotX > plotWidth || plotY < 0 || plotY > plotHeight) {
+      return;
+    }
+
     const { minW0, maxW0, minW1, maxW1 } = basinData.bounds;
 
-    const w0 = minW0 + (canvasX / canvas.width) * (maxW0 - minW0);
-    const w1 = maxW1 - (canvasY / canvas.height) * (maxW1 - minW1);
+    const w0 = minW0 + (plotX / plotWidth) * (maxW0 - minW0);
+    const w1 = maxW1 - (plotY / plotHeight) * (maxW1 - minW1);
 
     // Handle 3D problems
     if (problemFuncs.dimensionality === 3) {
@@ -328,27 +455,34 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         Click to change initial point
       </label>
 
+      <div className="text-xs text-gray-600 mb-1">
+        Current: w₀ = {initialPoint[0].toFixed(3)}, w₁ = {initialPoint[1].toFixed(3)}
+        {problemFuncs.dimensionality === 3 && `, bias = ${(algorithmParams.biasSlice || 0).toFixed(3)}`}
+      </div>
+
       {problemFuncs.dimensionality === 3 && (
         <div className="text-xs text-gray-500 italic mb-1">
-          Slice at bias = {(algorithmParams.biasSlice || 0).toFixed(2)}
+          Viewing slice at bias = {(algorithmParams.biasSlice || 0).toFixed(2)}
         </div>
       )}
 
-      <canvas
-        ref={canvasRef}
-        width={250}
-        height={250}
-        className="border border-gray-300 cursor-crosshair"
-        style={{ width: 250, height: 250 }}
-        onClick={handleCanvasClick}
-      />
-
-      {basinData && (
-        <ColorbarLegend
-          hues={clusterHues}
-          isMultiModal={clusterHues.length > 1}
+      {/* Horizontal layout: canvas with built-in axes and colorbar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <canvas
+          ref={canvasRef}
+          className="cursor-crosshair"
+          onClick={handleCanvasClick}
         />
-      )}
+
+        {/* Colorbar legend to the right */}
+        {basinData && (
+          <ColorbarLegend
+            hues={clusterHues}
+            isMultiModal={clusterHues.length > 1}
+            iterationRange={iterationRange}
+          />
+        )}
+      </div>
 
       {isComputing && (
         <div className="text-xs text-gray-500 mt-1">
