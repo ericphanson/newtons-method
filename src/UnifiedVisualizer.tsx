@@ -85,8 +85,6 @@ const UnifiedVisualizer = () => {
   const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
-  const [gdFixedFtol, setGdFixedFtol] = useState(1e-9);
-  const [gdFixedXtol, setGdFixedXtol] = useState(1e-9);
 
   // GD Line search state
   const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
@@ -94,8 +92,6 @@ const UnifiedVisualizer = () => {
   const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
-  const [gdLSFtol, setGdLSFtol] = useState(1e-9);
-  const [gdLSXtol, setGdLSXtol] = useState(1e-9);
 
   // Newton state
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
@@ -116,8 +112,6 @@ const UnifiedVisualizer = () => {
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0.01);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
-  const [lbfgsFtol, setLbfgsFtol] = useState(1e-9);
-  const [lbfgsXtol, setLbfgsXtol] = useState(1e-9);
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
@@ -707,11 +701,7 @@ const UnifiedVisualizer = () => {
         alpha: gdFixedAlpha,
         lambda,
         initialPoint,
-        termination: {
-          gtol: gdFixedTolerance,
-          ftol: gdFixedFtol,
-          xtol: gdFixedXtol,
-        },
+        tolerance: gdFixedTolerance,
       });
       const iterations = result.iterations;
       setGdFixedIterations(iterations);
@@ -727,7 +717,7 @@ const UnifiedVisualizer = () => {
       setGdFixedIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentFixedStep above
-  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, gdFixedFtol, gdFixedXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -745,11 +735,7 @@ const UnifiedVisualizer = () => {
         c1: gdLSC1,
         lambda,
         initialPoint,
-        termination: {
-          gtol: gdLSTolerance,
-          ftol: gdLSFtol,
-          xtol: gdLSXtol,
-        },
+        tolerance: gdLSTolerance,
       });
       const iterations = result.iterations;
       setGdLSIterations(iterations);
@@ -765,7 +751,7 @@ const UnifiedVisualizer = () => {
       setGdLSIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentLineSearch above
-  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, gdLSFtol, gdLSXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -1634,6 +1620,17 @@ const UnifiedVisualizer = () => {
           >
             GD (Line Search)
           </button>
+          {/* Diagonal Preconditioner Tab */}
+          <button
+            onClick={() => setSelectedTab('diagonal-precond')}
+            className={`px-6 py-3 font-medium transition-colors ${
+              selectedTab === 'diagonal-precond'
+                ? 'bg-teal-100 text-teal-900 border-b-2 border-teal-500'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            Diagonal Preconditioner
+          </button>
           <button
             onClick={() => setSelectedTab('newton')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
@@ -1814,6 +1811,7 @@ const UnifiedVisualizer = () => {
                       gradNormHistory={gdFixedIterations.map(iter => iter.gradNorm)}
                       lossHistory={gdFixedIterations.map(iter => iter.newLoss)}
                       alphaHistory={gdFixedIterations.map(iter => iter.alpha)}
+                      weightsHistory={gdFixedIterations.map(iter => iter.wNew)}
                       tolerance={gdFixedTolerance}
                       ftol={1e-9}
                       xtol={1e-9}
@@ -2313,6 +2311,7 @@ const UnifiedVisualizer = () => {
                       gradNormHistory={gdLSIterations.map(iter => iter.gradNorm)}
                       lossHistory={gdLSIterations.map(iter => iter.newLoss)}
                       alphaHistory={gdLSIterations.map(iter => iter.alpha)}
+                      weightsHistory={gdLSIterations.map(iter => iter.wNew)}
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
@@ -2968,6 +2967,7 @@ const UnifiedVisualizer = () => {
                       gradNormHistory={newtonIterations.map(iter => iter.gradNorm)}
                       lossHistory={newtonIterations.map(iter => iter.newLoss)}
                       alphaHistory={newtonIterations.map(iter => iter.alpha)}
+                      weightsHistory={newtonIterations.map(iter => iter.wNew)}
                       eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
                       conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                       lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
@@ -3772,6 +3772,7 @@ const UnifiedVisualizer = () => {
                       gradNormHistory={lbfgsIterations.map(iter => iter.gradNorm)}
                       lossHistory={lbfgsIterations.map(iter => iter.newLoss)}
                       alphaHistory={lbfgsIterations.map(iter => iter.alpha)}
+                      weightsHistory={lbfgsIterations.map(iter => iter.wNew)}
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}
@@ -4624,7 +4625,35 @@ const UnifiedVisualizer = () => {
             </>
           )}
             </>
-          )}
+          ) : selectedTab === 'diagonal-precond' ? (
+            <>
+              {/* Diagonal Preconditioner Tab Content */}
+              <div className="space-y-4">
+                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
+                  <h3 className="text-lg font-semibold text-teal-900 mb-2">
+                    Diagonal Preconditioner: Per-Coordinate Step Sizes
+                  </h3>
+                  <p className="text-sm text-teal-800">
+                    Uses Hessian diagonal D = diag(1/H₀₀, 1/H₁₁) for per-coordinate scaling.
+                    Perfect when problem aligns with axes, struggles when rotated.
+                  </p>
+                </div>
+
+                {/* Placeholder for controls and visualization */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <button
+                    onClick={runDiagPrecond}
+                    className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
+                  >
+                    Run Diagonal Preconditioner
+                  </button>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Iterations: {diagPrecondIterations.length}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
 

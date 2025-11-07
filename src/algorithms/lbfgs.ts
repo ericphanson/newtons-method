@@ -73,17 +73,9 @@ export const runLBFGS = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number; hessianDamping?: number }
 ): AlgorithmResult<LBFGSIteration> => {
-  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5, hessianDamping = 0.01, termination } = options;
+  const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5, hessianDamping = 0.01 } = options;
   const iterations: LBFGSIteration[] = [];
   const M = m; // Memory parameter: number of (s, y) pairs to store
-  let previousLoss: number | null = null;
-  let previousW: number[] | null = null;
-  let terminationReason: ConvergenceCriterion | null = null;
-
-  // Extract termination thresholds (backward compatible with tolerance parameter)
-  const gtol = termination?.gtol ?? tolerance;
-  const ftol = termination?.ftol ?? 1e-9;
-  const xtol = termination?.xtol ?? 1e-9;
 
   // Note: lambda is accepted for API consistency but unused here since
   // regularization is already baked into ProblemFunctions
@@ -100,42 +92,6 @@ export const runLBFGS = (
     const loss = problem.objective(w);
     const grad = problem.gradient(w);
     const gradNorm = norm(grad);
-
-    // Early divergence detection
-    if (!isFinite(loss) || !isFinite(gradNorm)) {
-      terminationReason = 'diverged';
-      // Still store the iteration data before breaking
-      iterations.push({
-        iter,
-        w: [...w],
-        loss,
-        grad: [...grad],
-        gradNorm,
-        direction: [0, 0],
-        alpha: 0,
-        wNew: [...w],
-        newLoss: loss,
-        memory: memory.map(m => ({ ...m })),
-        twoLoopData: null,
-        lineSearchTrials: [],
-        lineSearchCurve: { alphaRange: [], lossValues: [], armijoValues: [] }
-      });
-      break;
-    }
-
-    // Check gradient norm convergence
-    if (gradNorm < gtol) {
-      terminationReason = 'gradient';
-    }
-
-    // Check function value stalling (scipy-style: relative tolerance)
-    if (previousLoss !== null && ftol > 0) {
-      const funcChange = Math.abs(loss - previousLoss);
-      const relativeFuncChange = funcChange / Math.max(Math.abs(loss), 1e-8);
-      if (relativeFuncChange < ftol && terminationReason === null) {
-        terminationReason = 'ftol';
-      }
-    }
 
     let direction: number[];
     let twoLoopData: TwoLoopData | null = null;
@@ -209,15 +165,6 @@ export const runLBFGS = (
     const newLoss = problem.objective(wNew);
     const newGrad = problem.gradient(wNew);
 
-    // Check step size stalling (scipy-style: relative tolerance)
-    if (xtol > 0) {
-      const stepSize = norm(sub(wNew, w));
-      const relativeStepSize = stepSize / Math.max(norm(wNew), 1.0);
-      if (relativeStepSize < xtol && terminationReason === null) {
-        terminationReason = 'xtol';
-      }
-    }
-
     iterations.push({
       iter,
       w: [...w],
@@ -245,20 +192,9 @@ export const runLBFGS = (
       }
     }
 
-    // Update for next iteration
-    previousLoss = newLoss;
-    previousW = [...w];
     w = wNew;
 
-    // Early stopping if any termination criterion met
-    if (terminationReason !== null) {
-      break;
-    }
-  }
-
-  // If loop completed without early termination
-  if (terminationReason === null) {
-    terminationReason = 'maxiter';
+    if (gradNorm < tolerance) break;
   }
 
   // Compute convergence summary
@@ -267,31 +203,21 @@ export const runLBFGS = (
   const finalLoss = lastIter ? lastIter.newLoss : Infinity;
   const finalLocation = lastIter ? lastIter.wNew : w;
 
-  // Compute final step size and function change (absolute and relative)
-  const absoluteStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
-  const absoluteFuncChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
+  const converged = finalGradNorm < tolerance;
+  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
 
-  // Compute relative values (for scipy-style tolerance checking)
-  const finalStepSize = absoluteStepSize !== undefined
-    ? absoluteStepSize / Math.max(norm(finalLocation), 1.0)
-    : undefined;
-  const finalFunctionChange = absoluteFuncChange !== undefined
-    ? absoluteFuncChange / Math.max(Math.abs(finalLoss), 1e-8)
-    : undefined;
+  let convergenceCriterion: ConvergenceCriterion;
+  if (diverged) {
+    convergenceCriterion = 'diverged';
+  } else if (converged) {
+    convergenceCriterion = 'gradient';
+  } else {
+    convergenceCriterion = 'maxiter';
+  }
 
-  // Determine convergence flags
-  const converged = ['gradient', 'ftol', 'xtol'].includes(terminationReason);
-  const diverged = terminationReason === 'diverged';
-  const stalled = ['ftol', 'xtol'].includes(terminationReason);
-
-  // Generate human-readable termination message
-  const terminationMessage = getTerminationMessage(terminationReason, {
+  const terminationMessage = getTerminationMessage(convergenceCriterion, {
     gradNorm: finalGradNorm,
-    gtol,
-    stepSize: finalStepSize,
-    xtol,
-    funcChange: finalFunctionChange,
-    ftol,
+    gtol: tolerance,
     iters: iterations.length,
     maxIter
   });
@@ -299,14 +225,12 @@ export const runLBFGS = (
   const summary: AlgorithmSummary = {
     converged,
     diverged,
-    stalled,
+    stalled: false, // L-BFGS doesn't have stalling detection yet
     finalLocation,
     finalLoss,
     finalGradNorm,
-    finalStepSize,
-    finalFunctionChange,
     iterationCount: iterations.length,
-    convergenceCriterion: terminationReason,
+    convergenceCriterion,
     terminationMessage
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fmt, fmtVec } from '../shared-utils';
+import { fmt, fmtVec, norm, sub } from '../shared-utils';
 import type { AlgorithmSummary } from '../algorithms/types';
 
 interface IterationMetricsProps {
@@ -19,6 +19,7 @@ interface IterationMetricsProps {
   gradNormHistory?: number[];
   lossHistory?: number[];
   alphaHistory?: number[];
+  weightsHistory?: number[][];
 
   // Algorithm-specific data
   eigenvalues?: number[];
@@ -58,6 +59,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   gradNormHistory,
   lossHistory,
   alphaHistory,
+  weightsHistory,
   eigenvalues,
   conditionNumber,
   lineSearchTrials,
@@ -120,8 +122,23 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
     ? functionChangeHistory[iterNum - 1]
     : (functionChangeHistory.length > 0 ? functionChangeHistory[functionChangeHistory.length - 1] : 0);
 
-  // Note: Step size history (xtol criterion) would require full weight history
-  // which isn't currently passed to this component. Could be added in the future.
+  // Compute step size history (relative step size between iterations)
+  const stepSizeHistory: number[] = [];
+  if (weightsHistory && weightsHistory.length > 1) {
+    for (let i = 1; i < weightsHistory.length; i++) {
+      const stepSize = norm(sub(weightsHistory[i], weightsHistory[i - 1]));
+      const relativeStepSize = stepSize / Math.max(norm(weightsHistory[i]), 1.0);
+      stepSizeHistory.push(relativeStepSize);
+    }
+  }
+  const hasStepSizeData = stepSizeHistory.length > 0;
+  const maxStepSize = hasStepSizeData ? Math.max(...stepSizeHistory, xtol * 10) : xtol * 10;
+  const minStepSize = hasStepSizeData ? Math.min(...stepSizeHistory, 0) : 0;
+
+  // Current step size
+  const currentStepSize = stepSizeHistory.length > iterNum && iterNum > 0
+    ? stepSizeHistory[iterNum - 1]
+    : (stepSizeHistory.length > 0 ? stepSizeHistory[stepSizeHistory.length - 1] : 0);
 
   return (
     <div className="space-y-2 text-xs">
@@ -178,20 +195,18 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             className="overflow-visible cursor-pointer"
             onClick={(e) => handleSparklineClick(e, sparklineData.length)}
           >
-            {/* Tolerance threshold line */}
-            {tolerance >= minGradNormInHistory && tolerance <= maxGradNormInHistory && (
-              <line
-                x1="0"
-                x2="100"
-                y1={18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16}
-                y2={18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16}
-                stroke="#10b981"
-                strokeWidth="0.3"
-                strokeDasharray="2,2"
-                vectorEffect="non-scaling-stroke"
-                opacity="0.6"
-              />
-            )}
+            {/* Tolerance threshold line - always visible, clamped to range */}
+            <line
+              x1="0"
+              x2="100"
+              y1={Math.max(2, Math.min(18, 18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16))}
+              y2={Math.max(2, Math.min(18, 18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16))}
+              stroke="#10b981"
+              strokeWidth="0.3"
+              strokeDasharray="2,2"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.6"
+            />
             {/* Sparkline path */}
             <path
               d={sparklineData.map((val, i) => {
@@ -316,20 +331,18 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
               className="overflow-visible cursor-pointer"
               onClick={(e) => handleSparklineClick(e, functionChangeHistory.length)}
             >
-              {/* ftol threshold line */}
-              {ftol >= minFunctionChange && ftol <= maxFunctionChange && (
-                <line
-                  x1="0"
-                  x2="100"
-                  y1={18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
-                  y2={18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
-                  stroke="#f59e0b"
-                  strokeWidth="0.3"
-                  strokeDasharray="2,2"
-                  vectorEffect="non-scaling-stroke"
-                  opacity="0.6"
-                />
-              )}
+              {/* ftol threshold line - always visible, clamped to range */}
+              <line
+                x1="0"
+                x2="100"
+                y1={Math.max(2, Math.min(18, 18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16))}
+                y2={Math.max(2, Math.min(18, 18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16))}
+                stroke="#f59e0b"
+                strokeWidth="0.3"
+                strokeDasharray="2,2"
+                vectorEffect="non-scaling-stroke"
+                opacity="0.6"
+              />
               {/* Sparkline path */}
               <path
                 d={functionChangeHistory.map((val, i) => {
@@ -347,6 +360,63 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
                 <circle
                   cx={((iterNum - 1) / Math.max(functionChangeHistory.length - 1, 1)) * 100}
                   cy={18 - ((currentFunctionChange - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
+                  r="1"
+                  fill="#ef4444"
+                  stroke="#fff"
+                  strokeWidth="0.3"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
+            </svg>
+          )}
+        </div>
+      )}
+
+      {/* Step Size with Sparkline */}
+      {hasStepSizeData && (
+        <div className="space-y-1">
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="text-gray-600">Rel. Step Size:</span>
+            <span className="font-mono font-bold">{fmt(currentStepSize)}</span>
+          </div>
+          {stepSizeHistory.length > 1 && (
+            <svg
+              width="100%"
+              height="24"
+              viewBox="0 0 100 20"
+              preserveAspectRatio="none"
+              className="overflow-visible cursor-pointer"
+              onClick={(e) => handleSparklineClick(e, stepSizeHistory.length)}
+            >
+              {/* xtol threshold line - always visible, clamped to range */}
+              <line
+                x1="0"
+                x2="100"
+                y1={Math.max(2, Math.min(18, 18 - ((xtol - minStepSize) / (maxStepSize - minStepSize || 1)) * 16))}
+                y2={Math.max(2, Math.min(18, 18 - ((xtol - minStepSize) / (maxStepSize - minStepSize || 1)) * 16))}
+                stroke="#f59e0b"
+                strokeWidth="0.3"
+                strokeDasharray="2,2"
+                vectorEffect="non-scaling-stroke"
+                opacity="0.6"
+              />
+              {/* Sparkline path */}
+              <path
+                d={stepSizeHistory.map((val, i) => {
+                  const x = (i / Math.max(stepSizeHistory.length - 1, 1)) * 100;
+                  const y = 18 - ((val - minStepSize) / (maxStepSize - minStepSize || 1)) * 16;
+                  return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                }).join(' ')}
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="0.5"
+                vectorEffect="non-scaling-stroke"
+              />
+              {/* Current position marker */}
+              {iterNum > 0 && (
+                <circle
+                  cx={((iterNum - 1) / Math.max(stepSizeHistory.length - 1, 1)) * 100}
+                  cy={18 - ((currentStepSize - minStepSize) / (maxStepSize - minStepSize || 1)) * 16}
                   r="1"
                   fill="#ef4444"
                   stroke="#fff"
