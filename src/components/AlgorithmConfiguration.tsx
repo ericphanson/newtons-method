@@ -112,8 +112,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </>
         )}
 
-        {/* Armijo c1 - only shown when line search is enabled */}
-        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || (algorithm === 'newton' && props.newtonLineSearch === 'armijo')) && (
+        {/* Armijo c1 - only shown when line search is enabled (not for Newton, it has its own) */}
+        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs') && (
           <div>
             <div className="flex items-center gap-3 mb-2">
               <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -127,14 +127,11 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 value={Math.log10(
                   algorithm === 'gd-linesearch'
                     ? (props.gdLSC1 ?? 1e-4)
-                    : algorithm === 'newton'
-                    ? (props.newtonC1 ?? 1e-4)
                     : (props.lbfgsC1 ?? 1e-4)
                 )}
                 onChange={(e) => {
                   const val = Math.pow(10, parseFloat(e.target.value));
                   if (algorithm === 'gd-linesearch') props.onGdLSC1Change?.(val);
-                  else if (algorithm === 'newton') props.onNewtonC1Change?.(val);
                   else props.onLbfgsC1Change?.(val);
                 }}
                 className="flex-1"
@@ -142,8 +139,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               <div className="text-sm text-gray-600 w-16 text-right">
                 {algorithm === 'gd-linesearch'
                   ? props.gdLSC1?.toExponential(1)
-                  : algorithm === 'newton'
-                  ? props.newtonC1?.toExponential(1)
                   : props.lbfgsC1?.toExponential(1)}
               </div>
             </div>
@@ -194,21 +189,127 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
 
         {algorithm === 'newton' && (
           <>
-            {/* Line Search */}
+            {/* Line Search and c1 in same row */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Line Search */}
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Line Search:</label>
+                  <select
+                    value={props.newtonLineSearch ?? 'armijo'}
+                    onChange={(e) => props.onNewtonLineSearchChange?.(e.target.value as 'armijo' | 'none')}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="armijo">Armijo</option>
+                    <option value="none">None (full step)</option>
+                  </select>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Armijo backtracking vs full Newton step (α=1)
+                </p>
+              </div>
+
+              {/* Armijo c1 - always visible, disabled when line search is none */}
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Armijo c<sub>1</sub>:
+                  </label>
+                  <input
+                    type="range"
+                    min="-5"
+                    max="-1"
+                    step="0.1"
+                    value={Math.log10(props.newtonC1 ?? 1e-4)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onNewtonC1Change?.(val);
+                    }}
+                    disabled={props.newtonLineSearch === 'none'}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {props.newtonC1?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Line search parameter
+                </p>
+              </div>
+            </div>
+
+            {/* Gradient Tolerance (gtol) */}
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Line Search:</label>
-                <select
-                  value={props.newtonLineSearch ?? 'armijo'}
-                  onChange={(e) => props.onNewtonLineSearchChange?.(e.target.value as 'armijo' | 'none')}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="armijo">Armijo</option>
-                  <option value="none">None (full step)</option>
-                </select>
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Gradient Tolerance (gtol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-2"
+                  step="0.1"
+                  value={Math.log10(props.newtonTolerance ?? 1e-6)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onNewtonToleranceChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {(props.newtonTolerance ?? 1e-6)?.toExponential(1)}
+                </div>
               </div>
               <p className="text-xs text-gray-500">
-                Armijo backtracking vs full Newton step (α=1)
+                Convergence threshold for gradient norm
+              </p>
+            </div>
+
+            {/* Function Tolerance (ftol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Function Tolerance (ftol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(props.newtonFtol ?? 1e-9)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onNewtonFtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {(props.newtonFtol ?? 1e-9)?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative function change threshold (scipy-style)
+              </p>
+            </div>
+
+            {/* Step Tolerance (xtol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Step Tolerance (xtol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(props.newtonXtol ?? 1e-9)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onNewtonXtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {(props.newtonXtol ?? 1e-9)?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative step size threshold (scipy-style)
               </p>
             </div>
 
@@ -243,56 +344,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   <span className="font-medium">Tip:</span> Use 0 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
                 </p>
               </div>
-            </div>
-
-            {/* Function Tolerance (ftol) - Newton only */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Function Tolerance (ftol):</label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-4"
-                  step="0.1"
-                  value={Math.log10(props.newtonFtol ?? 1e-9)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onNewtonFtolChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonFtol ?? 1e-9)?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Relative function change threshold (scipy-style)
-              </p>
-            </div>
-
-            {/* Step Tolerance (xtol) - Newton only */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Step Tolerance (xtol):</label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-4"
-                  step="0.1"
-                  value={Math.log10(props.newtonXtol ?? 1e-9)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onNewtonXtolChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {(props.newtonXtol ?? 1e-9)?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Relative step size threshold (scipy-style)
-              </p>
             </div>
           </>
         )}
