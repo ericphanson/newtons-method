@@ -34,6 +34,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
   const [basinData, setBasinData] = useState<BasinData | null>(null);
   const [isComputing, setIsComputing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
 
   // Compute cluster hues
   const clusterHues = useMemo(() => {
@@ -42,6 +43,18 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     const numClusters = Math.max(...clusterIds) + 1;
     return assignHuesToClusters(numClusters);
   }, [basinData]);
+
+  // Track page visibility to prevent computation when tab is not active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Build cache key
   const cacheKey: BasinCacheKey = {
@@ -55,6 +68,12 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
   // Compute basin when params change
   useEffect(() => {
     const computeBasin = async () => {
+      // Don't compute if tab is not visible
+      if (!isVisible) {
+        console.log('Basin computation skipped - tab not visible');
+        return;
+      }
+
       // Check cache first
       const cached = basinCache.get(cacheKey);
       if (cached) {
@@ -104,7 +123,8 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     bounds.minW0,
     bounds.maxW0,
     bounds.minW1,
-    bounds.maxW1
+    bounds.maxW1,
+    isVisible
   ]);
 
   // Render basin when data changes
