@@ -1,6 +1,7 @@
-import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
 import { armijoLineSearch } from '../line-search/armijo';
 import { norm, scale, add } from '../shared-utils';
+import { getTerminationMessage } from './terminationUtils';
 
 export interface DiagonalPrecondIteration {
   iter: number;
@@ -146,7 +147,7 @@ export const runDiagonalPreconditioner = (
   const converged = finalGradNorm < tolerance;
   const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
 
-  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  let convergenceCriterion: ConvergenceCriterion;
   if (diverged) {
     convergenceCriterion = 'diverged';
   } else if (converged) {
@@ -155,14 +156,23 @@ export const runDiagonalPreconditioner = (
     convergenceCriterion = 'maxiter';
   }
 
+  const terminationMessage = getTerminationMessage(convergenceCriterion, {
+    gradNorm: finalGradNorm,
+    gtol: tolerance,
+    iters: iterations.length,
+    maxIter
+  });
+
   const summary: AlgorithmSummary = {
     converged,
     diverged,
+    stalled: false, // Diagonal preconditioner doesn't have stalling detection yet
     finalLocation,
     finalLoss,
     finalGradNorm,
     iterationCount: iterations.length,
-    convergenceCriterion
+    convergenceCriterion,
+    terminationMessage
   };
 
   return { iterations, summary };

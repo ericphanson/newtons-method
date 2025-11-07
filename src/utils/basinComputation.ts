@@ -53,7 +53,8 @@ export function computeBasinPoint(
         : (result.summary.finalLocation.slice(0, 3) as [number, number, number]),
       iterations: result.summary.iterationCount,
       converged: result.summary.converged,
-      diverged: result.summary.diverged
+      diverged: result.summary.diverged,
+      stalled: result.summary.stalled
     };
   } catch (error) {
     // Algorithm threw error (singular Hessian, numerical issues)
@@ -62,7 +63,8 @@ export function computeBasinPoint(
       convergenceLoc: [NaN, NaN],
       iterations: 0,
       converged: false,
-      diverged: true
+      diverged: true,
+      stalled: false
     };
   }
 }
@@ -83,7 +85,8 @@ export function initializeBasinData(
           convergenceLoc: [0, 0] as [number, number],
           iterations: 0,
           converged: false,
-          diverged: false
+          diverged: false,
+          stalled: false
         }))
     );
 
