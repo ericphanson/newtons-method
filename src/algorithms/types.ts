@@ -35,3 +35,18 @@ export interface AlgorithmOptions {
   initialPoint?: number[]; // If not provided, use default [0.1, 0.1] or [0.1, 0.1, 0.0]
   tolerance?: number; // Convergence tolerance for gradient norm (default varies by algorithm)
 }
+
+export interface AlgorithmSummary {
+  converged: boolean;              // Did it meet convergence criteria?
+  diverged: boolean;               // Did it hit NaN/Infinity?
+  finalLocation: number[];         // Where it ended up [w0, w1, ...]
+  finalLoss: number;
+  finalGradNorm: number;
+  iterationCount: number;
+  convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+}
+
+export interface AlgorithmResult<T> {
+  iterations: T[];                 // Full iteration history
+  summary: AlgorithmSummary;
+}
