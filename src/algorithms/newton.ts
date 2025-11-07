@@ -147,13 +147,13 @@ const computeEigenvalues = (A: number[][]): number[] => {
  */
 export const runNewton = (
   problem: ProblemFunctions,
-  options: AlgorithmOptions & { c1?: number; lambda?: number }
+  options: AlgorithmOptions & { c1?: number; lambda?: number; hessianDamping?: number }
 ): NewtonIteration[] => {
   if (!problem.hessian) {
     throw new Error('Newton method requires Hessian function');
   }
 
-  const { maxIter, c1 = 0.0001, lambda = 0, initialPoint, tolerance = 1e-5 } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5 } = options;
   const iterations: NewtonIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
@@ -173,8 +173,13 @@ export const runNewton = (
     const eigenvalues = computeEigenvalues(hessian);
     const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
 
+    // Apply Hessian damping: H_damped = H + λ_damp * I
+    const dampedHessian = hessian.map((row, i) =>
+      row.map((val, j) => i === j ? val + hessianDamping : val)
+    );
+
     // Solve Hessian * direction = -grad (Newton direction)
-    const HInv = invertMatrix(hessian);
+    const HInv = invertMatrix(dampedHessian);
     let direction: number[];
 
     if (HInv === null) {

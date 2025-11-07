@@ -93,6 +93,7 @@ const UnifiedVisualizer = () => {
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
+  const [newtonHessianDamping, _setNewtonHessianDamping] = useState(0.01);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
 
   // L-BFGS state
@@ -639,6 +640,7 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: leftConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
+            hessianDamping: newtonHessianDamping,
             initialPoint,
           });
         } else if (leftConfig.algorithm === 'lbfgs') {
@@ -671,6 +673,7 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: rightConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
+            hessianDamping: newtonHessianDamping,
             initialPoint,
           });
         } else if (rightConfig.algorithm === 'lbfgs') {
@@ -813,6 +816,7 @@ const UnifiedVisualizer = () => {
         maxIter,
         c1: newtonC1,
         lambda,
+        hessianDamping: newtonHessianDamping,
         initialPoint,
         tolerance: newtonTolerance,
       });
