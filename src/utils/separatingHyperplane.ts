@@ -47,7 +47,7 @@ export function softMarginObjective(
     loss += lambda * hingeLoss;
   }
 
-  return loss / dataPoints.length;
+  return loss;
 }
 
 export function softMarginGradient(
@@ -73,11 +73,7 @@ export function softMarginGradient(
     }
   }
 
-  return [
-    grad0 / dataPoints.length,
-    grad1 / dataPoints.length,
-    grad2 / dataPoints.length
-  ];
+  return [grad0, grad1, grad2];
 }
 
 export function softMarginHessian(
@@ -115,7 +111,7 @@ export function perceptronObjective(
   // Add regularization to prevent weights from going to zero
   const regularization = lambda * 0.5 * (w0 * w0 + w1 * w1);
 
-  return loss / dataPoints.length + regularization;
+  return loss + regularization;
 }
 
 export function perceptronGradient(
@@ -141,9 +137,9 @@ export function perceptronGradient(
   }
 
   // Add regularization gradient: λ * w (but not for bias)
-  grad0 = grad0 / dataPoints.length + lambda * w0;
-  grad1 = grad1 / dataPoints.length + lambda * w1;
-  grad2 = grad2 / dataPoints.length;
+  grad0 = grad0 + lambda * w0;
+  grad1 = grad1 + lambda * w1;
+  grad2 = grad2;
 
   return [grad0, grad1, grad2];
 }
@@ -181,7 +177,7 @@ export function squaredHingeObjective(
     loss += lambda * hingeLoss * hingeLoss;
   }
 
-  return loss / dataPoints.length;
+  return loss;
 }
 
 export function squaredHingeGradient(
@@ -209,11 +205,7 @@ export function squaredHingeGradient(
     }
   }
 
-  return [
-    grad0 / dataPoints.length,
-    grad1 / dataPoints.length,
-    grad2 / dataPoints.length
-  ];
+  return [grad0, grad1, grad2];
 }
 
 export function squaredHingeHessian(
@@ -245,10 +237,9 @@ export function squaredHingeHessian(
     }
   }
 
-  const n = dataPoints.length;
   return [
-    [h00 / n, h01 / n, h02 / n],
-    [h01 / n, h11 / n, h12 / n],
-    [h02 / n, h12 / n, h22 / n]
+    [h00, h01, h02],
+    [h01, h11, h12],
+    [h02, h12, h22]
   ];
 }
