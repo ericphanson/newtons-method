@@ -183,7 +183,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         )}
 
         {algorithm === 'newton' && (
-          <>
+          <div className="col-span-2 space-y-4">
             {/* Line Search and c1 in same row */}
             <div className="flex gap-4">
               {/* Line Search */}
@@ -340,7 +340,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </p>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {algorithm === 'lbfgs' && (
