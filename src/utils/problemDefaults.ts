@@ -40,7 +40,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.001,  // Very small due to steep gradients
-        maxIter: 300,          // Needs more iterations with small alpha
+        maxIter: 200,          // Standard default
         initialPoint: [-0.5, 1.5]  // Harder starting point: all algos take >3 iterations
       };
 
@@ -48,7 +48,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.01,    // Small to avoid oscillation
-        maxIter: 300,          // Slow convergence due to conditioning
+        maxIter: 200,          // Standard default
         initialPoint: [-2, 2]  // Challenging point for ill-conditioned problem
       };
 
@@ -56,14 +56,14 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         ...DEFAULT_CONFIG,
         gdFixedAlpha: 0.1,
-        maxIter: 100,          // Will hit maxIter (unbounded problem)
+        maxIter: 200,          // Standard default
         initialPoint: [-1.5, 1.5]  // Symmetrical starting point
       };
 
     case 'separating-hyperplane':
       return {
         gdFixedAlpha: 0.1,
-        maxIter: 100,
+        maxIter: 200,
         initialPoint: [0.2, 0.2, 0],  // 3D: [w0, w1, bias] - non-zero to ensure perceptron moves
         c1: 1e-4,
         lbfgsM: 10,

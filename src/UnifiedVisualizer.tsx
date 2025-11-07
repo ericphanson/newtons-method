@@ -1988,9 +1988,9 @@ const UnifiedVisualizer = () => {
                       alpha={gdFixedIterations[gdFixedCurrentIter].alpha}
                       gradient={gdFixedIterations[gdFixedCurrentIter].grad}
                       direction={gdFixedIterations[gdFixedCurrentIter].direction}
-                      prevLoss={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].newLoss : undefined}
-                      prevGradNorm={gdFixedCurrentIter > 0 ? gdFixedIterations[gdFixedCurrentIter - 1].gradNorm : undefined}
                       gradNormHistory={gdFixedIterations.map(iter => iter.gradNorm)}
+                      lossHistory={gdFixedIterations.map(iter => iter.newLoss)}
+                      alphaHistory={gdFixedIterations.map(iter => iter.alpha)}
                       tolerance={gdFixedTolerance}
                     />
                   </div>
@@ -2504,9 +2504,9 @@ const UnifiedVisualizer = () => {
                       alpha={gdLSIterations[gdLSCurrentIter].alpha}
                       gradient={gdLSIterations[gdLSCurrentIter].grad}
                       direction={gdLSIterations[gdLSCurrentIter].direction}
-                      prevLoss={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].newLoss : undefined}
-                      prevGradNorm={gdLSCurrentIter > 0 ? gdLSIterations[gdLSCurrentIter - 1].gradNorm : undefined}
                       gradNormHistory={gdLSIterations.map(iter => iter.gradNorm)}
+                      lossHistory={gdLSIterations.map(iter => iter.newLoss)}
+                      alphaHistory={gdLSIterations.map(iter => iter.alpha)}
                       lineSearchTrials={gdLSIterations[gdLSCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={gdLSLineSearchCanvasRef}
                       tolerance={gdLSTolerance}
@@ -3169,9 +3169,9 @@ const UnifiedVisualizer = () => {
                       alpha={newtonIterations[newtonCurrentIter].alpha}
                       gradient={newtonIterations[newtonCurrentIter].grad}
                       direction={newtonIterations[newtonCurrentIter].direction}
-                      prevLoss={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].newLoss : undefined}
-                      prevGradNorm={newtonCurrentIter > 0 ? newtonIterations[newtonCurrentIter - 1].gradNorm : undefined}
                       gradNormHistory={newtonIterations.map(iter => iter.gradNorm)}
+                      lossHistory={newtonIterations.map(iter => iter.newLoss)}
+                      alphaHistory={newtonIterations.map(iter => iter.alpha)}
                       eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
                       conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                       lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
@@ -3768,9 +3768,9 @@ const UnifiedVisualizer = () => {
                       alpha={lbfgsIterations[lbfgsCurrentIter].alpha}
                       gradient={lbfgsIterations[lbfgsCurrentIter].grad}
                       direction={lbfgsIterations[lbfgsCurrentIter].direction}
-                      prevLoss={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].newLoss : undefined}
-                      prevGradNorm={lbfgsCurrentIter > 0 ? lbfgsIterations[lbfgsCurrentIter - 1].gradNorm : undefined}
                       gradNormHistory={lbfgsIterations.map(iter => iter.gradNorm)}
+                      lossHistory={lbfgsIterations.map(iter => iter.newLoss)}
+                      alphaHistory={lbfgsIterations.map(iter => iter.alpha)}
                       lineSearchTrials={lbfgsIterations[lbfgsCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
                       tolerance={lbfgsTolerance}

@@ -49,45 +49,45 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           <>
             {/* Step Size */}
             <div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                   Step Size <InlineMath>\alpha</InlineMath>:
                 </label>
+                <input
+                  type="range"
+                  min="0.001"
+                  max="1"
+                  step="0.001"
+                  value={props.gdFixedAlpha}
+                  onChange={(e) => props.onGdFixedAlphaChange?.(parseFloat(e.target.value))}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">{props.gdFixedAlpha?.toFixed(3)}</div>
               </div>
-              <input
-                type="range"
-                min="0.001"
-                max="1"
-                step="0.001"
-                value={props.gdFixedAlpha}
-                onChange={(e) => props.onGdFixedAlphaChange?.(parseFloat(e.target.value))}
-                className="w-full mb-2"
-              />
-              <div className="text-sm text-gray-600">{props.gdFixedAlpha?.toFixed(3)}</div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500">
                 Learning rate (constant for all iterations)
               </p>
             </div>
 
             {/* Tolerance */}
             <div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <label className="text-sm font-medium text-gray-700">Tolerance:</label>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
+                <input
+                  type="range"
+                  min="-10"
+                  max="-1"
+                  step="0.1"
+                  value={Math.log10(props.gdFixedTolerance ?? 1e-6)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onGdFixedToleranceChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">{props.gdFixedTolerance?.toExponential(1)}</div>
               </div>
-              <input
-                type="range"
-                min="-10"
-                max="-1"
-                step="0.1"
-                value={Math.log10(props.gdFixedTolerance ?? 1e-6)}
-                onChange={(e) => {
-                  const val = Math.pow(10, parseFloat(e.target.value));
-                  props.onGdFixedToleranceChange?.(val);
-                }}
-                className="w-full mb-2"
-              />
-              <div className="text-sm text-gray-600">{props.gdFixedTolerance?.toExponential(1)}</div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500">
                 Convergence threshold for gradient norm
               </p>
             </div>
@@ -98,76 +98,76 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           <>
             {/* Armijo c1 */}
             <div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <label className="text-sm font-medium text-gray-700">
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                   Armijo c<sub>1</sub>:
                 </label>
-              </div>
-              <input
-                type="range"
-                min="-5"
-                max="-1"
-                step="0.1"
-                value={Math.log10(
-                  algorithm === 'gd-linesearch'
-                    ? (props.gdLSC1 ?? 1e-4)
+                <input
+                  type="range"
+                  min="-5"
+                  max="-1"
+                  step="0.1"
+                  value={Math.log10(
+                    algorithm === 'gd-linesearch'
+                      ? (props.gdLSC1 ?? 1e-4)
+                      : algorithm === 'newton'
+                      ? (props.newtonC1 ?? 1e-4)
+                      : (props.lbfgsC1 ?? 1e-4)
+                  )}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    if (algorithm === 'gd-linesearch') props.onGdLSC1Change?.(val);
+                    else if (algorithm === 'newton') props.onNewtonC1Change?.(val);
+                    else props.onLbfgsC1Change?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {algorithm === 'gd-linesearch'
+                    ? props.gdLSC1?.toExponential(1)
                     : algorithm === 'newton'
-                    ? (props.newtonC1 ?? 1e-4)
-                    : (props.lbfgsC1 ?? 1e-4)
-                )}
-                onChange={(e) => {
-                  const val = Math.pow(10, parseFloat(e.target.value));
-                  if (algorithm === 'gd-linesearch') props.onGdLSC1Change?.(val);
-                  else if (algorithm === 'newton') props.onNewtonC1Change?.(val);
-                  else props.onLbfgsC1Change?.(val);
-                }}
-                className="w-full mb-2"
-              />
-              <div className="text-sm text-gray-600">
-                {algorithm === 'gd-linesearch'
-                  ? props.gdLSC1?.toExponential(1)
-                  : algorithm === 'newton'
-                  ? props.newtonC1?.toExponential(1)
-                  : props.lbfgsC1?.toExponential(1)}
+                    ? props.newtonC1?.toExponential(1)
+                    : props.lbfgsC1?.toExponential(1)}
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500">
                 Line search parameter (smaller = stricter decrease requirement)
               </p>
             </div>
 
             {/* Tolerance */}
             <div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <label className="text-sm font-medium text-gray-700">Tolerance:</label>
-              </div>
-              <input
-                type="range"
-                min="-10"
-                max="-1"
-                step="0.1"
-                value={Math.log10(
-                  algorithm === 'gd-linesearch'
-                    ? (props.gdLSTolerance ?? 1e-6)
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
+                <input
+                  type="range"
+                  min="-10"
+                  max="-1"
+                  step="0.1"
+                  value={Math.log10(
+                    algorithm === 'gd-linesearch'
+                      ? (props.gdLSTolerance ?? 1e-6)
+                      : algorithm === 'newton'
+                      ? (props.newtonTolerance ?? 1e-6)
+                      : (props.lbfgsTolerance ?? 1e-6)
+                  )}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
+                    else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
+                    else props.onLbfgsToleranceChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {algorithm === 'gd-linesearch'
+                    ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
                     : algorithm === 'newton'
-                    ? (props.newtonTolerance ?? 1e-6)
-                    : (props.lbfgsTolerance ?? 1e-6)
-                )}
-                onChange={(e) => {
-                  const val = Math.pow(10, parseFloat(e.target.value));
-                  if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
-                  else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
-                  else props.onLbfgsToleranceChange?.(val);
-                }}
-                className="w-full mb-2"
-              />
-              <div className="text-sm text-gray-600">
-                {algorithm === 'gd-linesearch'
-                  ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
-                  : algorithm === 'newton'
-                  ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
-                  : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
+                    ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
+                    : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500">
                 Convergence threshold for gradient norm
               </p>
             </div>
@@ -178,18 +178,20 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           <>
             {/* Memory M */}
             <div>
-              <div className="flex items-baseline gap-2 mb-2">
-                <label className="text-sm font-medium text-gray-700">Memory M:</label>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Memory M:</label>
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  step="1"
+                  value={props.lbfgsM}
+                  onChange={(e) => props.onLbfgsMChange?.(Number(e.target.value))}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">{props.lbfgsM}</div>
               </div>
-              <input
-                type="number"
-                value={props.lbfgsM}
-                onChange={(e) => props.onLbfgsMChange?.(Number(e.target.value))}
-                min="1"
-                max="20"
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500">
                 Number of (s, y) pairs to store for curvature approximation
               </p>
             </div>
@@ -198,16 +200,20 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
 
         {/* Max Iterations (all algorithms) */}
         <div>
-          <div className="flex items-baseline gap-2 mb-2">
-            <label className="text-sm font-medium text-gray-700">Max Iterations:</label>
+          <div className="flex items-center gap-3 mb-2">
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Max Iterations:</label>
+            <input
+              type="range"
+              min="1"
+              max="400"
+              step="1"
+              value={props.maxIter}
+              onChange={(e) => props.onMaxIterChange(Number(e.target.value))}
+              className="flex-1"
+            />
+            <div className="text-sm text-gray-600 w-16 text-right">{props.maxIter}</div>
           </div>
-          <input
-            type="number"
-            value={props.maxIter}
-            onChange={(e) => props.onMaxIterChange(Number(e.target.value))}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-          />
-          <p className="text-xs text-gray-500 mt-1">Maximum iterations before stopping</p>
+          <p className="text-xs text-gray-500">Maximum iterations before stopping</p>
         </div>
 
         {/* Initial Point (all algorithms) */}
@@ -215,29 +221,39 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           <div className="flex items-baseline gap-2 mb-2">
             <label className="text-sm font-medium text-gray-700">Initial Point:</label>
           </div>
-          <div className="flex gap-2 items-baseline mb-2">
-            <span className="text-sm text-gray-600">
-              <InlineMath>w_0</InlineMath>:
-            </span>
-            <input
-              type="number"
-              value={props.initialW0}
-              onChange={(e) => props.onInitialW0Change(Number(e.target.value))}
-              step="0.1"
-              className="px-2 py-1 border border-gray-300 rounded w-20 text-sm"
-            />
-            <span className="text-sm text-gray-600">
-              <InlineMath>w_1</InlineMath>:
-            </span>
-            <input
-              type="number"
-              value={props.initialW1}
-              onChange={(e) => props.onInitialW1Change(Number(e.target.value))}
-              step="0.1"
-              className="px-2 py-1 border border-gray-300 rounded w-20 text-sm"
-            />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 w-8">
+                <InlineMath>w_0</InlineMath>:
+              </span>
+              <input
+                type="range"
+                min="-10"
+                max="10"
+                step="0.1"
+                value={props.initialW0}
+                onChange={(e) => props.onInitialW0Change(Number(e.target.value))}
+                className="flex-1"
+              />
+              <div className="text-sm text-gray-600 w-12 text-right">{props.initialW0.toFixed(1)}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 w-8">
+                <InlineMath>w_1</InlineMath>:
+              </span>
+              <input
+                type="range"
+                min="-10"
+                max="10"
+                step="0.1"
+                value={props.initialW1}
+                onChange={(e) => props.onInitialW1Change(Number(e.target.value))}
+                className="flex-1"
+              />
+              <div className="text-sm text-gray-600 w-12 text-right">{props.initialW1.toFixed(1)}</div>
+            </div>
           </div>
-          <p className="text-xs text-gray-500">Starting position in parameter space</p>
+          <p className="text-xs text-gray-500 mt-1">Starting position in parameter space</p>
         </div>
       </div>
     </div>
