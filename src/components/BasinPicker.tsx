@@ -1,9 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { BasinData, BasinCacheKey, ColorEncoding } from '../types/basin';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { BasinData, BasinCacheKey } from '../types/basin';
 import { ProblemFunctions } from '../algorithms/types';
 import { BasinCache } from '../utils/basinCache';
 import { computeBasinIncremental } from '../utils/basinComputation';
 import { encodeBasinColors } from '../utils/basinColorEncoding';
+import { ColorbarLegend } from './ColorbarLegend';
+import { clusterConvergenceLocations, assignHuesToClusters } from '../utils/basinClustering';
 
 interface BasinPickerProps {
   problem: any;
@@ -32,6 +34,14 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
   const [basinData, setBasinData] = useState<BasinData | null>(null);
   const [isComputing, setIsComputing] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  // Compute cluster hues
+  const clusterHues = useMemo(() => {
+    if (!basinData) return [];
+    const clusterIds = clusterConvergenceLocations(basinData);
+    const numClusters = Math.max(...clusterIds) + 1;
+    return assignHuesToClusters(numClusters);
+  }, [basinData]);
 
   // Build cache key
   const cacheKey: BasinCacheKey = {
@@ -202,6 +212,13 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
         style={{ width: 250, height: 250 }}
         onClick={handleCanvasClick}
       />
+
+      {basinData && (
+        <ColorbarLegend
+          hues={clusterHues}
+          isMultiModal={clusterHues.length > 1}
+        />
+      )}
 
       {isComputing && (
         <div className="text-xs text-gray-500 mt-1">
