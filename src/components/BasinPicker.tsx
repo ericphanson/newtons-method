@@ -97,7 +97,70 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     bounds.maxW1
   ]);
 
-  // TODO: Add rendering logic
+  // Render basin when data changes
+  useEffect(() => {
+    if (!basinData || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Encode colors
+    const colors = encodeBasinColors(basinData);
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw basin
+    const cellWidth = canvas.width / basinData.resolution;
+    const cellHeight = canvas.height / basinData.resolution;
+
+    for (let i = 0; i < basinData.resolution; i++) {
+      for (let j = 0; j < basinData.resolution; j++) {
+        const color = colors[i][j];
+        const x = j * cellWidth;
+        const y = i * cellHeight;
+
+        ctx.fillStyle = `hsl(${color.hue}, 70%, ${color.lightness}%)`;
+        ctx.fillRect(x, y, cellWidth, cellHeight);
+      }
+    }
+
+    // Draw crosshair
+    const [w0, w1] = initialPoint;
+    const xPos =
+      ((w0 - basinData.bounds.minW0) / (basinData.bounds.maxW0 - basinData.bounds.minW0)) *
+      canvas.width;
+    const yPos =
+      ((basinData.bounds.maxW1 - w1) / (basinData.bounds.maxW1 - basinData.bounds.minW1)) *
+      canvas.height;
+
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+
+    const size = 15;
+
+    // Horizontal line
+    ctx.beginPath();
+    ctx.moveTo(xPos - size, yPos);
+    ctx.lineTo(xPos + size, yPos);
+    ctx.stroke();
+
+    // Vertical line
+    ctx.beginPath();
+    ctx.moveTo(xPos, yPos - size);
+    ctx.lineTo(xPos, yPos + size);
+    ctx.stroke();
+
+    // Center dot
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(xPos, yPos, 3, 0, 2 * Math.PI);
+    ctx.fill();
+  }, [basinData, initialPoint]);
+
   // TODO: Add click handling
 
   return (
