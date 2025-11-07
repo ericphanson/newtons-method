@@ -1,6 +1,6 @@
 export interface ComparisonRun {
   name: string;
-  iterations: any[]; // Algorithm-specific iteration type
+  iterations: Array<{ loss: number; gradNorm: number }>; // Algorithm-specific iteration type
   currentIter: number;
   color: string; // For visual distinction
 }

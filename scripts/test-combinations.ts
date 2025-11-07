@@ -60,7 +60,7 @@ function runTest(config: TestConfig): TestResult {
 
   try {
     // Handle dataset-based problems (logistic-regression, separating-hyperplane)
-    let problemFuncs: any;
+    let problemFuncs: { objective: (w: number[]) => number; gradient: (w: number[]) => number[]; hessian?: (w: number[]) => number[][]; dimensionality?: number };
     let defaultInitialPoint: [number, number] | [number, number, number];
 
     if (problemName === 'logistic-regression') {
@@ -94,7 +94,7 @@ function runTest(config: TestConfig): TestResult {
     const finalInitialPoint = initialPoint || defaultInitialPoint;
 
     // Run algorithm
-    let algorithmResult: any;
+    let algorithmResult: { iterations: Array<{ w: number[]; wNew: number[]; newLoss: number; gradNorm: number }> };
     switch (algorithm) {
       case 'gd-fixed':
         algorithmResult = runGradientDescent(problemFuncs, {
@@ -177,8 +177,8 @@ function runTest(config: TestConfig): TestResult {
     };
 
     // Store iterations for reporting
-    (result as any).lastIter = lastIter;
-    (result as any).allIterations = iterations;
+    (result as Record<string, unknown>).lastIter = lastIter;
+    (result as Record<string, unknown>).allIterations = iterations;
 
     return result;
   } catch (error) {
@@ -217,17 +217,17 @@ function printResult(result: TestResult) {
     console.log(`✅ CONVERGED in ${iterations} iterations`);
     console.log(`   Final loss: ${finalLoss.toExponential(6)}`);
     console.log(`   Final grad norm: ${finalGradNorm.toExponential(2)}`);
-    const lastIterStored = (result as any).lastIter;
+    const lastIterStored = (result as Record<string, unknown>).lastIter as { wNew: number[] } | undefined;
     if (lastIterStored && lastIterStored.wNew) {
       console.log(`   Final position: [${lastIterStored.wNew.map((x: number) => x.toFixed(6)).join(', ')}]`);
     }
 
     // Show iteration path for debugging
-    const allIters = (result as any).allIterations;
+    const allIters = (result as Record<string, unknown>).allIterations as Array<{ w: number[]; wNew: number[]; newLoss: number; gradNorm: number }> | undefined;
     if (allIters) {
       if (allIters.length <= 5) {
         console.log(`   Iteration path:`);
-        allIters.forEach((it: any, idx: number) => {
+        allIters.forEach((it, idx: number) => {
           console.log(`     ${idx}: w_before=[${it.w.map((x: number) => x.toFixed(4)).join(', ')}] → w_after=[${it.wNew.map((x: number) => x.toFixed(4)).join(', ')}] loss=${it.newLoss.toExponential(2)} grad@w=${it.gradNorm.toExponential(2)}`);
         });
       } else {
@@ -268,7 +268,7 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         break;
       case '--algorithm':
       case '--alg':
-        config.algorithm = next as any;
+        config.algorithm = next as TestConfig['algorithm'];
         i++;
         break;
       case '--initial': {

@@ -128,7 +128,7 @@ function main() {
   console.log('========================================\n');
 
   // Setup problem
-  let problemFuncs: any;
+  let problemFuncs: { objective: (w: number[]) => number; gradient: (w: number[]) => number[]; hessian?: (w: number[]) => number[][]; dimensionality?: number };
   if (options.problem === 'logistic-regression') {
     const data = generateCrescents();  // MATCH UI EXACTLY - uses default params (n=70, noise=0.25, seed=42)
     // Use same lambda as UI default (0.0001) for problem functions

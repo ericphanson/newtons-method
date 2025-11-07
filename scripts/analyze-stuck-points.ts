@@ -14,7 +14,7 @@ function eigenvalues2x2(H: number[][]): [number, number] {
   return [(trace + disc) / 2, (trace - disc) / 2];
 }
 
-function analyzePoint(name: string, problem: any, w: number[]) {
+function analyzePoint(name: string, problem: { objective: (w: number[]) => number; gradient: (w: number[]) => number[]; hessian: (w: number[]) => number[][] }, w: number[]) {
   const f = problem.objective(w);
   const g = problem.gradient(w);
   const H = problem.hessian(w);

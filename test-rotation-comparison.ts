@@ -16,7 +16,7 @@ function testRotation(thetaDegrees: number, algorithm: 'gd-fixed' | 'gd-linesear
   const initialPoint: [number, number] = [2, 2];
   const maxIter = 200;
 
-  let iterations: any[];
+  let iterations: Array<{ wNew: number[]; newLoss: number; gradNorm: number }>;
 
   if (algorithm === 'gd-fixed') {
     // Use a reasonable fixed step size

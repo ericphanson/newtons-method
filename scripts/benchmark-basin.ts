@@ -30,7 +30,7 @@ function benchmarkBasin(
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number }
 ): BenchmarkResult {
   // Setup problem
-  let problemFuncs: any;
+  let problemFuncs: { objective: (w: number[]) => number; gradient: (w: number[]) => number[]; hessian?: (w: number[]) => number[][]; dimensionality?: number };
   if (problemName === 'logistic-regression') {
     const data = generateCrescents(50, 0.5, 0.3);
     problemFuncs = logisticRegressionToProblemFunctions(data, 0.001);
@@ -56,7 +56,7 @@ function benchmarkBasin(
       const initialPoint: [number, number] = [w0, w1];
 
       try {
-        let iterations: any[];
+        let iterations: Array<{ wNew: number[]; newLoss: number; gradNorm: number }>;
 
         switch (algorithmName) {
           case 'newton':

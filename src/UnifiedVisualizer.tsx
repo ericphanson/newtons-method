@@ -147,8 +147,8 @@ const UnifiedVisualizer = () => {
   const [comparisonMode, setComparisonMode] = useState<'none' | 'gd-ls-compare' | 'lbfgs-compare' | 'newton-compare'>('none');
   const [comparisonLeftIter, setComparisonLeftIter] = useState(0);
   const [comparisonRightIter, setComparisonRightIter] = useState(0);
-  const [comparisonLeftIterations, setComparisonLeftIterations] = useState<any[]>([]);
-  const [comparisonRightIterations, setComparisonRightIterations] = useState<any[]>([]);
+  const [comparisonLeftIterations, setComparisonLeftIterations] = useState<Array<{ wNew: number[]; loss: number; gradNorm: number }>>([]);
+  const [comparisonRightIterations, setComparisonRightIterations] = useState<Array<{ wNew: number[]; loss: number; gradNorm: number }>>([]);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -474,6 +474,57 @@ const UnifiedVisualizer = () => {
   const lbfgsParamCanvasRef = useRef<HTMLCanvasElement>(null);
   const lbfgsLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Run Diagonal Preconditioner
+  const runDiagPrecond = useCallback(() => {
+    const problemFuncs = getCurrentProblemFunctions();
+    const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+      ? [initialW0, initialW1, 0]
+      : [initialW0, initialW1];
+
+    const result = runDiagonalPreconditioner(problemFuncs, {
+      maxIter,
+      initialPoint,
+      tolerance: diagPrecondTolerance,
+      useLineSearch: diagPrecondUseLineSearch,
+      c1: diagPrecondC1,
+      lambda,
+      epsilon: diagPrecondEpsilon
+    });
+
+    setDiagPrecondIterations(result.iterations);
+    setDiagPrecondCurrentIter(0);
+    setDiagPrecondSummary(result.summary);
+
+    // Show toast with convergence info
+    if (result.summary.converged) {
+      setToast({
+        message: `Converged in ${result.iterations.length} iterations`,
+        type: 'success'
+      });
+    } else if (result.summary.diverged) {
+      setToast({
+        message: 'Algorithm diverged',
+        type: 'error'
+      });
+    } else {
+      setToast({
+        message: `Did not converge in ${maxIter} iterations`,
+        type: 'info'
+      });
+    }
+  }, [
+    currentProblem,
+    lambda,
+    maxIter,
+    initialW0,
+    initialW1,
+    diagPrecondTolerance,
+    diagPrecondUseLineSearch,
+    diagPrecondC1,
+    diagPrecondEpsilon,
+    getCurrentProblemFunctions
+  ]);
+
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
     setExperimentLoading(true);
@@ -542,7 +593,7 @@ const UnifiedVisualizer = () => {
 
       // 5. Handle comparison mode if configured
       if (experiment.comparisonConfig) {
-        setComparisonMode(experiment.id as any);
+        setComparisonMode(experiment.id as 'none' | 'gd-ls-compare' | 'lbfgs-compare' | 'newton-compare');
 
         // Run left algorithm
         const problemFuncs = getCurrentProblemFunctions();
@@ -553,8 +604,8 @@ const UnifiedVisualizer = () => {
         const leftConfig = experiment.comparisonConfig.left;
         const rightConfig = experiment.comparisonConfig.right;
 
-        let leftIters: any[] = [];
-        let rightIters: any[] = [];
+        let leftIters: Array<{ wNew: number[]; loss: number; gradNorm: number }> = [];
+        let rightIters: Array<{ wNew: number[]; loss: number; gradNorm: number }> = [];
 
         // Run left algorithm
         if (leftConfig.algorithm === 'gd-fixed') {
@@ -869,57 +920,6 @@ const UnifiedVisualizer = () => {
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
-
-  // Run diagonal preconditioner
-  const runDiagPrecond = useCallback(() => {
-    const problemFuncs = getCurrentProblemFunctions();
-    const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-      ? [initialW0, initialW1, 0]
-      : [initialW0, initialW1];
-
-    const result = runDiagonalPreconditioner(problemFuncs, {
-      maxIter,
-      initialPoint,
-      tolerance: diagPrecondTolerance,
-      useLineSearch: diagPrecondUseLineSearch,
-      c1: diagPrecondC1,
-      lambda,
-      epsilon: diagPrecondEpsilon
-    });
-
-    setDiagPrecondIterations(result.iterations);
-    setDiagPrecondCurrentIter(0);
-    setDiagPrecondSummary(result.summary);
-
-    // Show toast with convergence info
-    if (result.summary.converged) {
-      setToast({
-        message: `Converged in ${result.iterations.length} iterations`,
-        type: 'success'
-      });
-    } else if (result.summary.diverged) {
-      setToast({
-        message: 'Algorithm diverged',
-        type: 'error'
-      });
-    } else {
-      setToast({
-        message: `Did not converge in ${maxIter} iterations`,
-        type: 'info'
-      });
-    }
-  }, [
-    currentProblem,
-    lambda,
-    maxIter,
-    initialW0,
-    initialW1,
-    diagPrecondTolerance,
-    diagPrecondUseLineSearch,
-    diagPrecondC1,
-    diagPrecondEpsilon,
-    getCurrentProblemFunctions
-  ]);
 
   // Keyboard navigation
   useEffect(() => {

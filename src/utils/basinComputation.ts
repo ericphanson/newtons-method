@@ -12,9 +12,11 @@ export function computeBasinPoint(
   initialPoint: [number, number] | [number, number, number],
   problemFuncs: ProblemFunctions,
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   algorithmParams: any
 ): BasinPoint {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any;
 
     switch (algorithm) {
@@ -122,6 +124,7 @@ export interface BasinComputationResult {
 export async function computeBasinIncremental(
   problemFuncs: ProblemFunctions,
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'newton' | 'lbfgs',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   algorithmParams: any,
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number },
   resolution: number,

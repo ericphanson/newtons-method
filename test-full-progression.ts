@@ -21,7 +21,7 @@ function runDiagonalPreconditioner(
   config: { maxIter: number; initialPoint: [number, number] }
 ) {
   const { maxIter, initialPoint } = config;
-  const iterations: any[] = [];
+  const iterations: Array<{ w: number[]; wNew: number[]; oldLoss: number; newLoss: number; gradNorm: number }> = [];
   let w = [...initialPoint];
 
   for (let iter = 0; iter < maxIter; iter++) {

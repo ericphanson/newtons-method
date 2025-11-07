@@ -9,7 +9,7 @@ import { threeHumpCamelProblem } from '../src/problems/threeHumpCamel';
 import { problemToProblemFunctions } from '../src/utils/problemAdapter';
 import { runNewton } from '../src/algorithms/newton';
 
-function analyzeIterations(iterations: any[], problemName: string, initialPoint: number[]) {
+function analyzeIterations(iterations: Array<{ w: number[]; wNew?: number[]; newLoss: number; gradNorm: number }>, problemName: string, initialPoint: number[]) {
   console.log(`\n${'='.repeat(70)}`);
   console.log(`${problemName} from [${initialPoint.map(x => x.toFixed(2)).join(', ')}]`);
   console.log('='.repeat(70));

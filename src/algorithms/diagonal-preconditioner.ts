@@ -16,7 +16,7 @@ export interface DiagonalPrecondIteration {
   hessianDiagonal: number[];
   preconditioner: number[];
   alpha?: number;  // If using line search
-  lineSearchTrials?: any[];  // If using line search
+  lineSearchTrials?: Array<{ alpha: number; loss: number }>;  // If using line search
 }
 
 /**
@@ -86,7 +86,7 @@ export const runDiagonalPreconditioner = (
     let wNew: number[];
     let newLoss: number;
     let alpha: number | undefined;
-    let lineSearchTrials: any[] | undefined;
+    let lineSearchTrials: Array<{ alpha: number; loss: number }> | undefined;
 
     if (useLineSearch) {
       // Use line search for robustness

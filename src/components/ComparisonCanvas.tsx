@@ -2,10 +2,10 @@ import { useRef, useEffect } from 'react';
 import { setupCanvas } from '../shared-utils';
 
 interface ComparisonCanvasProps {
-  leftIterations: any[];
+  leftIterations: Array<{ wNew: number[] }>;
   leftCurrentIter: number;
   leftColor: string;
-  rightIterations: any[];
+  rightIterations: Array<{ wNew: number[] }>;
   rightCurrentIter: number;
   rightColor: string;
   width?: number;
