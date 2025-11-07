@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import { BasinData, BasinCacheKey, ColorEncoding } from '../types/basin';
 import { ProblemFunctions } from '../algorithms/types';
 import { BasinCache } from '../utils/basinCache';
+import { computeBasinIncremental } from '../utils/basinComputation';
+import { encodeBasinColors } from '../utils/basinColorEncoding';
 
 interface BasinPickerProps {
   problem: any;
@@ -31,7 +33,70 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
   const [isComputing, setIsComputing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // TODO: Add computation logic
+  // Build cache key
+  const cacheKey: BasinCacheKey = {
+    problem: problem.name,
+    algorithm,
+    lambda: problem.lambda || 0,
+    rotationAngle: problem.rotationAngle,
+    variant: problem.variant
+  };
+
+  // Compute basin when params change
+  useEffect(() => {
+    const computeBasin = async () => {
+      // Check cache first
+      const cached = basinCache.get(cacheKey);
+      if (cached) {
+        setBasinData(cached.data);
+        setIsComputing(false);
+        return;
+      }
+
+      // Start new computation
+      setIsComputing(true);
+      setProgress(0);
+      const taskId = ++taskIdRef.current;
+
+      const result = await computeBasinIncremental(
+        problemFuncs,
+        algorithm,
+        algorithmParams,
+        bounds,
+        50, // resolution
+        taskIdRef,
+        taskId,
+        (completed, total) => {
+          setProgress(Math.floor((completed / total) * 100));
+        }
+      );
+
+      if (result) {
+        // Store in cache
+        basinCache.set(cacheKey, {
+          key: cacheKey,
+          data: result,
+          timestamp: Date.now()
+        });
+
+        setBasinData(result);
+        setIsComputing(false);
+      }
+    };
+
+    computeBasin();
+  }, [
+    problem.name,
+    algorithm,
+    problem.lambda,
+    problem.rotationAngle,
+    problem.variant,
+    bounds.minW0,
+    bounds.maxW0,
+    bounds.minW1,
+    bounds.maxW1
+  ]);
+
   // TODO: Add rendering logic
   // TODO: Add click handling
 
