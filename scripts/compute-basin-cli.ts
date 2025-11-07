@@ -50,6 +50,8 @@ function getBoundsForProblem(problemName: string, useUIBounds: boolean = false) 
     'quadratic': { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3 },
     'ill-conditioned-quadratic': { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3 },
     'non-convex-saddle': { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3 },
+    'himmelblau': { minW0: -6, maxW0: 6, minW1: -6, maxW1: 6 },
+    'three-hump-camel': { minW0: -5, maxW0: 5, minW1: -5, maxW1: 5 },
     'logistic-regression': { minW0: -3, maxW0: 3, minW1: -3, maxW1: 3 }
   };
 

@@ -85,6 +85,64 @@ def non_convex_saddle() -> Problem:
     return Problem("non-convex-saddle", objective, gradient, hessian)
 
 
+def himmelblau() -> Problem:
+    """Himmelblau's function: f(w) = (w0^2 + w1 - 11)^2 + (w0 + w1^2 - 7)^2
+
+    Classic multimodal test function with four global minima (all f = 0).
+    """
+
+    def objective(w: np.ndarray) -> float:
+        term1 = w[0] ** 2 + w[1] - 11
+        term2 = w[0] + w[1] ** 2 - 7
+        return term1 ** 2 + term2 ** 2
+
+    def gradient(w: np.ndarray) -> np.ndarray:
+        term1 = w[0] ** 2 + w[1] - 11
+        term2 = w[0] + w[1] ** 2 - 7
+        dw0 = 4 * w[0] * term1 + 2 * term2
+        dw1 = 2 * term1 + 4 * w[1] * term2
+        return np.array([dw0, dw1])
+
+    def hessian(w: np.ndarray) -> np.ndarray:
+        term1 = w[0] ** 2 + w[1] - 11
+        term2 = w[0] + w[1] ** 2 - 7
+        h00 = 12 * w[0] ** 2 - 4 * term1 + 2
+        h01 = 4 * w[0] + 4 * w[1]
+        h11 = 12 * w[1] ** 2 + 4 * term2 + 2
+        return np.array([[h00, h01], [h01, h11]])
+
+    return Problem("himmelblau", objective, gradient, hessian)
+
+
+def three_hump_camel() -> Problem:
+    """Three-hump camel: f(w) = 2*w0^2 - 1.05*w0^4 + w0^6/6 + w0*w1 + w1^2
+
+    Multimodal function with one global minimum at (0, 0) and two local minima.
+    """
+
+    def objective(w: np.ndarray) -> float:
+        return (
+            2 * w[0] ** 2
+            - 1.05 * w[0] ** 4
+            + w[0] ** 6 / 6
+            + w[0] * w[1]
+            + w[1] ** 2
+        )
+
+    def gradient(w: np.ndarray) -> np.ndarray:
+        dw0 = 4 * w[0] - 4.2 * w[0] ** 3 + w[0] ** 5 + w[1]
+        dw1 = w[0] + 2 * w[1]
+        return np.array([dw0, dw1])
+
+    def hessian(w: np.ndarray) -> np.ndarray:
+        h00 = 4 - 12.6 * w[0] ** 2 + 5 * w[0] ** 4
+        h01 = 1.0
+        h11 = 2.0
+        return np.array([[h00, h01], [h01, h11]])
+
+    return Problem("three-hump-camel", objective, gradient, hessian)
+
+
 def get_problem(name: str) -> Problem:
     """Get problem by name."""
     problems = {
@@ -92,6 +150,8 @@ def get_problem(name: str) -> Problem:
         "ill-conditioned-quadratic": ill_conditioned_quadratic,
         "rosenbrock": rosenbrock,
         "non-convex-saddle": non_convex_saddle,
+        "himmelblau": himmelblau,
+        "three-hump-camel": three_hump_camel,
     }
     if name not in problems:
         raise ValueError(f"Unknown problem: {name}")
