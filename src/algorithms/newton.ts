@@ -147,13 +147,13 @@ const computeEigenvalues = (A: number[][]): number[] => {
  */
 export const runNewton = (
   problem: ProblemFunctions,
-  options: AlgorithmOptions & { c1?: number; lambda?: number; hessianDamping?: number }
+  options: AlgorithmOptions & { c1?: number; lambda?: number; hessianDamping?: number; lineSearch?: 'armijo' | 'none' }
 ): NewtonIteration[] => {
   if (!problem.hessian) {
     throw new Error('Newton method requires Hessian function');
   }
 
-  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5 } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5, lineSearch = 'armijo' } = options;
   const iterations: NewtonIteration[] = [];
 
   // Note: lambda is accepted for API consistency but unused here since
@@ -190,16 +190,31 @@ export const runNewton = (
     }
 
     // Perform line search to find good step size
-    const lineSearchResult = armijoLineSearch(
-      w,
-      direction,
-      grad,
-      loss,
-      (wTest) => ({ loss: problem.objective(wTest), grad: problem.gradient(wTest) }),
-      c1
-    );
+    let acceptedAlpha: number;
+    let lineSearchResult: { alpha: number; trials: LineSearchTrial[]; curve: { alphaRange: number[]; lossValues: number[]; armijoValues: number[] } };
 
-    const acceptedAlpha = lineSearchResult.alpha;
+    if (lineSearch === 'none') {
+      // Take full Newton step without line search
+      acceptedAlpha = 1.0;
+      const fullStepLoss = problem.objective(add(w, direction));
+      lineSearchResult = {
+        alpha: 1.0,
+        trials: [{ trial: 0, alpha: 1.0, loss: fullStepLoss, armijoRHS: loss, satisfied: true }],
+        curve: { alphaRange: [1.0], lossValues: [fullStepLoss], armijoValues: [] }
+      };
+    } else {
+      // Use Armijo line search
+      lineSearchResult = armijoLineSearch(
+        w,
+        direction,
+        grad,
+        loss,
+        (wTest) => ({ loss: problem.objective(wTest), grad: problem.gradient(wTest) }),
+        c1
+      );
+      acceptedAlpha = lineSearchResult.alpha;
+    }
+
     const wNew = add(w, scale(direction, acceptedAlpha));
     const newLoss = problem.objective(wNew);
 

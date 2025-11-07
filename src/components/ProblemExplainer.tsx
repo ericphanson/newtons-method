@@ -161,6 +161,19 @@ export function ProblemExplainer() {
                 <strong>Result:</strong> Finds any separating hyperplane but doesn't maximize margin. Often finds solutions
                 closer to the data than SVM variants (less robust to new data).
               </p>
+              <div className="bg-yellow-50 rounded p-3 border border-yellow-200 mt-3">
+                <h5 className="font-semibold text-sm mb-2 text-yellow-900">⚠️ Newton's Method Warning</h5>
+                <p className="text-sm">
+                  <strong>Not recommended with Newton:</strong> Perceptron's piecewise linear loss
+                  means the Hessian only includes the tiny regularization term (λI). With small λ,
+                  Newton computes massive steps (often 1,000-10,000x too large) that cause wild oscillations.
+                </p>
+                <p className="text-sm mt-2">
+                  <strong>Solutions:</strong> Use line search to shrink bad steps, or add Hessian damping
+                  to prevent them. Better yet, use Squared-Hinge SVM (smooth loss, better Hessian) or
+                  stick with gradient descent / L-BFGS for perceptron.
+                </p>
+              </div>
             </div>
 
             <div>

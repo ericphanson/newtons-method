@@ -26,6 +26,8 @@ interface TestConfig {
   alpha?: number;  // For GD fixed
   c1?: number;     // For line search algorithms
   m?: number;      // For L-BFGS
+  hessianDamping?: number; // For Newton and L-BFGS
+  lineSearch?: 'armijo' | 'none'; // For Newton
   // Problem-specific params
   variant?: SeparatingHyperplaneVariant;  // For separating-hyperplane
   lambda?: number; // For logistic-regression
@@ -50,6 +52,8 @@ function runTest(config: TestConfig): TestResult {
     alpha = 0.1,
     c1 = 0.0001,
     m = 5,
+    hessianDamping = 0.01,
+    lineSearch = 'armijo',
     variant = 'soft-margin',
     lambda = 0.001
   } = config;
@@ -113,6 +117,8 @@ function runTest(config: TestConfig): TestResult {
           maxIter,
           c1,
           lambda: 0,
+          hessianDamping,
+          lineSearch,
           initialPoint: finalInitialPoint
         });
         break;
@@ -195,6 +201,8 @@ function printResult(result: TestResult) {
   if (config.alpha !== undefined) console.log(`  alpha: ${config.alpha}`);
   if (config.c1 !== undefined) console.log(`  c1: ${config.c1}`);
   if (config.m !== undefined) console.log(`  m: ${config.m}`);
+  if (config.hessianDamping !== undefined) console.log(`  hessianDamping: ${config.hessianDamping}`);
+  if (config.lineSearch !== undefined) console.log(`  lineSearch: ${config.lineSearch}`);
   console.log('-'.repeat(70));
 
   if (error) {
@@ -295,6 +303,14 @@ function parseArgs(): { configs: TestConfig[], runAll: boolean } {
         break;
       case '--lambda':
         config.lambda = parseFloat(next);
+        i++;
+        break;
+      case '--hessianDamping':
+        config.hessianDamping = parseFloat(next);
+        i++;
+        break;
+      case '--lineSearch':
+        config.lineSearch = next as 'armijo' | 'none';
         i++;
         break;
     }

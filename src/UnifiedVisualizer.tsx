@@ -94,6 +94,7 @@ const UnifiedVisualizer = () => {
   const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
+  const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('armijo');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0.01);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
 
@@ -111,7 +112,6 @@ const UnifiedVisualizer = () => {
   const [initialW1, setInitialW1] = useState(1);
 
   // Experiment state
-  const [currentExperiment, setCurrentExperiment] = useState<string | null>(null);
   const [experimentLoading, setExperimentLoading] = useState(false);
 
   // Problem state
@@ -426,7 +426,6 @@ const UnifiedVisualizer = () => {
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
     setExperimentLoading(true);
-    setCurrentExperiment(experiment.id);
 
     try {
       // 1. Update hyperparameters
@@ -450,6 +449,9 @@ const UnifiedVisualizer = () => {
       if (experiment.hyperparameters.hessianDamping !== undefined) {
         setNewtonHessianDamping(experiment.hyperparameters.hessianDamping);
         setLbfgsHessianDamping(experiment.hyperparameters.hessianDamping);
+      }
+      if (experiment.hyperparameters.lineSearch !== undefined) {
+        setNewtonLineSearch(experiment.hyperparameters.lineSearch);
       }
 
       // 2. Set initial point if specified
@@ -522,7 +524,8 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: leftConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: newtonHessianDamping,
+            hessianDamping: leftConfig.hessianDamping ?? newtonHessianDamping,
+            lineSearch: leftConfig.lineSearch ?? newtonLineSearch,
             initialPoint,
           });
         } else if (leftConfig.algorithm === 'lbfgs') {
@@ -556,7 +559,8 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: rightConfig.c1 ?? newtonC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: newtonHessianDamping,
+            hessianDamping: rightConfig.hessianDamping ?? newtonHessianDamping,
+            lineSearch: rightConfig.lineSearch ?? newtonLineSearch,
             initialPoint,
           });
         } else if (rightConfig.algorithm === 'lbfgs') {
@@ -609,7 +613,6 @@ const UnifiedVisualizer = () => {
     setMaxIter(cfg.maxIter);
     setInitialW0(cfg.initialW0);
     setInitialW1(cfg.initialW1);
-    setCurrentExperiment(null);
     setGdFixedCurrentIter(0);
     setGdLSCurrentIter(0);
     setNewtonCurrentIter(0);
@@ -703,6 +706,7 @@ const UnifiedVisualizer = () => {
         c1: newtonC1,
         lambda,
         hessianDamping: newtonHessianDamping,
+        lineSearch: newtonLineSearch,
         initialPoint,
         tolerance: newtonTolerance,
       });
@@ -719,7 +723,7 @@ const UnifiedVisualizer = () => {
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runNewton above
     // Missing a parameter here means changes won't trigger re-resolution (bug: newtonHessianDamping was missing)
-  }, [currentProblem, lambda, newtonC1, newtonHessianDamping, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
+  }, [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -802,10 +806,9 @@ const UnifiedVisualizer = () => {
   // Keyboard shortcuts for experiments
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Ctrl/Cmd + E: Clear current experiment
+      // Ctrl/Cmd + E: Reset to defaults
       if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
         e.preventDefault();
-        setCurrentExperiment(null);
         resetToDefaults();
       }
 
@@ -1520,7 +1523,6 @@ const UnifiedVisualizer = () => {
                   <button
                     onClick={() => {
                       setComparisonMode('none');
-                      setCurrentExperiment(null);
                     }}
                     className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
                   >
@@ -2055,44 +2057,6 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
-
-              {/* Experiment Indicator */}
-              {currentExperiment && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-bold">▶</span>
-                      <span className="text-sm font-semibold text-blue-900">
-                        Experiment Active
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        {currentExperiment}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={resetToDefaults}
-                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
-                      >
-                        Reset All
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentExperiment(null);
-                          // Optionally reset to defaults
-                        }}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
-                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
-                  </p>
-                </div>
-              )}
 
             </>
           ) : selectedTab === 'gd-linesearch' ? (
@@ -2738,43 +2702,6 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
-              {/* Experiment Indicator */}
-              {currentExperiment && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-bold">▶</span>
-                      <span className="text-sm font-semibold text-blue-900">
-                        Experiment Active
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        {currentExperiment}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={resetToDefaults}
-                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
-                      >
-                        Reset All
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentExperiment(null);
-                          // Optionally reset to defaults
-                        }}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
-                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
-                  </p>
-                </div>
-              )}
             </>
           ) : selectedTab === 'newton' ? (
             <>
@@ -2790,6 +2717,8 @@ const UnifiedVisualizer = () => {
                   onInitialW1Change={setInitialW1}
                   newtonC1={newtonC1}
                   onNewtonC1Change={setNewtonC1}
+                  newtonLineSearch={newtonLineSearch}
+                  onNewtonLineSearchChange={setNewtonLineSearch}
                   newtonHessianDamping={newtonHessianDamping}
                   onNewtonHessianDampingChange={setNewtonHessianDamping}
                   newtonTolerance={newtonTolerance}
@@ -2871,7 +2800,7 @@ const UnifiedVisualizer = () => {
                       eigenvalues={newtonIterations[newtonCurrentIter].eigenvalues}
                       conditionNumber={newtonIterations[newtonCurrentIter].conditionNumber}
                       lineSearchTrials={newtonIterations[newtonCurrentIter].lineSearchTrials?.length}
-                      lineSearchCanvasRef={newtonLineSearchCanvasRef}
+                      lineSearchCanvasRef={newtonLineSearch === 'armijo' ? newtonLineSearchCanvasRef : undefined}
                       hessianCanvasRef={newtonHessianCanvasRef}
                       hessian={newtonIterations[newtonCurrentIter].hessian}
                       tolerance={newtonTolerance}
@@ -3259,27 +3188,42 @@ const UnifiedVisualizer = () => {
                           {experimentLoading ? <LoadingSpinner /> : '▶'}
                         </button>
                         <div>
-                          <p className="font-semibold text-orange-900">Numerical Instability: Perceptron</p>
+                          <p className="font-semibold text-orange-900">Fundamental Incompatibility: Newton + Perceptron</p>
                           <p className="text-sm text-gray-700">
-                            Perceptron has piecewise linear loss → Hessian ≈ 0 → Newton computes huge steps
+                            Perceptron has piecewise linear loss → Hessian ≈ 0 → Newton computes massive steps (10,000x too large)
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Tiny eigenvalues (~0.0001), huge Newton direction, line search forced to tiny steps, oscillates without converging
+                            Observe: Oscillates wildly, never converges. Workarounds hide symptoms but don't fix the root problem.
                           </p>
-                          <div className="mt-2 flex gap-2">
+                          <div className="mt-2 flex flex-wrap gap-2">
                             <button
-                              className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                              className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-damping-fix');
                                 if (exp) loadExperiment(exp);
                               }}
                               disabled={experimentLoading}
-                              aria-label="Load fix: Perceptron with Damping"
+                              aria-label="Load workaround: Perceptron with Line Search"
                             >
-                              Click here for the fix (with Hessian damping)
+                              Workaround: Line search
+                            </button>
+                            <button
+                              className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-hessian-damping');
+                                if (exp) loadExperiment(exp);
+                              }}
+                              disabled={experimentLoading}
+                              aria-label="Load workaround: Perceptron with Hessian Damping"
+                            >
+                              Workaround: Hessian damping
                             </button>
                           </div>
+                          <p className="text-xs text-gray-600 mt-2 italic">
+                            ⚠️ Both workarounds just obscure the problem. Use GD or L-BFGS instead!
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -3551,43 +3495,6 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
-              {/* Experiment Indicator */}
-              {currentExperiment && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-bold">▶</span>
-                      <span className="text-sm font-semibold text-blue-900">
-                        Experiment Active
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        {currentExperiment}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={resetToDefaults}
-                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
-                      >
-                        Reset All
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentExperiment(null);
-                          // Optionally reset to defaults
-                        }}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
-                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
-                  </p>
-                </div>
-              )}
             </>
           ) : (
             <>
@@ -4401,44 +4308,6 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
-
-              {/* Experiment Indicator */}
-              {currentExperiment && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-bold">▶</span>
-                      <span className="text-sm font-semibold text-blue-900">
-                        Experiment Active
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        {currentExperiment}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={resetToDefaults}
-                        className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
-                      >
-                        Reset All
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentExperiment(null);
-                          // Optionally reset to defaults
-                        }}
-                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Shortcuts: <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+E</kbd> Clear experiment,{' '}
-                    <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">Cmd+R</kbd> Reset all
-                  </p>
-                </div>
-              )}
 
               {/* L-BFGS Memory Section */}
               <div className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg shadow-md p-6 mb-6">

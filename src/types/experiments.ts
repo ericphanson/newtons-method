@@ -31,8 +31,9 @@ export interface ExperimentPreset {
     m?: number; // for L-BFGS
     maxIter?: number;
     hessianDamping?: number; // for Newton's method and L-BFGS
+    lineSearch?: 'armijo' | 'none'; // for Newton's method
   };
-  initialPoint?: [number, number];
+  initialPoint?: [number, number] | [number, number, number];
   expectation: string; // What to observe
   comparisonConfig?: {
     left: { algorithm: string; [key: string]: any };

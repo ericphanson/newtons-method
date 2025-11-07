@@ -25,6 +25,8 @@ interface AlgorithmConfigurationProps {
 
   newtonC1?: number;
   onNewtonC1Change?: (val: number) => void;
+  newtonLineSearch?: 'armijo' | 'none';
+  onNewtonLineSearchChange?: (val: 'armijo' | 'none') => void;
   newtonHessianDamping?: number;
   onNewtonHessianDampingChange?: (val: number) => void;
   newtonTolerance?: number;
@@ -98,7 +100,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </>
         )}
 
-        {(algorithm === 'gd-linesearch' || algorithm === 'newton' || algorithm === 'lbfgs') && (
+        {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || (algorithm === 'newton' && props.newtonLineSearch === 'armijo')) && (
           <>
             {/* Armijo c1 */}
             <div>
@@ -180,6 +182,24 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
 
         {algorithm === 'newton' && (
           <>
+            {/* Line Search */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Line Search:</label>
+                <select
+                  value={props.newtonLineSearch ?? 'armijo'}
+                  onChange={(e) => props.onNewtonLineSearchChange?.(e.target.value as 'armijo' | 'none')}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="armijo">Armijo</option>
+                  <option value="none">None (full step)</option>
+                </select>
+              </div>
+              <p className="text-xs text-gray-500">
+                Armijo backtracking vs full Newton step (α=1)
+              </p>
+            </div>
+
             {/* Hessian Damping */}
             <div>
               <div className="flex items-center gap-3 mb-2">
