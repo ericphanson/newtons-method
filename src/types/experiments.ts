@@ -30,7 +30,7 @@ export interface ExperimentPreset {
     lambda?: number;
     m?: number; // for L-BFGS
     maxIter?: number;
-    hessianDamping?: number; // for Newton's method
+    hessianDamping?: number; // for Newton's method and L-BFGS
   };
   initialPoint?: [number, number];
   expectation: string; // What to observe

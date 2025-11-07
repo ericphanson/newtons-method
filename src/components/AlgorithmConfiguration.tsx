@@ -34,6 +34,8 @@ interface AlgorithmConfigurationProps {
   onLbfgsC1Change?: (val: number) => void;
   lbfgsM?: number;
   onLbfgsMChange?: (val: number) => void;
+  lbfgsHessianDamping?: number;
+  onLbfgsHessianDampingChange?: (val: number) => void;
   lbfgsTolerance?: number;
   onLbfgsToleranceChange?: (val: number) => void;
 }
@@ -186,26 +188,27 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </label>
                 <input
                   type="range"
-                  min={Math.log10(1e-10)}
+                  min={-11}
                   max={Math.log10(1)}
                   step="0.01"
-                  value={Math.log10(props.newtonHessianDamping ?? 0.01)}
+                  value={props.newtonHessianDamping === 0 ? -11 : Math.log10(props.newtonHessianDamping ?? 0.01)}
                   onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
+                    const sliderVal = parseFloat(e.target.value);
+                    const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
                     props.onNewtonHessianDampingChange?.(val);
                   }}
                   className="flex-1"
                 />
                 <div className="text-sm text-gray-600 w-16 text-right">
-                  {props.newtonHessianDamping?.toExponential(1)}
+                  {props.newtonHessianDamping === 0 ? '0' : props.newtonHessianDamping?.toExponential(1)}
                 </div>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-gray-500">
-                  Regularization for numerical stability (~0 to 1.0, logarithmic scale)
+                  Regularization for numerical stability (0 to 1.0, logarithmic scale)
                 </p>
                 <p className="text-xs text-gray-600">
-                  <span className="font-medium">Tip:</span> Use ~0 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+                  <span className="font-medium">Tip:</span> Use 0 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
                 </p>
               </div>
             </div>
@@ -232,6 +235,39 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               <p className="text-xs text-gray-500">
                 Number of (s, y) pairs to store for curvature approximation
               </p>
+            </div>
+
+            {/* Hessian Damping */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Hessian Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
+                </label>
+                <input
+                  type="range"
+                  min={-11}
+                  max={Math.log10(1)}
+                  step="0.01"
+                  value={props.lbfgsHessianDamping === 0 ? -11 : Math.log10(props.lbfgsHessianDamping ?? 0.01)}
+                  onChange={(e) => {
+                    const sliderVal = parseFloat(e.target.value);
+                    const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
+                    props.onLbfgsHessianDampingChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.lbfgsHessianDamping === 0 ? '0' : props.lbfgsHessianDamping?.toExponential(1)}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">
+                  Regularization for numerical stability (0 to 1.0, logarithmic scale)
+                </p>
+                <p className="text-xs text-gray-600">
+                  <span className="font-medium">Tip:</span> Use 0 for pure L-BFGS, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+                </p>
+              </div>
             </div>
           </>
         )}

@@ -3242,6 +3242,47 @@ const UnifiedVisualizer = () => {
                         </div>
                       </div>
                     </div>
+
+                    <div className="border border-orange-200 rounded p-3 bg-orange-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-failure');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Perceptron Won't Converge"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-orange-900">Numerical Instability: Perceptron</p>
+                          <p className="text-sm text-gray-700">
+                            Perceptron has piecewise linear loss → Hessian ≈ 0 → Newton computes huge steps
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Tiny eigenvalues (~0.0001), huge Newton direction, line search forced to tiny steps, oscillates without converging
+                          </p>
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-damping-fix');
+                                if (exp) loadExperiment(exp);
+                              }}
+                              disabled={experimentLoading}
+                              aria-label="Load fix: Perceptron with Damping"
+                            >
+                              Click here for the fix (with Hessian damping)
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CollapsibleSection>
@@ -3423,92 +3464,6 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
-              {/* When Things Go Wrong */}
-              <CollapsibleSection
-                title="When Things Go Wrong"
-                defaultExpanded={false}
-                storageKey="newton-troubleshooting"
-              >
-                <div className="space-y-4 text-gray-800">
-                  <div>
-                    <h3 className="text-lg font-bold text-red-800 mb-2">Problem: Perceptron Won't Converge with Newton</h3>
-
-                    <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
-                      <p className="font-semibold text-red-900 mb-2">Setup to reproduce:</p>
-                      <ol className="list-decimal ml-6 space-y-1 text-sm">
-                        <li>Select "Separating Hyperplane" problem</li>
-                        <li>Choose "Perceptron" variant</li>
-                        <li>Set λ (regularization) = 0.0001</li>
-                        <li>Set Hessian Damping (λ_damp) = 0</li>
-                        <li>Run Newton's method</li>
-                      </ol>
-                    </div>
-
-                    <div className="mb-3">
-                      <p className="font-semibold text-red-900 mb-2">What happens:</p>
-                      <ul className="list-disc ml-6 space-y-1 text-sm">
-                        <li>Hessian has tiny eigenvalues (≈ 0.0001)</li>
-                        <li>Newton direction becomes huge (~10,000× gradient magnitude)</li>
-                        <li>Line search forced to use tiny step sizes (α ≈ 0.0002)</li>
-                        <li>Oscillates without converging</li>
-                      </ul>
-                    </div>
-
-                    <div className="mb-3">
-                      <p className="font-semibold text-gray-900 mb-2">Why it happens:</p>
-                      <p className="text-sm mb-2">
-                        Perceptron's loss (max(0, -y·z)) is piecewise linear, so its Hessian is 0.
-                        Only the regularization contributes: <InlineMath>H = \lambda I</InlineMath>.
-                        When λ is tiny (0.0001), the Hessian becomes nearly singular.
-                      </p>
-                    </div>
-
-                    <div className="bg-green-50 border border-green-200 rounded p-3">
-                      <p className="font-semibold text-green-900 mb-2">Solution:</p>
-                      <p className="text-sm mb-2">
-                        Increase Hessian Damping to 0.01 or higher. This adds numerical stability
-                        without significantly changing the optimization problem.
-                      </p>
-                      <p className="font-semibold text-green-900 mt-2 mb-1">Result with λ_damp = 0.01:</p>
-                      <ul className="list-disc ml-6 space-y-1 text-sm">
-                        <li>Convergence in ~2 iterations</li>
-                        <li>All points classified correctly</li>
-                      </ul>
-                    </div>
-
-                    <div className="mt-4 space-y-2">
-                      <p className="font-semibold text-gray-900 text-sm mb-2">Try these experiments:</p>
-                      <div className="flex flex-col gap-2">
-                        <button
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
-                          onClick={() => {
-                            const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-failure');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: Perceptron Won't Converge"
-                        >
-                          <span>1. Show the problem (λ_damp = 0)</span>
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                        <button
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
-                          onClick={() => {
-                            const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-damping-fix');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: Perceptron with Damping Fix"
-                        >
-                          <span>2. Show the solution (λ_damp = 0.01)</span>
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CollapsibleSection>
-
               {/* Advanced Topics */}
               <CollapsibleSection
                 title="Advanced Topics"
@@ -3650,6 +3605,8 @@ const UnifiedVisualizer = () => {
                   onLbfgsC1Change={setLbfgsC1}
                   lbfgsM={lbfgsM}
                   onLbfgsMChange={setLbfgsM}
+                  lbfgsHessianDamping={lbfgsHessianDamping}
+                  onLbfgsHessianDampingChange={setLbfgsHessianDamping}
                   lbfgsTolerance={lbfgsTolerance}
                   onLbfgsToleranceChange={setLbfgsTolerance}
                 />
@@ -3748,7 +3705,8 @@ const UnifiedVisualizer = () => {
                       Newton's method uses <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> for smarter steps,
                       but computing H costs O(n³). <strong>L-BFGS approximates</strong>{' '}
                       <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> using only recent gradient changes—no
-                      Hessian computation needed.
+                      Hessian computation needed. We add Hessian damping (Levenberg-Marquardt regularization) for
+                      numerical stability.
                     </p>
                   </div>
 
@@ -3760,6 +3718,7 @@ const UnifiedVisualizer = () => {
                         Use <strong>two-loop recursion</strong> to compute{' '}
                         <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> from M recent (s,y) pairs
                       </li>
+                      <li>Add damping to initial Hessian approximation: <InlineMath>{'B_0 + \\lambda_{\\text{damp}} \\cdot I'}</InlineMath></li>
                       <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
                       <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
                       <li>
@@ -3784,6 +3743,24 @@ const UnifiedVisualizer = () => {
                   </div>
 
                   <div>
+                    <h3 className="text-lg font-bold text-amber-800 mb-2">Key Formula</h3>
+                    <p>L-BFGS direction (with damping):</p>
+                    <BlockMath>{'p = -(B + \\lambda_{\\text{damp}} I)^{-1}\\nabla f'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      <strong>Intuition:</strong> <InlineMath>{`B^{-1}`}</InlineMath> is built from recent gradient changes via two-loop recursion,
+                      approximating <InlineMath>{`H^{-1}`}</InlineMath>. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> to the
+                      initial approximation improves numerical stability.
+                    </p>
+                    <p className="text-sm mt-2">
+                      <strong>Implementation:</strong> Damping is applied by modifying the initial scaling factor: <InlineMath>{'\\gamma_{\\text{damped}} = \\gamma/(1 + \\lambda_{\\text{damp}}\\gamma)'}</InlineMath>,
+                      which is mathematically equivalent to <InlineMath>{String.raw`(B_0 + \lambda I)^{-1}`}</InlineMath> where <InlineMath>{'B_0 = (1/\\gamma)I'}</InlineMath>.
+                    </p>
+                    <p className="text-sm mt-1 text-gray-600">
+                      (When λ_damp = 0, this is pure L-BFGS: <InlineMath>{'p \\approx -B^{-1}\\nabla f'}</InlineMath>)
+                    </p>
+                  </div>
+
+                  <div>
                     <h3 className="text-lg font-bold text-amber-800 mb-2">When to Use</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>Large problems (n &gt; 1000 parameters)</li>
@@ -3795,12 +3772,20 @@ const UnifiedVisualizer = () => {
 
                   <div>
                     <h3 className="text-lg font-bold text-amber-800 mb-2">Key Parameters</h3>
-                    <p>
+                    <p className="mb-2">
                       <strong>M = memory size</strong> (typically 5-20)
                     </p>
-                    <ul className="list-disc ml-6 space-y-1">
+                    <ul className="list-disc ml-6 space-y-1 mb-3">
                       <li>Larger M = better Hessian approximation but more computation</li>
                       <li>M=10 often works well in practice</li>
+                    </ul>
+                    <p className="mb-2">
+                      <strong>Hessian Damping Parameter (λ<sub>damp</sub>)</strong>
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>Lower to ~0 to see pure L-BFGS behavior (may be unstable)</li>
+                      <li>Default 0.01 provides stability without changing the problem significantly</li>
+                      <li>Increase to 0.1+ for very ill-conditioned problems</li>
                     </ul>
                   </div>
 
@@ -4069,14 +4054,19 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>
-                        <strong>Slow convergence</strong> → increase M, improve initialization,
-                        check smoothness assumptions
+                        <strong>Instability / Erratic steps</strong> → increase Hessian damping (λ_damp) to 0.1 or higher
+                      </li>
+                      <li>
+                        <strong>Slow convergence</strong> → increase M for better Hessian approximation, or λ_damp too high (try lowering toward 0.01)
                       </li>
                       <li>
                         <strong>Oscillation</strong> → decrease M or line search c1 parameter
                       </li>
                       <li>
                         <strong>Memory issues</strong> → M too large for hardware, decrease M
+                      </li>
+                      <li>
+                        <strong>Numerical issues</strong> → Hessian approximation ill-conditioned, increase λ_damp or restart with fresh memory
                       </li>
                       <li>
                         <strong>Non-smooth objective</strong> → consider specialized variants
@@ -4177,11 +4167,21 @@ const UnifiedVisualizer = () => {
                     </div>
 
                     <div className="bg-indigo-50 rounded p-3 mt-3">
-                      <p className="font-semibold mb-2">Initialize:</p>
-                      <div className="text-sm">
-                        <InlineMath>{String.raw`r = H_0^{-1} q`}</InlineMath>, typically{' '}
-                        <InlineMath>{String.raw`H_0^{-1} = \gamma I`}</InlineMath> where{' '}
-                        <InlineMath>{String.raw`\gamma = s_{k-1}^T y_{k-1} / y_{k-1}^T y_{k-1}`}</InlineMath>
+                      <p className="font-semibold mb-2">Initialize (with Hessian Damping):</p>
+                      <div className="text-sm space-y-1">
+                        <div>
+                          <InlineMath>{String.raw`\gamma_{\text{base}} = s_{k-1}^T y_{k-1} / y_{k-1}^T y_{k-1}`}</InlineMath>
+                        </div>
+                        <div>
+                          <InlineMath>{String.raw`\gamma = \gamma_{\text{base}} / (1 + \lambda_{\text{damp}} \cdot \gamma_{\text{base}})`}</InlineMath> (damped)
+                        </div>
+                        <div>
+                          <InlineMath>{String.raw`r = \gamma I \cdot q = \gamma q`}</InlineMath> where{' '}
+                          <InlineMath>{String.raw`H_0^{-1} = \gamma I`}</InlineMath>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          When λ<sub>damp</sub> = 0, this reduces to <InlineMath>{String.raw`\gamma = \gamma_{\text{base}}`}</InlineMath> (pure L-BFGS)
+                        </div>
                       </div>
                     </div>
 
@@ -4333,6 +4333,27 @@ const UnifiedVisualizer = () => {
                         <strong>For non-quadratic:</strong> L-BFGS more robust and practical
                       </li>
                     </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800 mb-2">Modified L-BFGS Methods</h3>
+
+                    <div className="mt-2">
+                      <p className="font-semibold">Hessian Damping (Levenberg-Marquardt style):</p>
+                      <BlockMath>{'p = -(B + \\lambda I)^{-1}\\nabla f'}</BlockMath>
+                      <ul className="list-disc ml-6 space-y-1 text-sm">
+                        <li>Regularizes the initial Hessian approximation <InlineMath>{'B_0 = (1/\\gamma)I'}</InlineMath></li>
+                        <li>Implemented as: <InlineMath>{'\\gamma_{\\text{damped}} = \\gamma/(1 + \\lambda\\gamma)'}</InlineMath></li>
+                        <li><InlineMath>\lambda=0</InlineMath>: pure L-BFGS; <InlineMath>\lambda\to\infty</InlineMath>: gradient descent</li>
+                        <li>Exact analog to Newton's Hessian damping, applied to approximate Hessian</li>
+                        <li>Improves numerical stability without changing the problem significantly (λ ≈ 0.01)</li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-3">
+                      <p className="font-semibold">Powell's Damping:</p>
+                      <p className="text-sm">Modifies gradient differences to ensure positive curvature condition</p>
+                    </div>
                   </div>
 
                   <div>

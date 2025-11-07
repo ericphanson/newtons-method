@@ -92,11 +92,11 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
-      maxIter: 20,
+      maxIter: 400,
       hessianDamping: 0,
     },
     initialPoint: [0, 0],
-    expectation: 'Observe: Hessian has tiny eigenvalues (≈0.0001), Newton direction becomes huge, line search uses tiny α, oscillates without converging',
+    expectation: 'Observe: Hessian has tiny eigenvalues (≈0.0001), but from origin Newton finds gradient is already zero (local minimum)',
   },
   {
     id: 'newton-perceptron-damping-fix',
@@ -107,10 +107,10 @@ export const newtonExperiments: ExperimentPreset[] = [
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
-      maxIter: 20,
+      maxIter: 400,
       hessianDamping: 0.01,
     },
     initialPoint: [0, 0],
-    expectation: 'Observe: With damping, Hessian eigenvalues become reasonable, convergence in ~2 iterations',
+    expectation: 'Observe: With damping, converges immediately from origin (already at local minimum)',
   },
 ];
