@@ -12,16 +12,17 @@ const MAX_ITERATIONS = 10;
  * Distance-based clustering using iterative centroid refinement
  * Similar to k-means but with automatic cluster discovery
  * Returns array of cluster IDs for each grid point (row-major order)
- * -1 means no cluster (diverged/didn't converge)
+ * -1 means no cluster (diverged/didn't converge/stalled)
  * Handles both 2D and 3D convergence locations
  */
 export function clusterConvergenceLocations(basinData: BasinData): number[] {
-  // Extract all CONVERGED convergence locations (2D or 3D)
+  // Extract all TRULY CONVERGED convergence locations (2D or 3D)
+  // EXCLUDE stalled points - they should not be treated as valid minima
   const locations: Array<{ loc: number[]; index: number }> = [];
 
   basinData.grid.forEach((row, i) => {
     row.forEach((point, j) => {
-      if (point.converged) {
+      if (point.converged && !point.stalled) {
         locations.push({
           loc: Array.from(point.convergenceLoc),
           index: i * basinData.resolution + j
@@ -198,7 +199,8 @@ export function clusterConvergenceLocations(basinData: BasinData): number[] {
       const index = i * basinData.resolution + j;
       const point = basinData.grid[i][j];
 
-      if (!point.converged) {
+      // Stalled points should NOT be assigned to any cluster
+      if (!point.converged || point.stalled) {
         result.push(-1);
       } else {
         result.push(pointToCluster.get(index) || 0);

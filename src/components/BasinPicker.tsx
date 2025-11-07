@@ -86,6 +86,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
   }, [basinData]);
 
   // Compute iteration range for colorbar
+  // Only use truly converged points (exclude stalled points)
   const iterationRange = useMemo(() => {
     if (!basinData) return { min: 0, max: 0 };
     let minIter = Infinity;
@@ -93,7 +94,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
 
     for (const row of basinData.grid) {
       for (const point of row) {
-        if (point.converged) {
+        if (point.converged && !point.stalled) {
           minIter = Math.min(minIter, point.iterations);
           maxIter = Math.max(maxIter, point.iterations);
         }

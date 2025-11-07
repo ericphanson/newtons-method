@@ -34,6 +34,10 @@ interface IterationMetricsProps {
 
   tolerance: number;
 
+  // Convergence thresholds for sparklines
+  ftol?: number;
+  xtol?: number;
+
   // Convergence summary
   summary?: AlgorithmSummary | null;
 
@@ -60,6 +64,9 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   lineSearchCanvasRef,
   hessianCanvasRef,
   summary,
+  tolerance,
+  ftol = 1e-9,
+  xtol = 1e-9,
   onIterationChange,
 }) => {
 
@@ -94,6 +101,27 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
     : [alpha];
   const maxAlphaInHistory = Math.max(...alphaSparklineData, 1);
   const minAlphaInHistory = Math.min(...alphaSparklineData, 0);
+
+  // Compute function change history (relative function change between iterations)
+  const functionChangeHistory: number[] = [];
+  if (lossHistory && lossHistory.length > 1) {
+    for (let i = 1; i < lossHistory.length; i++) {
+      const funcChange = Math.abs(lossHistory[i] - lossHistory[i - 1]);
+      const relativeFuncChange = funcChange / Math.max(Math.abs(lossHistory[i]), 1e-8);
+      functionChangeHistory.push(relativeFuncChange);
+    }
+  }
+  const hasFunctionChangeData = functionChangeHistory.length > 0;
+  const maxFunctionChange = hasFunctionChangeData ? Math.max(...functionChangeHistory, ftol * 10) : ftol * 10;
+  const minFunctionChange = hasFunctionChangeData ? Math.min(...functionChangeHistory, 0) : 0;
+
+  // Current function change
+  const currentFunctionChange = functionChangeHistory.length > iterNum && iterNum > 0
+    ? functionChangeHistory[iterNum - 1]
+    : (functionChangeHistory.length > 0 ? functionChangeHistory[functionChangeHistory.length - 1] : 0);
+
+  // Note: Step size history (xtol criterion) would require full weight history
+  // which isn't currently passed to this component. Could be added in the future.
 
   return (
     <div className="space-y-2 text-xs">
@@ -150,6 +178,20 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             className="overflow-visible cursor-pointer"
             onClick={(e) => handleSparklineClick(e, sparklineData.length)}
           >
+            {/* Tolerance threshold line */}
+            {tolerance >= minGradNormInHistory && tolerance <= maxGradNormInHistory && (
+              <line
+                x1="0"
+                x2="100"
+                y1={18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16}
+                y2={18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16}
+                stroke="#10b981"
+                strokeWidth="0.3"
+                strokeDasharray="2,2"
+                vectorEffect="non-scaling-stroke"
+                opacity="0.6"
+              />
+            )}
             {/* Sparkline path */}
             <path
               d={sparklineData.map((val, i) => {
@@ -257,6 +299,65 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
           </svg>
         )}
       </div>
+
+      {/* Function Change with Sparkline */}
+      {hasFunctionChangeData && (
+        <div className="space-y-1">
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="text-gray-600">Rel. Func. Change:</span>
+            <span className="font-mono font-bold">{fmt(currentFunctionChange)}</span>
+          </div>
+          {functionChangeHistory.length > 1 && (
+            <svg
+              width="100%"
+              height="24"
+              viewBox="0 0 100 20"
+              preserveAspectRatio="none"
+              className="overflow-visible cursor-pointer"
+              onClick={(e) => handleSparklineClick(e, functionChangeHistory.length)}
+            >
+              {/* ftol threshold line */}
+              {ftol >= minFunctionChange && ftol <= maxFunctionChange && (
+                <line
+                  x1="0"
+                  x2="100"
+                  y1={18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
+                  y2={18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
+                  stroke="#f59e0b"
+                  strokeWidth="0.3"
+                  strokeDasharray="2,2"
+                  vectorEffect="non-scaling-stroke"
+                  opacity="0.6"
+                />
+              )}
+              {/* Sparkline path */}
+              <path
+                d={functionChangeHistory.map((val, i) => {
+                  const x = (i / Math.max(functionChangeHistory.length - 1, 1)) * 100;
+                  const y = 18 - ((val - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16;
+                  return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                }).join(' ')}
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="0.5"
+                vectorEffect="non-scaling-stroke"
+              />
+              {/* Current position marker */}
+              {iterNum > 0 && (
+                <circle
+                  cx={((iterNum - 1) / Math.max(functionChangeHistory.length - 1, 1)) * 100}
+                  cy={18 - ((currentFunctionChange - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
+                  r="1"
+                  fill="#ef4444"
+                  stroke="#fff"
+                  strokeWidth="0.3"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
+            </svg>
+          )}
+        </div>
+      )}
 
       {/* Parameters - Single Line */}
       <div className="pt-1 border-t border-gray-200">

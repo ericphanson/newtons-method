@@ -14,7 +14,8 @@ export function encodeBasinColors(basinData: BasinData): ColorEncoding[][] {
   const clusterHues = assignHuesToClusters(numClusters);
 
   // Step 3: Find iteration range for lightness mapping
-  const validPoints = basinData.grid.flat().filter(p => p.converged);
+  // Only use truly converged points (exclude stalled points)
+  const validPoints = basinData.grid.flat().filter(p => p.converged && !p.stalled);
 
   if (validPoints.length === 0) {
     // All points diverged - return all dark
@@ -41,11 +42,9 @@ export function encodeBasinColors(basinData: BasinData): ColorEncoding[][] {
         return { hue: 0, lightness: 20 }; // Dark gray (not converged)
       }
       if (point.stalled) {
-        // Stalled points get a fixed medium-dark lightness with hue based on basin
-        const pointIndex = i * basinData.resolution + j;
-        const clusterId = clusterIds[pointIndex];
-        const hue = clusterId >= 0 ? clusterHues[clusterId] : 0;
-        return { hue, lightness: 25 }; // Medium dark (stalled)
+        // Stalled points are NOT part of any basin (cluster ID = -1)
+        // Show as medium dark gray with no hue
+        return { hue: 0, lightness: 25 }; // Medium dark (stalled)
       }
 
       const pointIndex = i * basinData.resolution + j;

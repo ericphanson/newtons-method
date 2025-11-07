@@ -266,11 +266,11 @@ function main() {
   console.log('\n🎯 CLUSTERING DIAGNOSTICS');
   console.log('========================================');
 
-  // Collect all convergence locations
+  // Collect all convergence locations (exclude stalled points)
   const convergenceLocations: Array<{ loc: [number, number]; count: number }> = [];
   basinData.grid.forEach((row) => {
     row.forEach((point) => {
-      if (point.converged) {
+      if (point.converged && !point.stalled) {
         // Check if we already have this location
         const existing = convergenceLocations.find(
           c => Math.abs(c.loc[0] - point.convergenceLoc[0]) < 1e-10 &&
@@ -297,11 +297,11 @@ function main() {
 
   console.log(`\nClusters detected (threshold=1.0): ${numClusters}`);
 
-  // Show which locations are in which cluster
+  // Show which locations are in which cluster (exclude stalled points)
   const clusterMap = new Map<number, Array<{ loc: [number, number]; count: number }>>();
   basinData.grid.forEach((row, i) => {
     row.forEach((point, j) => {
-      if (point.converged) {
+      if (point.converged && !point.stalled) {
         const idx = i * basinData.resolution + j;
         const clusterId = clusterIds[idx];
         if (clusterId >= 0) {

@@ -19,11 +19,19 @@ interface AlgorithmConfigurationProps {
   onGdFixedAlphaChange?: (val: number) => void;
   gdFixedTolerance?: number;
   onGdFixedToleranceChange?: (val: number) => void;
+  gdFixedFtol?: number;
+  onGdFixedFtolChange?: (val: number) => void;
+  gdFixedXtol?: number;
+  onGdFixedXtolChange?: (val: number) => void;
 
   gdLSC1?: number;
   onGdLSC1Change?: (val: number) => void;
   gdLSTolerance?: number;
   onGdLSToleranceChange?: (val: number) => void;
+  gdLSFtol?: number;
+  onGdLSFtolChange?: (val: number) => void;
+  gdLSXtol?: number;
+  onGdLSXtolChange?: (val: number) => void;
 
   newtonC1?: number;
   onNewtonC1Change?: (val: number) => void;
@@ -33,6 +41,10 @@ interface AlgorithmConfigurationProps {
   onNewtonHessianDampingChange?: (val: number) => void;
   newtonTolerance?: number;
   onNewtonToleranceChange?: (val: number) => void;
+  newtonFtol?: number;
+  onNewtonFtolChange?: (val: number) => void;
+  newtonXtol?: number;
+  onNewtonXtolChange?: (val: number) => void;
 
   lbfgsC1?: number;
   onLbfgsC1Change?: (val: number) => void;
@@ -42,6 +54,10 @@ interface AlgorithmConfigurationProps {
   onLbfgsHessianDampingChange?: (val: number) => void;
   lbfgsTolerance?: number;
   onLbfgsToleranceChange?: (val: number) => void;
+  lbfgsFtol?: number;
+  onLbfgsFtolChange?: (val: number) => void;
+  lbfgsXtol?: number;
+  onLbfgsXtolChange?: (val: number) => void;
 
   // For basin picker
   problemFuncs: ProblemFunctions;
@@ -83,14 +99,14 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </p>
             </div>
 
-            {/* Tolerance */}
+            {/* Gradient Tolerance (gtol) */}
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Gradient Tolerance (gtol):</label>
                 <input
                   type="range"
-                  min="-10"
-                  max="-1"
+                  min="-12"
+                  max="-4"
                   step="0.1"
                   value={Math.log10(props.gdFixedTolerance ?? 1e-6)}
                   onChange={(e) => {
@@ -103,6 +119,52 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
               <p className="text-xs text-gray-500">
                 Convergence threshold for gradient norm
+              </p>
+            </div>
+
+            {/* Function Tolerance (ftol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Function Tolerance (ftol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(props.gdFixedFtol ?? 1e-9)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onGdFixedFtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">{props.gdFixedFtol?.toExponential(1)}</div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative function change threshold (scipy-style)
+              </p>
+            </div>
+
+            {/* Step Tolerance (xtol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Step Tolerance (xtol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(props.gdFixedXtol ?? 1e-9)}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    props.onGdFixedXtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">{props.gdFixedXtol?.toExponential(1)}</div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative step size threshold (scipy-style)
               </p>
             </div>
           </>
@@ -149,43 +211,119 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           </div>
         )}
 
-        {/* Tolerance - shown for all algorithms that use it (including Newton without line search) */}
+        {/* Gradient Tolerance (gtol) - shown for all algorithms that use it (including Newton without line search) */}
         {(algorithm === 'gd-linesearch' || algorithm === 'lbfgs' || algorithm === 'newton') && (
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Tolerance:</label>
-              <input
-                type="range"
-                min="-10"
-                max="-1"
-                step="0.1"
-                value={Math.log10(
-                  algorithm === 'gd-linesearch'
-                    ? (props.gdLSTolerance ?? 1e-6)
+          <>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Gradient Tolerance (gtol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(
+                    algorithm === 'gd-linesearch'
+                      ? (props.gdLSTolerance ?? 1e-6)
+                      : algorithm === 'newton'
+                      ? (props.newtonTolerance ?? 1e-6)
+                      : (props.lbfgsTolerance ?? 1e-6)
+                  )}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
+                    else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
+                    else props.onLbfgsToleranceChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {algorithm === 'gd-linesearch'
+                    ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
                     : algorithm === 'newton'
-                    ? (props.newtonTolerance ?? 1e-6)
-                    : (props.lbfgsTolerance ?? 1e-6)
-                )}
-                onChange={(e) => {
-                  const val = Math.pow(10, parseFloat(e.target.value));
-                  if (algorithm === 'gd-linesearch') props.onGdLSToleranceChange?.(val);
-                  else if (algorithm === 'newton') props.onNewtonToleranceChange?.(val);
-                  else props.onLbfgsToleranceChange?.(val);
-                }}
-                className="flex-1"
-              />
-              <div className="text-sm text-gray-600 w-16 text-right">
-                {algorithm === 'gd-linesearch'
-                  ? (props.gdLSTolerance ?? 1e-6)?.toExponential(1)
-                  : algorithm === 'newton'
-                  ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
-                  : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
+                    ? (props.newtonTolerance ?? 1e-6)?.toExponential(1)
+                    : (props.lbfgsTolerance ?? 1e-6)?.toExponential(1)}
+                </div>
               </div>
+              <p className="text-xs text-gray-500">
+                Convergence threshold for gradient norm
+              </p>
             </div>
-            <p className="text-xs text-gray-500">
-              Convergence threshold for gradient norm
-            </p>
-          </div>
+
+            {/* Function Tolerance (ftol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Function Tolerance (ftol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(
+                    algorithm === 'gd-linesearch'
+                      ? (props.gdLSFtol ?? 1e-9)
+                      : algorithm === 'newton'
+                      ? (props.newtonFtol ?? 1e-9)
+                      : (props.lbfgsFtol ?? 1e-9)
+                  )}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    if (algorithm === 'gd-linesearch') props.onGdLSFtolChange?.(val);
+                    else if (algorithm === 'newton') props.onNewtonFtolChange?.(val);
+                    else props.onLbfgsFtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {algorithm === 'gd-linesearch'
+                    ? (props.gdLSFtol ?? 1e-9)?.toExponential(1)
+                    : algorithm === 'newton'
+                    ? (props.newtonFtol ?? 1e-9)?.toExponential(1)
+                    : (props.lbfgsFtol ?? 1e-9)?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative function change threshold (scipy-style)
+              </p>
+            </div>
+
+            {/* Step Tolerance (xtol) */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Step Tolerance (xtol):</label>
+                <input
+                  type="range"
+                  min="-12"
+                  max="-4"
+                  step="0.1"
+                  value={Math.log10(
+                    algorithm === 'gd-linesearch'
+                      ? (props.gdLSXtol ?? 1e-9)
+                      : algorithm === 'newton'
+                      ? (props.newtonXtol ?? 1e-9)
+                      : (props.lbfgsXtol ?? 1e-9)
+                  )}
+                  onChange={(e) => {
+                    const val = Math.pow(10, parseFloat(e.target.value));
+                    if (algorithm === 'gd-linesearch') props.onGdLSXtolChange?.(val);
+                    else if (algorithm === 'newton') props.onNewtonXtolChange?.(val);
+                    else props.onLbfgsXtolChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {algorithm === 'gd-linesearch'
+                    ? (props.gdLSXtol ?? 1e-9)?.toExponential(1)
+                    : algorithm === 'newton'
+                    ? (props.newtonXtol ?? 1e-9)?.toExponential(1)
+                    : (props.lbfgsXtol ?? 1e-9)?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Relative step size threshold (scipy-style)
+              </p>
+            </div>
+          </>
         )}
 
         {algorithm === 'newton' && (
