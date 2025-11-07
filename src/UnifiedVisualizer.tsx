@@ -3226,6 +3226,62 @@ const UnifiedVisualizer = () => {
                 </div>
               </CollapsibleSection>
 
+              {/* When Things Go Wrong */}
+              <CollapsibleSection
+                title="When Things Go Wrong"
+                defaultExpanded={false}
+                storageKey="newton-troubleshooting"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800 mb-2">Problem: Perceptron Won't Converge with Newton</h3>
+
+                    <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
+                      <p className="font-semibold text-red-900 mb-2">Setup to reproduce:</p>
+                      <ol className="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Select "Separating Hyperplane" problem</li>
+                        <li>Choose "Perceptron" variant</li>
+                        <li>Set λ (regularization) = 0.0001</li>
+                        <li>Set Hessian Damping (λ_damp) = 0</li>
+                        <li>Run Newton's method</li>
+                      </ol>
+                    </div>
+
+                    <div className="mb-3">
+                      <p className="font-semibold text-red-900 mb-2">What happens:</p>
+                      <ul className="list-disc ml-6 space-y-1 text-sm">
+                        <li>Hessian has tiny eigenvalues (≈ 0.0001)</li>
+                        <li>Newton direction becomes huge (~10,000× gradient magnitude)</li>
+                        <li>Line search forced to use tiny step sizes (α ≈ 0.0002)</li>
+                        <li>Oscillates without converging</li>
+                      </ul>
+                    </div>
+
+                    <div className="mb-3">
+                      <p className="font-semibold text-gray-900 mb-2">Why it happens:</p>
+                      <p className="text-sm mb-2">
+                        Perceptron's loss (max(0, -y·z)) is piecewise linear, so its Hessian is 0.
+                        Only the regularization contributes: <InlineMath>H = \lambda I</InlineMath>.
+                        When λ is tiny (0.0001), the Hessian becomes nearly singular.
+                      </p>
+                    </div>
+
+                    <div className="bg-green-50 border border-green-200 rounded p-3">
+                      <p className="font-semibold text-green-900 mb-2">Solution:</p>
+                      <p className="text-sm mb-2">
+                        Increase Hessian Damping to 0.01 or higher. This adds numerical stability
+                        without significantly changing the optimization problem.
+                      </p>
+                      <p className="font-semibold text-green-900 mt-2 mb-1">Result with λ_damp = 0.01:</p>
+                      <ul className="list-disc ml-6 space-y-1 text-sm">
+                        <li>Convergence in ~2 iterations</li>
+                        <li>All points classified correctly</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
               {/* Advanced Topics */}
               <CollapsibleSection
                 title="Advanced Topics"
