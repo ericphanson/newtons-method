@@ -176,11 +176,20 @@ const UnifiedVisualizer = () => {
         dimensionality: 2, // 2D weights [w0, w1]
       };
     } else if (currentProblem === 'separating-hyperplane') {
-      // Return metadata about the problem
+      // Return separating hyperplane wrapped as problem interface
+      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
       return {
         name: 'Separating Hyperplane',
+        description: `Separating hyperplane (${separatingHyperplaneVariant})`,
+        objective,
+        gradient,
+        hessian,
+        domain: {
+          w0: [-3, 3],
+          w1: [-3, 3],
+        },
         requiresDataset: true,
-        is3D: true,
+        dimensionality: 3, // 3D weights [w0, w1, w2]
       };
     } else {
       // Get problem from registry
@@ -194,7 +203,7 @@ const UnifiedVisualizer = () => {
         dimensionality: 2, // 2D weights [w0, w1]
       };
     }
-  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB]);
+  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB, separatingHyperplaneVariant]);
 
   // Get current problem functions for algorithm execution
   // For parametrized problems (rotated quadratic, ill-conditioned quadratic, Rosenbrock),
@@ -1197,12 +1206,48 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 20, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
     const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
     const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
+
+    // Helper function to generate nice tick values
+    const generateTicks = (min: number, max: number, targetCount: number = 5): number[] => {
+      const range = max - min;
+      if (range === 0) return [min];
+
+      const roughStep = range / (targetCount - 1);
+      const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+      const normalized = roughStep / magnitude;
+
+      let niceStep;
+      if (normalized < 1.5) niceStep = 1;
+      else if (normalized < 3.5) niceStep = 2;
+      else if (normalized < 7.5) niceStep = 5;
+      else niceStep = 10;
+
+      const step = niceStep * magnitude;
+      const start = Math.ceil(min / step) * step;
+      const ticks: number[] = [];
+
+      for (let tick = start; tick <= max + step * 0.001; tick += step) {
+        ticks.push(tick);
+      }
+
+      return ticks.length > 0 ? ticks : [min, max];
+    };
+
+    // Format tick labels
+    const formatTick = (val: number): string => {
+      if (val === 0) return '0';
+      const abs = Math.abs(val);
+      if (abs >= 1000 || abs < 0.01) return val.toExponential(1);
+      if (abs >= 10) return val.toFixed(1);
+      if (abs >= 1) return val.toFixed(2);
+      return val.toFixed(3);
+    };
 
     ctx.strokeStyle = '#9ca3af';
     ctx.lineWidth = 1;
@@ -1211,6 +1256,38 @@ const UnifiedVisualizer = () => {
     ctx.lineTo(margin.left, h - margin.bottom);
     ctx.lineTo(w - margin.right, h - margin.bottom);
     ctx.stroke();
+
+    // Draw x-axis ticks and labels
+    const xTicks = generateTicks(0, maxAlpha, 5);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    xTicks.forEach(tick => {
+      const x = toCanvasX(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, h - margin.bottom);
+      ctx.lineTo(x, h - margin.bottom + 5);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), x, h - margin.bottom + 8);
+    });
+
+    // Draw y-axis ticks and labels
+    const yTicks = generateTicks(minLoss, maxLoss, 5);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    yTicks.forEach(tick => {
+      const y = toCanvasY(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left - 5, y);
+      ctx.lineTo(margin.left, y);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), margin.left - 8, y);
+    });
 
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -1397,7 +1474,7 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 20, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
@@ -1707,7 +1784,7 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 20, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
