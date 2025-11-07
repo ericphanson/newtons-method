@@ -15,6 +15,15 @@ The Python validation suite compares TypeScript optimization algorithm implement
 - Logistic regression
 - SVM variants (soft-margin, perceptron, squared-hinge)
 
+## What to Expect
+
+**The validation suite is a debugging tool** - finding failures is success! You should see:
+- ✅ **~10 PASS** (31%) - TS and scipy implementations agree
+- ⚠️ **~8 SUSPICIOUS** (25%) - Performance differences or both diverge
+- ❌ **~14 FAIL** (44%) - TS diverges while scipy converges
+
+**This is normal** - the suite identifies bugs in the TypeScript implementation so you can fix them.
+
 ## Quick Start
 
 ```bash
@@ -152,15 +161,20 @@ grep "FAIL" validation_output.txt
 ### 2. Analyze Specific Failure
 
 ```bash
-# Run single test with verbose output
+# Run single test (shows detailed comparison for failures)
 cd python
-uv run python validate_with_python.py --problem quadratic --algorithm gd-fixed --verbose
+uv run python validate_with_python.py --problem quadratic --algorithm gd-fixed
+
+# Note: --verbose flag currently shows same output as default mode
+# For iteration details, check iteration_history in the code or use TS CLI directly
 ```
 
 **Look for:**
-- Iteration where divergence starts
-- Pattern in gradient/loss values
-- NaN or Infinity appearing
+- Whether convergence status matches between implementations
+- NaN or Infinity appearing in loss or gradient
+- Final loss difference (FAIL if >10%, SUSPICIOUS if 1-10%)
+- Position difference and iteration count ratio
+- Initial point dimension (must match problem: 2D for pure, 3D for data-based)
 
 ### 3. Compare Implementations
 
@@ -185,11 +199,18 @@ uv run python validate_with_python.py --problem quadratic --algorithm gd-fixed -
 **❌ Perceptron always fails:**
 - Implementation bug in perceptron loss/gradient
 - Check: `src/utils/separatingHyperplane.ts`
+- Check label conversion: should be {-1, +1} not {0, 1}
 
 **❌ NaN propagation:**
 - Numerical overflow in gradient or Hessian
 - Missing bounds checks
 - Check: sigmoid clipping, matrix conditioning
+
+**❌ Dimension mismatch:**
+- Symptom: Test fails with NaN immediately
+- Cause: Data-based problems (logistic regression, SVM) need 3D weights `[w0, w1, bias]`
+- Pure problems need 2D weights `[w0, w1]`
+- Check: `--initial` parameter has correct dimension
 
 **⚠️ Iteration count 3-10x higher:**
 - Less efficient line search
@@ -200,8 +221,9 @@ uv run python validate_with_python.py --problem quadratic --algorithm gd-fixed -
 ### 5. Fix and Verify
 
 ```bash
-# After fixing TypeScript code:
-npm run validate --problem <problem> --algorithm <algorithm>
+# After fixing TypeScript code, test the specific case:
+cd python
+uv run python validate_with_python.py --problem <problem> --algorithm <algorithm>
 
 # Verify fix resolves the issue
 # Expected: Status changes from FAIL → PASS
@@ -449,12 +471,13 @@ The validation suite can be integrated into continuous integration:
 
 ## Known Limitations
 
-1. **No parallel execution** - Tests run sequentially
-2. **Subprocess overhead** - Each test spawns new Node process
-3. **CLI output parsing** - Fragile to output format changes
-4. **No iteration-by-iteration comparison** - Only final results compared in detail
-5. **Fixed tolerances** - Not adaptive to problem scale
-6. **No visual diff** - Text output only, no plots
+1. **Test result variability** - Running tests individually may produce different results than the full suite due to subprocess state or timing differences. Always verify fixes using the full suite (`npm run validate`)
+2. **No parallel execution** - Tests run sequentially
+3. **Subprocess overhead** - Each test spawns new Node process
+4. **CLI output parsing** - Fragile to output format changes
+5. **No iteration-by-iteration comparison** - Only final results compared in detail; `--verbose` flag shows same output as default mode
+6. **Fixed tolerances** - Not adaptive to problem scale
+7. **No visual diff** - Text output only, no plots
 
 ## Future Enhancements
 
