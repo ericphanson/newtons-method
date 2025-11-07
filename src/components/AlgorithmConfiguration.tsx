@@ -58,10 +58,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
   const { algorithm } = props;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Algorithm Configuration</h2>
-
-      <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-6">
         {/* Algorithm-specific parameters */}
         {algorithm === 'gd-fixed' && (
           <>
@@ -464,6 +461,5 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
           />
         </div>
       </div>
-    </div>
   );
 };
