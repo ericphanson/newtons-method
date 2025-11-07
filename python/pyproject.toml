@@ -1,0 +1,9 @@
+[project]
+name = "optimization-validation"
+version = "0.1.0"
+description = "Validation suite for optimization algorithms"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+]
