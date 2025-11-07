@@ -247,11 +247,13 @@ const UnifiedVisualizer = () => {
     localStorage.setItem('selectedAlgorithmTab', selectedTab);
   }, [selectedTab]);
 
-  // Calculate global minimum for logistic regression when data changes
+  // Calculate global minimum for dataset-based problems (logistic regression, separating hyperplane) when data changes
   useEffect(() => {
-    if (currentProblem === 'logistic-regression') {
+    if (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') {
       try {
-        const problemFuncs = logisticRegressionToProblemFunctions(data, lambda);
+        const problemFuncs = currentProblem === 'logistic-regression'
+          ? logisticRegressionToProblemFunctions(data, lambda)
+          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant);
         // Run L-BFGS with tight convergence to find global minimum
         const result = runLBFGS(problemFuncs, {
           maxIter: 1000,
@@ -266,13 +268,13 @@ const UnifiedVisualizer = () => {
           setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1]]);
         }
       } catch (error) {
-        console.warn('Failed to compute logistic regression global minimum:', error);
+        console.warn('Failed to compute dataset problem global minimum:', error);
         setLogisticGlobalMin(null);
       }
     } else {
       setLogisticGlobalMin(null);
     }
-  }, [currentProblem, data, lambda]);
+  }, [currentProblem, data, lambda, separatingHyperplaneVariant]);
 
   // Note: When rotationAngle, conditionNumber, or rosenbrockB changes, algorithms automatically rerun
   // because getCurrentProblemFunctions includes them in its dependencies, which triggers
@@ -316,7 +318,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -375,7 +377,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -434,7 +436,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -493,7 +495,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -742,7 +744,7 @@ const UnifiedVisualizer = () => {
         : 0;
 
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = currentProblem === 'logistic-regression'
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
       const iterations = runGradientDescent(problemFuncs, {
@@ -773,7 +775,7 @@ const UnifiedVisualizer = () => {
         : 0;
 
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = currentProblem === 'logistic-regression'
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
       const iterations = runGradientDescentLineSearch(problemFuncs, {
@@ -804,7 +806,7 @@ const UnifiedVisualizer = () => {
         : 0;
 
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = currentProblem === 'logistic-regression'
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
       const iterations = runNewton(problemFuncs, {
@@ -835,7 +837,7 @@ const UnifiedVisualizer = () => {
         : 0;
 
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = currentProblem === 'logistic-regression'
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
         ? [initialW0, initialW1, 0]
         : [initialW0, initialW1];
       console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1 });
@@ -1129,7 +1131,7 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
     if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
@@ -1206,7 +1208,7 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 40, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
@@ -1326,14 +1328,6 @@ const UnifiedVisualizer = () => {
       ctx.beginPath();
       ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
       ctx.fill();
-
-      if (t.satisfied) {
-        ctx.fillStyle = '#065f46';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(`✓ Accept α=${t.alpha.toFixed(4)}`, cx + 12, cy - 10);
-        ctx.fillText(`loss=${t.loss.toFixed(4)}`, cx + 12, cy + 5);
-      }
     });
 
     ctx.fillStyle = '#374151';
@@ -1397,7 +1391,7 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
     if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
@@ -1474,12 +1468,48 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 40, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
     const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
     const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
+
+    // Helper function to generate nice tick values
+    const generateTicks = (min: number, max: number, targetCount: number = 5): number[] => {
+      const range = max - min;
+      if (range === 0) return [min];
+
+      const roughStep = range / (targetCount - 1);
+      const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+      const normalized = roughStep / magnitude;
+
+      let niceStep;
+      if (normalized < 1.5) niceStep = 1;
+      else if (normalized < 3.5) niceStep = 2;
+      else if (normalized < 7.5) niceStep = 5;
+      else niceStep = 10;
+
+      const step = niceStep * magnitude;
+      const start = Math.ceil(min / step) * step;
+      const ticks: number[] = [];
+
+      for (let tick = start; tick <= max + step * 0.001; tick += step) {
+        ticks.push(tick);
+      }
+
+      return ticks.length > 0 ? ticks : [min, max];
+    };
+
+    // Format tick labels
+    const formatTick = (val: number): string => {
+      if (val === 0) return '0';
+      const abs = Math.abs(val);
+      if (abs >= 1000 || abs < 0.01) return val.toExponential(1);
+      if (abs >= 10) return val.toFixed(1);
+      if (abs >= 1) return val.toFixed(2);
+      return val.toFixed(3);
+    };
 
     ctx.strokeStyle = '#9ca3af';
     ctx.lineWidth = 1;
@@ -1488,6 +1518,38 @@ const UnifiedVisualizer = () => {
     ctx.lineTo(margin.left, h - margin.bottom);
     ctx.lineTo(w - margin.right, h - margin.bottom);
     ctx.stroke();
+
+    // Draw x-axis ticks and labels
+    const xTicks = generateTicks(0, maxAlpha, 5);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    xTicks.forEach(tick => {
+      const x = toCanvasX(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, h - margin.bottom);
+      ctx.lineTo(x, h - margin.bottom + 5);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), x, h - margin.bottom + 8);
+    });
+
+    // Draw y-axis ticks and labels
+    const yTicks = generateTicks(minLoss, maxLoss, 5);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    yTicks.forEach(tick => {
+      const y = toCanvasY(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left - 5, y);
+      ctx.lineTo(margin.left, y);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), margin.left - 8, y);
+    });
 
     ctx.strokeStyle = '#f97316';
     ctx.lineWidth = 2;
@@ -1526,14 +1588,6 @@ const UnifiedVisualizer = () => {
       ctx.beginPath();
       ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
       ctx.fill();
-
-      if (t.satisfied) {
-        ctx.fillStyle = '#065f46';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(`✓ Accept α=${t.alpha.toFixed(4)}`, cx + 12, cy - 10);
-        ctx.fillText(`loss=${t.loss.toFixed(4)}`, cx + 12, cy + 5);
-      }
     });
 
     ctx.fillStyle = '#374151';
@@ -1598,7 +1652,7 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
     if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
@@ -1707,7 +1761,7 @@ const UnifiedVisualizer = () => {
 
     // Draw optimum markers (global minimum or critical points)
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum = problemDef?.globalMinimum || (currentProblem === 'logistic-regression' ? logisticGlobalMin || undefined : undefined);
+    const globalMinimum = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
     if (globalMinimum || problemDef?.criticalPoint) {
       drawOptimumMarkers({
         ctx,
@@ -1784,12 +1838,48 @@ const UnifiedVisualizer = () => {
     const maxLoss = Math.max(...allValues);
     const lossRange = maxLoss - minLoss;
 
-    const margin = { left: 60, right: 120, top: 30, bottom: 50 };
+    const margin = { left: 60, right: 40, top: 30, bottom: 50 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
     const toCanvasX = (alpha: number) => margin.left + (alpha / maxAlpha) * plotW;
     const toCanvasY = (loss: number) => margin.top + plotH - ((loss - minLoss) / (lossRange + 1e-10)) * plotH;
+
+    // Helper function to generate nice tick values
+    const generateTicks = (min: number, max: number, targetCount: number = 5): number[] => {
+      const range = max - min;
+      if (range === 0) return [min];
+
+      const roughStep = range / (targetCount - 1);
+      const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+      const normalized = roughStep / magnitude;
+
+      let niceStep;
+      if (normalized < 1.5) niceStep = 1;
+      else if (normalized < 3.5) niceStep = 2;
+      else if (normalized < 7.5) niceStep = 5;
+      else niceStep = 10;
+
+      const step = niceStep * magnitude;
+      const start = Math.ceil(min / step) * step;
+      const ticks: number[] = [];
+
+      for (let tick = start; tick <= max + step * 0.001; tick += step) {
+        ticks.push(tick);
+      }
+
+      return ticks.length > 0 ? ticks : [min, max];
+    };
+
+    // Format tick labels
+    const formatTick = (val: number): string => {
+      if (val === 0) return '0';
+      const abs = Math.abs(val);
+      if (abs >= 1000 || abs < 0.01) return val.toExponential(1);
+      if (abs >= 10) return val.toFixed(1);
+      if (abs >= 1) return val.toFixed(2);
+      return val.toFixed(3);
+    };
 
     // Draw axes
     ctx.strokeStyle = '#9ca3af';
@@ -1799,6 +1889,38 @@ const UnifiedVisualizer = () => {
     ctx.lineTo(margin.left, h - margin.bottom);
     ctx.lineTo(w - margin.right, h - margin.bottom);
     ctx.stroke();
+
+    // Draw x-axis ticks and labels
+    const xTicks = generateTicks(0, maxAlpha, 5);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    xTicks.forEach(tick => {
+      const x = toCanvasX(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, h - margin.bottom);
+      ctx.lineTo(x, h - margin.bottom + 5);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), x, h - margin.bottom + 8);
+    });
+
+    // Draw y-axis ticks and labels
+    const yTicks = generateTicks(minLoss, maxLoss, 5);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    yTicks.forEach(tick => {
+      const y = toCanvasY(tick);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left - 5, y);
+      ctx.lineTo(margin.left, y);
+      ctx.stroke();
+      ctx.fillText(formatTick(tick), margin.left - 8, y);
+    });
 
     // Draw Armijo boundary (dashed)
     ctx.strokeStyle = '#f97316';
@@ -1841,14 +1963,6 @@ const UnifiedVisualizer = () => {
       ctx.beginPath();
       ctx.arc(cx, cy, t.satisfied ? 9 : 5, 0, 2 * Math.PI);
       ctx.fill();
-
-      if (t.satisfied) {
-        ctx.fillStyle = '#065f46';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(`✓ Accept α=${t.alpha.toFixed(4)}`, cx + 12, cy - 10);
-        ctx.fillText(`loss=${t.loss.toFixed(4)}`, cx + 12, cy + 5);
-      }
     });
 
     // Labels
