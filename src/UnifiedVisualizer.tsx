@@ -487,6 +487,7 @@ const UnifiedVisualizer = () => {
         setGdLSC1(experiment.hyperparameters.c1);
         setNewtonC1(experiment.hyperparameters.c1);
         setLbfgsC1(experiment.hyperparameters.c1);
+        setDiagPrecondC1(experiment.hyperparameters.c1);
       }
       if (experiment.hyperparameters.lambda !== undefined) {
         setLambda(experiment.hyperparameters.lambda);
@@ -592,6 +593,17 @@ const UnifiedVisualizer = () => {
             initialPoint,
           });
           leftIters = result.iterations;
+        } else if (leftConfig.algorithm === 'diagonal-precond') {
+          const result = runDiagonalPreconditioner(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: leftConfig.c1 ?? diagPrecondC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            tolerance: diagPrecondTolerance,
+            useLineSearch: diagPrecondUseLineSearch,
+            epsilon: diagPrecondEpsilon,
+            initialPoint,
+          });
+          leftIters = result.iterations;
         }
 
         // Run right algorithm
@@ -631,6 +643,17 @@ const UnifiedVisualizer = () => {
             initialPoint,
           });
           rightIters = result.iterations;
+        } else if (rightConfig.algorithm === 'diagonal-precond') {
+          const result = runDiagonalPreconditioner(problemFuncs, {
+            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
+            c1: rightConfig.c1 ?? diagPrecondC1,
+            lambda: experiment.hyperparameters.lambda ?? lambda,
+            tolerance: diagPrecondTolerance,
+            useLineSearch: diagPrecondUseLineSearch,
+            epsilon: diagPrecondEpsilon,
+            initialPoint,
+          });
+          rightIters = result.iterations;
         }
 
         setComparisonLeftIterations(leftIters);
@@ -641,6 +664,12 @@ const UnifiedVisualizer = () => {
         setComparisonMode('none');
         setComparisonLeftIterations([]);
         setComparisonRightIterations([]);
+
+        // Run single algorithm for non-comparison experiments
+        if (selectedTab === 'diagonal-precond') {
+          // Run the algorithm with a small delay to ensure state updates
+          setTimeout(() => runDiagPrecond(), 100);
+        }
       }
 
       // 6. Iterations reset automatically via useEffect when state changes
@@ -658,7 +687,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1]);
+  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1, newtonHessianDamping, lbfgsHessianDamping, newtonLineSearch, diagPrecondC1, diagPrecondTolerance, diagPrecondUseLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -717,6 +746,7 @@ const UnifiedVisualizer = () => {
       setGdFixedIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentFixedStep above
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixedCurrentIter and gdFixedIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -751,6 +781,7 @@ const UnifiedVisualizer = () => {
       setGdLSIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentLineSearch above
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gdLSCurrentIter and gdLSIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -792,6 +823,7 @@ const UnifiedVisualizer = () => {
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runNewton above
     // Missing a parameter here means changes won't trigger re-resolution (bug: newtonHessianDamping was missing)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- newtonCurrentIter and newtonIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
@@ -835,6 +867,7 @@ const UnifiedVisualizer = () => {
       setLbfgsIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Run diagonal preconditioner
@@ -877,9 +910,7 @@ const UnifiedVisualizer = () => {
     }
   }, [
     currentProblem,
-    data,
     lambda,
-    separatingHyperplaneVariant,
     maxIter,
     initialW0,
     initialW1,
@@ -887,9 +918,6 @@ const UnifiedVisualizer = () => {
     diagPrecondUseLineSearch,
     diagPrecondC1,
     diagPrecondEpsilon,
-    rotationAngle,
-    conditionNumber,
-    rosenbrockB,
     getCurrentProblemFunctions
   ]);
 
@@ -1298,7 +1326,8 @@ const UnifiedVisualizer = () => {
 
     const problem = getCurrentProblem();
     drawParameterSpacePlot(canvas, newtonParamBounds, newtonIterations, newtonCurrentIter, problem);
-  }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
+  }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
@@ -1483,7 +1512,8 @@ const UnifiedVisualizer = () => {
 
     const problem = getCurrentProblem();
     drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgsIterations, lbfgsCurrentIter, problem);
-  }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
+  }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw L-BFGS line search
   useEffect(() => {
@@ -1504,7 +1534,8 @@ const UnifiedVisualizer = () => {
 
     const problem = getCurrentProblem();
     drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixedIterations, gdFixedCurrentIter, problem);
-  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
+  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw GD Line Search parameter space
   useEffect(() => {
@@ -1515,7 +1546,8 @@ const UnifiedVisualizer = () => {
 
     const problem = getCurrentProblem();
     drawParameterSpacePlot(canvas, gdLSParamBounds, gdLSIterations, gdLSCurrentIter, problem);
-  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
+  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw GD Line Search plot
   useEffect(() => {
