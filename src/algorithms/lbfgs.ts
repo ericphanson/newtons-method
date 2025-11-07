@@ -9,7 +9,7 @@ import {
   sub
 } from '../shared-utils';
 import { armijoLineSearch } from '../line-search/armijo';
-import { ProblemFunctions, AlgorithmOptions } from './types';
+import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary } from './types';
 
 export interface MemoryPair {
   s: number[];
@@ -71,7 +71,7 @@ export interface LBFGSIteration {
 export const runLBFGS = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & { c1?: number; m?: number; lambda?: number; hessianDamping?: number }
-): LBFGSIteration[] => {
+): AlgorithmResult<LBFGSIteration> => {
   const { maxIter, c1 = 0.0001, m = 5, lambda = 0, initialPoint, tolerance = 1e-5, hessianDamping = 0.01 } = options;
   const iterations: LBFGSIteration[] = [];
   const M = m; // Memory parameter: number of (s, y) pairs to store
@@ -196,7 +196,35 @@ export const runLBFGS = (
     if (gradNorm < tolerance) break;
   }
 
-  return iterations;
+  // Compute convergence summary
+  const lastIter = iterations[iterations.length - 1];
+  const finalGradNorm = lastIter ? lastIter.gradNorm : Infinity;
+  const finalLoss = lastIter ? lastIter.newLoss : Infinity;
+  const finalLocation = lastIter ? lastIter.wNew : w;
+
+  const converged = finalGradNorm < tolerance;
+  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
+
+  let convergenceCriterion: 'gradient' | 'maxiter' | 'diverged';
+  if (diverged) {
+    convergenceCriterion = 'diverged';
+  } else if (converged) {
+    convergenceCriterion = 'gradient';
+  } else {
+    convergenceCriterion = 'maxiter';
+  }
+
+  const summary: AlgorithmSummary = {
+    converged,
+    diverged,
+    finalLocation,
+    finalLoss,
+    finalGradNorm,
+    iterationCount: iterations.length,
+    convergenceCriterion
+  };
+
+  return { iterations, summary };
 };
 
 /**
