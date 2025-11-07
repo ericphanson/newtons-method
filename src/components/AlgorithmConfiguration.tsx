@@ -200,9 +200,14 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   {props.newtonHessianDamping?.toExponential(1)}
                 </div>
               </div>
-              <p className="text-xs text-gray-500">
-                Regularization for numerical stability (0.0001 to 1.0, logarithmic scale)
-              </p>
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">
+                  Regularization for numerical stability (0.0001 to 1.0, logarithmic scale)
+                </p>
+                <p className="text-xs text-gray-600">
+                  <span className="font-medium">Tip:</span> Use 0.0001 for pure Newton, 0.01 for stability (default), 0.1+ for very ill-conditioned problems
+                </p>
+              </div>
             </div>
           </>
         )}
