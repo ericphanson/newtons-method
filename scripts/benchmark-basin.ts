@@ -99,7 +99,7 @@ function benchmarkBasin(
         } else if (!isFinite(finalLoss) || !isFinite(finalGradNorm)) {
           divergedCount++;
         }
-      } catch (error) {
+      } catch {
         divergedCount++;
       }
     }

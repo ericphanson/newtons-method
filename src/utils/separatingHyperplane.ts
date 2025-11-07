@@ -55,7 +55,7 @@ export function softMarginGradient(
   dataPoints: DataPoint[],
   lambda: number
 ): number[] {
-  const [w0, w1, _w2] = w;
+  const [w0, w1] = w;
 
   let grad0 = w0;
   let grad1 = w1;
@@ -77,9 +77,6 @@ export function softMarginGradient(
 }
 
 export function softMarginHessian(
-  _w: number[],
-  _dataPoints: DataPoint[],
-  _lambda: number
 ): number[][] {
   // Hinge loss is not twice differentiable, return approximate Hessian
   // Use identity for regularization term
@@ -119,7 +116,7 @@ export function perceptronGradient(
   dataPoints: DataPoint[],
   lambda: number
 ): number[] {
-  const [w0, w1, _w2] = w;
+  const [w0, w1] = w;
   let grad0 = 0;
   let grad1 = 0;
   let grad2 = 0;
@@ -145,8 +142,6 @@ export function perceptronGradient(
 }
 
 export function perceptronHessian(
-  _w: number[],
-  _dataPoints: DataPoint[],
   lambda: number
 ): number[][] {
   // Perceptron loss is piecewise linear, Hessian is from regularization term
@@ -185,7 +180,7 @@ export function squaredHingeGradient(
   dataPoints: DataPoint[],
   lambda: number
 ): number[] {
-  const [w0, w1, _w2] = w;
+  const [w0, w1] = w;
 
   let grad0 = w0;
   let grad1 = w1;

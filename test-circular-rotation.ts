@@ -4,7 +4,6 @@
  * A circle has no preferred direction - should perform identically at all angles
  */
 
-import { createRotatedQuadratic } from './src/problems/quadratic';
 import { problemToProblemFunctions } from './src/utils/problemAdapter';
 import { runGradientDescent } from './src/algorithms/gradient-descent';
 import { ProblemDefinition } from './src/types/experiments';
@@ -40,7 +39,7 @@ function createCircularQuadratic(thetaDegrees: number = 0): ProblemDefinition {
       ];
     },
 
-    hessian: (_w: number[]): number[][] => {
+    hessian: (): number[][] => {
       return [[h00, h01], [h01, h11]];
     },
 

@@ -7,7 +7,7 @@
 import { getProblem } from '../src/problems/index';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions } from '../src/utils/problemAdapter';
 import { computeBasinPoint, initializeBasinData } from '../src/utils/basinComputation';
-import { clusterConvergenceLocations, assignHuesToClusters } from '../src/utils/basinClustering';
+import { clusterConvergenceLocations } from '../src/utils/basinClustering';
 import { generateCrescents } from '../src/shared-utils';
 
 // Parse command line arguments

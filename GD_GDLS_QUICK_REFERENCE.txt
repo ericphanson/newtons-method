@@ -1,0 +1,280 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║              GD/GD+LS/LR CODEBASE QUICK REFERENCE GUIDE                    ║
+║                                                                            ║
+║         Newton's Method Visualization Codebase - Fast Lookup              ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ALGORITHM IMPLEMENTATIONS - WHERE TO FIND THEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GD (Gradient Descent - Fixed Step)
+  TypeScript:     /src/algorithms/gradient-descent.ts
+  Python:         /python/scipy_runner.py (custom implementation, not scipy)
+  Main function:  runGradientDescent(problem, options)
+  Key params:     alpha (step size), maxIter, tolerance
+  Returns:        AlgorithmResult<GradientDescentIteration>
+
+GD+LS (Gradient Descent + Line Search)
+  TypeScript:     /src/algorithms/gradient-descent-linesearch.ts
+  Python:         /python/scipy_runner.py (maps to scipy.optimize.CG)
+  Main function:  runGradientDescentLineSearch(problem, options)
+  Key params:     c1 (Armijo constant), maxIter, tolerance
+  Returns:        AlgorithmResult<GDLineSearchIteration>
+
+Line Search (Armijo)
+  TypeScript:     /src/line-search/armijo.ts
+  Algorithm:      Backtracking with Armijo condition check
+  Key params:     c1=0.0001, rho=0.5, maxTrials=20
+  Returns:        LineSearchResult with trials history + visualization curve
+
+Newton's Method
+  TypeScript:     /src/algorithms/newton.ts (433 lines)
+  Python:         /python/scipy_runner.py (maps to scipy.optimize.Newton-CG)
+  Uses Hessian:   Yes (required)
+  Stability:      Has line search + optional Hessian damping
+
+L-BFGS
+  TypeScript:     /src/algorithms/lbfgs.ts
+  Python:         /python/scipy_runner.py (maps to scipy.optimize.L-BFGS-B)
+  Memory-efficient: Stores only M recent pairs (default M=5)
+
+Diagonal Preconditioner
+  TypeScript:     /src/algorithms/diagonal-preconditioner.ts
+  Recent:         Added Nov 7 2025
+  Uses:           Hessian diagonal for per-coordinate step sizes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ LOGISTIC REGRESSION (LR) - THE MAIN TEST PROBLEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What is LR? 
+  Binary classification problem (logistic regression)
+  Not an abbreviation, the actual problem name
+
+TypeScript Implementation
+  File:           /src/utils/logisticRegression.ts
+  Functions:
+    • logisticObjective(w, data, lambda) → loss value
+    • logisticGradient(w, data, lambda) → gradient vector
+    • logisticHessian(w, data, lambda) → Hessian matrix
+    • logisticLossAndGradient(w, data, lambda) → both (optimized)
+
+Python Implementation
+  File:           /python/data_problems.py
+  Class:          LogisticRegression
+  Methods:        objective(), gradient(), hessian()
+  Dataset:        Loaded from python/datasets/crescent.json
+
+Mathematical Definition
+  Model:    P(y=1|x) = sigmoid(w0*x1 + w1*x2 + w2)
+  Loss:     -mean[y*log(p) + (1-y)*log(1-p)] + (λ/2)*(w0² + w1²)
+  Weights:  [w0, w1, w2] where w2 is bias
+  Regularization: L2 on w0, w1 only (NOT on bias w2)
+
+Key Implementation Details
+  • Sigmoid clipping: z ∈ [-500, 500] to prevent overflow
+  • Loss clipping: p ∈ [1e-15, 1-1e-15] to prevent log(0)
+  • Gradient: error = sigmoid(z) - y
+  • Hessian: D = diag(σ(z)*(1-σ(z))) for data points
+
+Dataset (Crescent)
+  File:           /python/datasets/crescent.json
+  Points:         140 total (70 per class)
+  Shape:          Interleaved crescent moons
+  Labels:         0 and 1
+  Used by:        LR, SVM variants (soft-margin, perceptron, squared-hinge)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ INTEGRATION PATTERN - HOW ALGORITHMS CALL PROBLEMS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Universal Problem Interface (ProblemFunctions)
+  {
+    objective: (w: number[]) => number,
+    gradient: (w: number[]) => number[],
+    hessian?: (w: number[]) => number[][],
+    dimensionality: number              // 2 for pure, 3 for LR/SVM
+  }
+
+Adapters (in problemAdapter.ts)
+  • problemToProblemFunctions() - Registry problem → interface
+  • logisticRegressionToProblemFunctions() - LR + data → interface
+  • separatingHyperplaneToProblemFunctions() - SVM variant → interface
+
+Result of Running Algorithm
+  {
+    iterations: IterationType[],        // Full history
+    summary: AlgorithmSummary {
+      converged: boolean,
+      diverged: boolean,
+      finalLocation: number[],
+      finalLoss: number,
+      finalGradNorm: number,
+      iterationCount: number,
+      convergenceCriterion: string,
+      terminationMessage: string
+    }
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PYTHON VALIDATION SUITE - COMPARING TS vs SCIPY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Main Validation Script
+  File:           /python/validate_with_python.py
+  Usage:          python validate_with_python.py [--problem <name>] [--verbose]
+  Test count:     40+ combinations
+
+Test Cases Generated
+  • 6 pure problems × 4 algorithms = 24 cases
+  • Logistic regression × 4 algorithms = 4 cases
+  • 3 SVM variants × 4 algorithms = 12 cases
+
+Comparison Logic (comparator.py)
+  Convergence match:         Both must converge or diverge together
+  Loss difference < 1%:      PASS
+  Loss difference 1-10%:     SUSPICIOUS
+  Loss difference > 10%:     FAIL
+  Position difference > 1.0: FAIL
+
+Component Scripts
+  scipy_runner.py     - Runs scipy optimization with callback
+  ts_runner.py        - Executes TS via npm and parses output
+  comparator.py       - Compares results with tolerance thresholds
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OTHER OPTIMIZATION PROBLEMS (FOR CONTEXT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pure 2D Problems (Registry)
+  File location:  /src/problems/
+  • Quadratic:              f = w0² + w1²
+  • Ill-Conditioned:        f = w0² + 100*w1² (condition # = 100)
+  • Rosenbrock:             f = (1-w0)² + 100*(w1-w0²)²
+  • Non-Convex Saddle:      f = w0² - w1² (unbounded)
+  • Himmelblau:             f = (w0²+w1-11)² + (w0+w1²-7)²
+  • Three-Hump Camel:       complex multimodal
+
+Rotatable Problems (Factory Functions)
+  • createRotatedQuadratic(theta) - Demonstrates rotation dependence
+  • createIllConditionedQuadratic(kappa, theta) - Rotation + ill-conditioning
+
+Dataset-Based 3D Problems
+  • LogisticRegression:     Binary classification (crescent)
+  • SoftMarginSVM:          Hinge loss variant
+  • PerceptronSVM:          Perceptron loss (piecewise linear)
+  • SquaredHingeSVM:        Squared hinge (smooth SVM)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ KEY DIFFERENCES: GD vs GD+LS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                          GD (Fixed)          GD+LS (Line Search)
+Step size                 Fixed alpha         Adaptive (Armijo backtracking)
+Tuning difficulty         High (needs tuning) Low (automatic)
+Iterations to converge    ~100-200            ~20-50
+Implementation            Simple              Complex (line search logic)
+Visualization             Just trajectory     Trajectory + line search trials
+Armijo constant (c1)      N/A                 Default 0.0001
+Backtracking factor       N/A                 Default 0.5 (halve each trial)
+Max line search trials    N/A                 Default 20
+
+GD Performance on LR
+  • With α=0.01:    Good, ~100-150 iterations
+  • With α=0.1:     Very good, ~30-50 iterations
+  • With α=0.5:     Poor, oscillates or diverges
+  • Sweet spot:     α ∈ [0.05, 0.15]
+
+GD+LS Performance on LR
+  • Always works well regardless of initial guess
+  • Converges in ~20-30 iterations typically
+  • c1=0.0001 allows aggressive steps
+  • Rarely needs more than 10 line search trials
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RUNNING EXPERIMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Start the visualizer
+  npm install
+  npm run dev
+  Open http://localhost:5173
+
+Run Python validation
+  cd python
+  python validate_with_python.py --verbose
+
+Run single test case
+  python validate_with_python.py --problem logistic-regression --verbose
+
+TypeScript test scripts (in root directory)
+  npx ts-node test-gradient-consistency.ts
+  npx ts-node test-division-by-n-analysis.ts
+  npx ts-node test-step-size-progression.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RECENT CHANGES (Last 5 commits)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+dead57f  fix(lint): wrap case block in braces to create block scope
+0b7c20d  feat(ui): add diagonal preconditioner metrics display
+71e0a10  fix(lint): resolve no-self-assign warning in separatingHyperplane
+e21b65d  chore(lint): enforce prefer-const rule and fix violations
+be6c00e  feat(ui): add diagonal preconditioner configuration controls
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ CRITICAL FILES TO UNDERSTAND GD/GD+LS/LR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. /src/algorithms/gradient-descent.ts
+   → GD algorithm implementation
+
+2. /src/algorithms/gradient-descent-linesearch.ts
+   → GD+LS algorithm implementation
+
+3. /src/line-search/armijo.ts
+   → Line search implementation
+
+4. /src/utils/logisticRegression.ts
+   → Logistic regression objective, gradient, Hessian
+
+5. /python/data_problems.py
+   → Python logistic regression class
+
+6. /python/validate_with_python.py
+   → Main validation harness
+
+7. /src/algorithms/types.ts
+   → ProblemFunctions interface definition
+
+8. /src/utils/problemAdapter.ts
+   → Adapters to ProblemFunctions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GD diverges with step size α
+  → Try smaller α (0.01-0.05)
+  → Or use GD+LS which adapts automatically
+
+GD+LS convergence slow
+  → Check Armijo constant c1 (lower = faster but less accuracy)
+  → Check problem conditioning (ill-conditioned = slower)
+
+Newton's method fails
+  → Check Hessian is positive definite
+  → Try Hessian damping (adds small multiple of identity)
+  → On perceptron: Newton fundamentally doesn't work (piecewise linear)
+
+Logistic regression diverges
+  → Usually step size issue
+  → Check lambda (regularization) isn't too high
+  → Verify initial point isn't too far from optimum
+
+TS/Python results differ > 10%
+  → Check numerical tolerances match
+  → Verify problem initialization is identical
+  → Run comparator.py with --verbose for diagnostics
+

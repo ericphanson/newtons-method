@@ -39,7 +39,7 @@ export const threeHumpCamelProblem: ProblemDefinition = {
   },
 
   hessian: (w: number[]): number[][] => {
-    const [w0, _w1] = w;
+    const [w0] = w;
     // ∂²f/∂w0² = 4 - 12.6w0^2 + 5w0^4
     // ∂²f/∂w0∂w1 = 1
     // ∂²f/∂w1∂w0 = 1

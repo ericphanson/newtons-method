@@ -16,7 +16,7 @@ export const quadraticProblem: ProblemDefinition = {
     return [2 * w0, 2 * w1];
   },
 
-  hessian: (_w: number[]): number[][] => {
+  hessian: (): number[][] => {
     return [[2, 0], [0, 2]];
   },
 
@@ -61,7 +61,7 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
       ];
     },
 
-    hessian: (_w: number[]): number[][] => {
+    hessian: (): number[][] => {
       return [[h00, h01], [h01, h11]];
     },
 
@@ -91,7 +91,7 @@ export const illConditionedQuadratic: ProblemDefinition = {
     return [2 * w0, 200 * w1];
   },
 
-  hessian: (_w: number[]): number[][] => {
+  hessian: (): number[][] => {
     return [[2, 0], [0, 200]];
   },
 
@@ -119,7 +119,7 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
       return [2 * w0, 2 * conditionNumber * w1];
     },
 
-    hessian: (_w: number[]): number[][] => {
+    hessian: (): number[][] => {
       return [[2, 0], [0, 2 * conditionNumber]];
     },
 

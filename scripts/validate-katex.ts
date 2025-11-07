@@ -45,9 +45,8 @@ function findSourceFiles(dir: string, files: string[] = []): string[] {
  * Extract LaTeX expressions from source file content
  * Handles both <InlineMath> and <BlockMath> components
  */
-function extractLatexExpressions(content: string, filePath: string): Array<{ latex: string; line: number }> {
+function extractLatexExpressions(content: string): Array<{ latex: string; line: number }> {
   const expressions: Array<{ latex: string; line: number }> = [];
-  const lines = content.split('\n');
 
   // Pattern 1: <InlineMath>{String.raw`...`}</InlineMath>
   // Pattern 2: <BlockMath>{String.raw`...`}</BlockMath>
@@ -59,7 +58,6 @@ function extractLatexExpressions(content: string, filePath: string): Array<{ lat
 
   let match;
   while ((match = mathComponentRegex.exec(content)) !== null) {
-    const fullMatch = match[0];
     const innerContent = match[1];
     const rawStringContent = match[2];
 
@@ -113,7 +111,7 @@ function validateAllKatex(rootDir: string): ValidationError[] {
 
   for (const file of files) {
     const content = readFileSync(file, 'utf-8');
-    const expressions = extractLatexExpressions(content, file);
+    const expressions = extractLatexExpressions(content);
 
     if (expressions.length > 0) {
       const relPath = file.replace(rootDir + '/', '');

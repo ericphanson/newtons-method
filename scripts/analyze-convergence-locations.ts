@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { generateCrescents } from '../src/shared-utils';
 import { logisticRegressionToProblemFunctions } from '../src/utils/problemAdapter';
-import { initializeBasinData, computeBasinPoint } from '../src/utils/basinComputation';
+import { computeBasinPoint } from '../src/utils/basinComputation';
 
 const data = generateCrescents();
 const problemFuncs = logisticRegressionToProblemFunctions(data, 0.0001);
@@ -16,7 +16,6 @@ const bounds = {
 
 console.log('Analyzing convergence locations with UI bounds...\n');
 
-const basinData = initializeBasinData(20, bounds);
 const resolution = 20;
 const convergenceLocations: Array<{ start: number[], end: number[], iters: number }> = [];
 

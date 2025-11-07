@@ -115,11 +115,11 @@ const UnifiedVisualizer = () => {
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
-  const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
+  const [, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
   const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
   const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
-  const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-6);
+  const [diagPrecondTolerance] = useState(1e-6);
   const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
 
   // Shared algorithm state

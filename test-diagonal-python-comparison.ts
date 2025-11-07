@@ -15,7 +15,7 @@
 import { createRotatedQuadratic } from './src/problems/quadratic';
 import { problemToProblemFunctions } from './src/utils/problemAdapter';
 import { runDiagonalPreconditioner } from './src/algorithms/diagonal-preconditioner';
-import { ProblemDefinition, ProblemFunctions } from './src/types/experiments';
+import { ProblemDefinition } from './src/types/experiments';
 
 // ============================================================================
 // Finite Difference Utilities

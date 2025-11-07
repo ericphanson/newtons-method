@@ -34,7 +34,7 @@ console.log('Gradient:', softMarginGradient(w, testData, lambda));
 
 // Manual gradient calculation
 console.log('\n=== Manual Gradient Calculation ===');
-const [w0, w1, w2] = w;
+const [w0, w1] = w;
 
 let grad0 = w0; // regularization
 let grad1 = w1; // regularization

@@ -17,7 +17,7 @@ export const saddleProblem: ProblemDefinition = {
     return [2 * w0, -2 * w1];
   },
 
-  hessian: (_w: number[]): number[][] => {
+  hessian: (): number[][] => {
     // Constant Hessian = [[2, 0], [0, -2]]
     // Eigenvalues: λ1 = 2 (positive), λ2 = -2 (negative) → saddle point
     return [[2, 0], [0, -2]];

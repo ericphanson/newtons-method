@@ -82,6 +82,96 @@ def gradient_descent_fixed(
     }
 
 
+def gradient_descent_linesearch(
+    problem: Any,
+    x0: np.ndarray,
+    max_iter: int,
+    tol: float = 1e-6,
+    c1: float = 0.0001,
+    rho: float = 0.5,
+    max_line_search_trials: int = 20
+) -> dict:
+    """
+    Steepest descent with Armijo backtracking line search.
+
+    This implementation exactly matches the TypeScript version:
+    - Simple backtracking from alpha=1.0 with factor rho=0.5
+    - Armijo condition: f(w + alpha*d) <= f(w) + c1*alpha*(grad·d)
+    - Uses scipy only for trusted objective/gradient evaluation
+
+    This is a reference implementation, not using scipy's optimizers.
+    """
+    w = x0.copy()
+    iterations = []
+
+    for i in range(max_iter):
+        loss = problem.objective(w)
+        grad = problem.gradient(w)
+        grad_norm = np.linalg.norm(grad)
+
+        iterations.append({
+            'iter': i,
+            'w': w.copy(),
+            'loss': loss,
+            'grad_norm': grad_norm
+        })
+
+        # Check convergence
+        if grad_norm < tol:
+            return {
+                'converged': True,
+                'iterations': i + 1,
+                'final_loss': loss,
+                'final_w': w.copy(),
+                'final_grad_norm': grad_norm,
+                'message': f'Converged: grad_norm < {tol}',
+                'iteration_history': iterations
+            }
+
+        # Steepest descent direction
+        direction = -grad
+        dir_grad = np.dot(direction, grad)
+
+        # Armijo backtracking line search
+        alpha = 1.0
+        for trial in range(max_line_search_trials):
+            w_new = w + alpha * direction
+            new_loss = problem.objective(w_new)
+            armijo_rhs = loss + c1 * alpha * dir_grad
+
+            if new_loss <= armijo_rhs:
+                # Armijo condition satisfied
+                break
+
+            # Backtrack
+            alpha *= rho
+
+        # Update weights with accepted step size
+        w = w + alpha * direction
+
+    # Did not converge
+    final_loss = problem.objective(w)
+    final_grad = problem.gradient(w)
+    final_grad_norm = np.linalg.norm(final_grad)
+
+    iterations.append({
+        'iter': max_iter,
+        'w': w.copy(),
+        'loss': final_loss,
+        'grad_norm': final_grad_norm
+    })
+
+    return {
+        'converged': False,
+        'iterations': max_iter,
+        'final_loss': final_loss,
+        'final_w': w.copy(),
+        'final_grad_norm': final_grad_norm,
+        'message': 'Max iterations reached',
+        'iteration_history': iterations
+    }
+
+
 def run_scipy_optimizer(
     problem: Any,
     algorithm: str,
@@ -97,9 +187,13 @@ def run_scipy_optimizer(
         alpha = kwargs.get('alpha', 0.01)
         return gradient_descent_fixed(problem, x0, alpha, max_iter, tol)
 
-    # Map algorithms to scipy methods
+    # Handle gradient descent with line search separately
+    if algorithm == 'gd-linesearch':
+        c1 = kwargs.get('c1', 0.0001)
+        return gradient_descent_linesearch(problem, x0, max_iter, tol, c1)
+
+    # Map remaining algorithms to scipy methods
     method_map = {
-        'gd-linesearch': 'CG',  # Conjugate Gradient (uses line search)
         'newton': 'Newton-CG',
         'lbfgs': 'L-BFGS-B'
     }
