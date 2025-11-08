@@ -4901,6 +4901,96 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
+
+              {/* Why Diagonal Fails on Rotation */}
+              <CollapsibleSection
+                title="Why Diagonal Preconditioner Fails on Rotated Problems"
+                defaultExpanded={true}
+                storageKey="diagonal-precond-rotation-failure"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">The Problem: Off-Diagonal Terms</h3>
+                    <p>
+                      A diagonal preconditioner only uses the main diagonal of the Hessian matrix and
+                      completely ignores the off-diagonal terms. This works when the Hessian is diagonal
+                      (or nearly diagonal), but fails when coordinates are coupled.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Example: Axis-Aligned vs Rotated</h3>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border border-green-300 rounded p-3 bg-green-50">
+                        <p className="font-semibold text-green-900 mb-2">✓ Axis-Aligned (Perfect)</p>
+                        <p className="text-sm mb-2">Function: <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath></p>
+                        <p className="text-sm mb-2">Hessian:</p>
+                        <BlockMath>{String.raw`H = \begin{bmatrix} 2 & 0 \\ 0 & 200 \end{bmatrix}`}</BlockMath>
+                        <p className="text-sm mt-2">
+                          Diagonal preconditioner: <InlineMath>{'D = \\text{diag}(1/2, 1/200)'}</InlineMath>
+                        </p>
+                        <p className="text-sm mt-2 font-semibold">
+                          Result: <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges immediately.
+                        </p>
+                      </div>
+
+                      <div className="border border-red-300 rounded p-3 bg-red-50">
+                        <p className="font-semibold text-red-900 mb-2">✗ Rotated 45° (Fails)</p>
+                        <p className="text-sm mb-2">Function: <InlineMath>f(u,v) = u^2 + 100v^2</InlineMath></p>
+                        <p className="text-sm mb-2">In (x,y) coordinates after rotation:</p>
+                        <BlockMath>{String.raw`H = \begin{bmatrix} 51 & 49 \\ 49 & 51 \end{bmatrix}`}</BlockMath>
+                        <p className="text-sm mt-2">
+                          Diagonal preconditioner: <InlineMath>{'D \\approx \\text{diag}(1/51, 1/51)'}</InlineMath>
+                        </p>
+                        <p className="text-sm mt-2 font-semibold text-red-900">
+                          Result: Ignores off-diagonal 49! Wrong scaling, many iterations.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-100 rounded p-4">
+                    <h3 className="text-lg font-bold text-amber-900 mb-2">The Mathematical Issue</h3>
+                    <p className="mb-2">
+                      The inverse of a matrix is NOT just the inverse of its diagonal:
+                    </p>
+                    <BlockMath>
+                      {'H^{-1} \\neq \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}
+                    </BlockMath>
+                    <p className="text-sm mt-2">
+                      When H has large off-diagonal terms, computing only the diagonal gives a poor
+                      approximation to <InlineMath>{`H^{-1}`}</InlineMath>.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">What Newton's Method Does Better</h3>
+                    <p className="mb-2">
+                      Newton's method computes the full matrix inverse <InlineMath>{`H^{-1}`}</InlineMath>,
+                      which properly handles:
+                    </p>
+                    <ul className="list-disc ml-6 space-y-1 text-sm">
+                      <li>Coupling between coordinates (off-diagonal terms)</li>
+                      <li>Rotation of the coordinate system</li>
+                      <li>Both scaling AND rotation of the step direction</li>
+                    </ul>
+                    <p className="text-sm mt-3">
+                      <strong>Cost tradeoff:</strong> Newton needs O(n³) for matrix inversion vs O(n²) for
+                      Hessian computation + O(n) for diagonal extraction in diagonal preconditioning.
+                    </p>
+                  </div>
+
+                  <div className="bg-teal-100 rounded p-3">
+                    <p className="font-bold text-sm mb-2">Key Takeaway:</p>
+                    <p className="text-sm">
+                      Use diagonal preconditioning when you know the problem is axis-aligned or when you
+                      need something cheaper than Newton but better than gradient descent. Use Newton's
+                      method when you need rotation invariance and can afford the O(n³) cost.
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
               </div>
             </>
           ) : null}
