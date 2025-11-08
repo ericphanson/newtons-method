@@ -2,23 +2,6 @@ import { ExperimentPreset } from '../types/experiments';
 
 export const newtonExperiments: ExperimentPreset[] = [
   {
-    id: 'newton-compare',
-    name: 'Compare: Newton vs GD',
-    description: 'Side-by-side: Newton method vs gradient descent',
-    problem: 'ill-conditioned-quadratic',
-    hyperparameters: {
-      c1: 0.0001,
-      lambda: 0,
-      maxIter: 50,
-    },
-    initialPoint: [0.3, 2.5],
-    expectation: 'Observe: Newton converges in ~5 iterations, GD would take 100+',
-    comparisonConfig: {
-      left: { algorithm: 'newton', c1: 0.0001 },
-      right: { algorithm: 'gd-linesearch', c1: 0.0001 },
-    },
-  },
-  {
     id: 'newton-success-quadratic',
     name: 'Success: Strongly Convex Quadratic',
     description: 'Watch quadratic convergence in 1-2 iterations on a simple bowl',

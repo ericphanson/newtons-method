@@ -2,24 +2,6 @@ import { ExperimentPreset } from '../types/experiments';
 
 export const lbfgsExperiments: ExperimentPreset[] = [
   {
-    id: 'lbfgs-compare',
-    name: 'Compare: L-BFGS vs GD vs Newton',
-    description: 'Side-by-side comparison of L-BFGS and Newton methods',
-    problem: 'quadratic',
-    hyperparameters: {
-      c1: 0.0001,
-      lambda: 0.1,
-      m: 10,
-      maxIter: 50,
-    },
-    initialPoint: [2, 2],
-    expectation: 'Observe: GD slow, Newton fast but expensive, L-BFGS best of both worlds',
-    comparisonConfig: {
-      left: { algorithm: 'lbfgs', c1: 0.0001, m: 10 },
-      right: { algorithm: 'newton', c1: 0.0001 },
-    },
-  },
-  {
     id: 'lbfgs-success-quadratic',
     name: 'Success: Strongly Convex Problem',
     description: 'Fast Newton-like convergence without computing Hessian',

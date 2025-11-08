@@ -38,24 +38,6 @@ export interface ExperimentPreset {
   };
   initialPoint?: [number, number] | [number, number, number];
   expectation: string; // What to observe
-  comparisonConfig?: {
-    left: {
-      algorithm: string;
-      alpha?: number;
-      c1?: number;
-      m?: number;
-      hessianDamping?: number;
-      lineSearch?: 'armijo' | 'none';
-    };
-    right: {
-      algorithm: string;
-      alpha?: number;
-      c1?: number;
-      m?: number;
-      hessianDamping?: number;
-      lineSearch?: 'armijo' | 'none';
-    };
-  };
 }
 
 export interface ProblemDefinition {

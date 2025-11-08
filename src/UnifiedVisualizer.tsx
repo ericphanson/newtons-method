@@ -22,8 +22,6 @@ import { SeparatingHyperplaneVariant } from './types/experiments';
 import { CollapsibleSection } from './components/CollapsibleSection';
 import { InlineMath, BlockMath } from './components/Math';
 import { Toast } from './components/Toast';
-import { ComparisonView } from './components/ComparisonView';
-import { ComparisonCanvas } from './components/ComparisonCanvas';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
@@ -147,13 +145,6 @@ const UnifiedVisualizer = () => {
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-
-  // Comparison mode state
-  const [comparisonMode, setComparisonMode] = useState<'none' | 'gd-ls-compare' | 'lbfgs-compare' | 'newton-compare'>('none');
-  const [comparisonLeftIter, setComparisonLeftIter] = useState(0);
-  const [comparisonRightIter, setComparisonRightIter] = useState(0);
-  const [comparisonLeftIterations, setComparisonLeftIterations] = useState<Array<{ wNew: number[]; loss: number; gradNorm: number }>>([]);
-  const [comparisonRightIterations, setComparisonRightIterations] = useState<Array<{ wNew: number[]; loss: number; gradNorm: number }>>([]);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -488,49 +479,6 @@ const UnifiedVisualizer = () => {
   const diagPrecondParamCanvasRef = useRef<HTMLCanvasElement>(null);
   const diagPrecondLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Run Diagonal Preconditioner
-  const runDiagPrecond = useCallback(() => {
-    console.log("Running Diagonal Preconditioner...");
-    const problemFuncs = getCurrentProblemFunctions();
-    const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-      ? [initialW0, initialW1, 0]
-      : [initialW0, initialW1];
-
-    const result = runDiagonalPreconditioner(problemFuncs, {
-      maxIter,
-      initialPoint,
-      termination: {
-        gtol: diagPrecondTolerance,
-        ftol: diagPrecondFtol,
-        xtol: diagPrecondXtol
-      },
-      lineSearch: diagPrecondLineSearch,
-      c1: diagPrecondC1,
-      lambda,
-      hessianDamping: diagPrecondHessianDamping
-    });
-    setDiagPrecondIterations(result.iterations);
-    setDiagPrecondCurrentIter(0);
-    setDiagPrecondSummary(result.summary);
-
-    // Show toast with convergence info
-    if (result.summary.converged) {
-      setToast({
-        message: `Converged in ${result.iterations.length} iterations`,
-        type: 'success'
-      });
-    } else if (result.summary.diverged) {
-      setToast({
-        message: 'Algorithm diverged',
-        type: 'error'
-      });
-    } else {
-      setToast({
-        message: `Did not converge in ${maxIter} iterations`,
-        type: 'info'
-      });
-    }
-  }, [getCurrentProblemFunctions, currentProblem, initialW0, initialW1, maxIter, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondC1, lambda, diagPrecondHessianDamping]);
 
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
@@ -603,146 +551,6 @@ const UnifiedVisualizer = () => {
         setCustomPoints(convertedDataset);
       }
 
-      // 5. Handle comparison mode if configured
-      if (experiment.comparisonConfig) {
-        setComparisonMode(experiment.id as 'none' | 'gd-ls-compare' | 'lbfgs-compare' | 'newton-compare');
-
-        // Run left algorithm
-        const problemFuncs = getCurrentProblemFunctions();
-        const initialPoint = experiment.problem === 'logistic-regression'
-          ? [experiment.initialPoint?.[0] ?? initialW0, experiment.initialPoint?.[1] ?? initialW1, 0]
-          : [experiment.initialPoint?.[0] ?? initialW0, experiment.initialPoint?.[1] ?? initialW1];
-
-        const leftConfig = experiment.comparisonConfig.left;
-        const rightConfig = experiment.comparisonConfig.right;
-
-        let leftIters: Array<{ wNew: number[]; loss: number; gradNorm: number }> = [];
-        let rightIters: Array<{ wNew: number[]; loss: number; gradNorm: number }> = [];
-
-        // Run left algorithm
-        if (leftConfig.algorithm === 'gd-fixed') {
-          const result = runGradientDescent(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            alpha: leftConfig.alpha ?? gdFixedAlpha,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            initialPoint,
-          });
-          leftIters = result.iterations;
-        } else if (leftConfig.algorithm === 'gd-linesearch') {
-          const result = runGradientDescentLineSearch(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: leftConfig.c1 ?? gdLSC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            initialPoint,
-          });
-          leftIters = result.iterations;
-        } else if (leftConfig.algorithm === 'newton') {
-          const result = runNewton(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: leftConfig.c1 ?? newtonC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: leftConfig.hessianDamping ?? newtonHessianDamping,
-            lineSearch: leftConfig.lineSearch ?? newtonLineSearch,
-            initialPoint,
-          });
-          leftIters = result.iterations;
-        } else if (leftConfig.algorithm === 'lbfgs') {
-          const result = runLBFGS(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            m: leftConfig.m ?? lbfgsM,
-            c1: leftConfig.c1 ?? lbfgsC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: lbfgsHessianDamping,
-            initialPoint,
-          });
-          leftIters = result.iterations;
-        } else if (leftConfig.algorithm === 'diagonal-precond') {
-          const result = runDiagonalPreconditioner(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: leftConfig.c1 ?? diagPrecondC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            termination: {
-                gtol: diagPrecondTolerance,
-                ftol: diagPrecondFtol,
-                xtol: diagPrecondXtol
-              },
-            lineSearch: diagPrecondLineSearch,
-            hessianDamping: diagPrecondHessianDamping,
-            initialPoint,
-          });
-          leftIters = result.iterations;
-        }
-
-        // Run right algorithm
-        if (rightConfig.algorithm === 'gd-fixed') {
-          const result = runGradientDescent(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            alpha: rightConfig.alpha ?? gdFixedAlpha,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            initialPoint,
-          });
-          rightIters = result.iterations;
-        } else if (rightConfig.algorithm === 'gd-linesearch') {
-          const result = runGradientDescentLineSearch(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: rightConfig.c1 ?? gdLSC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            initialPoint,
-          });
-          rightIters = result.iterations;
-        } else if (rightConfig.algorithm === 'newton') {
-          const result = runNewton(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: rightConfig.c1 ?? newtonC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: rightConfig.hessianDamping ?? newtonHessianDamping,
-            lineSearch: rightConfig.lineSearch ?? newtonLineSearch,
-            initialPoint,
-          });
-          rightIters = result.iterations;
-        } else if (rightConfig.algorithm === 'lbfgs') {
-          const result = runLBFGS(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            m: rightConfig.m ?? lbfgsM,
-            c1: rightConfig.c1 ?? lbfgsC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            hessianDamping: lbfgsHessianDamping,
-            initialPoint,
-          });
-          rightIters = result.iterations;
-        } else if (rightConfig.algorithm === 'diagonal-precond') {
-          const result = runDiagonalPreconditioner(problemFuncs, {
-            maxIter: experiment.hyperparameters.maxIter ?? maxIter,
-            c1: rightConfig.c1 ?? diagPrecondC1,
-            lambda: experiment.hyperparameters.lambda ?? lambda,
-            termination: {
-              gtol: diagPrecondTolerance,
-              ftol: diagPrecondFtol,
-              xtol: diagPrecondXtol
-            },
-            lineSearch: diagPrecondLineSearch,
-            hessianDamping: diagPrecondHessianDamping,
-            initialPoint,
-          });
-          rightIters = result.iterations;
-        }
-
-        setComparisonLeftIterations(leftIters);
-        setComparisonRightIterations(rightIters);
-        setComparisonLeftIter(0);
-        setComparisonRightIter(0);
-      } else {
-        setComparisonMode('none');
-        setComparisonLeftIterations([]);
-        setComparisonRightIterations([]);
-
-        // Run single algorithm for non-comparison experiments
-        if (selectedTab === 'diagonal-precond') {
-          // Run the algorithm with a small delay to ensure state updates
-          setTimeout(() => runDiagPrecond(), 100);
-        }
-      }
-
       // 6. Iterations reset automatically via useEffect when state changes
 
       // Clear loading state immediately (no artificial delay to avoid race conditions)
@@ -758,7 +566,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [getCurrentProblemFunctions, initialW0, initialW1, maxIter, gdFixedAlpha, lambda, gdLSC1, newtonC1, newtonHessianDamping, newtonLineSearch, lbfgsM, lbfgsC1, lbfgsHessianDamping, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondHessianDamping, selectedTab, runDiagPrecond]);
+  }, []);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -778,11 +586,6 @@ const UnifiedVisualizer = () => {
     setNewtonCurrentIter(0);
     setLbfgsCurrentIter(0);
     setCustomPoints([]);
-    setComparisonMode('none');
-    setComparisonLeftIter(0);
-    setComparisonRightIter(0);
-    setComparisonLeftIterations([]);
-    setComparisonRightIterations([]);
   }, []);
 
   // Recompute algorithms when shared state changes
@@ -1787,63 +1590,6 @@ const UnifiedVisualizer = () => {
         <div className="p-6">
           {selectedTab === 'algorithms' ? (
             <AlgorithmExplainer />
-          ) : comparisonMode !== 'none' ? (
-            <>
-              {/* Comparison Mode View */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">Algorithm Comparison</h2>
-                  <button
-                    onClick={() => {
-                      setComparisonMode('none');
-                    }}
-                    className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
-                  >
-                    Exit Comparison
-                  </button>
-                </div>
-
-                <p className="text-gray-700 mb-4">{
-                  getExperimentsForAlgorithm(selectedTab)
-                    .find(e => e.id === comparisonMode)?.expectation
-                }</p>
-
-                <ComparisonView
-                  left={{
-                    name: comparisonMode === 'gd-ls-compare' ? 'GD Fixed (α=0.1)' :
-                          comparisonMode === 'lbfgs-compare' ? 'L-BFGS' :
-                          'Newton',
-                    iterations: comparisonLeftIterations,
-                    currentIter: comparisonLeftIter,
-                    color: '#3b82f6',
-                  }}
-                  right={{
-                    name: comparisonMode === 'gd-ls-compare' ? 'GD Line Search' :
-                          comparisonMode === 'lbfgs-compare' ? 'Newton' :
-                          'GD Line Search',
-                    iterations: comparisonRightIterations,
-                    currentIter: comparisonRightIter,
-                    color: '#10b981',
-                  }}
-                  onLeftIterChange={setComparisonLeftIter}
-                  onRightIterChange={setComparisonRightIter}
-                />
-
-                <div className="mt-6">
-                  <ComparisonCanvas
-                    leftIterations={comparisonLeftIterations}
-                    leftCurrentIter={comparisonLeftIter}
-                    leftColor="#3b82f6"
-                    rightIterations={comparisonRightIterations}
-                    rightCurrentIter={comparisonRightIter}
-                    rightColor="#10b981"
-                    width={800}
-                    height={600}
-                    title="Optimization Trajectories"
-                  />
-                </div>
-              </div>
-            </>
           ) : (
             <>
           {/* GD Fixed Step */}
@@ -2637,34 +2383,6 @@ const UnifiedVisualizer = () => {
                           </p>
                           <p className="text-xs text-gray-600 mt-1 italic">
                             Observe: Step size varies, always makes progress
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
-                      <div className="flex items-start gap-2">
-                        <button
-                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
-                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                          }`}
-                          onClick={() => {
-                            const experiments = getExperimentsForAlgorithm('gd-linesearch');
-                            const exp = experiments.find(e => e.id === 'gd-ls-compare');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: Fixed vs Adaptive"
-                        >
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                        <div>
-                          <p className="font-semibold text-blue-900">Compare: Fixed vs Adaptive</p>
-                          <p className="text-sm text-gray-700">
-                            Same problem with fixed <InlineMath>\alpha</InlineMath> vs line search
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Line search more robust and efficient
                           </p>
                         </div>
                       </div>
@@ -4178,33 +3896,7 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
 
-                    <div className="border border-green-200 rounded p-3 bg-green-50">
-                      <div className="flex items-start gap-2">
-                        <button
-                          className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
-                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                          }`"
-                          onClick={() => {
-                            const experiments = getExperimentsForAlgorithm('lbfgs');
-                            const exp = experiments.find(e => e.id === 'lbfgs-compare');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: Compare L-BFGS vs GD vs Newton"
-                        >
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                        <div>
-                          <p className="font-semibold text-green-900">Compare: L-BFGS vs GD vs Newton</p>
-                          <p className="text-sm text-gray-700">
-                            See the speed/cost tradeoff across algorithms
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: GD slow, Newton fast but expensive, L-BFGS best of both worlds
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
               </CollapsibleSection>
@@ -5123,63 +4815,7 @@ const UnifiedVisualizer = () => {
                       </div>
                     </div>
 
-                    {/* Compare: Diagonal vs GD+LS */}
-                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
-                      <div className="flex items-start gap-2">
-                        <button
-                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
-                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                          }`}
-                          onClick={() => {
-                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
-                            const exp = experiments.find(e => e.id === 'diag-precond-compare-gd');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: Compare - Diagonal vs GD+LS"
-                        >
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                        <div>
-                          <p className="font-semibold text-blue-900">Compare: Diagonal vs GD+LS</p>
-                          <p className="text-sm text-gray-700">
-                            Side-by-side: Diagonal vastly outperforms gradient descent when aligned
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Diagonal (2 iters) vs GD+LS (30+ iters) on axis-aligned problem
-                          </p>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Compare: Diagonal vs Newton */}
-                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
-                      <div className="flex items-start gap-2">
-                        <button
-                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
-                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                          }`}
-                          onClick={() => {
-                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
-                            const exp = experiments.find(e => e.id === 'diag-precond-compare-newton');
-                            if (exp) loadExperiment(exp);
-                          }}
-                          disabled={experimentLoading}
-                          aria-label="Load experiment: The Rotation Invariance Story"
-                        >
-                          {experimentLoading ? <LoadingSpinner /> : '▶'}
-                        </button>
-                        <div>
-                          <p className="font-semibold text-purple-900">The Rotation Invariance Story</p>
-                          <p className="text-sm text-gray-700">
-                            Side-by-side: Diagonal struggles, Newton excels on rotated problem
-                          </p>
-                          <p className="text-xs text-gray-600 mt-1 italic">
-                            Observe: Diagonal (40 iters) vs Newton (2 iters) - full matrix is rotation-invariant!
-                          </p>
-                        </div>
-                      </div>
-                    </div>
 
                     {/* Demo: Circular Bowl */}
                     <div className="border border-gray-200 rounded p-3 bg-gray-50">
