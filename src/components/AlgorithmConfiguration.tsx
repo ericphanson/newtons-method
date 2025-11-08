@@ -47,8 +47,8 @@ interface AlgorithmConfigurationProps {
   lbfgsTolerance?: number;
   onLbfgsToleranceChange?: (val: number) => void;
 
-  diagPrecondUseLineSearch?: boolean;
-  onDiagPrecondUseLineSearchChange?: (val: boolean) => void;
+  diagPrecondLineSearch?: 'armijo' | 'none';
+  onDiagPrecondLineSearchChange?: (val: 'armijo' | 'none') => void;
   diagPrecondC1?: number;
   onDiagPrecondC1Change?: (val: number) => void;
   diagPrecondEpsilon?: number;
@@ -211,7 +211,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 </p>
               </div>
 
-              {/* Armijo c1 - always visible, disabled when line search is none */}
+              {/* Armijo c1 */}
+              {(props.newtonLineSearch === 'armijo') && (
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -227,7 +228,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                       const val = Math.pow(10, parseFloat(e.target.value));
                       props.onNewtonC1Change?.(val);
                     }}
-                    disabled={props.newtonLineSearch === 'none'}
+
                     className="flex-1"
                   />
                   <div className="text-sm text-gray-600 w-16 text-right">
@@ -237,7 +238,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 <p className="text-xs text-gray-500">
                   Line search parameter
                 </p>
-              </div>
+              </div>)}
             </div>
 
             {/* Three tolerances in one row */}
@@ -407,25 +408,29 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
 
         {algorithm === 'diagonal-precond' && (
           <div className="col-span-2 space-y-4">
-            {/* Use Line Search Toggle */}
-            <div>
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={props.diagPrecondUseLineSearch ?? false}
-                  onChange={(e) => props.onDiagPrecondUseLineSearchChange?.(e.target.checked)}
-                  className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Use Armijo Line Search</span>
-              </label>
-              <p className="text-xs text-gray-500 mt-1 ml-7">
-                Enable backtracking line search for robustness (vs. full step α=1)
-              </p>
-            </div>
+              {/* Line Search and c1 in same row */}
+            <div className="flex gap-4">
+              {/* Line Search */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Line Search:</label>
+                  <select
+                    value={props.diagPrecondLineSearch ?? 'armijo'}
+                    onChange={(e) => props.onDiagPrecondLineSearchChange?.(e.target.value as 'armijo' | 'none')}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="armijo">Armijo</option>
+                    <option value="none">None (full step)</option>
+                  </select>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Armijo backtracking vs full step (α=1)
+                </p>
+              </div>
 
-            {/* Armijo c1 - shown when line search enabled */}
-            {props.diagPrecondUseLineSearch && (
-              <div>
+              {/* Armijo c1 */}
+              {(props.diagPrecondLineSearch === 'armijo') && (
+              <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                     Armijo c<sub>1</sub>:
@@ -440,6 +445,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                       const val = Math.pow(10, parseFloat(e.target.value));
                       props.onDiagPrecondC1Change?.(val);
                     }}
+
                     className="flex-1"
                   />
                   <div className="text-sm text-gray-600 w-16 text-right">
@@ -447,10 +453,13 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Line search parameter (smaller = stricter decrease requirement)
+                  Line search parameter
                 </p>
-              </div>
-            )}
+              </div>)}
+            </div>
+
+            <div>
+            </div>
 
             {/* Epsilon (numerical stability) */}
             <div>
@@ -547,7 +556,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.diagPrecondC1
                 : undefined,
               // Diagonal preconditioner specific
-              useLineSearch: algorithm === 'diagonal-precond' ? props.diagPrecondUseLineSearch : undefined,
+              diagPrecondLineSearch: algorithm === 'diagonal-precond' ? props.diagPrecondLineSearch : undefined,
               epsilon: algorithm === 'diagonal-precond' ? props.diagPrecondEpsilon : undefined,
               // L-BFGS memory parameter
               m: props.lbfgsM,
@@ -558,7 +567,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.lbfgsHessianDamping
                 : undefined,
               // Newton line search method
-              lineSearch: props.newtonLineSearch,
+              newtonLineSearch: props.newtonLineSearch,
               // Tolerance (algorithm-specific)
               tolerance: algorithm === 'gd-fixed'
                 ? props.gdFixedTolerance

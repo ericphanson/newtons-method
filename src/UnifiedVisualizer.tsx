@@ -117,7 +117,9 @@ const UnifiedVisualizer = () => {
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
   const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
   const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
-  const [diagPrecondUseLineSearch, setDiagPrecondUseLineSearch] = useState(false);
+  const [diagPrecondLineSearch, setDiagPrecondLineSearch] = useState<'armijo' | 'none'>('none');
+
+
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
   const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-6);
   const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
@@ -495,7 +497,7 @@ const UnifiedVisualizer = () => {
       maxIter,
       initialPoint,
       tolerance: diagPrecondTolerance,
-      useLineSearch: diagPrecondUseLineSearch,
+      lineSearch: diagPrecondLineSearch,
       c1: diagPrecondC1,
       lambda,
       epsilon: diagPrecondEpsilon
@@ -528,7 +530,7 @@ const UnifiedVisualizer = () => {
     initialW0,
     initialW1,
     diagPrecondTolerance,
-    diagPrecondUseLineSearch,
+    diagPrecondLineSearch,
     diagPrecondC1,
     diagPrecondEpsilon,
     getCurrentProblemFunctions
@@ -664,7 +666,7 @@ const UnifiedVisualizer = () => {
             c1: leftConfig.c1 ?? diagPrecondC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             tolerance: diagPrecondTolerance,
-            useLineSearch: diagPrecondUseLineSearch,
+            lineSearch: diagPrecondLineSearch,
             epsilon: diagPrecondEpsilon,
             initialPoint,
           });
@@ -714,7 +716,7 @@ const UnifiedVisualizer = () => {
             c1: rightConfig.c1 ?? diagPrecondC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
             tolerance: diagPrecondTolerance,
-            useLineSearch: diagPrecondUseLineSearch,
+            lineSearch: diagPrecondLineSearch,
             epsilon: diagPrecondEpsilon,
             initialPoint,
           });
@@ -752,7 +754,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1, newtonHessianDamping, lbfgsHessianDamping, newtonLineSearch, diagPrecondC1, diagPrecondTolerance, diagPrecondUseLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
+  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1, newtonHessianDamping, lbfgsHessianDamping, newtonLineSearch, diagPrecondC1, diagPrecondTolerance, diagPrecondLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -950,7 +952,7 @@ const UnifiedVisualizer = () => {
         : [initialW0, initialW1];
       console.log('Running Diagonal Preconditioner with:', { problem: currentProblem, initialPoint, maxIter, c1: diagPrecondC1 });
       const result = runDiagonalPreconditioner(problemFuncs, {
-        useLineSearch: diagPrecondUseLineSearch,
+        lineSearch: diagPrecondLineSearch,
         lambda: lambda,
         epsilon: diagPrecondEpsilon,
         maxIter,
@@ -979,7 +981,7 @@ const UnifiedVisualizer = () => {
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runPre above
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
-  }, [currentProblem,        diagPrecondUseLineSearch,
+  }, [currentProblem, diagPrecondLineSearch,
         lambda,
         diagPrecondEpsilon,
         maxIter, diagPrecondC1, diagPrecondTolerance, initialW0, initialW1, getCurrentProblemFunctions]);
@@ -4760,8 +4762,8 @@ const UnifiedVisualizer = () => {
                   onInitialW0Change={setInitialW0}
                   initialW1={initialW1}
                   onInitialW1Change={setInitialW1}
-                  diagPrecondUseLineSearch={diagPrecondUseLineSearch}
-                  onDiagPrecondUseLineSearchChange={setDiagPrecondUseLineSearch}
+                  diagPrecondLineSearch={diagPrecondLineSearch}
+                  onDiagPrecondLineSearchChange={setDiagPrecondLineSearch}
                   diagPrecondC1={diagPrecondC1}
                   onDiagPrecondC1Change={setDiagPrecondC1}
                   diagPrecondEpsilon={diagPrecondEpsilon}
@@ -4850,7 +4852,7 @@ const UnifiedVisualizer = () => {
                       hessianDiagonal={diagPrecondIterations[diagPrecondCurrentIter].hessianDiagonal}
                       preconditioner={diagPrecondIterations[diagPrecondCurrentIter].preconditioner}
                       lineSearchTrials={diagPrecondIterations[diagPrecondCurrentIter].lineSearchTrials?.length}
-                      lineSearchCanvasRef={diagPrecondUseLineSearch ? diagPrecondLineSearchCanvasRef : undefined}
+                      lineSearchCanvasRef={diagPrecondLineSearch !== 'none' ? diagPrecondLineSearchCanvasRef : undefined}
                       tolerance={diagPrecondTolerance}
                       ftol={1e-9}
                       xtol={1e-9}

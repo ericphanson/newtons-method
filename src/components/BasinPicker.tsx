@@ -57,7 +57,8 @@ interface BasinPickerProps {
     c1?: number;
     m?: number;
     hessianDamping?: number;
-    lineSearch?: 'armijo' | 'none';
+    newtonLineSearch?: 'armijo' | 'none';
+    diagPrecondLineSearch?: 'armijo' | 'none';
     tolerance?: number;
     lambda?: number;
     biasSlice?: number;
@@ -271,7 +272,8 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     algorithmParams.c1,
     algorithmParams.m,
     algorithmParams.hessianDamping,
-    algorithmParams.lineSearch,
+    algorithmParams.newtonLineSearch,
+    algorithmParams.diagPrecondLineSearch,
     algorithmParams.tolerance,
     algorithmParams.lambda,
     algorithmParams.biasSlice,

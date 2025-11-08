@@ -19,35 +19,39 @@ export function computeBasinPoint(
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any;
+      // Extract fields we need to rename to match API
+      const { diagPrecondLineSearch, newtonLineSearch, ...params } = algorithmParams;
 
     switch (algorithm) {
       case 'gd-fixed':
         result = runGradientDescent(problemFuncs, {
-          ...algorithmParams,
+          ...params,
           initialPoint
         });
         break;
       case 'gd-linesearch':
         result = runGradientDescentLineSearch(problemFuncs, {
-          ...algorithmParams,
+          ...params,
           initialPoint
         });
         break;
       case 'diagonal-precond':
         result = runDiagonalPreconditioner(problemFuncs, {
-          ...algorithmParams,
+          ...params,
+          lineSearch: diagPrecondLineSearch,
           initialPoint
         });
         break;
       case 'newton':
         result = runNewton(problemFuncs, {
-          ...algorithmParams,
+          ...params,
+          lineSearch: newtonLineSearch,
           initialPoint
         });
         break;
       case 'lbfgs':
         result = runLBFGS(problemFuncs, {
-          ...algorithmParams,
+          ...params,
           initialPoint
         });
         break;

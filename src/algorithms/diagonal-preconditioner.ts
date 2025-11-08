@@ -43,7 +43,7 @@ export interface DiagonalPrecondIteration {
 export const runDiagonalPreconditioner = (
   problem: ProblemFunctions,
   options: AlgorithmOptions & {
-    useLineSearch?: boolean;
+    lineSearch?: string;
     c1?: number;
     lambda?: number;
     epsilon?: number;
@@ -58,7 +58,7 @@ export const runDiagonalPreconditioner = (
     maxIter,
     initialPoint,
     tolerance = 1e-6,
-    useLineSearch = false,
+    lineSearch = 'none',
     c1 = 0.0001,
     lambda = 0,
     epsilon = 1e-8,
@@ -126,7 +126,7 @@ export const runDiagonalPreconditioner = (
       lossValues: number[];
       armijoValues: number[];
     } | undefined;
-    if (useLineSearch) {
+    if (lineSearch === 'armijo') {
       // Use line search for robustness
       const lineSearchResult = armijoLineSearch(
         w,
@@ -141,11 +141,13 @@ export const runDiagonalPreconditioner = (
       newLoss = problem.objective(wNew);
       lineSearchTrials = lineSearchResult.trials;
       lineSearchCurve = lineSearchResult.curve;
-    } else {
+    } else if (lineSearch === 'none') {
       // Take full step (optimal for quadratics)
       alpha = 1.0;
       wNew = add(w, direction);
       newLoss = problem.objective(wNew);
+    } else {
+      throw new Error(`Unsupported line search method: ${lineSearch}`);
     }
 
     // Check step size stalling (scipy-style: average absolute step per dimension)
