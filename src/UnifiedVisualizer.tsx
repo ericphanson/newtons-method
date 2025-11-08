@@ -125,7 +125,7 @@ const UnifiedVisualizer = () => {
   const [diagPrecondFtol, setDiagPrecondFtol] = useState(2.22e-9);
   const [diagPrecondXtol, setDiagPrecondXtol] = useState(1e-5);
 
-  const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
+  const [diagPrecondHessianDamping, setDiagPrecondHessianDamping] = useState(0);
 
   // Shared algorithm state
   const [maxIter, setMaxIter] = useState(50);
@@ -507,7 +507,7 @@ const UnifiedVisualizer = () => {
       lineSearch: diagPrecondLineSearch,
       c1: diagPrecondC1,
       lambda,
-      epsilon: diagPrecondEpsilon
+      hessianDamping: diagPrecondHessianDamping
     });
     setDiagPrecondIterations(result.iterations);
     setDiagPrecondCurrentIter(0);
@@ -530,7 +530,7 @@ const UnifiedVisualizer = () => {
         type: 'info'
       });
     }
-  }, [getCurrentProblemFunctions, currentProblem, initialW0, initialW1, maxIter, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondC1, lambda, diagPrecondEpsilon]);
+  }, [getCurrentProblemFunctions, currentProblem, initialW0, initialW1, maxIter, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondC1, lambda, diagPrecondHessianDamping]);
 
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
@@ -667,7 +667,7 @@ const UnifiedVisualizer = () => {
                 xtol: diagPrecondXtol
               },
             lineSearch: diagPrecondLineSearch,
-            epsilon: diagPrecondEpsilon,
+            hessianDamping: diagPrecondHessianDamping,
             initialPoint,
           });
           leftIters = result.iterations;
@@ -721,7 +721,7 @@ const UnifiedVisualizer = () => {
               xtol: diagPrecondXtol
             },
             lineSearch: diagPrecondLineSearch,
-            epsilon: diagPrecondEpsilon,
+            hessianDamping: diagPrecondHessianDamping,
             initialPoint,
           });
           rightIters = result.iterations;
@@ -758,7 +758,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [getCurrentProblemFunctions, initialW0, initialW1, maxIter, gdFixedAlpha, lambda, gdLSC1, newtonC1, newtonHessianDamping, newtonLineSearch, lbfgsM, lbfgsC1, lbfgsHessianDamping, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
+  }, [getCurrentProblemFunctions, initialW0, initialW1, maxIter, gdFixedAlpha, lambda, gdLSC1, newtonC1, newtonHessianDamping, newtonLineSearch, lbfgsM, lbfgsC1, lbfgsHessianDamping, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondHessianDamping, selectedTab, runDiagPrecond]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -958,7 +958,7 @@ const UnifiedVisualizer = () => {
       const result = runDiagonalPreconditioner(problemFuncs, {
         lineSearch: diagPrecondLineSearch,
         lambda: lambda,
-        epsilon: diagPrecondEpsilon,
+        hessianDamping: diagPrecondHessianDamping,
         maxIter,
         c1: diagPrecondC1,
         initialPoint,
@@ -991,7 +991,7 @@ const UnifiedVisualizer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, diagPrecondLineSearch,
         lambda,
-        diagPrecondEpsilon,
+        diagPrecondHessianDamping,
         maxIter, diagPrecondC1, diagPrecondTolerance, initialW0, initialW1, getCurrentProblemFunctions]);
 
 
@@ -4774,8 +4774,8 @@ const UnifiedVisualizer = () => {
                   onDiagPrecondLineSearchChange={setDiagPrecondLineSearch}
                   diagPrecondC1={diagPrecondC1}
                   onDiagPrecondC1Change={setDiagPrecondC1}
-                  diagPrecondEpsilon={diagPrecondEpsilon}
-                  onDiagPrecondEpsilonChange={setDiagPrecondEpsilon}
+                  diagPrecondHessianDamping={diagPrecondHessianDamping}
+                  onDiagPrecondHessianDampingChange={setDiagPrecondHessianDamping}
                   diagPrecondTolerance={diagPrecondTolerance}
                   onDiagPrecondToleranceChange={setDiagPrecondTolerance}
                   diagPrecondFtol={diagPrecondFtol}
@@ -4899,7 +4899,7 @@ const UnifiedVisualizer = () => {
                       <li>Extract diagonal: <InlineMath>{'d_i = H_{ii}'}</InlineMath> for each coordinate</li>
                       <li>
                         Build diagonal preconditioner:{' '}
-                        <InlineMath>{'D = \\text{diag}(1/(H_{00}+\\varepsilon), 1/(H_{11}+\\varepsilon), ...)'}</InlineMath>
+                        <InlineMath>{'D = \\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath>
                       </li>
                       <li>Compute preconditioned direction: <InlineMath>{'p = -D \\cdot \\nabla f'}</InlineMath></li>
                       <li>Take step: <InlineMath>{'w \\leftarrow w + \\alpha p'}</InlineMath> (α=1 or from line search)</li>
@@ -4953,8 +4953,7 @@ const UnifiedVisualizer = () => {
                     <h3 className="text-lg font-bold text-teal-800 mb-2">Parameters</h3>
                     <ul className="list-disc ml-6 space-y-1">
                       <li>
-                        <strong>Epsilon (ε):</strong> Numerical stability term prevents division by zero.
-                        Default 10⁻⁸ works well. Increase if you see instability.
+                        <strong>Hessian damping (λ<sub>damp</sub>):</strong> Numerical stability term prevents division by zero. Increase if you see instability.
                       </li>
                       <li>
                         <strong>Line Search:</strong> Optional Armijo backtracking. Use for robustness on

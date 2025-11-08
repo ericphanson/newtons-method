@@ -46,7 +46,7 @@ export const runDiagonalPreconditioner = (
     lineSearch?: string;
     c1?: number;
     lambda?: number;
-    epsilon?: number;
+    hessianDamping?: number;
     termination: {
       gtol: number;
       ftol: number;
@@ -60,7 +60,7 @@ export const runDiagonalPreconditioner = (
     lineSearch = 'none',
     c1 = 0.0001,
     lambda = 0,
-    epsilon = 1e-8,
+    hessianDamping = 1e-8,
     termination
   } = options;
 
@@ -109,8 +109,8 @@ export const runDiagonalPreconditioner = (
       : [H[0][0], H[1][1]];
 
     // Build diagonal preconditioner D = diag(1/(H_ii + ε))
-    // Add epsilon for numerical stability
-    const preconditioner = hessianDiagonal.map(d => 1 / (d + epsilon));
+    // Add hessianDamping for numerical stability
+    const preconditioner = hessianDiagonal.map(d => 1 / (d + hessianDamping));
 
     // Compute preconditioned direction: p = -D * grad
     const direction = grad.map((g, i) => -preconditioner[i] * g);

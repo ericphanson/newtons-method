@@ -63,7 +63,6 @@ interface BasinPickerProps {
     lambda?: number;
     biasSlice?: number;
     useLineSearch?: boolean;
-    epsilon?: number;
   };
   problemFuncs: ProblemFunctions;
   initialPoint: [number, number] | [number, number, number];

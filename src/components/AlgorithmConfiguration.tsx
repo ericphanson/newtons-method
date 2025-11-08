@@ -51,8 +51,8 @@ interface AlgorithmConfigurationProps {
   onDiagPrecondLineSearchChange?: (val: 'armijo' | 'none') => void;
   diagPrecondC1?: number;
   onDiagPrecondC1Change?: (val: number) => void;
-  diagPrecondEpsilon?: number;
-  onDiagPrecondEpsilonChange?: (val: number) => void;
+  diagPrecondHessianDamping?: number;
+  onDiagPrecondHessianDampingChange?: (val: number) => void;
   diagPrecondTolerance?: number;
   onDiagPrecondToleranceChange?: (val: number) => void;
   diagPrecondFtol?: number;
@@ -465,60 +465,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
             <div>
             </div>
 
-            {/* Epsilon (numerical stability) */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  Epsilon ε (stability):
-                </label>
-                <input
-                  type="range"
-                  min="-10"
-                  max="-6"
-                  step="0.5"
-                  value={Math.log10(props.diagPrecondEpsilon ?? 1e-8)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onDiagPrecondEpsilonChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {props.diagPrecondEpsilon?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Prevents division by zero in preconditioner: D = diag(1/(H_ii + ε))
-              </p>
-            </div>
-
-            {/* Gradient Tolerance
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  Gradient Tolerance (gtol):
-                </label>
-                <input
-                  type="range"
-                  min="-12"
-                  max="-2"
-                  step="0.1"
-                  value={Math.log10(props.diagPrecondTolerance ?? 1e-6)}
-                  onChange={(e) => {
-                    const val = Math.pow(10, parseFloat(e.target.value));
-                    props.onDiagPrecondToleranceChange?.(val);
-                  }}
-                  className="flex-1"
-                />
-                <div className="text-sm text-gray-600 w-16 text-right">
-                  {props.diagPrecondTolerance?.toExponential(1)}
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                Convergence threshold for gradient norm
-              </p>
-            </div> */}
-
             {/* Three tolerances in one row */}
             <div className="flex gap-4">
               {/* Gradient Tolerance (gtol) */}
@@ -597,6 +543,34 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </div>
             </div>
 
+
+            {/* Hessian Damping */}
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Hessian Damping <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>:
+                </label>
+                <input
+                  type="range"
+                  min={-11}
+                  max={Math.log10(1)}
+                  step="0.01"
+                  value={props.diagPrecondHessianDamping === 0 ? -11 : Math.log10(props.diagPrecondHessianDamping ?? 0)}
+                  onChange={(e) => {
+                    const sliderVal = parseFloat(e.target.value);
+                    const val = sliderVal <= -10.99 ? 0 : Math.pow(10, sliderVal);
+                    props.onDiagPrecondHessianDampingChange?.(val);
+                  }}
+                  className="flex-1"
+                />
+                <div className="text-sm text-gray-600 w-16 text-right">
+                  {props.diagPrecondHessianDamping === 0 ? '0' : props.diagPrecondHessianDamping?.toExponential(1)}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Regularization for numerical stability (0 to 1.0, logarithmic scale)
+              </p>
+            </div>
           </div>
         )}
 
@@ -640,7 +614,6 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 : undefined,
               // Diagonal preconditioner specific
               diagPrecondLineSearch: algorithm === 'diagonal-precond' ? props.diagPrecondLineSearch : undefined,
-              epsilon: algorithm === 'diagonal-precond' ? props.diagPrecondEpsilon : undefined,
               // L-BFGS memory parameter
               m: props.lbfgsM,
               // Hessian damping (algorithm-specific)
@@ -648,6 +621,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.newtonHessianDamping
                 : algorithm === 'lbfgs'
                 ? props.lbfgsHessianDamping
+                : algorithm === 'diagonal-precond' ?
+                props.diagPrecondHessianDamping
                 : undefined,
               // Newton line search method
               newtonLineSearch: props.newtonLineSearch,
