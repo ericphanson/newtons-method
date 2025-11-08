@@ -485,6 +485,7 @@ const UnifiedVisualizer = () => {
 
   // Run Diagonal Preconditioner
   const runDiagPrecond = useCallback(() => {
+    console.log("Running Diagonal Preconditioner...");
     const problemFuncs = getCurrentProblemFunctions();
     const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
       ? [initialW0, initialW1, 0]
@@ -499,7 +500,6 @@ const UnifiedVisualizer = () => {
       lambda,
       epsilon: diagPrecondEpsilon
     });
-
     setDiagPrecondIterations(result.iterations);
     setDiagPrecondCurrentIter(0);
     setDiagPrecondSummary(result.summary);
@@ -763,6 +763,7 @@ const UnifiedVisualizer = () => {
     setInitialW1(cfg.initialW1);
     setGdFixedCurrentIter(0);
     setGdLSCurrentIter(0);
+    setDiagPrecondCurrentIter(0);
     setNewtonCurrentIter(0);
     setLbfgsCurrentIter(0);
     setCustomPoints([]);
@@ -930,6 +931,55 @@ const UnifiedVisualizer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
+
+  useEffect(() => {
+    try {
+      // Preserve current position as percentage
+      const oldPercentage = diagPrecondIterations.length > 0
+        ? diagPrecondCurrentIter / Math.max(1, diagPrecondIterations.length - 1)
+        : 0;
+
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      console.log('Running Diagonal Preconditioner with:', { problem: currentProblem, initialPoint, maxIter, c1: diagPrecondC1 });
+      const result = runDiagonalPreconditioner(problemFuncs, {
+        useLineSearch: diagPrecondUseLineSearch,
+        lambda: lambda,
+        epsilon: diagPrecondEpsilon,
+        maxIter,
+        c1: diagPrecondC1,
+        initialPoint,
+        tolerance: diagPrecondTolerance,
+      });
+      const iterations = result.iterations;
+      console.log('Diagonal Preconditioner completed:', iterations.length, 'iterations');
+      if (iterations.length > 0) {
+        console.log('First iteration:', iterations[0]);
+        console.log('Last iteration:', iterations[iterations.length - 1]);
+      }
+      setDiagPrecondIterations(iterations);
+      setDiagPrecondSummary(result.summary);
+
+      // Restore position at same percentage
+      const newIter = iterations.length > 0
+        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
+        : 0;
+      setDiagPrecondCurrentIter(newIter);
+    } catch (error) {
+      console.error('Diagonal Preconditioner error:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      setDiagPrecondIterations([]);
+    }
+    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runPre above
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
+  }, [currentProblem,        diagPrecondUseLineSearch,
+        lambda,
+        diagPrecondEpsilon,
+        maxIter, diagPrecondC1, diagPrecondTolerance, initialW0, initialW1, getCurrentProblemFunctions]);
+
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -945,6 +995,12 @@ const UnifiedVisualizer = () => {
         } else if (e.key === 'ArrowRight' && gdLSCurrentIter < gdLSIterations.length - 1) {
           setGdLSCurrentIter(gdLSCurrentIter + 1);
         }
+       } else if (selectedTab === 'diagonal-precond') {
+          if (e.key === 'ArrowLeft' && diagPrecondCurrentIter > 0) {
+            setDiagPrecondCurrentIter(diagPrecondCurrentIter - 1);
+          } else if (e.key === 'ArrowRight' && diagPrecondCurrentIter < diagPrecondIterations.length - 1) {
+            setDiagPrecondCurrentIter(diagPrecondCurrentIter + 1);
+          }
       } else if (selectedTab === 'newton') {
         if (e.key === 'ArrowLeft' && newtonCurrentIter > 0) {
           setNewtonCurrentIter(newtonCurrentIter - 1);
@@ -962,10 +1018,7 @@ const UnifiedVisualizer = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedTab, gdFixedCurrentIter, gdFixedIterations.length,
-      gdLSCurrentIter, gdLSIterations.length,
-      newtonCurrentIter, newtonIterations.length,
-      lbfgsCurrentIter, lbfgsIterations.length]);
+  }, [selectedTab, gdFixedCurrentIter, gdFixedIterations.length, gdLSCurrentIter, gdLSIterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -1616,6 +1669,8 @@ const UnifiedVisualizer = () => {
           setGdFixedIterations([]);
           setGdLSCurrentIter(0);
           setGdLSIterations([]);
+          setDiagPrecondCurrentIter(0);
+          setDiagPrecondIterations([]);
           setNewtonCurrentIter(0);
           setNewtonIterations([]);
           setLbfgsCurrentIter(0);
@@ -4716,9 +4771,8 @@ const UnifiedVisualizer = () => {
                   biasSlice={biasSlice}
                 />
               </CollapsibleSection>
-
               {/* 2. Playback Section */}
-              {diagPrecondIterations.length > 0 && (
+              {(
                 <IterationPlayback
                   currentIter={diagPrecondCurrentIter}
                   totalIters={diagPrecondIterations.length}

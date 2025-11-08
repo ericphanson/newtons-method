@@ -237,5 +237,7 @@ export const runDiagonalPreconditioner = (
     terminationMessage
   };
 
+  console.log(iterations.length, summary.terminationMessage);
+
   return { iterations, summary };
 };
