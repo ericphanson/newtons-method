@@ -41,7 +41,7 @@ export const clip = (val: number, min: number, max: number): number =>
  */
 export const generateCrescents = (): DataPoint[] => {
   const points: DataPoint[] = [];
-  const n = 70;
+  const n = 35;
   const noise = 0.25;
   const seed = 42;
 
@@ -69,44 +69,15 @@ export const generateCrescents = (): DataPoint[] => {
     points.push({ x1, x2, y: 1 });
   }
 
-  return points;
-};
-
-/**
- * Compute logistic regression loss and gradient
- * @param w Weight vector [w0, w1, w2]
- * @param data Training data points
- * @param lambda L2 regularization parameter
- * @returns Object containing loss value and gradient vector
- */
-export const computeLossAndGradient = (
-  w: number[],
-  data: DataPoint[],
-  lambda: number
-): { loss: number; grad: number[] } => {
-  const [w0, w1, w2] = w;
-  let loss = 0;
-  const grad = [0, 0, 0];
-
-  for (const point of data) {
-    const z = w0 * point.x1 + w1 * point.x2 + w2;
-    const pred = sigmoid(z);
-    const clippedPred = clip(pred, 1e-15, 1 - 1e-15);
-
-    loss += -(point.y * Math.log(clippedPred) + (1 - point.y) * Math.log(1 - clippedPred));
-
-    const error = pred - point.y;
-    grad[0] += error * point.x1;
-    grad[1] += error * point.x2;
-    grad[2] += error;
+  // Center points on zero
+  const x1Mean = points.reduce((sum, p) => sum + p.x1, 0) / points.length;
+  const x2Mean = points.reduce((sum, p) => sum + p.x2, 0) / points.length;
+  for (const p of points) {
+    p.x1 -= x1Mean;
+    p.x2 -= x2Mean;
   }
 
-  loss = loss / data.length + (lambda / 2) * (w0 * w0 + w1 * w1);
-  grad[0] = grad[0] / data.length + lambda * w0;
-  grad[1] = grad[1] / data.length + lambda * w1;
-  grad[2] = grad[2] / data.length;
-
-  return { loss, grad };
+  return points;
 };
 
 /**
