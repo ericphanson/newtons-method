@@ -13,11 +13,14 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [2, 2],
     expectation: 'Observe: 1-2 iterations to convergence, all eigenvalues positive, α=1 accepted',
+    ui: {
+      tone: 'blue',
+    },
   },
   {
     id: 'newton-failure-saddle',
-    name: 'Failure: Saddle Point with Negative Eigenvalue',
-    description: 'Start at saddle point to see Hessian with negative eigenvalue',
+    name: 'Failure: Non-Convex Saddle Point',
+    description: 'Start near a saddle to see Hessian with negative eigenvalue',
     problem: 'non-convex-saddle',
     hyperparameters: {
       c1: 0.0001,
@@ -26,6 +29,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.5, 0.5],
     expectation: 'Observe: Hessian has one negative eigenvalue, Newton direction may be ascent',
+    ui: {
+      tone: 'red',
+    },
   },
   {
     id: 'newton-fixed-linesearch',
@@ -39,6 +45,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [-1.5, 2],
     expectation: 'Observe: Backtracking reduces α, prevents divergence, acts like damped Newton',
+    ui: {
+      tone: 'green',
+    },
   },
   {
     id: 'newton-compare-ill-conditioned',
@@ -52,6 +61,11 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.3, 2.5],
     expectation: 'Observe: Newton converges in ~5 iterations (GD would take 100+)',
+    ui: {
+      tone: 'purple',
+      details:
+        'Why Newton wins: Even with line search, GD uses one α per iteration. Newton uses H⁻¹ to scale each direction, so it walks straight down the valley.',
+    },
   },
   {
     id: 'newton-rotated-quadratic',
@@ -66,6 +80,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Newton\'s H⁻¹ automatically rotates the step to point down the valley',
+    ui: {
+      tone: 'amber',
+    },
   },
   {
     id: 'newton-perceptron-failure',
@@ -82,6 +99,22 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.5, 0.5, 0.0],
     expectation: 'Newton direction is 10,000x gradient magnitude, oscillates wildly, never converges',
+    ui: {
+      tone: 'orange',
+      relatedActions: [
+        {
+          label: 'Workaround: Line search',
+          targetId: 'newton-perceptron-damping-fix',
+          tone: 'amber',
+        },
+        {
+          label: 'Workaround: Hessian damping',
+          targetId: 'newton-perceptron-hessian-damping',
+          tone: 'amber',
+        },
+      ],
+      footnote: '⚠️ Both workarounds just hide the issue. Use GD or L-BFGS instead.',
+    },
   },
   {
     id: 'newton-perceptron-damping-fix',
@@ -98,6 +131,10 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.5, 0.5, 0.0],
     expectation: 'Line search prevents explosion but Newton still struggles - takes many iterations with tiny steps',
+    ui: {
+      tone: 'amber',
+      hidden: true,
+    },
   },
   {
     id: 'newton-perceptron-hessian-damping',
@@ -114,5 +151,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.5, 0.5, 0.0],
     expectation: 'Damping masks symptoms but Newton remains inefficient - better to use GD or L-BFGS',
+    ui: {
+      tone: 'amber',
+      hidden: true,
+    },
   },
 ];

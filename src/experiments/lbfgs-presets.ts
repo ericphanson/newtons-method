@@ -14,6 +14,9 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     },
     initialPoint: [2, 2],
     expectation: 'Observe: Fast convergence similar to Newton, memory pairs build curvature info',
+    ui: {
+      tone: 'amber',
+    },
   },
   {
     id: 'lbfgs-memory-comparison',
@@ -28,6 +31,9 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     },
     initialPoint: [0.3, 2.5],
     expectation: 'With M=3: less accurate approximation, more iterations. Try M=10 for comparison.',
+    ui: {
+      tone: 'blue',
+    },
   },
   {
     id: 'lbfgs-rosenbrock',
@@ -42,5 +48,8 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     },
     initialPoint: [-1, 1],
     expectation: 'Observe: Superlinear convergence once near valley, memory adapts to local curvature',
+    ui: {
+      tone: 'purple',
+    },
   },
 ];

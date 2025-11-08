@@ -6,7 +6,7 @@ import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
-import { LoadingSpinner } from '../LoadingSpinner';
+import { ExperimentCardList } from '../ExperimentCardList';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -68,6 +68,11 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   experimentLoading,
   onLoadExperiment,
 }) => {
+  const experiments = React.useMemo(
+    () => getExperimentsForAlgorithm('gd-linesearch'),
+    []
+  );
+
   return (
   <>
     {/* 1. Configuration Section */}
@@ -340,119 +345,11 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           See how line search automatically adapts to different situations:
         </p>
 
-        <div className="space-y-3">
-          <div className="border border-teal-200 rounded p-3 bg-teal-50">
-            <div className="flex items-start gap-2">
-              <button
-                className="text-teal-600 font-bold text-lg hover:text-teal-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`"
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-linesearch');
-                  const exp = experiments.find(e => e.id === 'gd-ls-success');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Automatic Adaptation"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-teal-900">Success: Automatic Adaptation</p>
-                <p className="text-sm text-gray-700">
-                  Line search finds good steps without manual tuning
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Step size varies, always makes progress
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-orange-200 rounded p-3 bg-orange-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-linesearch');
-                  const exp = experiments.find(e => e.id === 'gd-ls-c1-too-small');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: C1 Too Small"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-orange-900">Failure: <InlineMath>c_1</InlineMath> Too Small</p>
-                <p className="text-sm text-gray-700">
-                  <InlineMath>c_1=0.00001</InlineMath> accepts poor steps, slow convergence
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Many backtracking steps, minimal progress
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-red-200 rounded p-3 bg-red-50">
-            <div className="flex items-start gap-2">
-              <button
-                className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`"
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-linesearch');
-                  const exp = experiments.find(e => e.id === 'gd-ls-c1-too-large');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: C1 Too Large"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-red-900">Failure: <InlineMath>c_1</InlineMath> Too Large</p>
-                <p className="text-sm text-gray-700">
-                  <InlineMath>c_1=0.5</InlineMath> is too conservative, rejects good steps
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Tiny steps, very slow progress
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-purple-200 rounded p-3 bg-purple-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-linesearch');
-                  const exp = experiments.find(e => e.id === 'gd-ls-varying-curvature');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Varying Curvature"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-purple-900">Advantage: Varying Curvature</p>
-                <p className="text-sm text-gray-700">
-                  Landscape with dramatic curvature changes (Rosenbrock)
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Adapts to narrow valley where fixed <InlineMath>\alpha</InlineMath> fails
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ExperimentCardList
+          experiments={experiments}
+          experimentLoading={experimentLoading}
+          onLoadExperiment={onLoadExperiment}
+        />
       </div>
     </CollapsibleSection>
 

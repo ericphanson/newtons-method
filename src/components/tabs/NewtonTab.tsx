@@ -6,8 +6,7 @@ import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
-import { LoadingSpinner } from '../LoadingSpinner';
-import { newtonExperiments } from '../../experiments/newton-presets';
+import { ExperimentCardList } from '../ExperimentCardList';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -87,6 +86,11 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   experimentLoading,
   onLoadExperiment,
 }) => {
+  const experiments = React.useMemo(
+    () => getExperimentsForAlgorithm('newton'),
+    []
+  );
+
   return (
   <>
     {/* 1. Configuration Section */}
@@ -423,208 +427,11 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           Run these experiments to see when Newton's method excels and when it struggles:
         </p>
 
-        <div className="space-y-3">
-          <div className="border border-blue-200 rounded p-3 bg-blue-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('newton');
-                  const exp = experiments.find(e => e.id === 'newton-success-quadratic');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Success - Strongly Convex Quadratic"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-blue-900">Success: Strongly Convex Quadratic</p>
-                <p className="text-sm text-gray-700">
-                  Watch quadratic convergence in 1-2 iterations on a simple bowl
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: All eigenvalues positive, <InlineMath>\alpha=1</InlineMath> accepted, dramatic loss drop
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-red-200 rounded p-3 bg-red-50">
-            <div className="flex items-start gap-2">
-              <button
-                className="text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`"
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('newton');
-                  const exp = experiments.find(e => e.id === 'newton-failure-rosenbrock');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Failure - Non-Convex Saddle Point"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-red-900">Failure: Non-Convex Saddle Point</p>
-                <p className="text-sm text-gray-700">
-                  Start near saddle to see negative eigenvalues and wrong direction
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Negative eigenvalue, Newton direction points wrong way
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-green-200 rounded p-3 bg-green-50">
-            <div className="flex items-start gap-2">
-              <button
-                className="text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`"
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('newton');
-                  const exp = experiments.find(e => e.id === 'newton-fixed-linesearch');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Fixed - Line Search Rescue"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-green-900">Fixed: Line Search Rescue</p>
-                <p className="text-sm text-gray-700">
-                  Same non-convex problem but line search prevents divergence
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Backtracking reduces <InlineMath>\alpha</InlineMath>, acts like damped Newton
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-purple-200 rounded p-3 bg-purple-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('newton');
-                  const exp = experiments.find(e => e.id === 'newton-compare-ill-conditioned');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Compare - Newton vs GD on Ill-Conditioned"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-purple-900">Compare: Newton vs GD on Ill-Conditioned</p>
-                <p className="text-sm text-gray-700">
-                  Elongated ellipse (<InlineMath>\kappa=100</InlineMath>): 100× more curved in one direction
-                </p>
-                <p className="text-sm text-gray-700 mt-1">
-                  <strong>Why Newton wins:</strong> Even with line search, GD uses one <InlineMath>\alpha</InlineMath> for
-                  all directions at each step → still zig-zags. Newton's <InlineMath>{`H^{-1}`}</InlineMath> uses
-                  direction-specific steps based on curvature → straight to minimum.
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Newton ~5 iterations, GD needs 100+ (even with line search!)
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-amber-200 rounded p-3 bg-amber-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-amber-600 font-bold text-lg hover:text-amber-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('newton');
-                  const exp = experiments.find(e => e.id === 'newton-rotated-quadratic');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Demo - Why a Vector of αs Isn't Enough"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-amber-900">Demo: Why a Vector of αs Isn't Enough</p>
-                <p className="text-sm text-gray-700">
-                  Rotated ellipse where the valley runs diagonally - no per-coordinate step sizes (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>) can align with it
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Watch how <InlineMath>{`H^{-1}`}</InlineMath> automatically rotates the step to point down the valley - this is why we need a matrix!
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-orange-200 rounded p-3 bg-orange-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-failure');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Perceptron Won't Converge"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-orange-900">Fundamental Incompatibility: Newton + Perceptron</p>
-                <p className="text-sm text-gray-700">
-                  Perceptron has piecewise linear loss → Hessian ≈ 0 → Newton computes massive steps (10,000x too large)
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Oscillates wildly, never converges. Workarounds hide symptoms but don't fix the root problem.
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-damping-fix');
-                      if (exp) onLoadExperiment(exp);
-                    }}
-                    disabled={experimentLoading}
-                    aria-label="Load workaround: Perceptron with Line Search"
-                  >
-                    Workaround: Line search
-                  </button>
-                  <button
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const exp = newtonExperiments.find(e => e.id === 'newton-perceptron-hessian-damping');
-                      if (exp) onLoadExperiment(exp);
-                    }}
-                    disabled={experimentLoading}
-                    aria-label="Load workaround: Perceptron with Hessian Damping"
-                  >
-                    Workaround: Hessian damping
-                  </button>
-                </div>
-                <p className="text-xs text-gray-600 mt-2 italic">
-                  ⚠️ Both workarounds just obscure the problem. Use GD or L-BFGS instead!
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ExperimentCardList
+          experiments={experiments}
+          experimentLoading={experimentLoading}
+          onLoadExperiment={onLoadExperiment}
+        />
       </div>
     </CollapsibleSection>
 

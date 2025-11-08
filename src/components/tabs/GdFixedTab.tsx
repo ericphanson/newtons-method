@@ -6,7 +6,7 @@ import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
-import { LoadingSpinner } from '../LoadingSpinner';
+import { ExperimentCardList } from '../ExperimentCardList';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDIteration } from '../../algorithms/gradient-descent';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -62,6 +62,11 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
   experimentLoading,
   onLoadExperiment,
 }) => {
+  const experiments = React.useMemo(
+    () => getExperimentsForAlgorithm('gd-fixed'),
+    []
+  );
+
   return (
   <>
     {/* 1. Configuration Section */}
@@ -239,119 +244,11 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           Experiment with different step sizes to see success and failure modes:
         </p>
 
-        <div className="space-y-3">
-          <div className="border border-green-200 rounded p-3 bg-green-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-fixed');
-                  const exp = experiments.find(e => e.id === 'gd-fixed-success');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Good Step Size"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-green-900">Success: Good Step Size (<InlineMath>\alpha=0.1</InlineMath>)</p>
-                <p className="text-sm text-gray-700">
-                  Well-chosen <InlineMath>\alpha</InlineMath> leads to smooth convergence
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Steady loss decrease, smooth trajectory
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-red-200 rounded p-3 bg-red-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-fixed');
-                  const exp = experiments.find(e => e.id === 'gd-fixed-diverge');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Too Large Step Size"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-red-900">Failure: Too Large (<InlineMath>\alpha=2.5</InlineMath>)</p>
-                <p className="text-sm text-gray-700">
-                  Step size causes oscillation and divergence
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Loss increases, trajectory bounces around
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-orange-200 rounded p-3 bg-orange-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-orange-600 font-bold text-lg hover:text-orange-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-fixed');
-                  const exp = experiments.find(e => e.id === 'gd-fixed-too-small');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Too Small Step Size"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-orange-900">Failure: Too Small (<InlineMath>\alpha=0.001</InlineMath>)</p>
-                <p className="text-sm text-gray-700">
-                  Tiny steps lead to extremely slow convergence
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  Observe: Barely moves, would need thousands of iterations
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-purple-200 rounded p-3 bg-purple-50">
-            <div className="flex items-start gap-2">
-              <button
-                className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
-                  experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                }`}
-                onClick={() => {
-                  const experiments = getExperimentsForAlgorithm('gd-fixed');
-                  const exp = experiments.find(e => e.id === 'gd-fixed-ill-conditioned');
-                  if (exp) onLoadExperiment(exp);
-                }}
-                disabled={experimentLoading}
-                aria-label="Load experiment: Ill-Conditioned Problem"
-              >
-                {experimentLoading ? <LoadingSpinner /> : '▶'}
-              </button>
-              <div>
-                <p className="font-semibold text-purple-900">Struggle: Ill-Conditioned</p>
-                <p className="text-sm text-gray-700">
-                  Elongated landscape causes zig-zagging because <InlineMath>\alpha</InlineMath> treats all directions equally
-                </p>
-                <p className="text-xs text-gray-600 mt-1 italic">
-                  GD can't adapt to 100× difference in curvature between axes
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ExperimentCardList
+          experiments={experiments}
+          experimentLoading={experimentLoading}
+          onLoadExperiment={onLoadExperiment}
+        />
       </div>
     </CollapsibleSection>
 

@@ -19,6 +19,29 @@ export interface DataPoint {
   label: number;
 }
 
+export type ExperimentTone =
+  | 'green'
+  | 'red'
+  | 'orange'
+  | 'purple'
+  | 'teal'
+  | 'blue'
+  | 'amber'
+  | 'gray';
+
+export interface ExperimentUiConfig {
+  tone?: ExperimentTone;
+  group?: string;
+  details?: string;
+  footnote?: string;
+  hidden?: boolean;
+  relatedActions?: Array<{
+    label: string;
+    targetId: string;
+    tone?: ExperimentTone;
+  }>;
+}
+
 export interface ExperimentPreset {
   id: string;
   name: string;
@@ -38,6 +61,7 @@ export interface ExperimentPreset {
   };
   initialPoint?: [number, number] | [number, number, number];
   expectation: string; // What to observe
+  ui?: ExperimentUiConfig;
 }
 
 export interface ProblemDefinition {

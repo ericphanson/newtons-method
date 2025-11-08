@@ -6,7 +6,7 @@ import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
-import { LoadingSpinner } from '../LoadingSpinner';
+import { ExperimentCardList } from '../ExperimentCardList';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { DiagonalPrecondIteration } from '../../algorithms/diagonal-preconditioner';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -84,8 +84,13 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
   experimentLoading,
   onLoadExperiment,
 }) => {
+  const experiments = React.useMemo(
+    () => getExperimentsForAlgorithm('diagonal-precond'),
+    []
+  );
+
   return (
-        <>
+  <>
           {/* Diagonal Preconditioner Tab Content */}
           <div className="space-y-4">
   {/* 1. Configuration Section */}
@@ -398,102 +403,17 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             storageKey="diagonal-precond-try-this"
           >
             <div className="space-y-3">
-              <p className="text-gray-800 mb-4">
-                Run these experiments to see when diagonal preconditioning excels and when it struggles:
-              </p>
+        <p className="text-gray-800 mb-4">
+          Run these experiments to see when diagonal preconditioning excels and when it struggles:
+        </p>
 
-              <div className="space-y-3">
-                {/* Success: Axis-Aligned */}
-                <div className="border border-green-200 rounded p-3 bg-green-50">
-                  <div className="flex items-start gap-2">
-                    <button
-                      className={`text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
-                        experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                      }`}
-                      onClick={() => {
-                        const experiments = getExperimentsForAlgorithm('diagonal-precond');
-                        const exp = experiments.find(e => e.id === 'diag-precond-aligned-success');
-                        if (exp) onLoadExperiment(exp);
-                      }}
-                      disabled={experimentLoading}
-                      aria-label="Load experiment: Success - Aligned with Axes"
-                    >
-                      {experimentLoading ? <LoadingSpinner /> : '▶'}
-                    </button>
-                    <div>
-                      <p className="font-semibold text-green-900">Success: Aligned with Axes</p>
-                      <p className="text-sm text-gray-700">
-                        Ill-conditioned quadratic aligned with axes - diagonal preconditioner is perfect!
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1 italic">
-                        Observe: Converges in 1-2 iterations! D perfectly inverts diagonal Hessian
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Failure: Rotated */}
-                <div className="border border-red-200 rounded p-3 bg-red-50">
-                  <div className="flex items-start gap-2">
-                    <button
-                      className={`text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
-                        experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                      }`}
-                      onClick={() => {
-                        const experiments = getExperimentsForAlgorithm('diagonal-precond');
-                        const exp = experiments.find(e => e.id === 'diag-precond-rotated-failure');
-                        if (exp) onLoadExperiment(exp);
-                      }}
-                      disabled={experimentLoading}
-                      aria-label="Load experiment: Failure - Rotated Problem"
-                    >
-                      {experimentLoading ? <LoadingSpinner /> : '▶'}
-                    </button>
-                    <div>
-                      <p className="font-semibold text-red-900">Failure: Rotated Problem</p>
-                      <p className="text-sm text-gray-700">
-                        Same problem rotated 45° - diagonal preconditioner struggles!
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1 italic">
-                        Observe: Takes 40+ iterations! Off-diagonal Hessian terms ignored
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-
-
-                {/* Demo: Circular Bowl */}
-                <div className="border border-gray-200 rounded p-3 bg-gray-50">
-                  <div className="flex items-start gap-2">
-                    <button
-                      className={`text-gray-600 font-bold text-lg hover:text-gray-700 disabled:opacity-50 ${
-                        experimentLoading ? 'cursor-wait' : 'cursor-pointer'
-                      }`}
-                      onClick={() => {
-                        const experiments = getExperimentsForAlgorithm('diagonal-precond');
-                        const exp = experiments.find(e => e.id === 'diag-precond-circular');
-                        if (exp) onLoadExperiment(exp);
-                      }}
-                      disabled={experimentLoading}
-                      aria-label="Load experiment: Circular Bowl Demo"
-                    >
-                      {experimentLoading ? <LoadingSpinner /> : '▶'}
-                    </button>
-                    <div>
-                      <p className="font-semibold text-gray-900">Demo: Circular Bowl (No Rotation Dependence)</p>
-                      <p className="text-sm text-gray-700">
-                        Circular problem (κ=1) has no preferred direction
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1 italic">
-                        Observe: Even diagonal works well - all methods converge similarly
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CollapsibleSection>
+        <ExperimentCardList
+          experiments={experiments}
+          experimentLoading={experimentLoading}
+          onLoadExperiment={onLoadExperiment}
+        />
+      </div>
+    </CollapsibleSection>
           </div>
         </>
   );
