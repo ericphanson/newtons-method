@@ -98,7 +98,7 @@ const UnifiedVisualizer = () => {
   const [newtonSummary, setNewtonSummary] = useState<AlgorithmSummary | null>(null);
   const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
-  const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('armijo');
+  const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('none');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0);
   const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
   const [newtonFtol, setNewtonFtol] = useState(2.22e-9);
