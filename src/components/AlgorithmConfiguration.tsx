@@ -621,8 +621,8 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 ? props.newtonHessianDamping
                 : algorithm === 'lbfgs'
                 ? props.lbfgsHessianDamping
-                : algorithm === 'diagonal-precond' ?
-                props.diagPrecondHessianDamping
+                : algorithm === 'diagonal-precond'
+                ? props.diagPrecondHessianDamping
                 : undefined,
               // Newton line search method
               newtonLineSearch: props.newtonLineSearch,
@@ -636,6 +636,26 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                 : algorithm === 'diagonal-precond'
                 ? props.diagPrecondTolerance
                 : props.lbfgsTolerance,
+              termination: {
+                gtol:
+                  algorithm === 'newton'
+                    ? props.newtonTolerance
+                    : algorithm === 'diagonal-precond'
+                    ? props.diagPrecondTolerance
+                    : undefined,
+                ftol:
+                  algorithm === 'newton'
+                    ? props.newtonFtol
+                    : algorithm === 'diagonal-precond'
+                    ? props.diagPrecondFtol
+                    : undefined,
+                xtol:
+                  algorithm === 'newton'
+                    ? props.newtonXtol
+                    : algorithm === 'diagonal-precond'
+                    ? props.diagPrecondXtol
+                    : undefined
+              },
               // 3D problem bias slice
               biasSlice: props.biasSlice
             }}

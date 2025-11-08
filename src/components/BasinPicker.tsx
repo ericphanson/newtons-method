@@ -63,6 +63,11 @@ interface BasinPickerProps {
     lambda?: number;
     biasSlice?: number;
     useLineSearch?: boolean;
+    termination?: {
+      gtol?: number;
+      ftol?: number;
+      xtol?: number;
+    };
   };
   problemFuncs: ProblemFunctions;
   initialPoint: [number, number] | [number, number, number];
