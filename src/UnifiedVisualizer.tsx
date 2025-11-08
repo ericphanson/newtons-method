@@ -4750,17 +4750,7 @@ const UnifiedVisualizer = () => {
             <>
               {/* Diagonal Preconditioner Tab Content */}
               <div className="space-y-4">
-                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
-                  <h3 className="text-lg font-semibold text-teal-900 mb-2">
-                    Diagonal Preconditioner: Per-Coordinate Step Sizes
-                  </h3>
-                  <p className="text-sm text-teal-800">
-                    Uses Hessian diagonal D = diag(1/H₀₀, 1/H₁₁) for per-coordinate scaling.
-                    Perfect when problem aligns with axes, struggles when rotated.
-                  </p>
-                </div>
-
-              {/* 1. Configuration Section */}
+      {/* 1. Configuration Section */}
               <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
                 <AlgorithmConfiguration
                   algorithm="diagonal-precond"
