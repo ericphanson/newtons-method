@@ -4991,6 +4991,166 @@ const UnifiedVisualizer = () => {
                   </div>
                 </div>
               </CollapsibleSection>
+
+              {/* Try This */}
+              <CollapsibleSection
+                title="Try This"
+                defaultExpanded={true}
+                storageKey="diagonal-precond-try-this"
+              >
+                <div className="space-y-3">
+                  <p className="text-gray-800 mb-4">
+                    Run these experiments to see when diagonal preconditioning excels and when it struggles:
+                  </p>
+
+                  <div className="space-y-3">
+                    {/* Success: Axis-Aligned */}
+                    <div className="border border-green-200 rounded p-3 bg-green-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-green-600 font-bold text-lg hover:text-green-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
+                            const exp = experiments.find(e => e.id === 'diag-precond-aligned-success');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Success - Aligned with Axes"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-green-900">Success: Aligned with Axes</p>
+                          <p className="text-sm text-gray-700">
+                            Ill-conditioned quadratic aligned with axes - diagonal preconditioner is perfect!
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Converges in 1-2 iterations! D perfectly inverts diagonal Hessian
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Failure: Rotated */}
+                    <div className="border border-red-200 rounded p-3 bg-red-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-red-600 font-bold text-lg hover:text-red-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
+                            const exp = experiments.find(e => e.id === 'diag-precond-rotated-failure');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Failure - Rotated Problem"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-red-900">Failure: Rotated Problem</p>
+                          <p className="text-sm text-gray-700">
+                            Same problem rotated 45° - diagonal preconditioner struggles!
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Takes 40+ iterations! Off-diagonal Hessian terms ignored
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Compare: Diagonal vs GD+LS */}
+                    <div className="border border-blue-200 rounded p-3 bg-blue-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-blue-600 font-bold text-lg hover:text-blue-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
+                            const exp = experiments.find(e => e.id === 'diag-precond-compare-gd');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Compare - Diagonal vs GD+LS"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-blue-900">Compare: Diagonal vs GD+LS</p>
+                          <p className="text-sm text-gray-700">
+                            Side-by-side: Diagonal vastly outperforms gradient descent when aligned
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Diagonal (2 iters) vs GD+LS (30+ iters) on axis-aligned problem
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Compare: Diagonal vs Newton */}
+                    <div className="border border-purple-200 rounded p-3 bg-purple-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-purple-600 font-bold text-lg hover:text-purple-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
+                            const exp = experiments.find(e => e.id === 'diag-precond-compare-newton');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: The Rotation Invariance Story"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-purple-900">The Rotation Invariance Story</p>
+                          <p className="text-sm text-gray-700">
+                            Side-by-side: Diagonal struggles, Newton excels on rotated problem
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Diagonal (40 iters) vs Newton (2 iters) - full matrix is rotation-invariant!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Demo: Circular Bowl */}
+                    <div className="border border-gray-200 rounded p-3 bg-gray-50">
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`text-gray-600 font-bold text-lg hover:text-gray-700 disabled:opacity-50 ${
+                            experimentLoading ? 'cursor-wait' : 'cursor-pointer'
+                          }`}
+                          onClick={() => {
+                            const experiments = getExperimentsForAlgorithm('diagonal-precond');
+                            const exp = experiments.find(e => e.id === 'diag-precond-circular');
+                            if (exp) loadExperiment(exp);
+                          }}
+                          disabled={experimentLoading}
+                          aria-label="Load experiment: Circular Bowl Demo"
+                        >
+                          {experimentLoading ? <LoadingSpinner /> : '▶'}
+                        </button>
+                        <div>
+                          <p className="font-semibold text-gray-900">Demo: Circular Bowl (No Rotation Dependence)</p>
+                          <p className="text-sm text-gray-700">
+                            Circular problem (κ=1) has no preferred direction
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 italic">
+                            Observe: Even diagonal works well - all methods converge similarly
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleSection>
               </div>
             </>
           ) : null}
