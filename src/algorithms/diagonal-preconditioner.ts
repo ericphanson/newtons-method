@@ -16,7 +16,12 @@ export interface DiagonalPrecondIteration {
   hessianDiagonal: number[];
   preconditioner: number[];
   alpha?: number;  // If using line search
-  lineSearchTrials?: Array<{ alpha: number; loss: number }>;  // If using line search
+  lineSearchTrials?: Array<{ alpha: number; loss: number; satisfied: boolean }>;  // If using line search
+  lineSearchCurve?: {
+    alphaRange: number[];
+    lossValues: number[];
+    armijoValues: number[];
+  };
 }
 
 /**
@@ -115,8 +120,12 @@ export const runDiagonalPreconditioner = (
     let wNew: number[];
     let newLoss: number;
     let alpha: number | undefined;
-    let lineSearchTrials: Array<{ alpha: number; loss: number }> | undefined;
-
+    let lineSearchTrials: Array<{ alpha: number; loss: number; satisfied: boolean }> | undefined;
+    let lineSearchCurve: {
+      alphaRange: number[];
+      lossValues: number[];
+      armijoValues: number[];
+    } | undefined;
     if (useLineSearch) {
       // Use line search for robustness
       const lineSearchResult = armijoLineSearch(
@@ -131,6 +140,7 @@ export const runDiagonalPreconditioner = (
       wNew = add(w, scale(direction, alpha));
       newLoss = problem.objective(wNew);
       lineSearchTrials = lineSearchResult.trials;
+      lineSearchCurve = lineSearchResult.curve;
     } else {
       // Take full step (optimal for quadratics)
       alpha = 1.0;
@@ -163,7 +173,8 @@ export const runDiagonalPreconditioner = (
       hessianDiagonal,
       preconditioner,
       alpha,
-      lineSearchTrials
+      lineSearchTrials,
+      lineSearchCurve
     });
 
     // Update for next iteration

@@ -500,7 +500,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
       )}
 
       {/* Line Search Visualization - Compact */}
-      {(algorithm === 'gd-linesearch' || algorithm === 'newton' || algorithm === 'lbfgs') &&
+      {(algorithm === 'gd-linesearch' || algorithm === 'newton' || algorithm === 'lbfgs' || algorithm === 'diagonal-precond') &&
         lineSearchCanvasRef && (
           <div className="pt-1 border-t border-gray-200">
             <div className="text-gray-600 mb-1 text-xs font-semibold">

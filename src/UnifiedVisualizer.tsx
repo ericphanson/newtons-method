@@ -1399,8 +1399,10 @@ const UnifiedVisualizer = () => {
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
     canvas: HTMLCanvasElement,
-    iter: { loss: number; lineSearchCurve: { alphaRange: number[]; lossValues: number[]; armijoValues: number[] }; lineSearchTrials: Array<{ alpha: number; loss: number; satisfied: boolean }> }
+    iter: { loss: number; lineSearchCurve?: { alphaRange: number[]; lossValues: number[]; armijoValues: number[] }; lineSearchTrials?: Array<{ alpha: number; loss: number; satisfied: boolean }> }
   ) => {
+    // Early return if line search data is missing
+    if (!iter.lineSearchCurve || !iter.lineSearchTrials) return;
     const { ctx, width: w, height: h } = setupCanvas(canvas);
 
     ctx.fillStyle = '#ffffff';
@@ -1643,12 +1645,9 @@ const UnifiedVisualizer = () => {
     const canvas = diagPrecondLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'diagonal-precond') return;
     const iter = diagPrecondIterations[diagPrecondCurrentIter];
-    if (!iter || !iter.lineSearchTrials) return;
+    if (!iter || !iter.lineSearchCurve) return;
 
-    // Only draw if we have the full line search curve data (which diagonal preconditioner currently doesn't generate)
-    // For now, we skip drawing until the algorithm is updated to include lineSearchCurve
-    // TODO: Either update diagonal-preconditioner algorithm to generate lineSearchCurve data,
-    // or create a simplified line search visualization that works with just lineSearchTrials
+    drawLineSearchPlot(canvas, iter);
   }, [diagPrecondIterations, diagPrecondCurrentIter, selectedTab]);
 
   return (
