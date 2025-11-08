@@ -1685,13 +1685,13 @@ const UnifiedVisualizer = () => {
           {/* Diagonal Preconditioner Tab */}
           <button
             onClick={() => setSelectedTab('diagonal-precond')}
-            className={`px-6 py-3 font-medium transition-colors ${
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'diagonal-precond'
-                ? 'bg-teal-100 text-teal-900 border-b-2 border-teal-500'
-                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                ? 'text-teal-700 border-b-2 border-teal-600 bg-teal-50'
+                : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
-            Diagonal Preconditioner
+            Diagonal Precond
           </button>
           <button
             onClick={() => setSelectedTab('newton')}
