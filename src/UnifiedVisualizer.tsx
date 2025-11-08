@@ -4802,6 +4802,105 @@ const UnifiedVisualizer = () => {
                   </div>
                 )}
               </div>
+
+              {/* Quick Start */}
+              <CollapsibleSection
+                title="Quick Start"
+                defaultExpanded={true}
+                storageKey="diagonal-precond-quick-start"
+              >
+                <div className="space-y-4 text-gray-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Idea</h3>
+                    <p>
+                      Instead of using one step size for all directions (gradient descent) or computing
+                      the full inverse Hessian (Newton), use just the <strong>diagonal</strong> of the
+                      Hessian to get per-coordinate step sizes.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">The Algorithm</h3>
+                    <ol className="list-decimal ml-6 space-y-1">
+                      <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
+                      <li>Compute Hessian <InlineMath>H(w)</InlineMath> (matrix of second derivatives)</li>
+                      <li>Extract diagonal: <InlineMath>{'d_i = H_{ii}'}</InlineMath> for each coordinate</li>
+                      <li>
+                        Build diagonal preconditioner:{' '}
+                        <InlineMath>{'D = \\text{diag}(1/(H_{00}+\\varepsilon), 1/(H_{11}+\\varepsilon), ...)'}</InlineMath>
+                      </li>
+                      <li>Compute preconditioned direction: <InlineMath>{'p = -D \\cdot \\nabla f'}</InlineMath></li>
+                      <li>Take step: <InlineMath>{'w \\leftarrow w + \\alpha p'}</InlineMath> (α=1 or from line search)</li>
+                    </ol>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Key Formula</h3>
+                    <p>Update rule with diagonal preconditioning:</p>
+                    <BlockMath>{'w_{\\text{new}} = w_{\\text{old}} - D \\cdot \\nabla f(w_{\\text{old}})'}</BlockMath>
+                    <p className="text-sm mt-2">
+                      Where <InlineMath>{'D = \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}</InlineMath> gives different
+                      step sizes per coordinate based on local curvature.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">When It Works (And When It Doesn't)</h3>
+                    <div className="space-y-2">
+                      <div className="bg-green-50 border border-green-200 rounded p-3">
+                        <p className="font-semibold text-green-900">✓ Perfect on axis-aligned problems</p>
+                        <p className="text-sm text-gray-700">
+                          When the Hessian is diagonal (e.g., <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath>),
+                          our diagonal preconditioner <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges in
+                          1-2 iterations like Newton's method.
+                        </p>
+                      </div>
+
+                      <div className="bg-red-50 border border-red-200 rounded p-3">
+                        <p className="font-semibold text-red-900">✗ Struggles on rotated problems</p>
+                        <p className="text-sm text-gray-700">
+                          When Hessian has large off-diagonal terms (e.g., rotated ellipse), diagonal
+                          approximation misses critical coupling between coordinates. Takes many iterations
+                          and zig-zags like gradient descent.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Computational Cost</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li><strong>Per iteration:</strong> O(n²) to compute Hessian, O(n) for diagonal extraction</li>
+                      <li><strong>Memory:</strong> O(n²) for Hessian, O(n) for diagonal</li>
+                      <li><strong>Cheaper than Newton:</strong> No matrix inversion (O(n³)), just element-wise division</li>
+                      <li><strong>More expensive than GD:</strong> Requires Hessian computation</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold text-teal-800 mb-2">Parameters</h3>
+                    <ul className="list-disc ml-6 space-y-1">
+                      <li>
+                        <strong>Epsilon (ε):</strong> Numerical stability term prevents division by zero.
+                        Default 10⁻⁸ works well. Increase if you see instability.
+                      </li>
+                      <li>
+                        <strong>Line Search:</strong> Optional Armijo backtracking. Use for robustness on
+                        non-quadratic problems. Disable (α=1) for pure diagonal Newton step on quadratics.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-blue-100 rounded p-3">
+                    <p className="font-bold text-sm">Key Insight:</p>
+                    <p className="text-sm">
+                      Diagonal preconditioning is the simplest second-order method. It captures
+                      per-coordinate curvature but ignores coupling. Think of it as "Newton's method
+                      if the world were axis-aligned."
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleSection>
               </div>
             </>
           ) : null}
