@@ -581,6 +581,11 @@ const UnifiedVisualizer = () => {
           setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
         }
 
+        // Set rotation angle for rotated quadratic if specified
+        if (experiment.problem === 'quadratic' && experiment.rotationAngle !== undefined) {
+          setRotationAngle(experiment.rotationAngle);
+        }
+
         const problem = getProblem(experiment.problem);
         if (problem) {
           // Problem is now active via getCurrentProblem()

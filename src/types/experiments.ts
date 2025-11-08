@@ -26,6 +26,7 @@ export interface ExperimentPreset {
   problem: ProblemType;
   dataset?: DataPoint[];
   separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
+  rotationAngle?: number; // For rotated quadratic problems
   hyperparameters: {
     alpha?: number;
     c1?: number;

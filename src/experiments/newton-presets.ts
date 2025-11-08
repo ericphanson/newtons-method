@@ -75,6 +75,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     name: 'Demo: Why a Vector of αs Isn\'t Enough',
     description: 'Rotated ellipse - valley runs diagonally, no per-coordinate step sizes can align with it',
     problem: 'quadratic',
+    rotationAngle: 45,
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
