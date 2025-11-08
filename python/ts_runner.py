@@ -46,6 +46,7 @@ def run_typescript_test(
         )
 
         if result.returncode != 0:
+            print(f"TypeScript CLI returned non-zero exit code: {result.returncode} with output:\n{result.stdout}\n{result.stderr}")
             return {
                 'converged': False,
                 'iterations': 0,
@@ -69,6 +70,7 @@ def run_typescript_test(
             'raw_output': ''
         }
     except Exception as e:
+        print(f"Error running TypeScript test: {str(e)}")
         return {
             'converged': False,
             'iterations': 0,
