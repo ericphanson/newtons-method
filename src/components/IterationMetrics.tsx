@@ -1,6 +1,7 @@
 import React from 'react';
 import { fmt, fmtVec, norm, sub } from '../shared-utils';
 import type { AlgorithmSummary } from '../algorithms/types';
+import { SparklineMetric } from './SparklineMetric';
 
 interface IterationMetricsProps {
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
@@ -78,37 +79,20 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
   onIterationChange,
 }) => {
 
-  // Handle sparkline clicks to jump to iteration
-  const handleSparklineClick = (e: React.MouseEvent<SVGSVGElement>, dataLength: number) => {
-    if (!onIterationChange) return;
-    const svg = e.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const clickedIndex = Math.round((x / rect.width) * (dataLength - 1));
-    const clampedIndex = Math.max(0, Math.min(dataLength - 1, clickedIndex));
-    onIterationChange(clampedIndex);
-  };
-
   // Prepare sparkline data - show full history including future iterations
   const sparklineData = gradNormHistory && gradNormHistory.length > 0
     ? gradNormHistory
     : [gradNorm];
-  const maxGradNormInHistory = Math.max(...sparklineData, 1);
-  const minGradNormInHistory = Math.min(...sparklineData, 0);
 
   // Prepare loss sparkline data
   const lossSparklineData = lossHistory && lossHistory.length > 0
     ? lossHistory
     : [loss];
-  const maxLossInHistory = Math.max(...lossSparklineData, 1);
-  const minLossInHistory = Math.min(...lossSparklineData, 0);
 
   // Prepare alpha sparkline data
   const alphaSparklineData = alphaHistory && alphaHistory.length > 0
     ? alphaHistory
     : [alpha];
-  const maxAlphaInHistory = Math.max(...alphaSparklineData, 1);
-  const minAlphaInHistory = Math.min(...alphaSparklineData, 0);
 
   // Compute function change history (relative function change between iterations)
   const functionChangeHistory: number[] = [];
@@ -120,8 +104,6 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
     }
   }
   const hasFunctionChangeData = functionChangeHistory.length > 0;
-  const maxFunctionChange = hasFunctionChangeData ? Math.max(...functionChangeHistory, ftol * 10) : ftol * 10;
-  const minFunctionChange = hasFunctionChangeData ? Math.min(...functionChangeHistory, 0) : 0;
 
   // Current function change
   const currentFunctionChange = functionChangeHistory.length > iterNum && iterNum > 0
@@ -138,8 +120,6 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
     }
   }
   const hasStepSizeData = stepSizeHistory.length > 0;
-  const maxStepSize = hasStepSizeData ? Math.max(...stepSizeHistory, xtol * 10) : xtol * 10;
-  const minStepSize = hasStepSizeData ? Math.min(...stepSizeHistory, 0) : 0;
 
   // Current step size
   const currentStepSize = stepSizeHistory.length > iterNum && iterNum > 0
@@ -186,253 +166,57 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
         </div>
       )}
 
-      {/* Gradient Norm with Sparkline */}
-      <div className="space-y-1">
-        <div className="flex items-baseline justify-between text-xs">
-          <span className="text-gray-600">Grad Norm:</span>
-          <span className="font-mono font-bold">{fmt(gradNorm)}</span>
-        </div>
-        {sparklineData.length > 1 && (
-          <svg
-            width="100%"
-            height="24"
-            viewBox="0 0 100 20"
-            preserveAspectRatio="none"
-            className="overflow-visible cursor-pointer"
-            onClick={(e) => handleSparklineClick(e, sparklineData.length)}
-          >
-            {/* Tolerance threshold line - always visible, clamped to range */}
-            <line
-              x1="0"
-              x2="100"
-              y1={Math.max(2, Math.min(18, 18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16))}
-              y2={Math.max(2, Math.min(18, 18 - ((tolerance - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16))}
-              stroke="#10b981"
-              strokeWidth="0.3"
-              strokeDasharray="2,2"
-              vectorEffect="non-scaling-stroke"
-              opacity="0.6"
-            />
-            {/* Sparkline path */}
-            <path
-              d={sparklineData.map((val, i) => {
-                const x = (i / Math.max(sparklineData.length - 1, 1)) * 100;
-                const y = 18 - ((val - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16;
-                return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-              }).join(' ')}
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="0.5"
-              vectorEffect="non-scaling-stroke"
-            />
-            {/* Current position marker */}
-            <circle
-              cx={(iterNum / Math.max(sparklineData.length - 1, 1)) * 100}
-              cy={18 - ((gradNorm - minGradNormInHistory) / (maxGradNormInHistory - minGradNormInHistory || 1)) * 16}
-              r="1"
-              fill="#ef4444"
-              stroke="#fff"
-              strokeWidth="0.3"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        )}
-      </div>
+      <SparklineMetric
+        label="Grad Norm:"
+        value={fmt(gradNorm)}
+        data={sparklineData}
+        currentIndex={iterNum}
+        thresholds={[
+          { value: tolerance, color: '#10b981', dash: '2,2', opacity: 0.6 },
+        ]}
+        onPointSelect={onIterationChange}
+      />
 
-      {/* Loss with Sparkline */}
-      <div className="space-y-1">
-        <div className="flex items-baseline justify-between text-xs">
-          <span className="text-gray-600">Loss:</span>
-          <span className="font-mono font-bold">{fmt(loss)}</span>
-        </div>
-        {lossSparklineData.length > 1 && (
-          <svg
-            width="100%"
-            height="24"
-            viewBox="0 0 100 20"
-            preserveAspectRatio="none"
-            className="overflow-visible cursor-pointer"
-            onClick={(e) => handleSparklineClick(e, lossSparklineData.length)}
-          >
-            {/* Sparkline path */}
-            <path
-              d={lossSparklineData.map((val, i) => {
-                const x = (i / Math.max(lossSparklineData.length - 1, 1)) * 100;
-                const y = 18 - ((val - minLossInHistory) / (maxLossInHistory - minLossInHistory || 1)) * 16;
-                return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-              }).join(' ')}
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="0.5"
-              vectorEffect="non-scaling-stroke"
-            />
-            {/* Current position marker */}
-            <circle
-              cx={(iterNum / Math.max(lossSparklineData.length - 1, 1)) * 100}
-              cy={18 - ((loss - minLossInHistory) / (maxLossInHistory - minLossInHistory || 1)) * 16}
-              r="1"
-              fill="#ef4444"
-              stroke="#fff"
-              strokeWidth="0.3"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        )}
-      </div>
+      <SparklineMetric
+        label="Loss:"
+        value={fmt(loss)}
+        data={lossSparklineData}
+        currentIndex={iterNum}
+        onPointSelect={onIterationChange}
+      />
 
-      {/* Step Size with Sparkline */}
-      <div className="space-y-1">
-        <div className="flex items-baseline justify-between text-xs">
-          <span className="text-gray-600">Step α:</span>
-          <span className="font-mono font-bold">{fmt(alpha)}</span>
-        </div>
-        {alphaSparklineData.length > 1 && (
-          <svg
-            width="100%"
-            height="24"
-            viewBox="0 0 100 20"
-            preserveAspectRatio="none"
-            className="overflow-visible cursor-pointer"
-            onClick={(e) => handleSparklineClick(e, alphaSparklineData.length)}
-          >
-            {/* Sparkline path */}
-            <path
-              d={alphaSparklineData.map((val, i) => {
-                const x = (i / Math.max(alphaSparklineData.length - 1, 1)) * 100;
-                const y = 18 - ((val - minAlphaInHistory) / (maxAlphaInHistory - minAlphaInHistory || 1)) * 16;
-                return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-              }).join(' ')}
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="0.5"
-              vectorEffect="non-scaling-stroke"
-            />
-            {/* Current position marker */}
-            <circle
-              cx={(iterNum / Math.max(alphaSparklineData.length - 1, 1)) * 100}
-              cy={18 - ((alpha - minAlphaInHistory) / (maxAlphaInHistory - minAlphaInHistory || 1)) * 16}
-              r="1"
-              fill="#ef4444"
-              stroke="#fff"
-              strokeWidth="0.3"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        )}
-      </div>
+      <SparklineMetric
+        label="Step α:"
+        value={fmt(alpha)}
+        data={alphaSparklineData}
+        currentIndex={iterNum}
+        onPointSelect={onIterationChange}
+      />
 
-      {/* Function Change with Sparkline */}
       {hasFunctionChangeData && (
-        <div className="space-y-1">
-          <div className="flex items-baseline justify-between text-xs">
-            <span className="text-gray-600">Rel. Func. Change:</span>
-            <span className="font-mono font-bold">{fmt(currentFunctionChange)}</span>
-          </div>
-          {functionChangeHistory.length > 0 && (
-            <svg
-              width="100%"
-              height="24"
-              viewBox="0 0 100 20"
-              preserveAspectRatio="none"
-              className="overflow-visible cursor-pointer"
-              onClick={(e) => handleSparklineClick(e, functionChangeHistory.length)}
-            >
-              {/* ftol threshold line - always visible, clamped to range */}
-              <line
-                x1="0"
-                x2="100"
-                y1={Math.max(2, Math.min(18, 18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16))}
-                y2={Math.max(2, Math.min(18, 18 - ((ftol - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16))}
-                stroke="#f59e0b"
-                strokeWidth="0.3"
-                strokeDasharray="2,2"
-                vectorEffect="non-scaling-stroke"
-                opacity="0.6"
-              />
-              {/* Sparkline path */}
-              <path
-                d={functionChangeHistory.map((val, i) => {
-                  const x = (i / Math.max(functionChangeHistory.length - 1, 1)) * 100;
-                  const y = 18 - ((val - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16;
-                  return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                }).join(' ')}
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="0.5"
-                vectorEffect="non-scaling-stroke"
-              />
-              {/* Current position marker */}
-              {iterNum > 0 && (
-                <circle
-                  cx={((iterNum - 1) / Math.max(functionChangeHistory.length - 1, 1)) * 100}
-                  cy={18 - ((currentFunctionChange - minFunctionChange) / (maxFunctionChange - minFunctionChange || 1)) * 16}
-                  r="1"
-                  fill="#ef4444"
-                  stroke="#fff"
-                  strokeWidth="0.3"
-                  vectorEffect="non-scaling-stroke"
-                />
-              )}
-            </svg>
-          )}
-        </div>
+        <SparklineMetric
+          label="Rel. Func. Change:"
+          value={fmt(currentFunctionChange)}
+          data={functionChangeHistory}
+          currentIndex={iterNum > 0 ? iterNum - 1 : undefined}
+          thresholds={[
+            { value: ftol, color: '#f59e0b', dash: '2,2', opacity: 0.6 },
+          ]}
+          onPointSelect={onIterationChange}
+        />
       )}
 
-      {/* Step Size with Sparkline */}
       {hasStepSizeData && (
-        <div className="space-y-1">
-          <div className="flex items-baseline justify-between text-xs">
-            <span className="text-gray-600">Rel. Step Size:</span>
-            <span className="font-mono font-bold">{fmt(currentStepSize)}</span>
-          </div>
-          {stepSizeHistory.length > 0 && (
-            <svg
-              width="100%"
-              height="24"
-              viewBox="0 0 100 20"
-              preserveAspectRatio="none"
-              className="overflow-visible cursor-pointer"
-              onClick={(e) => handleSparklineClick(e, stepSizeHistory.length)}
-            >
-              {/* xtol threshold line - always visible, clamped to range */}
-              <line
-                x1="0"
-                x2="100"
-                y1={Math.max(2, Math.min(18, 18 - ((xtol - minStepSize) / (maxStepSize - minStepSize || 1)) * 16))}
-                y2={Math.max(2, Math.min(18, 18 - ((xtol - minStepSize) / (maxStepSize - minStepSize || 1)) * 16))}
-                stroke="#f59e0b"
-                strokeWidth="0.3"
-                strokeDasharray="2,2"
-                vectorEffect="non-scaling-stroke"
-                opacity="0.6"
-              />
-              {/* Sparkline path */}
-              <path
-                d={stepSizeHistory.map((val, i) => {
-                  const x = (i / Math.max(stepSizeHistory.length - 1, 1)) * 100;
-                  const y = 18 - ((val - minStepSize) / (maxStepSize - minStepSize || 1)) * 16;
-                  return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                }).join(' ')}
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="0.5"
-                vectorEffect="non-scaling-stroke"
-              />
-              {/* Current position marker */}
-              {iterNum > 0 && (
-                <circle
-                  cx={((iterNum - 1) / Math.max(stepSizeHistory.length - 1, 1)) * 100}
-                  cy={18 - ((currentStepSize - minStepSize) / (maxStepSize - minStepSize || 1)) * 16}
-                  r="1"
-                  fill="#ef4444"
-                  stroke="#fff"
-                  strokeWidth="0.3"
-                  vectorEffect="non-scaling-stroke"
-                />
-              )}
-            </svg>
-          )}
-        </div>
+        <SparklineMetric
+          label="Rel. Step Size:"
+          value={fmt(currentStepSize)}
+          data={stepSizeHistory}
+          currentIndex={iterNum > 0 ? iterNum - 1 : undefined}
+          thresholds={[
+            { value: xtol, color: '#f59e0b', dash: '2,2', opacity: 0.6 },
+          ]}
+          onPointSelect={onIterationChange}
+        />
       )}
 
       {/* Parameters - Single Line */}
