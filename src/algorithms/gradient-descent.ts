@@ -1,4 +1,4 @@
-import { DataPoint, computeLossAndGradient, norm, scale, add } from '../shared-utils';
+import { norm, scale, add } from '../shared-utils';
 import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
 import { getTerminationMessage } from './terminationUtils';
 

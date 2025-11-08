@@ -1,8 +1,5 @@
 import {
-  DataPoint,
   LineSearchTrial,
-  computeLossAndGradient,
-  sigmoid,
   dot,
   norm,
   scale,
@@ -33,40 +30,6 @@ export interface NewtonIteration {
     armijoValues: number[];
   };
 }
-
-// Compute Hessian matrix (second derivatives) for logistic regression
-const computeHessian = (w: number[], data: DataPoint[], lambda: number): number[][] => {
-  const [w0, w1, w2] = w;
-  const H: number[][] = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
-  ];
-
-  for (const point of data) {
-    const z = w0 * point.x1 + w1 * point.x2 + w2;
-    const sig = sigmoid(z);
-    const factor = sig * (1 - sig);
-
-    const x = [point.x1, point.x2, 1];
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        H[i][j] += factor * x[i] * x[j];
-      }
-    }
-  }
-
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      H[i][j] /= data.length;
-    }
-  }
-
-  H[0][0] += lambda;
-  H[1][1] += lambda;
-
-  return H;
-};
 
 const invertMatrix = (A: number[][]): number[][] | null => {
   const n = A.length;

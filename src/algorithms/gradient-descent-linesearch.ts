@@ -1,7 +1,5 @@
 import {
-  DataPoint,
   LineSearchTrial,
-  computeLossAndGradient,
   norm,
   scale,
   add

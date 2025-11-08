@@ -1,7 +1,5 @@
 import {
-  DataPoint,
   LineSearchTrial,
-  computeLossAndGradient,
   dot,
   norm,
   scale,
@@ -236,4 +234,3 @@ export const runLBFGS = (
 
   return { iterations, summary };
 };
-
