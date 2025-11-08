@@ -38,9 +38,9 @@ export type ConvergenceCriterion =
   | 'diverged';     // NaN/Inf detected (failure)
 
 export interface TerminationThresholds {
-  gtol?: number;      // Gradient norm tolerance (absolute, default: 1e-5)
-  ftol?: number;      // Relative function change tolerance (default: 1e-9)
-  xtol?: number;      // Relative step size tolerance (default: 1e-9)
+  gtol?: number;      // Gradient norm tolerance (absolute)
+  ftol?: number;      // Relative function change tolerance
+  xtol?: number;      // Relative step size tolerance
 }
 
 export interface AlgorithmOptions {

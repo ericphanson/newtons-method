@@ -55,6 +55,10 @@ interface AlgorithmConfigurationProps {
   onDiagPrecondEpsilonChange?: (val: number) => void;
   diagPrecondTolerance?: number;
   onDiagPrecondToleranceChange?: (val: number) => void;
+  diagPrecondFtol?: number;
+  onDiagPrecondFtolChange?: (val: number) => void;
+  diagPrecondXtol?: number;
+  onDiagPrecondXtolChange?: (val: number) => void;
 
   // For basin picker
   problemFuncs: ProblemFunctions;
@@ -488,7 +492,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               </p>
             </div>
 
-            {/* Gradient Tolerance */}
+            {/* Gradient Tolerance
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -513,7 +517,86 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
               <p className="text-xs text-gray-500">
                 Convergence threshold for gradient norm
               </p>
+            </div> */}
+
+            {/* Three tolerances in one row */}
+            <div className="flex gap-4">
+              {/* Gradient Tolerance (gtol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">gtol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-2"
+                    step="0.1"
+                    value={Math.log10(props.diagPrecondTolerance ?? 1e-6)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onDiagPrecondToleranceChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.diagPrecondTolerance ?? 1e-6)?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Gradient tolerance
+                </p>
+              </div>
+
+              {/* Function Tolerance (ftol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">ftol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-4"
+                    step="0.1"
+                    value={Math.log10(props.diagPrecondFtol ?? 2.22e-9)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onDiagPrecondFtolChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.diagPrecondFtol ?? 2.22e-9)?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Function tolerance
+                </p>
+              </div>
+
+              {/* Step Tolerance (xtol) */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">xtol:</label>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="-4"
+                    step="0.1"
+                    value={Math.log10(props.diagPrecondXtol ?? 1e-5)}
+                    onChange={(e) => {
+                      const val = Math.pow(10, parseFloat(e.target.value));
+                      props.onDiagPrecondXtolChange?.(val);
+                    }}
+                    className="flex-1"
+                  />
+                  <div className="text-sm text-gray-600 w-16 text-right">
+                    {(props.diagPrecondXtol ?? 1e-5)?.toExponential(1)}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Avg absolute step/dim (scipy-style)
+                </p>
+              </div>
             </div>
+
           </div>
         )}
 

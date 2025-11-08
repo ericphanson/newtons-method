@@ -47,17 +47,16 @@ export const runDiagonalPreconditioner = (
     c1?: number;
     lambda?: number;
     epsilon?: number;
-    termination?: {
-      gtol?: number;
-      ftol?: number;
-      xtol?: number;
+    termination: {
+      gtol: number;
+      ftol: number;
+      xtol: number;
     };
   }
 ): AlgorithmResult<DiagonalPrecondIteration> => {
   const {
     maxIter,
     initialPoint,
-    tolerance = 1e-6,
     lineSearch = 'none',
     c1 = 0.0001,
     lambda = 0,
@@ -66,9 +65,9 @@ export const runDiagonalPreconditioner = (
   } = options;
 
   // Extract termination thresholds (backward compatible with tolerance parameter)
-  const gtol = termination?.gtol ?? tolerance;
-  const ftol = termination?.ftol ?? 1e-9;
-  const xtol = termination?.xtol ?? 1e-9;
+  const gtol = termination?.gtol;;
+  const ftol = termination?.ftol;
+  const xtol = termination?.xtol;
 
   // Note: lambda accepted for API consistency but unused
   void lambda;

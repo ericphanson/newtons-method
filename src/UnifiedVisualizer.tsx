@@ -122,6 +122,9 @@ const UnifiedVisualizer = () => {
 
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
   const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-6);
+  const [diagPrecondFtol, setDiagPrecondFtol] = useState(2.22e-9);
+  const [diagPrecondXtol, setDiagPrecondXtol] = useState(1e-5);
+
   const [diagPrecondEpsilon, setDiagPrecondEpsilon] = useState(1e-8);
 
   // Shared algorithm state
@@ -496,7 +499,11 @@ const UnifiedVisualizer = () => {
     const result = runDiagonalPreconditioner(problemFuncs, {
       maxIter,
       initialPoint,
-      tolerance: diagPrecondTolerance,
+      termination: {
+        gtol: diagPrecondTolerance,
+        ftol: diagPrecondFtol,
+        xtol: diagPrecondXtol
+      },
       lineSearch: diagPrecondLineSearch,
       c1: diagPrecondC1,
       lambda,
@@ -523,18 +530,7 @@ const UnifiedVisualizer = () => {
         type: 'info'
       });
     }
-  }, [
-    currentProblem,
-    lambda,
-    maxIter,
-    initialW0,
-    initialW1,
-    diagPrecondTolerance,
-    diagPrecondLineSearch,
-    diagPrecondC1,
-    diagPrecondEpsilon,
-    getCurrentProblemFunctions
-  ]);
+  }, [getCurrentProblemFunctions, currentProblem, initialW0, initialW1, maxIter, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondC1, lambda, diagPrecondEpsilon]);
 
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
@@ -665,7 +661,11 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: leftConfig.c1 ?? diagPrecondC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
-            tolerance: diagPrecondTolerance,
+            termination: {
+                gtol: diagPrecondTolerance,
+                ftol: diagPrecondFtol,
+                xtol: diagPrecondXtol
+              },
             lineSearch: diagPrecondLineSearch,
             epsilon: diagPrecondEpsilon,
             initialPoint,
@@ -715,7 +715,11 @@ const UnifiedVisualizer = () => {
             maxIter: experiment.hyperparameters.maxIter ?? maxIter,
             c1: rightConfig.c1 ?? diagPrecondC1,
             lambda: experiment.hyperparameters.lambda ?? lambda,
-            tolerance: diagPrecondTolerance,
+            termination: {
+              gtol: diagPrecondTolerance,
+              ftol: diagPrecondFtol,
+              xtol: diagPrecondXtol
+            },
             lineSearch: diagPrecondLineSearch,
             epsilon: diagPrecondEpsilon,
             initialPoint,
@@ -754,7 +758,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [getCurrentProblemFunctions, gdFixedAlpha, gdLSC1, newtonC1, lbfgsC1, lbfgsM, lambda, maxIter, initialW0, initialW1, newtonHessianDamping, lbfgsHessianDamping, newtonLineSearch, diagPrecondC1, diagPrecondTolerance, diagPrecondLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
+  }, [getCurrentProblemFunctions, initialW0, initialW1, maxIter, gdFixedAlpha, lambda, gdLSC1, newtonC1, newtonHessianDamping, newtonLineSearch, lbfgsM, lbfgsC1, lbfgsHessianDamping, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, diagPrecondLineSearch, diagPrecondEpsilon, selectedTab, runDiagPrecond]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -958,7 +962,11 @@ const UnifiedVisualizer = () => {
         maxIter,
         c1: diagPrecondC1,
         initialPoint,
-        tolerance: diagPrecondTolerance,
+        termination: {
+          gtol: diagPrecondTolerance,
+          ftol: diagPrecondFtol,
+          xtol: diagPrecondXtol
+        },
       });
       const iterations = result.iterations;
       console.log('Diagonal Preconditioner completed:', iterations.length, 'iterations');
@@ -3093,8 +3101,8 @@ const UnifiedVisualizer = () => {
                       hessianCanvasRef={newtonHessianCanvasRef}
                       hessian={newtonIterations[newtonCurrentIter].hessian}
                       tolerance={newtonTolerance}
-                      ftol={1e-9}
-                      xtol={1e-9}
+                      ftol={newtonFtol}
+                      xtol={newtonXtol}
                       summary={newtonSummary}
                       onIterationChange={setNewtonCurrentIter}
                     />
@@ -4770,6 +4778,10 @@ const UnifiedVisualizer = () => {
                   onDiagPrecondEpsilonChange={setDiagPrecondEpsilon}
                   diagPrecondTolerance={diagPrecondTolerance}
                   onDiagPrecondToleranceChange={setDiagPrecondTolerance}
+                  diagPrecondFtol={diagPrecondFtol}
+                  onDiagPrecondFtolChange={setDiagPrecondFtol}
+                  diagPrecondXtol={diagPrecondXtol}
+                  onDiagPrecondXtolChange={setDiagPrecondXtol}
                   problemFuncs={problemFuncs}
                   problem={problem}
                   currentProblem={currentProblem}
@@ -4854,8 +4866,8 @@ const UnifiedVisualizer = () => {
                       lineSearchTrials={diagPrecondIterations[diagPrecondCurrentIter].lineSearchTrials?.length}
                       lineSearchCanvasRef={diagPrecondLineSearch !== 'none' ? diagPrecondLineSearchCanvasRef : undefined}
                       tolerance={diagPrecondTolerance}
-                      ftol={1e-9}
-                      xtol={1e-9}
+                      ftol={diagPrecondFtol}
+                      xtol={diagPrecondXtol}
                       summary={diagPrecondSummary}
                       onIterationChange={setDiagPrecondCurrentIter}
                     />

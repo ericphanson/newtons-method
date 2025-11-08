@@ -118,13 +118,19 @@ export const runNewton = (
     throw new Error('Newton method requires Hessian function');
   }
 
-  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, tolerance = 1e-5, lineSearch = 'armijo', termination } = options;
+  const { maxIter, c1 = 0.0001, lambda = 0, hessianDamping = 0.01, initialPoint, lineSearch = 'armijo', termination } = options;
 
+  if (!termination) {
+    throw new Error('Termination thresholds must be provided for Newton method');
+  }
   // Extract termination thresholds (backward compatible with tolerance parameter)
-  const gtol = termination?.gtol ?? tolerance;
-  const ftol = termination?.ftol ?? 1e-9;
-  const xtol = termination?.xtol ?? 1e-9;
+  const gtol = termination.gtol;
+  const ftol = termination.ftol;
+  const xtol = termination.xtol;
 
+  if (gtol === undefined || ftol === undefined || xtol === undefined) {
+    throw new Error('All termination thresholds (gtol, ftol, xtol) must be defined for Newton method');
+  }
   const iterations: NewtonIteration[] = [];
   let previousLoss: number | null = null;
   let previousW: number[] | null = null;
