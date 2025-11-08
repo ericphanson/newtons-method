@@ -1,6 +1,6 @@
 import { ProblemFunctions, AlgorithmOptions, AlgorithmResult, AlgorithmSummary, ConvergenceCriterion } from './types';
 import { armijoLineSearch } from '../line-search/armijo';
-import { norm, scale, add } from '../shared-utils';
+import { norm, scale, add, sub } from '../shared-utils';
 import { getTerminationMessage } from './terminationUtils';
 
 export interface DiagonalPrecondIteration {
@@ -42,6 +42,11 @@ export const runDiagonalPreconditioner = (
     c1?: number;
     lambda?: number;
     epsilon?: number;
+    termination?: {
+      gtol?: number;
+      ftol?: number;
+      xtol?: number;
+    };
   }
 ): AlgorithmResult<DiagonalPrecondIteration> => {
   const {
@@ -51,8 +56,14 @@ export const runDiagonalPreconditioner = (
     useLineSearch = false,
     c1 = 0.0001,
     lambda = 0,
-    epsilon = 1e-8
+    epsilon = 1e-8,
+    termination
   } = options;
+
+  // Extract termination thresholds (backward compatible with tolerance parameter)
+  const gtol = termination?.gtol ?? tolerance;
+  const ftol = termination?.ftol ?? 1e-9;
+  const xtol = termination?.xtol ?? 1e-9;
 
   // Note: lambda accepted for API consistency but unused
   void lambda;
@@ -62,12 +73,30 @@ export const runDiagonalPreconditioner = (
   }
 
   const iterations: DiagonalPrecondIteration[] = [];
+  let previousLoss: number | null = null;
+  let previousW: number[] | null = null;
+  let terminationReason: ConvergenceCriterion | null = null;
   let w = initialPoint || (problem.dimensionality === 3 ? [0.1, 0.1, 0.0] : [0.1, 0.1]);
 
   for (let iter = 0; iter < maxIter; iter++) {
     const loss = problem.objective(w);
     const grad = problem.gradient(w);
     const gradNorm = norm(grad);
+
+    // Check gradient norm convergence
+    if (gradNorm < gtol) {
+      terminationReason = 'gradient';
+      // Will store iteration at end of loop
+    }
+
+    // Check function value stalling (scipy-style: relative tolerance)
+    if (previousLoss !== null && ftol > 0) {
+      const funcChange = Math.abs(loss - previousLoss);
+      const relativeFuncChange = funcChange / Math.max(Math.abs(loss), 1e-8);
+      if (relativeFuncChange < ftol && terminationReason === null) {
+        terminationReason = 'ftol';
+      }
+    }
 
     // Compute Hessian and extract diagonal
     const H = problem.hessian(w);
@@ -109,6 +138,18 @@ export const runDiagonalPreconditioner = (
       newLoss = problem.objective(wNew);
     }
 
+    // Check step size stalling (scipy-style: average absolute step per dimension)
+    if (xtol > 0) {
+      const step = sub(wNew, w);
+      const stepSize = norm(step);
+      const dimension = w.length;
+      // Use RMS step size per dimension
+      const avgStepSize = stepSize / Math.sqrt(dimension);
+      if (avgStepSize < xtol && terminationReason === null) {
+        terminationReason = 'xtol';
+      }
+    }
+
     iterations.push({
       iter,
       w: [...w],
@@ -125,17 +166,26 @@ export const runDiagonalPreconditioner = (
       lineSearchTrials
     });
 
+    // Update for next iteration
+    previousLoss = loss;
+    previousW = [...w];
     w = wNew;
 
-    // Check convergence
-    if (gradNorm < tolerance) {
+    // Early stopping if any termination criterion met
+    if (terminationReason !== null) {
       break;
     }
 
     // Check for divergence
     if (!isFinite(newLoss) || !isFinite(gradNorm)) {
+      terminationReason = 'diverged';
       break;
     }
+  }
+
+  // If loop completed without early termination
+  if (terminationReason === null) {
+    terminationReason = 'maxiter';
   }
 
   // Compute convergence summary
@@ -144,21 +194,31 @@ export const runDiagonalPreconditioner = (
   const finalLoss = lastIter ? lastIter.newLoss : Infinity;
   const finalLocation = lastIter ? lastIter.wNew : w;
 
-  const converged = finalGradNorm < tolerance;
-  const diverged = !isFinite(finalLoss) || !isFinite(finalGradNorm);
+  // Compute final step size and function change
+  const absoluteStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
+  const absoluteFuncChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
 
-  let convergenceCriterion: ConvergenceCriterion;
-  if (diverged) {
-    convergenceCriterion = 'diverged';
-  } else if (converged) {
-    convergenceCriterion = 'gradient';
-  } else {
-    convergenceCriterion = 'maxiter';
-  }
+  // Compute relative values (for scipy-style tolerance checking)
+  const finalStepSize = absoluteStepSize !== undefined
+    ? absoluteStepSize / Math.max(norm(finalLocation), 1.0)
+    : undefined;
+  const finalFunctionChange = absoluteFuncChange !== undefined
+    ? absoluteFuncChange / Math.max(Math.abs(finalLoss), 1e-8)
+    : undefined;
 
-  const terminationMessage = getTerminationMessage(convergenceCriterion, {
+  // Determine convergence flags
+  const converged = ['gradient', 'ftol', 'xtol'].includes(terminationReason);
+  const diverged = terminationReason === 'diverged';
+  const stalled = ['ftol', 'xtol'].includes(terminationReason);
+
+  // Generate human-readable termination message
+  const terminationMessage = getTerminationMessage(terminationReason, {
     gradNorm: finalGradNorm,
-    gtol: tolerance,
+    gtol,
+    stepSize: finalStepSize,
+    xtol,
+    funcChange: finalFunctionChange,
+    ftol,
     iters: iterations.length,
     maxIter
   });
@@ -166,12 +226,14 @@ export const runDiagonalPreconditioner = (
   const summary: AlgorithmSummary = {
     converged,
     diverged,
-    stalled: false, // Diagonal preconditioner doesn't have stalling detection yet
+    stalled,
     finalLocation,
     finalLoss,
     finalGradNorm,
+    finalStepSize,
+    finalFunctionChange,
     iterationCount: iterations.length,
-    convergenceCriterion,
+    convergenceCriterion: terminationReason,
     terminationMessage
   };
 
