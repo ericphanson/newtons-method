@@ -177,6 +177,8 @@ export const runNewton = (
     }
 
     // Check gradient norm convergence
+    // Note: Small gradient indicates first-order stationary point, but this could be
+    // a saddle point (indefinite Hessian) or local maximum, not necessarily a minimum!
     if (gradNorm < gtol) {
       terminationReason = 'gradient';
       // Will store iteration at end of loop
@@ -305,6 +307,7 @@ export const runNewton = (
   const stalled = ['ftol', 'xtol'].includes(terminationReason);
 
   // Generate human-readable termination message
+  // Pass eigenvalues to enable saddle point detection in the UI message
   const terminationMessage = getTerminationMessage(terminationReason, {
     gradNorm: finalGradNorm,
     gtol,
@@ -313,7 +316,8 @@ export const runNewton = (
     funcChange: finalFunctionChange,
     ftol,
     iters: iterations.length,
-    maxIter
+    maxIter,
+    eigenvalues: lastIter?.eigenvalues
   });
 
   const summary: AlgorithmSummary = {

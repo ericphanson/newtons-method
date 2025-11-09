@@ -16,11 +16,19 @@ export function getTerminationMessage(
     ftol?: number;
     iters: number;
     maxIter: number;
+    eigenvalues?: number[];
   }
 ): string {
   switch (criterion) {
     case 'gradient':
-      return `Converged: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
+      // Check for saddle point (negative eigenvalue at stationary point)
+      if (values.eigenvalues && values.eigenvalues.length > 0) {
+        const minEigenvalue = values.eigenvalues[values.eigenvalues.length - 1];
+        if (minEigenvalue < 0) {
+          return `⚠️ SADDLE POINT DETECTED: Converged to stationary point with negative eigenvalue (${minEigenvalue.toExponential(2)}). This is NOT a local minimum! Gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
+        }
+      }
+      return `First-order stationary point: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)} (Check eigenvalues to confirm local minimum)`;
 
     case 'ftol':
       return `Stalled: relative function change ${values.funcChange!.toExponential(2)} < ${values.ftol!.toExponential(2)}`;

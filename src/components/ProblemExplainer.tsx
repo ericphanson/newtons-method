@@ -193,9 +193,12 @@ export function ProblemExplainer() {
                 loss is <InlineMath>{String.raw`(1 - y_i z_i)^2`}</InlineMath>. Large violations get much heavier penalty.
               </p>
               <p className="mt-1 text-sm">
-                <strong>Advantage:</strong> The loss function is <em>twice differentiable everywhere</em> (smooth),
-                which makes Newton's method work better. Soft-margin SVM has a "kink" at <InlineMath>{'y_i z_i = 1'}</InlineMath>
-                where the second derivative doesn't exist.
+                <strong>Advantage:</strong> The loss function is <em>differentiable everywhere</em> (C¹ smooth),
+                unlike soft-margin SVM which has a "kink" at <InlineMath>{'y_i z_i = 1'}</InlineMath>.
+                Note: While the first derivative is continuous, the second derivative has a discontinuity
+                at the margin boundary, so it's not twice continuously differentiable (C²). For true
+                quadratic convergence with Newton's method, infinitely smooth losses are ideal, but
+                squared-hinge is a practical compromise that enables gradient-based optimization.
               </p>
               <p className="mt-1 text-sm">
                 <strong>Trade-off:</strong> More sensitive to outliers (quadratic penalty), but smoother optimization landscape.
@@ -380,7 +383,7 @@ export function ProblemExplainer() {
           <div className="bg-blue-50 rounded p-3 mt-3">
             <p className="text-sm font-semibold mb-1">Note: Axis-aligned conditioning</p>
             <p className="text-sm">
-              This problem is axis-aligned (steep in w₀, shallow in w₁). Compare with Rotated Ellipse
+              This problem is axis-aligned (steep in w₁, shallow in w₀). Compare with Rotated Ellipse
               to see the difference between intrinsic conditioning (κ) and coordinate system effects (rotation).
             </p>
           </div>
@@ -489,21 +492,23 @@ export function ProblemExplainer() {
           </p>
 
           <p>
-            <strong>Why it's interesting:</strong> Pure failure mode for Newton's method!
-            Negative eigenvalue means Hessian suggests going uphill.
+            <strong>Why it's interesting:</strong> Classic failure mode demonstrating the importance
+            of second-order optimality conditions. At a saddle point, the gradient is zero (∇f = 0)
+            but the Hessian has mixed eigenvalues (one positive, one negative).
           </p>
 
           <p>
-            <strong>Challenge:</strong> Newton's direction is not a descent direction.
-            Line search is essential to prevent divergence.
+            <strong>Challenge:</strong> Newton's direction is NOT a descent direction here. The negative
+            eigenvalue causes Newton to suggest moving uphill along that eigenvector.
           </p>
 
           <div className="bg-red-50 rounded p-3">
-            <p className="text-sm font-semibold mb-1">Demonstrates failure modes:</p>
+            <p className="text-sm font-semibold mb-1">Newton's Method Behavior:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Newton without line search: diverges upward</li>
-              <li>Newton with line search: damping saves it</li>
-              <li>All algorithms: Can't find minimum (saddle isn't a minimum!)</li>
+              <li><strong>WITHOUT line search:</strong> Diverges! Takes full step in wrong direction (moves uphill).</li>
+              <li><strong>WITH line search (default):</strong> Line search rejects the bad step or shrinks it heavily. May stall near saddle point but won't diverge.</li>
+              <li><strong>Key insight:</strong> Gradient norm alone is NOT sufficient for optimality. Need to check Hessian eigenvalues!</li>
+              <li><strong>All algorithms:</strong> Can't find a minimum here because the saddle point isn't a minimum - it's a critical point where ∇f = 0.</li>
             </ul>
           </div>
         </div>
