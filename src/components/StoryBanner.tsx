@@ -44,7 +44,7 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
         {/* Story progress (clickable for TOC) */}
         <div className="flex-none">
           <button onClick={onShowTOC} className="hover:underline">
-            {story.title} - Step {currentStepIndex + 1}/{story.steps.length}
+            {story.title} - Step {safeIndex + 1}/{story.steps.length}
           </button>
         </div>
 
