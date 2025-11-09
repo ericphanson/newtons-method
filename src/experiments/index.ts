@@ -26,3 +26,19 @@ export function getExperimentsForAlgorithm(algorithm: string): ExperimentPreset[
 }
 
 export { gdFixedExperiments, gdLinesearchExperiments, diagonalPrecondExperiments, newtonExperiments, lbfgsExperiments };
+
+/**
+ * Get a specific experiment by ID across all algorithms
+ * @param id Experiment ID
+ * @returns Experiment preset or undefined if not found
+ */
+export function getExperimentById(id: string): ExperimentPreset | undefined {
+  const allExperiments = [
+    ...gdFixedExperiments,
+    ...gdLinesearchExperiments,
+    ...diagonalPrecondExperiments,
+    ...newtonExperiments,
+    ...lbfgsExperiments,
+  ];
+  return allExperiments.find(exp => exp.id === id);
+}
