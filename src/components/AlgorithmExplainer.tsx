@@ -221,8 +221,9 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Can achieve quadratic convergence on
-            axis-aligned problems! But degrades to linear on rotated problems.
+            <strong>Convergence rate:</strong> Solves axis-aligned quadratic problems in 1-2 iterations
+            (becomes equivalent to Newton's method when Hessian is diagonal). Degrades to linear
+            convergence on rotated problems where off-diagonal Hessian structure is ignored.
           </p>
 
           <p>
