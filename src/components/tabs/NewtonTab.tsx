@@ -320,43 +320,53 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
 
         <div className="bg-amber-100 rounded p-4 mb-4">
           <h3 className="text-lg font-bold text-amber-900 mb-2">
-            🤔 Why Not Just Use a Vector of Step Sizes?
+            🤔 What About Per-Coordinate Step Sizes?
           </h3>
 
           <p className="mb-3">
             Natural question: If different directions need different step sizes,
-            why not use <InlineMath>\alpha</InlineMath> = (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>, ..., <InlineMath>\alpha_n</InlineMath>) - one step size per coordinate?
+            what if we use just the <strong>diagonal</strong> of the Hessian - one step size per coordinate?
           </p>
 
-          <p className="mb-2"><strong>Update rule would be:</strong></p>
-          <BlockMath>{'w_{new} = w_{old} - (\\alpha_1 \\frac{\\partial f}{\\partial x_1}, \\alpha_2 \\frac{\\partial f}{\\partial x_2}, ...)'}</BlockMath>
+          <p className="mb-2"><strong>This is called diagonal preconditioning:</strong></p>
+          <BlockMath>{'w_{new} = w_{old} - D \\cdot \\nabla f, \\quad \\text{where } D = \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}</BlockMath>
 
           <p className="mb-3 mt-3">
-            <strong>This handles different scales</strong> in each coordinate direction.
-            But there's a problem...
+            <strong>Good news:</strong> We've implemented this! See the <strong>Diagonal Preconditioning</strong> tab
+            to try it directly.
           </p>
 
-          <div className="bg-amber-200 rounded p-3 mb-3">
-            <p className="font-semibold mb-2">What if the problem is ROTATED?</p>
-            <p className="text-sm mb-2">
-              Example: f(x,y) = (x+y)² + 100(x-y)²
-            </p>
-            <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li>The valley runs diagonally (along x+y=0), not along x or y axis</li>
-              <li>No choice of (<InlineMath>\alpha_1</InlineMath>, <InlineMath>\alpha_2</InlineMath>) can make the step point down the diagonal valley</li>
-              <li>You need to ROTATE the step direction, not just scale coordinates</li>
-            </ul>
+          <div className="space-y-3">
+            <div className="bg-green-50 border border-green-200 rounded p-3">
+              <p className="font-semibold text-green-900 mb-1">✓ Works perfectly on axis-aligned problems</p>
+              <p className="text-sm text-gray-700">
+                When H is diagonal (e.g., <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath>), diagonal
+                preconditioning gives <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges like full Newton's method.
+              </p>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="font-semibold text-red-900 mb-1">✗ Struggles when problem is rotated</p>
+              <p className="text-sm text-gray-700 mb-2">
+                Example: <InlineMath>f(x,y) = (x+y)^2 + 100(x-y)^2</InlineMath> has a diagonal valley.
+              </p>
+              <ul className="list-disc ml-6 space-y-1 text-sm text-gray-700">
+                <li>The Hessian has large off-diagonal terms that capture coordinate coupling</li>
+                <li>Diagonal approximation misses this rotation information</li>
+                <li>Result: zig-zagging, slow convergence</li>
+              </ul>
+            </div>
           </div>
 
-          <p className="mb-2"><strong>Newton's matrix <InlineMath>{`H^{-1}`}</InlineMath> solves this:</strong></p>
+          <p className="mb-2 mt-3"><strong>Full Newton's matrix <InlineMath>{`H^{-1}`}</InlineMath> handles both:</strong></p>
           <ul className="list-disc ml-6 space-y-1 text-sm">
-            <li>Full matrix can both SCALE (handle different curvatures) and ROTATE (align with problem geometry)</li>
-            <li><InlineMath>{`H^{-1}\\nabla f`}</InlineMath> automatically points toward the minimum regardless of rotation</li>
-            <li>This is why we need n² values (matrix) not just n values (vector)</li>
+            <li>SCALE: Different step sizes per direction (like diagonal preconditioning)</li>
+            <li>ROTATE: Align with problem geometry via off-diagonal terms</li>
+            <li>This is why we need n² values (full matrix) not just n values (diagonal)</li>
           </ul>
 
           <p className="text-sm mt-3 italic text-amber-800">
-            Try the "Rotated Quadratic" experiment below to see this in action!
+            Try the Diagonal Preconditioning tab to see exactly when per-coordinate step sizes work!
           </p>
         </div>
 
