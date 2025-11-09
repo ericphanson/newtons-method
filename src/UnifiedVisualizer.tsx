@@ -71,9 +71,9 @@ const UnifiedVisualizer = () => {
   const [newtonC1, setNewtonC1] = useState(0.0001);
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('none');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0);
-  const [newtonTolerance, setNewtonTolerance] = useState(1e-5);
-  const [newtonFtol, setNewtonFtol] = useState(2.22e-9);
-  const [newtonXtol, setNewtonXtol] = useState(1e-5);
+  const [newtonTolerance, setNewtonTolerance] = useState(1e-4);  // gtol: matches scipy trust-ncg default
+  const [newtonFtol, setNewtonFtol] = useState(2.22e-9);        // ftol: matches scipy L-BFGS-B default
+  const [newtonXtol, setNewtonXtol] = useState(1e-5);           // xtol: matches scipy Newton-CG default
 
   // L-BFGS state
   const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
@@ -82,7 +82,7 @@ const UnifiedVisualizer = () => {
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0);
-  const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-5);
+  const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-4);  // gtol: matches scipy trust-ncg default
 
   // Diagonal Preconditioner state
   const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
@@ -92,9 +92,9 @@ const UnifiedVisualizer = () => {
 
 
   const [diagPrecondC1, setDiagPrecondC1] = useState(0.0001);
-  const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-6);
-  const [diagPrecondFtol, setDiagPrecondFtol] = useState(2.22e-9);
-  const [diagPrecondXtol, setDiagPrecondXtol] = useState(1e-5);
+  const [diagPrecondTolerance, setDiagPrecondTolerance] = useState(1e-4);  // gtol: matches scipy trust-ncg default
+  const [diagPrecondFtol, setDiagPrecondFtol] = useState(2.22e-9);         // ftol: matches scipy L-BFGS-B default
+  const [diagPrecondXtol, setDiagPrecondXtol] = useState(1e-5);            // xtol: matches scipy Newton-CG default
 
   const [diagPrecondHessianDamping, setDiagPrecondHessianDamping] = useState(0);
 

@@ -164,14 +164,20 @@ export function ProblemExplainer() {
               <div className="bg-yellow-50 rounded p-3 border border-yellow-200 mt-3">
                 <h5 className="font-semibold text-sm mb-2 text-yellow-900">⚠️ Newton's Method Warning</h5>
                 <p className="text-sm">
-                  <strong>Not recommended with Newton:</strong> Perceptron's piecewise linear loss
-                  means the Hessian only includes the tiny regularization term (λI). With small λ,
-                  Newton computes massive steps (often 1,000-10,000x too large) that cause wild oscillations.
+                  <strong>Not recommended with Newton:</strong> Perceptron's piecewise linear loss has zero curvature
+                  (second derivative = 0 almost everywhere). The Hessian contains only the regularization term: H = λI.
                 </p>
                 <p className="text-sm mt-2">
-                  <strong>Solutions:</strong> Use line search to shrink bad steps, or add Hessian damping
-                  to prevent them. Better yet, use Squared-Hinge SVM (smooth loss, better Hessian) or
-                  stick with gradient descent / L-BFGS for perceptron.
+                  <strong>Why it fails:</strong> Newton's step becomes d = -H⁻¹∇f = -(1/λ)I·∇f = -(1/λ)∇f.
+                  This is just <strong>gradient descent with step size 1/λ!</strong> With λ=0.0001 (default),
+                  Newton takes gradient steps with α=10,000, causing wild oscillations. Newton loses its
+                  second-order advantage completely - it degenerates into poorly-tuned gradient descent.
+                </p>
+                <p className="text-sm mt-2">
+                  <strong>Solutions:</strong> Use line search to shrink bad steps, or add Hessian damping.
+                  Better yet, use Squared-Hinge SVM (smooth loss with proper Hessian), or stick with
+                  plain gradient descent for perceptron (second-order methods can't exploit curvature in
+                  piecewise linear problems).
                 </p>
               </div>
             </div>

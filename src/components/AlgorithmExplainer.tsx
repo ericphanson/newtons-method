@@ -143,7 +143,7 @@ export function AlgorithmExplainer() {
             <ul className="text-sm list-disc ml-5">
               <li>More function evaluations per iteration (higher cost)</li>
               <li>Still only first-order (doesn't use curvature info)</li>
-              <li>Can be conservative with step sizes</li>
+              <li>Armijo line search finds <strong>a</strong> descent step, not <strong>the best</strong> step - can accept smaller steps than optimal, requiring more iterations overall</li>
               <li>Still struggles with ill-conditioning</li>
             </ul>
           </div>
@@ -253,6 +253,13 @@ export function AlgorithmExplainer() {
               <li>Requires Hessian computation (expensive) - our pedagogical implementation</li>
               <li>Gradient-based variants (Adam/RMSprop) avoid Hessian but are approximate</li>
             </ul>
+            <p className="text-sm mt-2">
+              <strong>Why rotation hurts:</strong> Diagonal preconditioner uses D = diag(1/H₀₀, 1/H₁₁, ...),
+              which works perfectly when H is diagonal. But when rotated, H has off-diagonal terms that capture
+              coordinate coupling. The optimal inverse H⁻¹ also has off-diagonals, but D ignores them.
+              This means D applies the <strong>wrong scaling</strong> for coupled coordinates.
+              Example: At θ=45°, diagonal can't correct for coupling between w₀ and w₁, leading to inefficient zigzagging.
+            </p>
           </div>
 
           <div className="bg-blue-50 rounded p-3 mt-2">
@@ -296,10 +303,11 @@ export function AlgorithmExplainer() {
           <div>
             <p className="font-semibold">Update Rule:</p>
             <BlockMath>
-              {String.raw`w_{k+1} = w_k - (H + \lambda_{\text{damp}} \cdot I)^{-1}(w_k) \nabla f(w_k)`}
+              {String.raw`w_{k+1} = w_k - [H(w_k) + \lambda_{\text{damp}} \cdot I]^{-1} \nabla f(w_k)`}
             </BlockMath>
             <p className="text-sm mt-1">
-              where <InlineMath>H(w)</InlineMath> is the Hessian (matrix of second derivatives)
+              where <InlineMath>H(w_k)</InlineMath> is the Hessian at <InlineMath>w_k</InlineMath> (matrix of second derivatives),
+              and the entire damped matrix <InlineMath>{String.raw`[H(w_k) + \lambda_{\text{damp}} I]`}</InlineMath> is inverted
             </p>
             <p className="text-sm mt-1">
               (with <InlineMath>{String.raw`\lambda_{\text{damp}} = 0.01`}</InlineMath> by default for numerical stability)
@@ -332,8 +340,12 @@ export function AlgorithmExplainer() {
                 Example: Perceptron with λ=0.0001 → Hessian eigenvalues ≈ 0.0001 → direction magnitude ~10,000× gradient!
               </li>
               <li>
-                <strong>Connection to Levenberg-Marquardt:</strong> This is the core technique from the
-                Levenberg-Marquardt algorithm, which interpolates between Newton's method and gradient descent
+                <strong>Connection to Levenberg-Marquardt:</strong> Classical LM is for nonlinear least-squares
+                and uses the Gauss-Newton Hessian approximation (J^T J) plus damping. Our implementation uses
+                the same damping principle but with the full Hessian for general optimization (also called
+                "damped Newton" or "regularized Newton"). Both interpolate between Newton's method (λ→0) and
+                gradient descent (λ→∞). Note: This is different from trust region methods, which dynamically
+                adjust λ based on a constraint radius.
               </li>
               <li>
                 <strong>Trade-offs:</strong> Lower λ_damp = more faithful to the original problem but less stable;
@@ -353,8 +365,10 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Quadratic convergence near the minimum!
-            Once close, doubles the digits of accuracy each iteration.
+            <strong>Convergence rate:</strong> Quadratic convergence near the minimum
+            (requires starting close to solution with positive definite Hessian).
+            Once in the convergence region, doubles the digits of accuracy each iteration.
+            Can diverge if started far from the solution.
           </p>
 
           <p>
@@ -376,9 +390,9 @@ export function AlgorithmExplainer() {
             <p className="text-sm font-semibold mb-1">Weaknesses:</p>
             <ul className="text-sm list-disc ml-5">
               <li>Requires Hessian computation (expensive in high dimensions)</li>
-              <li>Requires solving linear system (O(n³) cost)</li>
+              <li>Requires solving linear system (O(n³) for dense matrices; can be O(n) to O(n²) for sparse/structured problems)</li>
               <li>Can diverge on non-convex problems without line search</li>
-              <li>Not suitable for large-scale problems (memory + computation)</li>
+              <li>Full Newton not suitable for very large-scale problems, but variants exist (truncated Newton, Newton-CG use iterative solvers)</li>
             </ul>
           </div>
 

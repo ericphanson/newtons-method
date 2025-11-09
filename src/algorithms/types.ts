@@ -32,8 +32,8 @@ export interface ProblemFunctions {
 
 export type ConvergenceCriterion =
   | 'gradient'      // ||grad|| < gtol (first-order stationary point - may be saddle point!)
-  | 'ftol'          // Relative function change < ftol (stalled, scipy-style)
-  | 'xtol'          // Relative step size < xtol (stalled, scipy-style)
+  | 'ftol'          // Relative function change < ftol (converged, scipy-style)
+  | 'xtol'          // Relative step size < xtol (converged, scipy-style)
   | 'maxiter'       // Hit maximum iterations (not converged)
   | 'diverged';     // NaN/Inf detected (failure)
 

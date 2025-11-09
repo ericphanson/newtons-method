@@ -184,10 +184,11 @@ export const runNewton = (
       // Will store iteration at end of loop
     }
 
-    // Check function value stalling (scipy-style: relative tolerance)
+    // Check function value convergence (scipy-style: relative tolerance)
     if (previousLoss !== null && ftol > 0) {
       const funcChange = Math.abs(loss - previousLoss);
-      const relativeFuncChange = funcChange / Math.max(Math.abs(loss), 1e-8);
+      // scipy uses max(|f_k|, |f_{k+1}|, 1) as denominator to handle zero-minimum problems
+      const relativeFuncChange = funcChange / Math.max(Math.abs(loss), Math.abs(previousLoss), 1.0);
       if (relativeFuncChange < ftol && terminationReason === null) {
         terminationReason = 'ftol';
       }
@@ -238,14 +239,15 @@ export const runNewton = (
     const wNew = add(w, scale(direction, acceptedAlpha));
     const newLoss = problem.objective(wNew);
 
-    // Check step size stalling (scipy-style: average absolute step per dimension)
+    // Check step size convergence (scipy Newton-CG style: L1 norm scaled by dimension)
+    // scipy uses: ||Δx||_1 / n <= xtol (average absolute step per dimension)
     if (xtol > 0) {
       const step = sub(wNew, w);
-      const stepSize = norm(step);
-      const dimension = w.length;
-      // Use RMS step size per dimension (similar to scipy's L1/dimension but with L2 norm)
-      const avgStepSize = stepSize / Math.sqrt(dimension);
-      if (avgStepSize < xtol && terminationReason === null) {
+      const dimension = wNew.length;
+      // Compute L1 norm (sum of absolute values) divided by dimension
+      const l1Norm = step.reduce((sum, val) => sum + Math.abs(val), 0);
+      const avgAbsoluteStep = l1Norm / dimension;
+      if (avgAbsoluteStep < xtol && terminationReason === null) {
         terminationReason = 'xtol';
       }
     }
@@ -289,16 +291,15 @@ export const runNewton = (
   const finalLoss = lastIter ? lastIter.newLoss : Infinity;
   const finalLocation = lastIter ? lastIter.wNew : w;
 
-  // Compute final step size and function change (absolute and relative)
-  const absoluteStepSize = previousW ? norm(sub(finalLocation, previousW)) : undefined;
+  // Compute final step size and function change
   const absoluteFuncChange = previousLoss !== null ? Math.abs(finalLoss - previousLoss) : undefined;
 
-  // Compute relative values (for scipy-style tolerance checking)
-  const finalStepSize = absoluteStepSize !== undefined
-    ? absoluteStepSize / Math.max(norm(finalLocation), 1.0)
+  // Compute step size using L1 norm scaled by dimension to match scipy Newton-CG
+  const finalStepSize = previousW
+    ? sub(finalLocation, previousW).reduce((sum, val) => sum + Math.abs(val), 0) / finalLocation.length
     : undefined;
-  const finalFunctionChange = absoluteFuncChange !== undefined
-    ? absoluteFuncChange / Math.max(Math.abs(finalLoss), 1e-8)
+  const finalFunctionChange = (absoluteFuncChange !== undefined && previousLoss !== null)
+    ? absoluteFuncChange / Math.max(Math.abs(finalLoss), Math.abs(previousLoss), 1.0)
     : undefined;
 
   // Determine convergence flags
