@@ -10,6 +10,7 @@ import {
   logisticGradient,
   logisticHessian
 } from './utils/logisticRegression';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- NewtonIteration used in commented state, will be removed in Task 8
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDIteration used in commented state, will be removed in Task 8
@@ -72,10 +73,10 @@ const UnifiedVisualizer = () => {
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
 
-  // Newton state
-  const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
-  const [newtonSummary, setNewtonSummary] = useState<AlgorithmSummary | null>(null);
-  const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
+  // Newton state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
+  // const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
+  // const [newtonSummary, setNewtonSummary] = useState<AlgorithmSummary | null>(null);
+  // const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
   const [newtonC1, setNewtonC1] = useState(0.0001);
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('none');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0);
@@ -338,6 +339,32 @@ const UnifiedVisualizer = () => {
     { jumpToEnd: experimentJustLoaded }
   );
 
+  // Use custom hook for Newton's Method algorithm
+  const newton = useAlgorithmIterations(
+    'Newton',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      return runNewton(problemFuncs, {
+        maxIter,
+        c1: newtonC1,
+        lambda,
+        hessianDamping: newtonHessianDamping,
+        lineSearch: newtonLineSearch,
+        initialPoint,
+        termination: {
+          gtol: newtonTolerance,
+          ftol: newtonFtol,
+          xtol: newtonXtol,
+        },
+      });
+    },
+    [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
     iterations: Array<{ w: number[]; wNew: number[] }>,
@@ -433,8 +460,8 @@ const UnifiedVisualizer = () => {
 
   // Calculate parameter bounds for both algorithms
   const newtonParamBounds = React.useMemo(
-    () => calculateParamBounds(newtonIterations, 'Newton'),
-    [newtonIterations, calculateParamBounds]
+    () => calculateParamBounds(newton.iterations, 'Newton'),
+    [newton.iterations, calculateParamBounds]
   );
 
   const lbfgsParamBounds = React.useMemo(
@@ -615,54 +642,11 @@ const UnifiedVisualizer = () => {
     gdFixed.setCurrentIter(0);
     gdLS.setCurrentIter(0);
     setDiagPrecondCurrentIter(0);
-    setNewtonCurrentIter(0);
+    newton.setCurrentIter(0);
     setLbfgsCurrentIter(0);
     setCustomPoints([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed will be updated in Task 9
   }, []);
-
-  // Recompute algorithms when shared state changes
-  useEffect(() => {
-    try {
-      // Preserve current position as percentage
-      const oldPercentage = newtonIterations.length > 0
-        ? newtonCurrentIter / Math.max(1, newtonIterations.length - 1)
-        : 0;
-
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      const result = runNewton(problemFuncs, {
-        maxIter,
-        c1: newtonC1,
-        lambda,
-        hessianDamping: newtonHessianDamping,
-        lineSearch: newtonLineSearch,
-        initialPoint,
-        termination: {
-          gtol: newtonTolerance,
-          ftol: newtonFtol,
-          xtol: newtonXtol,
-        },
-      });
-      const iterations = result.iterations;
-      setNewtonIterations(iterations);
-      setNewtonSummary(result.summary);
-
-      // Restore position at same percentage
-      const newIter = iterations.length > 0
-        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
-        : 0;
-      setNewtonCurrentIter(newIter);
-    } catch (error) {
-      console.error('Newton error:', error);
-      setNewtonIterations([]);
-    }
-    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runNewton above
-    // Missing a parameter here means changes won't trigger re-resolution (bug: newtonHessianDamping was missing)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- newtonCurrentIter and newtonIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
-  }, [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
   useEffect(() => {
     try {
@@ -821,10 +805,10 @@ const UnifiedVisualizer = () => {
             setDiagPrecondCurrentIter(diagPrecondCurrentIter + 1);
           }
       } else if (selectedTab === 'newton') {
-        if (e.key === 'ArrowLeft' && newtonCurrentIter > 0) {
-          setNewtonCurrentIter(newtonCurrentIter - 1);
-        } else if (e.key === 'ArrowRight' && newtonCurrentIter < newtonIterations.length - 1) {
-          setNewtonCurrentIter(newtonCurrentIter + 1);
+        if (e.key === 'ArrowLeft' && newton.currentIter > 0) {
+          newton.setCurrentIter(newton.currentIter - 1);
+        } else if (e.key === 'ArrowRight' && newton.currentIter < newton.iterations.length - 1) {
+          newton.setCurrentIter(newton.currentIter + 1);
         }
       } else {
         if (e.key === 'ArrowLeft' && lbfgsCurrentIter > 0) {
@@ -838,7 +822,7 @@ const UnifiedVisualizer = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
-  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
+  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -924,7 +908,7 @@ const UnifiedVisualizer = () => {
     // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
                        selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
-                       selectedTab === 'newton' ? newtonIterations[newtonCurrentIter] :
+                       selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
                        lbfgsIterations[lbfgsCurrentIter];
     if ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && currentIter) {
       const [w0, w1, w2] = currentIter.wNew;
@@ -981,13 +965,13 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newtonIterations, newtonCurrentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
     const canvas = newtonHessianCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newtonIterations[newtonCurrentIter];
+    const iter = newton.iterations[newton.currentIter];
     if (!iter) return;
 
     const { ctx, width: w, height: h } = setupCanvas(canvas);
@@ -1050,7 +1034,7 @@ const UnifiedVisualizer = () => {
     ctx.fillStyle = '#111827';
     ctx.textAlign = 'left';
     ctx.fillText('Hessian Matrix H', startX, 20);
-  }, [newtonIterations, newtonCurrentIter, selectedTab]);
+  }, [newton.iterations, newton.currentIter, selectedTab]);
 
   // Helper function to draw parameter space plot
   const drawParameterSpacePlot = (
@@ -1203,13 +1187,13 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = newtonParamCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newtonIterations[newtonCurrentIter];
+    const iter = newton.iterations[newton.currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblem();
-    drawParameterSpacePlot(canvas, newtonParamBounds, newtonIterations, newtonCurrentIter, problem);
+    drawParameterSpacePlot(canvas, newtonParamBounds, newton.iterations, newton.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [newtonCurrentIter, data, newtonIterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [newton.currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
@@ -1381,11 +1365,11 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = newtonLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newtonIterations[newtonCurrentIter];
+    const iter = newton.iterations[newton.currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [newtonIterations, newtonCurrentIter, selectedTab]);
+  }, [newton.iterations, newton.currentIter, selectedTab]);
 
   // Draw L-BFGS parameter space
   useEffect(() => {
@@ -1488,8 +1472,7 @@ const UnifiedVisualizer = () => {
           gdLS.setCurrentIter(0);
           setDiagPrecondCurrentIter(0);
           setDiagPrecondIterations([]);
-          setNewtonCurrentIter(0);
-          setNewtonIterations([]);
+          newton.setCurrentIter(0);
           setLbfgsCurrentIter(0);
           setLbfgsIterations([]);
 
@@ -1687,11 +1670,11 @@ const UnifiedVisualizer = () => {
               onNewtonFtolChange={setNewtonFtol}
               newtonXtol={newtonXtol}
               onNewtonXtolChange={setNewtonXtol}
-              iterations={newtonIterations}
-              currentIter={newtonCurrentIter}
-              onIterChange={(val) => setNewtonCurrentIter(val)}
-              onResetIter={() => setNewtonCurrentIter(0)}
-              summary={newtonSummary}
+              iterations={newton.iterations}
+              currentIter={newton.currentIter}
+              onIterChange={(val) => newton.setCurrentIter(val)}
+              onResetIter={() => newton.setCurrentIter(0)}
+              summary={newton.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
