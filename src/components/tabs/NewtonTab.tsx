@@ -214,7 +214,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
     {/* Newton's Method - Quick Start */}
     <CollapsibleSection
       title="Quick Start"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="newton-quick-start"
     >
       <div className="space-y-4 text-gray-800">
@@ -384,7 +384,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
     {/* Line Search Details */}
     <CollapsibleSection
       title="Line Search Details"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="newton-line-search-details"
     >
       <div className="space-y-4 text-gray-800">
@@ -429,7 +429,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
     {/* Try This */}
     <CollapsibleSection
       title="Try This"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="newton-try-this"
     >
       <div className="space-y-3">

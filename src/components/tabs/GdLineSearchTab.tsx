@@ -184,7 +184,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
     {/* Quick Start */}
     <CollapsibleSection
       title="Quick Start"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="gd-ls-quick-start"
     >
       <div className="space-y-4 text-gray-800">
@@ -253,7 +253,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
     {/* Line Search Details */}
     <CollapsibleSection
       title="Line Search Details"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="gd-ls-line-search-details"
     >
       <div className="space-y-4 text-gray-800">
@@ -337,7 +337,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
     {/* Try This */}
     <CollapsibleSection
       title="Try This"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="gd-ls-try-this"
     >
       <div className="space-y-3">

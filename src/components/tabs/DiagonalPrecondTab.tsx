@@ -211,7 +211,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
           {/* Quick Start */}
           <CollapsibleSection
             title="Quick Start"
-            defaultExpanded={true}
+            defaultExpanded={false}
             storageKey="diagonal-precond-quick-start"
           >
             <div className="space-y-4 text-gray-800">
@@ -309,7 +309,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
           {/* Why Diagonal Fails on Rotation */}
           <CollapsibleSection
             title="Why Diagonal Preconditioner Fails on Rotated Problems"
-            defaultExpanded={true}
+            defaultExpanded={false}
             storageKey="diagonal-precond-rotation-failure"
           >
             <div className="space-y-4 text-gray-800">
@@ -399,7 +399,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
           {/* Try This */}
           <CollapsibleSection
             title="Try This"
-            defaultExpanded={true}
+            defaultExpanded={false}
             storageKey="diagonal-precond-try-this"
           >
             <div className="space-y-3">

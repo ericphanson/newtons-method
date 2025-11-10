@@ -197,7 +197,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
     {/* L-BFGS - Quick Start */}
     <CollapsibleSection
       title="Quick Start"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="lbfgs-quick-start"
     >
       <div className="space-y-4 text-gray-800">
@@ -371,7 +371,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
     {/* L-BFGS - Try This */}
     <CollapsibleSection
       title="Try This"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="lbfgs-try-this"
     >
       <div className="space-y-3">

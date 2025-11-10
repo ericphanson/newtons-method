@@ -172,7 +172,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
     <CollapsibleSection
       title="Quick Start"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="gd-fixed-quick-start"
     >
       <div className="space-y-4 text-gray-800">
@@ -228,7 +228,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
     <CollapsibleSection
       title="Try This"
-      defaultExpanded={true}
+      defaultExpanded={false}
       storageKey="gd-fixed-try-this"
     >
       <div className="space-y-3">
