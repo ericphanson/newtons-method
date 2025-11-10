@@ -692,11 +692,12 @@ const UnifiedVisualizer = () => {
     if (typeof value === 'string') return value;
     // Round floats to 4-5 significant digits for readability
     if (Number.isInteger(value)) return value.toString();
+    return value.toPrecision(4);
     // Use toPrecision for very small/large numbers, toFixed for normal range
-    if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
-      return value.toPrecision(4);
-    }
-    return value.toFixed(Math.min(5, Math.max(2, 4 - Math.floor(Math.log10(Math.abs(value))))));
+    // if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
+    //   return value.toPrecision(4);
+    // }
+    // return value.toFixed(Math.min(5, Math.max(2, 4 - Math.floor(Math.log10(Math.abs(value))))));
   }
 
   /**
@@ -908,7 +909,7 @@ const UnifiedVisualizer = () => {
       setTimeout(() => setExperimentJustLoaded(false), 0);
 
       // Build smart toast message based on what's changing
-      let message = `Loading: ${experiment.name}`;
+      let message = `${experiment.name}`;
       const changes: string[] = [];
 
       const algoChanging = experiment.algorithm !== selectedTab;
@@ -917,7 +918,7 @@ const UnifiedVisualizer = () => {
       // Check algorithm change
       if (algoChanging) {
         const algorithmName = getAlgorithmDisplayName(experiment.algorithm);
-        changes.push(`Switching to ${algorithmName}`);
+        changes.push(`Switched to tab ${algorithmName}`);
       } else {
         // Same algo - check if hyperparameters changed
         const hyperChanges = getHyperparameterChanges(experiment, selectedTab, {
@@ -942,7 +943,7 @@ const UnifiedVisualizer = () => {
       // Check problem change
       if (problemChanging) {
         const problemName = getProblem(experiment.problem)?.name || experiment.problem;
-        changes.push(`Switching to ${problemName}`);
+        changes.push(`Switched to problem ${problemName}`);
       } else {
         // Same problem - check if problem config changed
         // Note: We need to track current rotation angle and variant in state
@@ -958,7 +959,7 @@ const UnifiedVisualizer = () => {
 
       if (changes.length > 0) {
         // Use newlines for better readability when there are changes
-        message += '\n' + changes.join('\n');
+        message += '\nChanges:' + '\n• ' + changes.join('\n• ');
       }
 
       // Use longer duration when there are changes to give user time to read
