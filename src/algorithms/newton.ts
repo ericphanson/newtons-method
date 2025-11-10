@@ -35,6 +35,12 @@ const invertMatrix = (A: number[][]): number[][] | null => {
   const n = A.length;
   const augmented: number[][] = A.map((row, i) => [...row, ...Array(n).fill(0).map((_, j) => i === j ? 1 : 0)]);
 
+  // Compute Frobenius norm for relative threshold
+  const frobNorm = Math.sqrt(
+    A.reduce((sum, row) => sum + row.reduce((s, val) => s + val * val, 0), 0)
+  );
+  const threshold = Math.max(1e-10, frobNorm * 1e-12);  // Relative to matrix scale
+
   for (let i = 0; i < n; i++) {
     let maxRow = i;
     for (let k = i + 1; k < n; k++) {
@@ -44,8 +50,9 @@ const invertMatrix = (A: number[][]): number[][] | null => {
     }
     [augmented[i], augmented[maxRow]] = [augmented[maxRow], augmented[i]];
 
-    if (Math.abs(augmented[i][i]) < 1e-10) {
-      return null;
+    // Check for singularity using relative threshold
+    if (Math.abs(augmented[i][i]) < threshold) {
+      return null;  // Singular matrix
     }
 
     for (let k = i + 1; k < n; k++) {

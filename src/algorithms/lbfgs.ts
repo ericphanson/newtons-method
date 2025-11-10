@@ -119,8 +119,12 @@ export const runLBFGS = (
 
       const lastMem = memory[memory.length - 1];
       const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
-      // Apply Hessian damping: exact analog to Newton's (H + λI)
-      // For L-BFGS: B_0 + λI where B_0 = (1/γ)I, so (B_0 + λI)^{-1} = γ/(1 + λγ) I
+
+      // Apply Hessian damping to the base scaling (H_0 = γI)
+      // NOTE: Unlike Newton's method where damping affects the full Hessian (H + λI),
+      // L-BFGS damping only modifies the initial scaling H_0. The rank-2k updates
+      // from memory still use the original curvature information.
+      // Formula: (H_0 + λI)^{-1} = (1/γ + λ)^{-1} I = γ/(1 + λγ) I
       const gamma = hessianDamping > 0
         ? gammaBase / (1 + hessianDamping * gammaBase)
         : gammaBase;

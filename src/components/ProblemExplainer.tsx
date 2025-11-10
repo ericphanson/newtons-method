@@ -620,14 +620,14 @@ export function ProblemExplainer() {
             <p className="font-semibold">Three Minima:</p>
             <ul className="text-sm list-disc ml-5">
               <li><strong>Global:</strong> (0, 0) with f = 0</li>
-              <li><strong>Local:</strong> approximately (1.7, -0.85) with f ≈ 0.0</li>
-              <li><strong>Local:</strong> approximately (-1.7, 0.85) with f ≈ 0.0</li>
+              <li><strong>Local:</strong> approximately (1.75, -0.87) with f ≈ 0.30</li>
+              <li><strong>Local:</strong> approximately (-1.75, 0.87) with f ≈ 0.30</li>
             </ul>
           </div>
 
           <p>
             <strong>What it does:</strong> A standard multimodal benchmark with three valleys
-            - one deep global minimum and two shallow local minima.
+            - one deep global minimum at f=0 and two shallow local minima at f≈0.30.
           </p>
 
           <p>

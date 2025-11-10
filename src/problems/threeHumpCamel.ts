@@ -6,8 +6,8 @@ import { ProblemDefinition } from '../types/experiments';
 //
 // The three minima are:
 //   1. Global minimum: (0, 0) → f = 0
-//   2. Local minimum: approximately (1.7, -0.85) → f ≈ 2.1 (small positive)
-//   3. Local minimum: approximately (-1.7, 0.85) → f ≈ 2.1 (small positive)
+//   2. Local minimum: approximately (1.75, -0.87) → f ≈ 0.30
+//   3. Local minimum: approximately (-1.75, 0.87) → f ≈ 0.30
 //
 // This function is valuable for studying:
 // - Asymmetric basin structures (global vs local minima)
