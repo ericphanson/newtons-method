@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem, resolveProblem, getDefaultParameters } from '../problems';
+import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -339,21 +339,9 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         />
       )}
 
-      {/* Info for Saddle Point */}
-      {currentProblem === 'non-convex-saddle' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-bold text-gray-800 mb-3">Key Insights</h3>
-          <div className="p-3 bg-blue-100 rounded-lg">
-            <p className="text-xs text-blue-900 font-semibold mb-1">
-              💡 Saddle Points: Where Gradient Descent Can Get Stuck
-            </p>
-            <p className="text-xs text-blue-900">
-              <strong>At origin (0,0):</strong> Gradient is zero, but it's NOT a minimum! It's a saddle point—a minimum in <InlineMath>w_0</InlineMath> direction, maximum in <InlineMath>w_1</InlineMath> direction.<br/>
-              <strong>First-order methods:</strong> Can get stuck at saddle points since <InlineMath>\nabla f=0</InlineMath>. They need careful initialization or momentum to escape.<br/>
-              <strong>Second-order methods:</strong> Use curvature information (Hessian) to detect saddle points. Negative eigenvalues reveal "escape directions" away from the saddle.
-            </p>
-          </div>
-        </div>
+      {/* Key Insights from registry */}
+      {getProblemKeyInsights(currentProblem) && (
+        <>{getProblemKeyInsights(currentProblem)}</>
       )}
 
       {/* Problem Explainer Modal */}

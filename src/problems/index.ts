@@ -45,5 +45,7 @@ export {
   resolveProblem,
   getProblemParameters,
   getDefaultParameters,
-  isProblemParametrized
+  isProblemParametrized,
+  getProblemKeyInsights,
+  getProblemExplainerContent
 } from './registry';
