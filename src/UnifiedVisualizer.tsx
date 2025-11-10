@@ -891,17 +891,66 @@ const UnifiedVisualizer = () => {
       // This uses the event loop to ensure hooks see experimentJustLoaded: true before it resets
       setTimeout(() => setExperimentJustLoaded(false), 0);
 
-      // Show success toast
-      setToast({
-        message: `Loaded: ${experiment.name}`,
-        type: 'success'
-      });
+      // Build smart toast message based on what's changing
+      let message = `Loading: ${experiment.name}`;
+      const changes: string[] = [];
+
+      const algoChanging = experiment.algorithm !== selectedTab;
+      const problemChanging = experiment.problem !== currentProblem;
+
+      // Check algorithm change
+      if (algoChanging) {
+        const algorithmName = getAlgorithmDisplayName(experiment.algorithm);
+        changes.push(`Switching to ${algorithmName}`);
+      } else {
+        // Same algo - check if hyperparameters changed
+        const hyperChanges = getHyperparameterChanges(experiment, selectedTab, {
+          gdFixedAlpha,
+          gdLSC1,
+          newtonHessianDamping,
+          newtonLineSearch,
+          newtonC1,
+          lbfgsM,
+          lbfgsHessianDamping,
+          lbfgsC1,
+          diagPrecondHessianDamping,
+          diagPrecondLineSearch,
+          diagPrecondC1,
+          maxIter,
+        });
+        if (hyperChanges.length > 0) {
+          changes.push(...hyperChanges);
+        }
+      }
+
+      // Check problem change
+      if (problemChanging) {
+        const problemName = getProblem(experiment.problem)?.name || experiment.problem;
+        changes.push(`Switching to ${problemName}`);
+      } else {
+        // Same problem - check if problem config changed
+        // Note: We need to track current rotation angle and variant in state
+        // For now, we'll check if the experiment has these fields
+        const problemConfigChanges = getProblemConfigChanges(experiment, currentProblem, {
+          rotationAngle: experiment.rotationAngle,
+          separatingHyperplaneVariant: experiment.separatingHyperplaneVariant,
+        });
+        if (problemConfigChanges.length > 0) {
+          changes.push(...problemConfigChanges);
+        }
+      }
+
+      if (changes.length > 0) {
+        message += ` • ${changes.join(' • ')}`;
+      }
+
+      setToast({ message, type: 'success' });
 
     } catch (error) {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, []);
+  }, [currentProblem, selectedTab, gdFixedAlpha, gdLSC1, newtonHessianDamping, newtonLineSearch, newtonC1, lbfgsM, lbfgsHessianDamping, lbfgsC1, diagPrecondHessianDamping, diagPrecondLineSearch, diagPrecondC1, maxIter]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
