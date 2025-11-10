@@ -236,6 +236,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'first-order-method': {
+    term: 'first-order method',
+    definition: (
+      <>
+        <strong>First-order method:</strong> An optimization algorithm that only uses
+        function values and gradients (first derivatives). Examples: gradient descent,
+        L-BFGS. Cheaper per iteration than second-order methods, but may require more
+        iterations.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
