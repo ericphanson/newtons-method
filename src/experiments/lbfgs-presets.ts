@@ -7,6 +7,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     description: 'Fast Newton-like convergence without computing Hessian',
     algorithm: 'lbfgs',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.1,

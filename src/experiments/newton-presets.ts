@@ -7,6 +7,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Watch quadratic convergence in 1-2 iterations on a simple bowl',
     algorithm: 'newton',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.1,

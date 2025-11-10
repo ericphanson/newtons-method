@@ -7,6 +7,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     description: 'Line search automatically finds good step sizes',
     algorithm: 'gd-linesearch',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
@@ -24,6 +25,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     description: 'c₁ = 0.00001 accepts poor steps, slow convergence',
     algorithm: 'gd-linesearch',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.00001,
       lambda: 0,
@@ -41,6 +43,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     description: 'c₁ = 0.5 is too conservative, rejects good steps',
     algorithm: 'gd-linesearch',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.5,
       lambda: 0,

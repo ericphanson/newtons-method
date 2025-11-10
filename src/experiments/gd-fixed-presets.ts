@@ -7,6 +7,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'Well-chosen α leads to smooth convergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.1,
       lambda: 0,
@@ -24,6 +25,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'α=2.5 exceeds stability limit and causes divergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       alpha: 2.5,
       lambda: 0,
@@ -41,6 +43,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'α=0.001 leads to extremely slow convergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.001,
       lambda: 0,
