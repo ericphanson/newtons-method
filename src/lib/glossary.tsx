@@ -176,6 +176,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'superlinear-convergence': {
+    term: 'superlinear convergence',
+    definition: (
+      <>
+        <strong>Superlinear convergence:</strong> Faster than linear but not quite quadratic:
+        ||eₖ₊₁||/||eₖ|| → 0 as k → ∞. L-BFGS with sufficient memory achieves this on
+        strongly convex functions. Better than gradient descent, though not as fast as
+        Newton's method.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
