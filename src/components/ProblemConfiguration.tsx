@@ -394,15 +394,15 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               </h4>
               <input
                 type="range"
-                min="0"
-                max="3"
-                step="0.1"
-                value={Math.log10(conditionNumber)}
-                onChange={(e) => onConditionNumberChange(Math.pow(10, parseFloat(e.target.value)))}
+                min="1"
+                max="500"
+                step="1"
+                value={conditionNumber}
+                onChange={(e) => onConditionNumberChange(parseInt(e.target.value))}
                 className="w-full"
               />
               <span className="text-sm text-gray-600">
-                <InlineMath>\kappa</InlineMath> = {conditionNumber.toFixed(conditionNumber < 10 ? 1 : 0)}
+                <InlineMath>\kappa</InlineMath> = {conditionNumber}
               </span>
             </div>
             <div className="flex-1 p-3 bg-blue-100 rounded-lg self-center">
