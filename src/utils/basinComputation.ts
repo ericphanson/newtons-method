@@ -60,10 +60,8 @@ export function computeBasinPoint(
     }
 
     return {
-      // Store full dimensionality (2D or 3D) - don't slice off bias for 3D problems
-      convergenceLoc: result.summary.finalLocation.length === 2
-        ? (result.summary.finalLocation.slice(0, 2) as [number, number])
-        : (result.summary.finalLocation.slice(0, 3) as [number, number, number]),
+      // Always store 2D convergence location
+      convergenceLoc: result.summary.finalLocation.slice(0, 2) as [number, number],
       iterations: result.summary.iterationCount,
       converged: result.summary.converged,
       diverged: result.summary.diverged,
@@ -181,11 +179,8 @@ export async function computeBasinIncremental(
       const w0 = bounds.minW0 + (j / (resolution - 1)) * (bounds.maxW0 - bounds.minW0);
       const w1 = bounds.minW1 + (i / (resolution - 1)) * (bounds.maxW1 - bounds.minW1);
 
-      // Handle 3D problems (logistic regression, separating hyperplane)
-      const initialPoint: [number, number] | [number, number, number] =
-        problemFuncs.dimensionality === 3
-          ? [w0, w1, algorithmParams.biasSlice || 0]
-          : [w0, w1];
+      // Always 2D
+      const initialPoint: [number, number] = [w0, w1];
 
       // Time individual point computation (sample every 10th point)
       const shouldProfile = pointIndex % 10 === 0;

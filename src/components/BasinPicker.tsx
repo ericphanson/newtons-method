@@ -469,12 +469,8 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     const w0 = minW0 + (plotX / plotWidth) * (maxW0 - minW0);
     const w1 = maxW1 - (plotY / plotHeight) * (maxW1 - minW1);
 
-    // Handle 3D problems
-    if (problemFuncs.dimensionality === 3) {
-      onInitialPointChange([w0, w1, algorithmParams.biasSlice || 0]);
-    } else {
-      onInitialPointChange([w0, w1]);
-    }
+    // Always 2D
+    onInitialPointChange([w0, w1]);
   };
 
   return (
@@ -485,15 +481,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
 
       <div className="text-xs text-gray-600 mb-1">
         Current: w₀ = {initialPoint[0].toFixed(3)}, w₁ = {initialPoint[1].toFixed(3)}
-        {problemFuncs.dimensionality === 3 && `, w₂ = ${(algorithmParams.biasSlice || 0).toFixed(3)}`}
       </div>
-
-      {/* 2D slice notation for 3D problems - matches UnifiedVisualizer styling */}
-      {problemFuncs.dimensionality === 3 && isDatasetProblem(currentProblem) && (
-        <div className="mb-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700" style={{ width: 'fit-content', maxWidth: '500px' }}>
-          <span className="font-medium">2D slice:</span> w₂ = {(algorithmParams.biasSlice || 0).toFixed(3)} (bias from optimal solution)
-        </div>
-      )}
 
       {/* Horizontal layout: canvas with built-in axes and colorbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

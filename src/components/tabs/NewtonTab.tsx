@@ -144,13 +144,6 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             Loss landscape. Orange path = trajectory. Red dot = current position.
           </p>
 
-          {/* 2D slice notation for 3D problems */}
-          {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
-            <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
-              <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
-            </div>
-          )}
-
           <canvas ref={paramCanvasRef} style={{ width: '100%', height: '500px' }} className="border border-gray-300 rounded" />
 
           {/* Legend for optimum markers */}
@@ -507,6 +500,34 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               <InlineMath>\alpha = 1</InlineMath> is usually accepted. Far away or in
               problematic regions, backtracking provides safety.
             </p>
+
+            <div className="bg-green-50 rounded p-3 mt-4">
+              <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
+              <div className="text-sm space-y-2">
+                <div>
+                  <p className="font-semibold">Cost per iteration:</p>
+                  <ul className="list-disc ml-6">
+                    <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 1-3 per iteration (often accepts <InlineMath>\alpha = 1</InlineMath>)</li>
+                    <li><strong>Gradient evaluations:</strong> No extra cost! Already computed for Newton direction</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold">Benefits:</p>
+                  <ul className="list-disc ml-6">
+                    <li><strong>Safety:</strong> Prevents divergence from bad Hessian or far from minimum</li>
+                    <li><strong>Fewer iterations:</strong> Good steps mean faster convergence</li>
+                    <li><strong>Robustness:</strong> Works even when theory doesn't guarantee <InlineMath>\alpha = 1</InlineMath> is safe</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded p-2 mt-2">
+                  <p className="font-semibold">Verdict: <span className="text-green-700">Essential for Newton's method!</span></p>
+                  <p className="text-xs mt-1">
+                    Without line search, Newton can diverge spectacularly. With it, you get both safety
+                    and speed. The cost is minimal since <InlineMath>\alpha = 1</InlineMath> is usually accepted near the solution.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </CollapsibleSection>

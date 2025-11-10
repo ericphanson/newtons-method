@@ -655,12 +655,10 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
                     : algorithm === 'diagonal-precond'
                     ? props.diagPrecondXtol
                     : undefined
-              },
-              // 3D problem bias slice
-              biasSlice: props.biasSlice
+              }
             }}
             problemFuncs={props.problemFuncs}
-            initialPoint={[props.initialW0, props.initialW1, props.biasSlice || 0]}
+            initialPoint={[props.initialW0, props.initialW1]}
             onInitialPointChange={(point) => {
               props.onInitialW0Change(point[0]);
               props.onInitialW1Change(point[1]);

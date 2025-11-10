@@ -119,13 +119,6 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             Loss landscape. Orange path = trajectory. Red dot = current position.
           </p>
 
-          {/* 2D slice notation for 3D problems */}
-          {isDatasetProblem(currentProblem) && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
-            <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
-              <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
-            </div>
-          )}
-
           <canvas ref={paramCanvasRef} style={{ width: '100%', height: '500px' }} className="border border-gray-300 rounded" />
 
           {/* Legend for optimum markers */}
@@ -391,7 +384,35 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             </div>
           </div>
 
-          <div className="bg-blue-100 rounded p-3">
+          <div className="bg-green-50 rounded p-3 mt-3">
+            <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
+            <div className="text-sm space-y-2">
+              <div>
+                <p className="font-semibold">Cost per iteration:</p>
+                <ul className="list-disc ml-6">
+                  <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 2-5 per iteration (backtracking)</li>
+                  <li><strong>Gradient evaluations:</strong> No extra cost! We already computed <InlineMath>\nabla f</InlineMath></li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold">Benefits:</p>
+                <ul className="list-disc ml-6">
+                  <li><strong>Fewer total iterations:</strong> Good steps converge faster</li>
+                  <li><strong>Robustness:</strong> Works across problems without tuning <InlineMath>\alpha</InlineMath></li>
+                  <li><strong>Automatic adaptation:</strong> Large steps when safe, small steps when needed</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded p-2 mt-2">
+                <p className="font-semibold">Verdict: <span className="text-green-700">Generally excellent tradeoff!</span></p>
+                <p className="text-xs mt-1">
+                  The extra <InlineMath>f</InlineMath>-evals per iteration are usually offset by needing 2-10× fewer iterations.
+                  Plus, you avoid the nightmare of manual <InlineMath>\alpha</InlineMath> tuning for each problem.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-100 rounded p-3 mt-3">
             <p className="font-bold text-sm mb-2">Other Line Search Methods</p>
             <p className="text-sm">
               <strong>Wolfe conditions:</strong> Add curvature condition for better theoretical properties<br />

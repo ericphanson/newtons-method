@@ -143,13 +143,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               Loss landscape. Orange path = trajectory. Red dot = current position.
             </p>
 
-            {/* 2D slice notation for 3D problems */}
-            {isDatasetProblem(currentProblem) && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
-              <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
-                <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
-              </div>
-            )}
-
             <canvas ref={paramCanvasRef} style={{ width: '100%', height: '500px' }} className="border border-gray-300 rounded" />
 
             {/* Legend for optimum markers */}

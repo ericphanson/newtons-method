@@ -131,13 +131,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             Loss landscape. Orange path = trajectory. Red dot = current position.
           </p>
 
-          {/* 2D slice notation for 3D problems */}
-          {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
-            <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
-              <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
-            </div>
-          )}
-
           <canvas ref={paramCanvasRef} style={{ width: '100%', height: '500px' }} className="border border-gray-300 rounded" />
 
           {/* Legend for optimum markers */}
@@ -447,9 +440,38 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               often accepted. When approximation is poor (early iterations, far from minimum),
               backtracking finds smaller steps.
             </p>
+
+            <div className="bg-green-50 rounded p-3 mt-4">
+              <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
+              <div className="text-sm space-y-2">
+                <div>
+                  <p className="font-semibold">Cost per iteration:</p>
+                  <ul className="list-disc ml-6">
+                    <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 1-4 per iteration</li>
+                    <li><strong>Gradient evaluations:</strong> No extra cost! Already computed for direction</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold">Benefits:</p>
+                  <ul className="list-disc ml-6">
+                    <li><strong>Safety:</strong> Prevents bad steps from approximate Hessian</li>
+                    <li><strong>Robustness:</strong> Works even with limited memory or poor approximation</li>
+                    <li><strong>Faster convergence:</strong> Better steps mean fewer total iterations</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded p-2 mt-2">
+                  <p className="font-semibold">Verdict: <span className="text-green-700">Critical for L-BFGS!</span></p>
+                  <p className="text-xs mt-1">
+                    L-BFGS uses an approximate Hessian, so line search is essential for robustness.
+                    The overhead is minimal (often accepts <InlineMath>\alpha = 1</InlineMath> after warm-up) and prevents
+                    the disasters that can happen with a fixed step size on an approximate direction.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-amber-100 rounded p-3">
+          <div className="bg-amber-100 rounded p-3 mt-3">
             <p className="font-bold text-sm mb-2">Wolfe Conditions (Advanced)</p>
             <p className="text-sm">
               Full BFGS theory requires <strong>Wolfe conditions</strong> (Armijo + curvature
