@@ -2,7 +2,7 @@
 import React from 'react';
 import { Story } from '../stories/types';
 import { ExperimentPreset } from '../types/experiments';
-import { getProblem } from '../problems';
+import { resolveProblem, getDefaultParameters } from '../problems/registry';
 import { getAlgorithmDisplayName } from '../utils/algorithmNames';
 
 interface StoryBannerProps {
@@ -35,7 +35,10 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
   const isLast = safeIndex === story.steps.length - 1;
 
   // Get display names for current experiment
-  const problemName = getProblem(currentExperiment.problem)?.name || currentExperiment.problem;
+  const problemName = resolveProblem(
+    currentExperiment.problem,
+    currentExperiment.problemParameters || getDefaultParameters(currentExperiment.problem)
+  ).name;
   const algorithmName = getAlgorithmDisplayName(currentExperiment.algorithm);
 
   return (
