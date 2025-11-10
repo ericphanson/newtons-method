@@ -1,5 +1,6 @@
 import { ProblemDefinition } from '../types/experiments';
-import { InlineMath } from '../components/Math';
+import { InlineMath, BlockMath } from '../components/Math';
+import { CollapsibleSection } from '../components/CollapsibleSection';
 
 // Rosenbrock function: f(w) = (1-w0)^2 + b(w1-w0^2)^2
 // Non-convex, banana-shaped valley, classic optimization test
@@ -46,3 +47,73 @@ export function createRosenbrockProblem(b: number = 100): ProblemDefinition {
 
 // Default instance with b=100 for backward compatibility
 export const rosenbrockProblem: ProblemDefinition = createRosenbrockProblem(100);
+
+// Educational content for Rosenbrock function
+export const rosenbrockExplainer = (
+  <CollapsibleSection
+    title="Rosenbrock Function (Banana Valley)"
+    defaultExpanded={false}
+    storageKey="problem-explainer-rosenbrock"
+  >
+    <div className="space-y-3 text-gray-800">
+      <p>
+        <strong>Type:</strong> Non-Convex
+      </p>
+
+      <p>
+        <strong>Parameter:</strong> <InlineMath>b</InlineMath> (valley steepness, 10 to 1000, default 100)
+      </p>
+
+      <div>
+        <p className="font-semibold">Objective Function:</p>
+        <BlockMath>
+          {String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}
+        </BlockMath>
+      </div>
+
+      <p>
+        <strong>What it does:</strong> Creates a narrow curved valley (banana shape).
+        Global minimum at (1, 1).
+      </p>
+
+      <p>
+        <strong>Why it's interesting:</strong> Classic non-convex test function demonstrating curved ill-conditioning.
+        The valley is easy to find but hard to follow. Curvature changes dramatically along the path.
+      </p>
+
+      <p>
+        <strong>Adjusting b (valley steepness):</strong>
+      </p>
+      <ul className="text-sm list-disc ml-5 space-y-1">
+        <li><strong>b=10:</strong> Gentle valley walls. Gradient descent can navigate reasonably well.</li>
+        <li><strong>b=100:</strong> Moderately steep valley. First-order methods struggle but progress.</li>
+        <li><strong>b=1000:</strong> Extremely steep valley. First-order methods nearly trapped; second-order essential.</li>
+      </ul>
+
+      <p>
+        <strong>Challenge:</strong> Non-convexity means Newton's Hessian can have negative
+        eigenvalues. Fixed step size that works in flat regions overshoots in the valley.
+        Unlike axis-aligned problems, the difficulty here is from curved geometry.
+      </p>
+
+      <div className="bg-orange-50 rounded p-3">
+        <p className="text-sm font-semibold mb-1">What to observe:</p>
+        <ul className="text-sm list-disc ml-5">
+          <li>GD Line Search adapts to varying curvature</li>
+          <li>Newton needs damping (line search) to stay stable</li>
+          <li>L-BFGS builds curvature approximation over time</li>
+          <li>Higher b values: sharper turns, more challenging navigation</li>
+        </ul>
+      </div>
+
+      <div className="bg-purple-50 rounded p-3 mt-3">
+        <p className="text-sm font-semibold mb-1">Note: Curved conditioning</p>
+        <p className="text-sm">
+          This problem demonstrates curved ill-conditioning (non-linear valley). Compare with
+          Ill-Conditioned Quadratic (axis-aligned) and Rotated Ellipse (rotation effects) to
+          understand different sources of optimization difficulty.
+        </p>
+      </div>
+    </div>
+  </CollapsibleSection>
+);

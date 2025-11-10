@@ -1,5 +1,7 @@
 import { ProblemDefinition } from '../types/experiments';
-import { InlineMath } from '../components/Math';
+import { InlineMath, BlockMath } from '../components/Math';
+import { GlossaryTooltip } from '../components/GlossaryTooltip';
+import { CollapsibleSection } from '../components/CollapsibleSection';
 
 // Three-Hump Camel function: f(w) = 2w0^2 - 1.05w0^4 + w0^6/6 + w0·w1 + w1^2
 // Classic multimodal test function with three local minima (one global, two local)
@@ -66,3 +68,83 @@ export const threeHumpCamelProblem: ProblemDefinition = {
   // Global minimum at origin
   globalMinimum: [0, 0],  // f(0, 0) = 0
 };
+
+// Educational content for Three-Hump Camel function
+export const threeHumpCamelExplainer = (
+  <CollapsibleSection
+    title="Three-Hump Camel (Asymmetric Basins)"
+    defaultExpanded={false}
+    storageKey="problem-explainer-three-hump-camel"
+  >
+    <div className="space-y-3 text-gray-800">
+      <p>
+        <strong>Type:</strong> Multimodal (one global + two local minima)
+      </p>
+
+      <div>
+        <p className="font-semibold">Objective Function:</p>
+        <BlockMath>
+          {String.raw`f(w) = 2w_0^2 - 1.05w_0^4 + \frac{w_0^6}{6} + w_0 w_1 + w_1^2`}
+        </BlockMath>
+      </div>
+
+      <div>
+        <p className="font-semibold">Three Minima:</p>
+        <ul className="text-sm list-disc ml-5">
+          <li><strong>Global:</strong> (0, 0) with f = 0</li>
+          <li><strong>Local:</strong> approximately (1.75, -0.87) with f ≈ 0.30</li>
+          <li><strong>Local:</strong> approximately (-1.75, 0.87) with f ≈ 0.30</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>What it does:</strong> A standard multimodal benchmark with three valleys
+        - one deep global minimum at f=0 and two shallow local minima at f≈0.30.
+      </p>
+
+      <p>
+        <strong>Why it's interesting:</strong> Demonstrates asymmetric{' '}
+        <GlossaryTooltip termKey="basin-of-convergence" /> structure where the
+        deeper global minimum has a larger basin than the shallow local minima.
+        Shows how optimization quality (depth) relates to basin size.
+      </p>
+
+      <p>
+        <strong>Key Insight - Competitive Basins:</strong>
+      </p>
+      <ul className="text-sm list-disc ml-5 space-y-1">
+        <li>
+          <strong>Dominant basin:</strong> The global minimum at origin has a much larger basin
+          of convergence - most starting points lead here
+        </li>
+        <li>
+          <strong>Local minima basins:</strong> Two smaller side basins for the local minima
+          (only nearby starting points converge to these)
+        </li>
+        <li>
+          <strong>Asymmetry:</strong> Unlike Himmelblau (symmetric), this shows realistic scenarios
+          where some minima are "better" and more accessible
+        </li>
+      </ul>
+
+      <div className="bg-green-50 rounded p-3">
+        <p className="text-sm font-semibold mb-1">Perfect for understanding:</p>
+        <ul className="text-sm list-disc ml-5">
+          <li>How basin size relates to minimum quality (deeper = larger basin)</li>
+          <li>Why random initialization often finds the global minimum (largest basin)</li>
+          <li>Competition between global and local optima</li>
+          <li>Simple polynomial form makes the mathematics easy to understand</li>
+        </ul>
+      </div>
+
+      <div className="bg-yellow-50 rounded p-3 mt-3 border border-yellow-200">
+        <p className="text-sm font-semibold mb-1">Local Minima Trap:</p>
+        <p className="text-sm">
+          Starting points near (±1.7, ∓0.85) can converge to local minima instead of the
+          global minimum. This demonstrates why multi-start strategies (trying multiple
+          initial points) are important in real-world optimization!
+        </p>
+      </div>
+    </div>
+  </CollapsibleSection>
+);
