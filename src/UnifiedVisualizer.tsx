@@ -110,6 +110,12 @@ const UnifiedVisualizer = () => {
     isNavigatingRef.current = true;
     console.log('[TAB CHANGE] Set isNavigatingRef = true');
 
+    // Clear hash temporarily to prevent browser's automatic scroll
+    if (currentHash) {
+      console.log('[TAB CHANGE] Clearing hash temporarily to prevent browser auto-scroll');
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
     setSelectedTab(newTab);
     console.log('[TAB CHANGE] Called setSelectedTab');
 
@@ -121,6 +127,9 @@ const UnifiedVisualizer = () => {
         if (targetElement) {
           console.log('[TAB CHANGE] Found element, scrolling to it');
           targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Restore hash after scrolling starts
+          console.log('[TAB CHANGE] Restoring hash to URL');
+          window.history.replaceState(null, '', window.location.pathname + window.location.search + currentHash);
         } else {
           console.log('[TAB CHANGE] Element not found (fallback A)');
         }
