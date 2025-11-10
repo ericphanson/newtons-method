@@ -4,6 +4,7 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
+import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -575,7 +576,9 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             Error <strong>squared</strong> at each iteration (very fast near solution).
           </p>
           <p className="text-sm mt-2">
-            <strong>Requires:</strong> strong convexity, Lipschitz continuous Hessian,
+            <strong>Requires:</strong>{' '}
+            <GlossaryTooltip termKey="strong-convexity" />
+            , Lipschitz continuous Hessian,
             starting close enough to <InlineMath>{`w^*`}</InlineMath>
           </p>
         </div>

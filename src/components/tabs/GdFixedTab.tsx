@@ -4,6 +4,7 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
+import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -350,7 +351,11 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
         <div>
           <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
-          <p><strong>For strongly convex functions:</strong></p>
+          <p>
+            <strong>For{' '}
+            <GlossaryTooltip termKey="strongly-convex" />{' '}
+            functions:</strong>
+          </p>
           <BlockMath>{'\\|w_k - w^*\\| \\leq (1 - \\mu/L)^k \\|w_0 - w^*\\|'}</BlockMath>
           <p className="text-sm mt-2">
             Where <InlineMath>\mu</InlineMath> is strong convexity parameter and{' '}

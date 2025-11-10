@@ -1,5 +1,6 @@
 import { InlineMath, BlockMath } from './Math';
 import { CollapsibleSection } from './CollapsibleSection';
+import { GlossaryTooltip } from './GlossaryTooltip';
 
 /**
  * Educational component explaining all available optimization algorithms
@@ -41,9 +42,13 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Linear convergence for strongly convex smooth functions.
-            Requires O(log(1/ε)) iterations to reach ε accuracy for strongly convex functions,
-            or O(1/ε) iterations for convex (but not strongly convex) smooth functions.
+            <strong>Convergence rate:</strong> Linear convergence for{' '}
+            <GlossaryTooltip termKey="strongly-convex" />{' '}
+            <GlossaryTooltip termKey="smooth" />{' '}
+            functions. Requires O(log(1/ε)) iterations to reach ε accuracy for strongly convex functions,
+            or O(1/ε) iterations for{' '}
+            <GlossaryTooltip termKey="convex" />{' '}
+            (but not strongly convex) smooth functions.
           </p>
 
           <p>
@@ -118,8 +123,10 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Linear convergence for strongly convex smooth functions
-            (same O(log(1/ε)) iteration complexity as fixed step), but with guaranteed descent at each step
+            <strong>Convergence rate:</strong> Linear convergence for{' '}
+            <GlossaryTooltip termKey="strongly-convex" />{' '}
+            <GlossaryTooltip termKey="smooth" />{' '}
+            functions (same O(log(1/ε)) iteration complexity as fixed step), but with guaranteed descent at each step
             and no need for manual step size tuning.
           </p>
 
