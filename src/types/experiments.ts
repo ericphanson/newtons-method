@@ -46,6 +46,7 @@ export interface ExperimentPreset {
   id: string;
   name: string;
   description: string;
+  algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
   problem: ProblemType;
   dataset?: DataPoint[];
   separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
