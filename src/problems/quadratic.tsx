@@ -1,5 +1,6 @@
 import { ProblemDefinition } from '../types/experiments';
 import { InlineMath, BlockMath } from '../components/Math';
+import { GlossaryTooltip } from '../components/GlossaryTooltip';
 
 // Simple quadratic bowl: f(w) = w0^2 + w1^2
 // Well-conditioned problem with circular level sets
@@ -219,6 +220,86 @@ export const quadraticExplainer = {
           <li>Why Newton/L-BFGS handle arbitrary orientations</li>
           <li>The difference between intrinsic (κ) and extrinsic (rotation) difficulty</li>
         </ul>
+      </div>
+    </div>
+  ),
+};
+
+// Educational content for ill-conditioned quadratic problem
+export const illConditionedExplainer = {
+  title: 'Ill-Conditioned Quadratic (High κ)',
+  defaultExpanded: false,
+  storageKey: 'problem-explainer-illcond',
+  content: (
+    <div className="space-y-3 text-gray-800">
+      <p>
+        <strong>Type:</strong> Strongly Convex (but ill-conditioned)
+      </p>
+
+      <p>
+        <strong>Parameter:</strong> <InlineMath>\kappa</InlineMath> (<GlossaryTooltip termKey="condition-number" />, 1 to 1000, default 100)
+      </p>
+
+      <div>
+        <p className="font-semibold">Objective Function:</p>
+        <BlockMath>
+          {String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}
+        </BlockMath>
+      </div>
+
+      <div>
+        <p className="font-semibold">Hessian:</p>
+        <BlockMath>
+          {String.raw`H = \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix}`}
+        </BlockMath>
+        <p className="text-sm mt-1">
+          Condition number: <InlineMath>\kappa</InlineMath> (controlled by parameter)
+        </p>
+      </div>
+
+      <p>
+        <strong>What it does:</strong> Creates an axis-aligned elongated ellipse with κ:1 aspect ratio.
+      </p>
+
+      <p>
+        This is an <GlossaryTooltip termKey="ill-conditioned" /> problem
+        demonstrating how Newton's method handles varying curvatures.
+      </p>
+
+      <p>
+        <strong>Why it's interesting:</strong> Shows what goes wrong with poor scaling in axis-aligned problems.
+        Gradient descent zig-zags perpendicular to contours.
+      </p>
+
+      <p>
+        <strong>Adjusting κ:</strong>
+      </p>
+      <ul className="text-sm list-disc ml-5 space-y-1">
+        <li><strong>κ=1:</strong> Perfectly conditioned (circular). All methods converge efficiently.</li>
+        <li><strong>κ=100:</strong> Moderately ill-conditioned. Gradient descent shows clear slowdown.</li>
+        <li><strong>κ=1000:</strong> Extremely ill-conditioned. Gradient descent becomes nearly unusable.</li>
+      </ul>
+
+      <p>
+        <strong>Challenge:</strong> Gradient descent slows dramatically as κ increases. Newton's method handles
+        ill-conditioning gracefully by using curvature information.
+      </p>
+
+      <div className="bg-purple-50 rounded p-3">
+        <p className="text-sm font-semibold mb-1">Compare algorithms:</p>
+        <ul className="text-sm list-disc ml-5">
+          <li>GD Fixed: Iterations scale with κ, heavy zig-zagging</li>
+          <li>Newton: ~5 iterations regardless of κ</li>
+          <li>L-BFGS: Learns curvature, adapts quickly</li>
+        </ul>
+      </div>
+
+      <div className="bg-blue-50 rounded p-3 mt-3">
+        <p className="text-sm font-semibold mb-1">Note: Axis-aligned conditioning</p>
+        <p className="text-sm">
+          This problem is axis-aligned (steep in w₁, shallow in w₀). Compare with Rotated Ellipse
+          to see the difference between intrinsic conditioning (κ) and coordinate system effects (rotation).
+        </p>
       </div>
     </div>
   ),
