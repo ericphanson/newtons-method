@@ -648,6 +648,10 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
 
         <div>
           <h3 className="text-lg font-bold text-purple-800 mb-2">Condition Number and Convergence</h3>
+          <p>
+            The <GlossaryTooltip termKey="hessian" /> has two{' '}
+            <GlossaryTooltip termKey="eigenvalue" />s which reveal the local curvature.
+          </p>
           <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
           <ul className="list-disc ml-6 space-y-1">
             <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (ill-conditioned)</li>
