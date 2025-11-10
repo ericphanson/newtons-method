@@ -1,5 +1,67 @@
 import { InlineMath, BlockMath } from '../components/Math';
 import { CollapsibleSection } from '../components/CollapsibleSection';
+import { ProblemDefinition, SeparatingHyperplaneVariant } from '../types/experiments';
+import { DataPoint } from '../shared-utils';
+import * as SH from '../utils/separatingHyperplane';
+
+/**
+ * Get formula for a specific variant
+ */
+function getVariantFormula(variant: SeparatingHyperplaneVariant): React.ReactNode {
+  switch (variant) {
+    case 'soft-margin':
+      return <BlockMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2) + \lambda \sum_i \max(0, 1 - y_i(w_0 x_{i1} + w_1 x_{i2} + b))`}</BlockMath>;
+    case 'perceptron':
+      return <BlockMath>{String.raw`f(w) = \sum_i \max(0, -y_i(w_0 x_{i1} + w_1 x_{i2} + b)) + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</BlockMath>;
+    case 'squared-hinge':
+      return <BlockMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2) + \lambda \sum_i [\max(0, 1 - y_i(w_0 x_{i1} + w_1 x_{i2} + b))]^2`}</BlockMath>;
+  }
+}
+
+/**
+ * Factory function for separating hyperplane problem
+ */
+export function createSeparatingHyperplaneProblem(
+  variant: SeparatingHyperplaneVariant,
+  lambda: number,
+  bias: number,
+  dataset: DataPoint[]
+): ProblemDefinition {
+  let objective: (w: number[]) => number;
+  let gradient: (w: number[]) => number[];
+  let hessian: (w: number[]) => number[][];
+
+  switch (variant) {
+    case 'soft-margin':
+      objective = (w) => SH.softMarginObjective(w, dataset, lambda, bias);
+      gradient = (w) => SH.softMarginGradient(w, dataset, lambda, bias);
+      hessian = () => SH.softMarginHessian();
+      break;
+    case 'perceptron':
+      objective = (w) => SH.perceptronObjective(w, dataset, lambda, bias);
+      gradient = (w) => SH.perceptronGradient(w, dataset, lambda, bias);
+      hessian = () => SH.perceptronHessian(lambda);
+      break;
+    case 'squared-hinge':
+      objective = (w) => SH.squaredHingeObjective(w, dataset, lambda, bias);
+      gradient = (w) => SH.squaredHingeGradient(w, dataset, lambda, bias);
+      hessian = (w) => SH.squaredHingeHessian(w, dataset, lambda, bias);
+      break;
+  }
+
+  return {
+    name: `Separating Hyperplane (${variant})`,
+    objectiveFormula: getVariantFormula(variant),
+    description: `Find optimal separating hyperplane using ${variant} loss`,
+    objective,
+    gradient,
+    hessian,
+    domain: {
+      w0: [-3, 3],
+      w1: [-3, 3],
+    },
+  };
+}
 
 /**
  * Educational content for Separating Hyperplane problem

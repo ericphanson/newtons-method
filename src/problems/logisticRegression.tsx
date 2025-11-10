@@ -1,5 +1,35 @@
 import { InlineMath, BlockMath } from '../components/Math';
 import { CollapsibleSection } from '../components/CollapsibleSection';
+import { ProblemDefinition } from '../types/experiments';
+import { DataPoint } from '../shared-utils';
+import { logisticObjective, logisticGradient, logisticHessian } from '../utils/logisticRegression';
+
+/**
+ * Factory function for logistic regression problem
+ * Dataset is passed as a parameter (just like lambda or bias)
+ */
+export function createLogisticRegressionProblem(
+  lambda: number,
+  bias: number,
+  dataset: DataPoint[]
+): ProblemDefinition {
+  return {
+    name: 'Logistic Regression',
+    objectiveFormula: (
+      <BlockMath>
+        {String.raw`f(w) = \frac{1}{n}\sum_{i=1}^n \log(1 + e^{-y_i(w_0 x_{i1} + w_1 x_{i2} + b)}) + \frac{\lambda}{2}(w_0^2 + w_1^2)`}
+      </BlockMath>
+    ),
+    description: 'Binary classification with L2 regularization',
+    objective: (w: number[]) => logisticObjective(w, dataset, lambda, bias),
+    gradient: (w: number[]) => logisticGradient(w, dataset, lambda, bias),
+    hessian: (w: number[]) => logisticHessian(w, dataset, lambda, bias),
+    domain: {
+      w0: [-3, 3],
+      w1: [-3, 3],
+    },
+  };
+}
 
 /**
  * Educational content for Logistic Regression problem
