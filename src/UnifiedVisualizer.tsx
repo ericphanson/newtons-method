@@ -151,10 +151,6 @@ const UnifiedVisualizer = () => {
 
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
-  const [visualizationBounds, setVisualizationBounds] = useState({
-    w0: [-3, 3] as [number, number],
-    w1: [-3, 3] as [number, number],
-  });
 
   // Logistic regression / separating hyperplane global minimum (computed, 2D only)
   const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | null>(null);
@@ -200,11 +196,6 @@ const UnifiedVisualizer = () => {
       dimensionality: 2, // All problems are 2D
     };
   }, [currentProblem, data, problemParameters]);
-
-  // Track visualization bounds updates
-  useEffect(() => {
-    // Problem and bounds are now synced via getCurrentProblem
-  }, [getCurrentProblem, visualizationBounds]);
 
   // Save selected tab to localStorage
   useEffect(() => {
@@ -262,7 +253,8 @@ const UnifiedVisualizer = () => {
     } else {
       setLogisticGlobalMin(null);
     }
-  }, [currentProblem, data, lambda, bias, separatingHyperplaneVariant, getCurrentProblemFunctions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getCurrentProblemFunctions is a stable memoized function; its dependencies (currentProblem, data, problemParameters) are already in the array
+  }, [currentProblem, data, problemParameters, lambda]);
 
   // Automatically update URL hash based on visible section
   useEffect(() => {
@@ -1539,7 +1531,7 @@ const UnifiedVisualizer = () => {
     const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, newtonParamBounds, newton.iterations, newton.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [newton.currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [newton.currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
@@ -1727,7 +1719,7 @@ const UnifiedVisualizer = () => {
     const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgs.iterations, lbfgs.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [lbfgs.currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [lbfgs.currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw L-BFGS line search
   useEffect(() => {
@@ -1749,7 +1741,7 @@ const UnifiedVisualizer = () => {
     const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixed.iterations, gdFixed.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdFixed.currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [gdFixed.currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw GD Line Search parameter space
   useEffect(() => {
@@ -1761,7 +1753,7 @@ const UnifiedVisualizer = () => {
     const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, gdLSParamBounds, gdLS.iterations, gdLS.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdLS.currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [gdLS.currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw GD Line Search plot
   useEffect(() => {
@@ -1783,7 +1775,7 @@ const UnifiedVisualizer = () => {
     const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecond.iterations, diagPrecond.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [diagPrecond.currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [diagPrecond.currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw Diagonal Preconditioner line search
   useEffect(() => {
@@ -1810,7 +1802,7 @@ const UnifiedVisualizer = () => {
       {/* Unified Problem Configuration */}
       <ProblemConfiguration
         currentProblem={currentProblem}
-        onProblemChange={(newProblem, defaults, bounds) => {
+        onProblemChange={(newProblem, defaults) => {
           setCurrentProblem(newProblem);
 
           // Reset algorithm state when problem changes
@@ -1825,9 +1817,6 @@ const UnifiedVisualizer = () => {
           setMaxIter(defaults.maxIter);
           setInitialW0(defaults.initialPoint[0]);
           setInitialW1(defaults.initialPoint[1]);
-
-          // Update visualization bounds
-          setVisualizationBounds(bounds);
         }}
         lambda={lambda}
         onLambdaChange={setLambda}
