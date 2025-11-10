@@ -784,6 +784,44 @@ const UnifiedVisualizer = () => {
         diagPrecondHessianDamping,
         maxIter, diagPrecondC1, diagPrecondTolerance, initialW0, initialW1, getCurrentProblemFunctions]);
 
+  // Sync story state to localStorage
+  useEffect(() => {
+    if (currentStoryId) {
+      localStorage.setItem('currentStory', currentStoryId);
+      localStorage.setItem('currentStoryStep', String(currentStoryStep));
+    } else {
+      localStorage.removeItem('currentStory');
+      localStorage.removeItem('currentStoryStep');
+    }
+  }, [currentStoryId, currentStoryStep]);
+
+  // Load experiment when story changes and switch to appropriate tab
+  useEffect(() => {
+    if (currentStoryId) {
+      const story = getStory(currentStoryId);
+      if (story && story.steps[currentStoryStep]) {
+        const step = story.steps[currentStoryStep];
+        const experiment = getExperimentById(step.experimentId);
+        if (experiment) {
+          loadExperiment(experiment);
+
+          // Switch to appropriate tab based on experiment ID prefix
+          // Note: Experiment IDs follow naming convention: algorithm-specific-name
+          if (experiment.id.startsWith('gd-fixed-')) {
+            setSelectedTab('gd-fixed');
+          } else if (experiment.id.startsWith('gd-linesearch-')) {
+            setSelectedTab('gd-linesearch');
+          } else if (experiment.id.startsWith('diag-precond-')) {
+            setSelectedTab('diagonal-precond');
+          } else if (experiment.id.startsWith('newton-')) {
+            setSelectedTab('newton');
+          } else if (experiment.id.startsWith('lbfgs-')) {
+            setSelectedTab('lbfgs');
+          }
+        }
+      }
+    }
+  }, [currentStoryId, currentStoryStep, loadExperiment]);
 
   // Keyboard navigation
   useEffect(() => {
