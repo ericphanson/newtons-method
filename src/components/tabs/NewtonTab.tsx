@@ -223,7 +223,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <h3 className="text-lg font-bold text-blue-800 mb-2">The Core Idea</h3>
           <p>
             Gradient descent uses first derivatives. Newton's method uses second derivatives
-            (the <strong>Hessian matrix</strong>) to see the curvature and take smarter steps
+            (the <strong><GlossaryTooltip termKey="hessian" /> matrix</strong>) to see the curvature and take smarter steps
             toward the minimum. We add Hessian damping (Levenberg-Marquardt regularization) for
             numerical stability.
           </p>
@@ -248,7 +248,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <p className="text-sm mt-2">
             <strong>Intuition:</strong> <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
             natural coordinate system of the problem. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
-            numerical stability when <InlineMath>H</InlineMath> has tiny eigenvalues.
+            numerical stability when <InlineMath>H</InlineMath> has tiny <GlossaryTooltip termKey="eigenvalue" />s.
           </p>
           <p className="text-sm mt-2">
             <strong>Why this matters:</strong> If you rescale coordinates (e.g., x→1000x), both
@@ -460,7 +460,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <div>
               <p className="font-semibold">❌ "Newton always converges faster than gradient descent"</p>
               <p className="text-sm ml-6">
-                ✓ Only near a local minimum with positive definite Hessian<br/>
+                ✓ Only near a local minimum with <GlossaryTooltip termKey="positive-definite" /> <GlossaryTooltip termKey="hessian" /><br/>
                 ✓ Can diverge or fail in non-convex regions without line search
               </p>
             </div>
@@ -489,14 +489,14 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <li>
               <strong>Strongly convex:</strong>{' '}
               <GlossaryTooltip termKey="quadratic-convergence" /> guaranteed,
-              H positive definite everywhere
+              H <GlossaryTooltip termKey="positive-definite" /> everywhere
             </li>
             <li>
               <strong>Convex:</strong> H positive semidefinite, converges to global minimum
             </li>
             <li>
               <strong>Non-convex:</strong> May converge to local minimum or saddle point,
-              H can have negative eigenvalues
+              H can have negative <GlossaryTooltip termKey="eigenvalue" />s
             </li>
           </ul>
         </div>
@@ -581,7 +581,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <p className="text-sm mt-2">
             <strong>Requires:</strong>{' '}
             <GlossaryTooltip termKey="strong-convexity" />
-            , Lipschitz continuous Hessian,
+            , <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" />,
             starting close enough to <InlineMath>{`w^*`}</InlineMath>
           </p>
         </div>
@@ -655,9 +655,9 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             The <GlossaryTooltip termKey="hessian" /> has two{' '}
             <GlossaryTooltip termKey="eigenvalue" />s which reveal the local curvature.
           </p>
-          <p>Condition number: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
+          <p><GlossaryTooltip termKey="condition-number" />: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
           <ul className="list-disc ml-6 space-y-1">
-            <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (ill-conditioned)</li>
+            <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (<GlossaryTooltip termKey="ill-conditioned" />)</li>
             <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>{`H^{-1}`}</InlineMath> automatically provides direction-specific step sizes</li>
             <li>GD's single <InlineMath>\alpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
             <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
