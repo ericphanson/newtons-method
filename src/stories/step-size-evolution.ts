@@ -29,7 +29,7 @@ export const stepSizeEvolution: Story = {
     {
       experimentId: 'diag-precond-rotated-failure',
       narrative: 'Now we rotate the same ellipse 45°. The valley no longer aligns with our coordinate axes - it runs diagonally. This seemingly simple change will expose a fundamental limitation of diagonal methods.',
-      scrollTo: 'configuration'
+      scrollTo: 'problem'
     },
     {
       experimentId: 'diag-precond-rotated-failure',

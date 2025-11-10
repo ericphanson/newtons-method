@@ -826,7 +826,7 @@ const UnifiedVisualizer = () => {
   }
 
   // Load experiment preset
-  const loadExperiment = useCallback((experiment: ExperimentPreset) => {
+  const loadExperiment = useCallback((experiment: ExperimentPreset, options?: { suppressToastIfUnchanged?: boolean }) => {
     setExperimentLoading(true);
 
     // Signal all algorithms to jump to end on next update
@@ -971,9 +971,14 @@ const UnifiedVisualizer = () => {
         </div>
       );
 
-      // Use longer duration when there are changes to give user time to read
-      const duration = changes.length > 0 ? 5000 : 3000;
-      setToast({ content, type: 'success', duration });
+      // Only show toast if there are changes OR we're not suppressing unchanged loads
+      const shouldShowToast = !options?.suppressToastIfUnchanged || changes.length > 0;
+
+      if (shouldShowToast) {
+        // Use longer duration when there are changes to give user time to read
+        const duration = changes.length > 0 ? 5000 : 3000;
+        setToast({ content, type: 'success', duration });
+      }
 
     } catch (error) {
       console.error('Error loading experiment:', error);
@@ -1023,7 +1028,12 @@ const UnifiedVisualizer = () => {
         const step = story.steps[currentStoryStep];
         const experiment = getExperimentById(step.experimentId);
         if (experiment) {
-          loadExperiment(experiment);
+          // Check if we're loading the same experiment as the previous step
+          const previousStep = currentStoryStep > 0 ? story.steps[currentStoryStep - 1] : null;
+          const sameExperiment = previousStep?.experimentId === step.experimentId;
+
+          // Suppress toast if same experiment (unless user modified settings)
+          loadExperiment(experiment, { suppressToastIfUnchanged: sameExperiment });
 
           // Switch to the experiment's algorithm tab (skip default scroll - story controls it)
           handleTabChange(experiment.algorithm, true);
