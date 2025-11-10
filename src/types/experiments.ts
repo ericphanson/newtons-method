@@ -126,4 +126,19 @@ export interface ProblemRegistryEntry {
   // Educational content for ProblemExplainer modal
   // Should be a CollapsibleSection component with title, storageKey, and content
   explainerContent?: React.ReactNode;
+
+  // Dataset support
+  requiresDataset?: boolean;
+  datasetFactory?: (
+    parameters: Record<string, number | string>,
+    dataset: DataPoint[]
+  ) => ProblemDefinition;
+
+  // Variant support
+  variants?: Array<{
+    id: string;
+    displayName: string;
+    description?: string;
+  }>;
+  defaultVariant?: string;
 }
