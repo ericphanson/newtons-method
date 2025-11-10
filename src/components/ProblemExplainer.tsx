@@ -1,5 +1,6 @@
 import { InlineMath, BlockMath } from './Math';
 import { CollapsibleSection } from './CollapsibleSection';
+import { GlossaryTooltip } from './GlossaryTooltip';
 
 /**
  * Educational component explaining all available optimization problems
@@ -356,6 +357,11 @@ export function ProblemExplainer() {
 
           <p>
             <strong>What it does:</strong> Creates an axis-aligned elongated ellipse with κ:1 aspect ratio.
+          </p>
+
+          <p>
+            This is an <GlossaryTooltip termKey="ill-conditioned" /> problem
+            demonstrating how Newton's method handles varying curvatures.
           </p>
 
           <p>
