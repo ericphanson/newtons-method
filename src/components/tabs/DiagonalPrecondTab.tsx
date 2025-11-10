@@ -4,7 +4,7 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
-import { getProblem, requiresDataset } from '../../problems';
+import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
@@ -39,6 +39,7 @@ interface DiagonalPrecondTabProps {
   problemFuncs: ProblemFunctions;
   problem: Record<string, unknown>;
   currentProblem: string;
+  problemParameters: Record<string, number | string>;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
@@ -72,6 +73,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
+  problemParameters,
   bounds,
   paramCanvasRef,
   lineSearchCanvasRef,
@@ -140,8 +142,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             {!requiresDataset(currentProblem) && (
               <div className="mt-3 flex gap-4 text-sm text-gray-700">
                 {(() => {
-                  const problem = getProblem(currentProblem);
-                  if (!problem) return null;
+                  const problem = resolveProblem(currentProblem, problemParameters);
                   return (
                     <>
                       {problem.globalMinimum && (

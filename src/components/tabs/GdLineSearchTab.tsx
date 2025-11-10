@@ -5,7 +5,7 @@ import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { GlossaryTooltip } from '../GlossaryTooltip';
-import { getProblem, requiresDataset } from '../../problems';
+import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
@@ -33,6 +33,7 @@ interface GdLineSearchTabProps {
   problemFuncs: ProblemFunctions;
   problem: Record<string, unknown>;
   currentProblem: string;
+  problemParameters: Record<string, number | string>;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
@@ -58,6 +59,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
+  problemParameters,
   bounds,
   paramCanvasRef,
   lineSearchCanvasRef,
@@ -117,8 +119,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           {!requiresDataset(currentProblem) && (
             <div className="mt-3 flex gap-4 text-sm text-gray-700">
               {(() => {
-                const problem = getProblem(currentProblem);
-                if (!problem) return null;
+                const problem = resolveProblem(currentProblem, problemParameters);
                 return (
                   <>
                     {problem.globalMinimum && (

@@ -38,29 +38,10 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
 
-  // Initialize from registry defaults
-  const getDefaultLambda = () => {
-    const params = getProblemParameters('logistic-regression');
-    const lambdaParam = params.find(p => p.key === 'lambda');
-    return (lambdaParam?.default as number) ?? 0.0001;
-  };
-
-  const getDefaultBias = () => {
-    const params = getProblemParameters('logistic-regression');
-    const biasParam = params.find(p => p.key === 'bias');
-    return (biasParam?.default as number) ?? 0;
-  };
-
-  const [lambda, setLambda] = useState(getDefaultLambda());
-  const [bias, setBias] = useState<number>(getDefaultBias());
-
-  // Unified parameter state
-  const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
-
-  const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
-    useState<SeparatingHyperplaneVariant>(
-      getDefaultVariant('separating-hyperplane') as SeparatingHyperplaneVariant ?? 'soft-margin'
-    );
+  // Unified parameter state - single source of truth for ALL problem parameters
+  const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>(() => {
+    return getDefaultParameters('logistic-regression');
+  });
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
@@ -1979,6 +1960,7 @@ const UnifiedVisualizer = () => {
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
+              problemParameters={problemParameters}
               bounds={bounds}
               paramCanvasRef={gdFixedParamCanvasRef}
               experimentLoading={experimentLoading}
@@ -2004,6 +1986,7 @@ const UnifiedVisualizer = () => {
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
+              problemParameters={problemParameters}
               bounds={bounds}
               paramCanvasRef={gdLSParamCanvasRef}
               lineSearchCanvasRef={gdLSLineSearchCanvasRef}
@@ -2038,6 +2021,7 @@ const UnifiedVisualizer = () => {
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
+              problemParameters={problemParameters}
               bounds={bounds}
               paramCanvasRef={newtonParamCanvasRef}
               lineSearchCanvasRef={newtonLineSearchCanvasRef}
@@ -2069,6 +2053,7 @@ const UnifiedVisualizer = () => {
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
+              problemParameters={problemParameters}
               bounds={bounds}
               paramCanvasRef={lbfgsParamCanvasRef}
               lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
@@ -2103,6 +2088,7 @@ const UnifiedVisualizer = () => {
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
+              problemParameters={problemParameters}
               bounds={bounds}
               paramCanvasRef={diagPrecondParamCanvasRef}
               lineSearchCanvasRef={diagPrecondLineSearchCanvasRef}
