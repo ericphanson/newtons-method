@@ -6,6 +6,75 @@ import React from 'react';
  * This centralized registry ensures consistent definitions across the entire
  * educational interface. Each term has a short display name and a detailed
  * definition shown in tooltips.
+ *
+ * ============================================================================
+ * STYLE GUIDE: When to Add Terms to the Glossary
+ * ============================================================================
+ *
+ * ADD terms that are:
+ * ✓ Technical mathematical terms requiring precise definition
+ *   (e.g., "smooth", "convex", "Lipschitz continuous")
+ * ✓ Used in multiple locations across different components
+ * ✓ Terms where common understanding differs from mathematical meaning
+ *   (e.g., "smooth" in everyday language vs. mathematical smoothness)
+ * ✓ Foundational concepts students learning optimization should understand
+ * ✓ Terms that affect algorithm behavior
+ *   (e.g., "ill-conditioned", "eigenvalue", "strong convexity")
+ *
+ * DO NOT add terms that are:
+ * ✗ Common programming terms ("iteration", "parameter", "function")
+ * ✗ Terms explained in the immediately surrounding text
+ * ✗ One-off specialized terms used only once
+ * ✗ Terms where the tooltip would just repeat the visible text
+ *
+ * ============================================================================
+ * STYLE GUIDE: When to Use Tooltips (via <GlossaryTooltip />)
+ * ============================================================================
+ *
+ * USE tooltips for:
+ * ✓ First occurrence in a section - Define it once, readers can reference later
+ * ✓ Key explanatory text - Where understanding the term is critical
+ * ✓ Mathematical claims - Where precise definitions matter
+ *   (e.g., "strongly convex smooth functions" in convergence rate claims)
+ *
+ * USE PLAIN TEXT (no tooltip) for:
+ * ✗ Repeated uses in close proximity - If term appears 3 times in one paragraph,
+ *   only tooltip the first occurrence
+ * ✗ Headings and titles - Keep visual hierarchy clean
+ * ✗ After explicit definition - If you just explained it in the previous sentence
+ * ✗ Casual references - When the precise definition isn't critical to that point
+ *
+ * EXAMPLE PATTERN:
+ * ```tsx
+ * // Section heading - NO tooltip (keeps it clean)
+ * <h3>Convergence for Strongly Convex Functions</h3>
+ *
+ * // First explanatory use - YES tooltip
+ * <p>
+ *   Newton's method achieves quadratic convergence on{' '}
+ *   <GlossaryTooltip termKey="strongly-convex" /> functions.
+ * </p>
+ *
+ * // Near repeat - NO tooltip (just explained above)
+ * <p>
+ *   The strong convexity parameter μ controls the convergence rate.
+ * </p>
+ *
+ * // Later, different context - YES tooltip (different section, key claim)
+ * <p>
+ *   For <GlossaryTooltip termKey="strongly-convex" /> problems,
+ *   gradient descent requires O(log(1/ε)) iterations.
+ * </p>
+ * ```
+ *
+ * BALANCING PRINCIPLES:
+ * 1. Help without overwhelming - Too many tooltips create visual noise
+ * 2. Define once per context - First use in a collapsible section or page
+ * 3. Critical > casual - Tooltip mathematical claims, not casual mentions
+ * 4. Let users explore - Having the term in the glossary means users can
+ *    look it up elsewhere even if not every use has a tooltip
+ *
+ * ============================================================================
  */
 
 export interface GlossaryEntry {
