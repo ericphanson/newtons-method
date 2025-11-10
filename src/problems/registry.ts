@@ -1,7 +1,6 @@
 import { ProblemRegistryEntry, ProblemDefinition, ParameterMetadata } from '../types/experiments';
-import { quadraticProblem, createRotatedQuadratic } from './quadratic';
-import { illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
-import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock';
+import { createRotatedQuadratic, createIllConditionedQuadratic } from './quadratic';
+import { createRosenbrockProblem } from './rosenbrock';
 import { saddleProblem } from './saddle';
 import { himmelblauProblem } from './himmelblau';
 import { threeHumpCamelProblem } from './threeHumpCamel';
