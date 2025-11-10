@@ -4,6 +4,7 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
+import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -609,7 +610,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
         <div>
           <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
-          <p><strong>Superlinear convergence:</strong></p>
+          <p><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
           <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
           <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
             <li>Faster than linear (GD) but slower than quadratic (Newton)</li>

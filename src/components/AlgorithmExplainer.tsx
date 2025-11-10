@@ -459,7 +459,7 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Superlinear convergence - faster than linear,
+            <strong>Convergence rate:</strong> <GlossaryTooltip termKey="superlinear-convergence" /> - faster than linear,
             slower than quadratic. Excellent practical performance.
           </p>
 
