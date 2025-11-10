@@ -29,6 +29,10 @@ export interface BasinCacheKey {
   variant?: string;                  // For separating-hyperplane
 }
 
+// WARNING: Basin cache currently only supports rotationAngle parameter.
+// If conditionNumber or rosenbrockB are used, cached results may be incorrect.
+// TODO: Replace rotationAngle with generic problemParameters when basin cache is re-enabled.
+
 export interface BasinCacheEntry {
   key: BasinCacheKey;
   data: BasinData;

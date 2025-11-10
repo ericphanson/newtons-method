@@ -58,6 +58,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     description: 'Line search handles landscape changes that break fixed step',
     algorithm: 'gd-linesearch',
     problem: 'rosenbrock',
+    problemParameters: { rosenbrockB: 100 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

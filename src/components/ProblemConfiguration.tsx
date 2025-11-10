@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from '../problems';
+import { getProblem, resolveProblem, getDefaultParameters } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -81,6 +81,12 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
     if (newProblem === 'separating-hyperplane') {
       onSeparatingHyperplaneVariantChange?.('soft-margin');
     }
+
+    // Initialize default parameters for the new problem
+    const defaultParams = getDefaultParameters(newProblem);
+    Object.entries(defaultParams).forEach(([key, value]) => {
+      onProblemParameterChange(key, value);
+    });
 
     const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
 
@@ -192,29 +198,15 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <div>
               <strong>Objective:</strong>{' '}
               {(() => {
-                // Get parametrized problem for display
-                if (currentProblem === 'quadratic') {
-                  return createRotatedQuadratic((problemParameters.rotationAngle as number) || 0).objectiveFormula;
-                } else if (currentProblem === 'ill-conditioned-quadratic') {
-                  return createIllConditionedQuadratic((problemParameters.conditionNumber as number) || 100).objectiveFormula;
-                } else if (currentProblem === 'rosenbrock') {
-                  return createRosenbrockProblem((problemParameters.rosenbrockB as number) || 100).objectiveFormula;
-                }
-                return getProblem(currentProblem)?.objectiveFormula || <InlineMath>f(w)</InlineMath>;
+                const problem = resolveProblem(currentProblem, problemParameters);
+                return problem.objectiveFormula;
               })()}
             </div>
             <div>
               <strong>Description:</strong>{' '}
               {(() => {
-                // Get parametrized problem for display
-                if (currentProblem === 'quadratic') {
-                  return createRotatedQuadratic((problemParameters.rotationAngle as number) || 0).description;
-                } else if (currentProblem === 'ill-conditioned-quadratic') {
-                  return createIllConditionedQuadratic((problemParameters.conditionNumber as number) || 100).description;
-                } else if (currentProblem === 'rosenbrock') {
-                  return createRosenbrockProblem((problemParameters.rosenbrockB as number) || 100).description;
-                }
-                return getProblem(currentProblem)?.description || 'Optimization problem';
+                const problem = resolveProblem(currentProblem, problemParameters);
+                return problem.description;
               })()}
             </div>
             <div>

@@ -41,6 +41,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Same non-convex problem but line search prevents divergence',
     algorithm: 'newton',
     problem: 'rosenbrock',
+    problemParameters: { rosenbrockB: 100 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
