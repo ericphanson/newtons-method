@@ -7,8 +7,6 @@
  *   npm run test-combo -- --all  # Test all combinations
  */
 
-import { getProblem } from '../src/problems';
-import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from '../src/utils/problemAdapter';
 import { runGradientDescent } from '../src/algorithms/gradient-descent';
 import { runGradientDescentLineSearch } from '../src/algorithms/gradient-descent-linesearch';
 import { runNewton } from '../src/algorithms/newton';
@@ -16,6 +14,69 @@ import { runLBFGS } from '../src/algorithms/lbfgs';
 import { getProblemDefaults } from '../src/utils/problemDefaults';
 import { generateCrescents } from '../src/shared-utils';
 import type { SeparatingHyperplaneVariant } from '../src/types/experiments';
+import type { ProblemFunctions } from '../src/algorithms/types';
+import { logisticObjective, logisticGradient, logisticHessian } from '../src/utils/logisticRegression';
+import * as SH from '../src/utils/separatingHyperplane';
+
+// Inline problem definitions to avoid importing .tsx files with CSS dependencies
+function createRotatedQuadratic(thetaDegrees: number, kappa: number): ProblemFunctions {
+  const theta = (thetaDegrees * Math.PI) / 180;
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+
+  const h00 = kappa * c * c + s * s;
+  const h01 = (kappa - 1) * c * s;
+  const h11 = kappa * s * s + c * c;
+
+  return {
+    objective: (w: number[]) => {
+      const [w0, w1] = w;
+      return 0.5 * (h00 * w0 * w0 + 2 * h01 * w0 * w1 + h11 * w1 * w1);
+    },
+    gradient: (w: number[]) => {
+      const [w0, w1] = w;
+      return [h00 * w0 + h01 * w1, h01 * w0 + h11 * w1];
+    },
+    hessian: () => [[h00, h01], [h01, h11]],
+    dimensionality: 2
+  };
+}
+
+function createRosenbrockProblem(b: number): ProblemFunctions {
+  return {
+    objective: (w: number[]) => {
+      const [w0, w1] = w;
+      return (1 - w0) * (1 - w0) + b * (w1 - w0 * w0) * (w1 - w0 * w0);
+    },
+    gradient: (w: number[]) => {
+      const [w0, w1] = w;
+      const dw0 = -2 * (1 - w0) - 4 * b * w0 * (w1 - w0 * w0);
+      const dw1 = 2 * b * (w1 - w0 * w0);
+      return [dw0, dw1];
+    },
+    hessian: (w: number[]) => {
+      const [w0, w1] = w;
+      const h00 = 2 - 4 * b * (w1 - 3 * w0 * w0);
+      const h01 = -4 * b * w0;
+      const h11 = 2 * b;
+      return [[h00, h01], [h01, h11]];
+    },
+    dimensionality: 2
+  };
+}
+
+const saddleProblemFunctions: ProblemFunctions = {
+  objective: (w: number[]) => {
+    const [w0, w1] = w;
+    return w0 * w0 - w1 * w1;
+  },
+  gradient: (w: number[]) => {
+    const [w0, w1] = w;
+    return [2 * w0, -2 * w1];
+  },
+  hessian: () => [[2, 0], [0, -2]],
+  dimensionality: 2
+};
 
 interface TestConfig {
   problem: string;
@@ -59,36 +120,86 @@ function runTest(config: TestConfig): TestResult {
   } = config;
 
   try {
-    // Handle dataset-based problems (logistic-regression, separating-hyperplane)
-    let problemFuncs: { objective: (w: number[]) => number; gradient: (w: number[]) => number[]; hessian?: (w: number[]) => number[][]; dimensionality?: number };
-    let defaultInitialPoint: [number, number] | [number, number, number];
+    // Resolve problem to ProblemFunctions format
+    let problemFuncs: ProblemFunctions;
+    let defaultInitialPoint: [number, number];
+    const bias = 0; // Default bias for dataset-based problems
 
     if (problemName === 'logistic-regression') {
       // Generate dataset for logistic regression
       const data = generateCrescents(50, 0.5, 0.3);
-      problemFuncs = logisticRegressionToProblemFunctions(data, lambda);
-      defaultInitialPoint = [0, 0, 0];
+      problemFuncs = {
+        objective: (w: number[]) => logisticObjective(w, data, lambda, bias),
+        gradient: (w: number[]) => logisticGradient(w, data, lambda, bias),
+        hessian: (w: number[]) => logisticHessian(w, data, lambda, bias),
+        dimensionality: 2
+      };
+      defaultInitialPoint = [0, 0];
     } else if (problemName === 'separating-hyperplane') {
       // Generate dataset for separating hyperplane
       const data = generateCrescents(50, 0.5, 0.3);
-      problemFuncs = separatingHyperplaneToProblemFunctions(data, variant, lambda);
-      defaultInitialPoint = [0, 0, 0];
-    } else {
-      // Get problem from registry
-      const problem = getProblem(problemName);
-      if (!problem) {
-        return {
-          config,
-          iterations: 0,
-          finalLoss: NaN,
-          finalGradNorm: NaN,
-          converged: false,
-          diverged: false,
-          error: `Problem '${problemName}' not found`
-        };
+
+      // Select variant-specific functions
+      let objective: (w: number[]) => number;
+      let gradient: (w: number[]) => number[];
+      let hessian: (w: number[]) => number[][];
+
+      switch (variant) {
+        case 'soft-margin':
+          objective = (w) => SH.softMarginObjective(w, data, lambda, bias);
+          gradient = (w) => SH.softMarginGradient(w, data, lambda, bias);
+          hessian = () => SH.softMarginHessian();
+          break;
+        case 'perceptron':
+          objective = (w) => SH.perceptronObjective(w, data, lambda, bias);
+          gradient = (w) => SH.perceptronGradient(w, data, lambda, bias);
+          hessian = () => SH.perceptronHessian(lambda);
+          break;
+        case 'squared-hinge':
+          objective = (w) => SH.squaredHingeObjective(w, data, lambda, bias);
+          gradient = (w) => SH.squaredHingeGradient(w, data, lambda, bias);
+          hessian = (w) => SH.squaredHingeHessian(w, data, lambda, bias);
+          break;
+        default:
+          return {
+            config,
+            iterations: 0,
+            finalLoss: NaN,
+            finalGradNorm: NaN,
+            converged: false,
+            diverged: false,
+            error: `Unknown separating hyperplane variant: ${variant}`
+          };
       }
-      problemFuncs = problemToProblemFunctions(problem);
+
+      problemFuncs = { objective, gradient, hessian, dimensionality: 2 };
+      defaultInitialPoint = [0, 0];
+    } else if (problemName === 'quadratic') {
+      // Default quadratic (axis-aligned, well-conditioned)
+      problemFuncs = createRotatedQuadratic(0, 5);
       defaultInitialPoint = [-1, 1];
+    } else if (problemName === 'ill-conditioned-quadratic') {
+      // Ill-conditioned quadratic (high condition number)
+      problemFuncs = createRotatedQuadratic(45, 100);
+      defaultInitialPoint = [-1, 1];
+    } else if (problemName === 'rosenbrock') {
+      // Rosenbrock function
+      problemFuncs = createRosenbrockProblem(100);
+      defaultInitialPoint = [-1, 1];
+    } else if (problemName === 'non-convex-saddle') {
+      // Saddle point problem
+      problemFuncs = saddleProblemFunctions;
+      defaultInitialPoint = [-1, 1];
+    } else {
+      return {
+        config,
+        iterations: 0,
+        finalLoss: NaN,
+        finalGradNorm: NaN,
+        converged: false,
+        diverged: false,
+        error: `Unknown problem: ${problemName}`
+      };
     }
 
     const finalInitialPoint = initialPoint || defaultInitialPoint;
