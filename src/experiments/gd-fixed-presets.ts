@@ -5,6 +5,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     id: 'gd-fixed-success',
     name: 'Success: Good Step Size (α=0.1)',
     description: 'Well-chosen α leads to smooth convergence',
+    algorithm: 'gd-fixed',
     problem: 'quadratic',
     hyperparameters: {
       alpha: 0.1,
@@ -21,6 +22,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     id: 'gd-fixed-diverge',
     name: 'Failure: Step Size Too Large (α=2.5)',
     description: 'α=2.5 exceeds stability limit and causes divergence',
+    algorithm: 'gd-fixed',
     problem: 'quadratic',
     hyperparameters: {
       alpha: 2.5,
@@ -37,6 +39,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     id: 'gd-fixed-too-small',
     name: 'Failure: Step Size Too Small (α=0.001)',
     description: 'α=0.001 leads to extremely slow convergence',
+    algorithm: 'gd-fixed',
     problem: 'quadratic',
     hyperparameters: {
       alpha: 0.001,
@@ -53,6 +56,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     id: 'gd-fixed-ill-conditioned',
     name: 'Struggle: Ill-Conditioned Problem',
     description: 'Elongated ellipse causes zig-zagging',
+    algorithm: 'gd-fixed',
     problem: 'ill-conditioned-quadratic',
     hyperparameters: {
       alpha: 0.01,
