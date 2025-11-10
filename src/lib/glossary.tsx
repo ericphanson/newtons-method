@@ -140,6 +140,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'eigenvalue': {
+    term: 'eigenvalue',
+    definition: (
+      <>
+        <strong>Eigenvalue:</strong> A scalar λ such that Hv = λv for some non-zero vector v
+        (the eigenvector). For symmetric matrices like the Hessian, eigenvalues are real and
+        indicate principal curvatures. Positive eigenvalues mean the function curves upward
+        in that direction; negative eigenvalues mean it curves downward.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
