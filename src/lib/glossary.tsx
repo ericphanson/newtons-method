@@ -224,6 +224,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'lipschitz-continuous': {
+    term: 'Lipschitz continuous',
+    definition: (
+      <>
+        <strong>Lipschitz continuous gradient:</strong> The gradient doesn't change too
+        rapidly: ||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L (the Lipschitz constant).
+        This is the precise mathematical definition of "smooth" and enables convergence
+        guarantees.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
