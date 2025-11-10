@@ -689,14 +689,14 @@ const UnifiedVisualizer = () => {
     setMaxIter(cfg.maxIter);
     setInitialW0(cfg.initialW0);
     setInitialW1(cfg.initialW1);
-    gdFixed.setCurrentIter(0);
-    gdLS.setCurrentIter(0);
-    diagPrecond.setCurrentIter(0);
-    newton.setCurrentIter(0);
-    lbfgs.setCurrentIter(0);
+    // Reset all algorithm iterations to 0
+    gdFixed.resetIter();
+    gdLS.resetIter();
+    diagPrecond.resetIter();
+    newton.resetIter();
+    lbfgs.resetIter();
     setCustomPoints([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed will be updated in Task 9
-  }, []);
+  }, [gdFixed, gdLS, diagPrecond, newton, lbfgs]);
 
 
 
