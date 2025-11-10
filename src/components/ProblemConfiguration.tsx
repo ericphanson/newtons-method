@@ -24,22 +24,9 @@ interface ProblemConfigurationProps {
   addPointMode: 0 | 1 | 2;
   onAddPointModeChange: (mode: 0 | 1 | 2) => void;
 
-  // NEW: Generic parameter support
+  // Generic parameter support
   problemParameters: Record<string, number | string>;
   onProblemParameterChange: (key: string, value: number | string) => void;
-
-  // LEGACY: Keep for backward compatibility
-  // Rotated quadratic parameters
-  rotationAngle: number;
-  onRotationAngleChange: (theta: number) => void;
-
-  // Ill-conditioned quadratic parameters
-  conditionNumber: number;
-  onConditionNumberChange: (kappa: number) => void;
-
-  // Rosenbrock parameters
-  rosenbrockB: number;
-  onRosenbrockBChange: (b: number) => void;
 
   // Separating hyperplane parameters
   separatingHyperplaneVariant?: SeparatingHyperplaneVariant;
@@ -60,12 +47,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onLambdaChange,
   problemParameters,
   onProblemParameterChange,
-  rotationAngle,
-  onRotationAngleChange, // LEGACY: kept for backward compatibility
-  conditionNumber,
-  onConditionNumberChange, // LEGACY: kept for backward compatibility
-  rosenbrockB,
-  onRosenbrockBChange, // LEGACY: kept for backward compatibility
   separatingHyperplaneVariant,
   onSeparatingHyperplaneVariantChange,
   customPoints,
@@ -76,10 +57,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onCanvasClick,
   onShowToast,
 }) => {
-  // Suppress unused vars warnings for legacy props (kept for backward compatibility during migration)
-  void onRotationAngleChange;
-  void onConditionNumberChange;
-  void onRosenbrockBChange;
   const [showProblemExplainer, setShowProblemExplainer] = useState(false);
 
   // Handle problem selection change
@@ -217,11 +194,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               {(() => {
                 // Get parametrized problem for display
                 if (currentProblem === 'quadratic') {
-                  return createRotatedQuadratic(rotationAngle).objectiveFormula;
+                  return createRotatedQuadratic((problemParameters.rotationAngle as number) || 0).objectiveFormula;
                 } else if (currentProblem === 'ill-conditioned-quadratic') {
-                  return createIllConditionedQuadratic(conditionNumber).objectiveFormula;
+                  return createIllConditionedQuadratic((problemParameters.conditionNumber as number) || 100).objectiveFormula;
                 } else if (currentProblem === 'rosenbrock') {
-                  return createRosenbrockProblem(rosenbrockB).objectiveFormula;
+                  return createRosenbrockProblem((problemParameters.rosenbrockB as number) || 100).objectiveFormula;
                 }
                 return getProblem(currentProblem)?.objectiveFormula || <InlineMath>f(w)</InlineMath>;
               })()}
@@ -231,11 +208,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               {(() => {
                 // Get parametrized problem for display
                 if (currentProblem === 'quadratic') {
-                  return createRotatedQuadratic(rotationAngle).description;
+                  return createRotatedQuadratic((problemParameters.rotationAngle as number) || 0).description;
                 } else if (currentProblem === 'ill-conditioned-quadratic') {
-                  return createIllConditionedQuadratic(conditionNumber).description;
+                  return createIllConditionedQuadratic((problemParameters.conditionNumber as number) || 100).description;
                 } else if (currentProblem === 'rosenbrock') {
-                  return createRosenbrockProblem(rosenbrockB).description;
+                  return createRosenbrockProblem((problemParameters.rosenbrockB as number) || 100).description;
                 }
                 return getProblem(currentProblem)?.description || 'Optimization problem';
               })()}
@@ -359,7 +336,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         </div>
       )}
 
-      {/* NEW: Parameters section - auto-generated from registry */}
+      {/* Parameters section - auto-generated from registry */}
       {currentProblem !== 'logistic-regression' &&
        currentProblem !== 'separating-hyperplane' && (
         <ParameterControls
@@ -368,108 +345,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           onChange={onProblemParameterChange}
         />
       )}
-
-      {/* TODO: Remove after full migration - LEGACY HARDCODED PARAMETER SECTIONS */}
-      {/* Parameters for rotated ellipse */}
-      {/* {currentProblem === 'quadratic' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="flex gap-4">
-            <div className="w-64">
-              <h4 className="font-medium text-gray-700 mb-2">
-                Rotation Angle (<InlineMath>\theta</InlineMath>)
-              </h4>
-              <input
-                type="range"
-                min="0"
-                max="90"
-                step="5"
-                value={rotationAngle}
-                onChange={(e) => onRotationAngleChange(parseFloat(e.target.value))}
-                className="w-full"
-              />
-              <span className="text-sm text-gray-600">
-                <InlineMath>\theta</InlineMath> = {rotationAngle}°
-              </span>
-            </div>
-            <div className="flex-1 p-3 bg-blue-100 rounded-lg">
-              <p className="text-xs text-blue-900 font-semibold mb-1">
-                💡 Key Insight: Rotation Invariance
-              </p>
-              <p className="text-xs text-blue-900">
-                <strong><InlineMath>\theta=0°</InlineMath>:</strong> Ellipse aligned with axes. Gradient descent follows axes efficiently.<br/>
-                <strong><InlineMath>\theta=45°</InlineMath>:</strong> Maximum misalignment! GD zigzags badly, while Newton/L-BFGS are unaffected.<br/>
-                <strong>Second-order methods are rotation-invariant</strong> — they adapt to any coordinate system.
-                First-order methods depend on your choice of coordinates!
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
-      {/* Parameters for ill-conditioned quadratic */}
-      {/* {currentProblem === 'ill-conditioned-quadratic' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="flex gap-4">
-            <div className="w-64">
-              <h4 className="font-medium text-gray-700 mb-2">
-                Condition Number (<InlineMath>\kappa</InlineMath>)
-              </h4>
-              <input
-                type="range"
-                min="1"
-                max="500"
-                step="1"
-                value={conditionNumber}
-                onChange={(e) => onConditionNumberChange(parseInt(e.target.value))}
-                className="w-full"
-              />
-              <span className="text-sm text-gray-600">
-                <InlineMath>\kappa</InlineMath> = {conditionNumber}
-              </span>
-            </div>
-            <div className="flex-1 p-3 bg-blue-100 rounded-lg self-center">
-              <p className="text-xs text-blue-900">
-                Higher <InlineMath>\kappa</InlineMath> creates more elongated ellipses, making optimization harder.
-                <InlineMath>\kappa=1</InlineMath> is perfectly round (well-conditioned), <InlineMath>\kappa=1000</InlineMath> is very elongated (ill-conditioned).
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
-      {/* Parameters for Rosenbrock */}
-      {/* {currentProblem === 'rosenbrock' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
-          <div className="flex gap-4">
-            <div className="w-64">
-              <h4 className="font-medium text-gray-700 mb-2">
-                Valley Steepness (<InlineMath>b</InlineMath>)
-              </h4>
-              <input
-                type="range"
-                min="1"
-                max="3"
-                step="0.1"
-                value={Math.log10(rosenbrockB)}
-                onChange={(e) => onRosenbrockBChange(Math.pow(10, parseFloat(e.target.value)))}
-                className="w-full"
-              />
-              <span className="text-sm text-gray-600">
-                <InlineMath>b</InlineMath> = {rosenbrockB.toFixed(rosenbrockB < 100 ? 0 : 0)}
-              </span>
-            </div>
-            <div className="flex-1 p-3 bg-blue-100 rounded-lg self-center">
-              <p className="text-xs text-blue-900">
-                Higher <InlineMath>b</InlineMath> creates steeper, narrower valleys.
-                <InlineMath>b=10</InlineMath> is gentle (GD can navigate), <InlineMath>b=1000</InlineMath> is extreme (first-order methods struggle).
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* Info for Saddle Point */}
       {currentProblem === 'non-convex-saddle' && (

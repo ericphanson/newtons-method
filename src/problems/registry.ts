@@ -95,7 +95,31 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
 
 /**
  * Resolve a problem with given parameters
- * Central resolution function that replaces scattered if-else chains
+ *
+ * This is the central function for problem resolution. It replaces
+ * all scattered if-else chains that previously handled parametrized problems.
+ *
+ * @example
+ * // Rotated quadratic at 45°
+ * const problem = resolveProblem('quadratic', { rotationAngle: 45 });
+ *
+ * @example
+ * // Ill-conditioned with κ=250
+ * const problem = resolveProblem('ill-conditioned-quadratic', { conditionNumber: 250 });
+ *
+ * @example
+ * // Rosenbrock with custom steepness
+ * const problem = resolveProblem('rosenbrock', { rosenbrockB: 500 });
+ *
+ * @example
+ * // Non-parametrized problem (parameters can be omitted or empty)
+ * const problem = resolveProblem('himmelblau');
+ * const problem2 = resolveProblem('non-convex-saddle', {});
+ *
+ * @param problemType - Problem type identifier (e.g., 'quadratic', 'rosenbrock')
+ * @param parameters - Parameter values as key-value pairs (defaults to empty object)
+ * @returns Resolved problem definition with parameter values applied
+ * @throws Error if problem not found in registry or if registry entry is incomplete
  */
 export function resolveProblem(
   problemType: string,

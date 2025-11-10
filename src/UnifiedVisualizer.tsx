@@ -35,7 +35,6 @@ import { StoryBanner } from './components/StoryBanner';
 import { StoryTOC } from './components/StoryTOC';
 import { getStory } from './stories';
 import { getExperimentById } from './experiments';
-import { normalizeExperimentPreset } from './experiments/migration-helper';
 
 type Algorithm = 'stories' | 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
@@ -45,22 +44,8 @@ const UnifiedVisualizer = () => {
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
 
-  // NEW: Unified parameter state
+  // Unified parameter state
   const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
-
-  // LEGACY: Keep for backward compatibility during migration
-  const [rotationAngle, setRotationAngle] = useState(0);
-  const [conditionNumber, setConditionNumber] = useState(100);
-  const [rosenbrockB, setRosenbrockB] = useState(100);
-
-  // Sync legacy state to unified state (temporary bridge)
-  useEffect(() => {
-    setProblemParameters({
-      rotationAngle,
-      conditionNumber,
-      rosenbrockB,
-    });
-  }, [rotationAngle, conditionNumber, rosenbrockB]);
 
   const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
     useState<SeparatingHyperplaneVariant>('soft-margin');
@@ -341,8 +326,8 @@ const UnifiedVisualizer = () => {
     };
   }, [selectedTab]); // Re-run when tab changes to observe new sections
 
-  // Note: When rotationAngle, conditionNumber, or rosenbrockB changes, algorithms automatically rerun
-  // because getCurrentProblemFunctions includes them in its dependencies, which triggers
+  // Note: When problemParameters changes, algorithms automatically rerun
+  // because getCurrentProblemFunctions includes it in its dependencies, which triggers
   // the algorithm useEffects below to recompute with the new parameter values.
 
   // Default configuration for reset functionality
@@ -683,7 +668,7 @@ const UnifiedVisualizer = () => {
    * @param currentState - Current hyperparameter state values
    * @returns Array of change descriptions (e.g., ["α: 0.1→0.01"])
    */
-  function getHyperparameterChanges(
+  const getHyperparameterChanges = useCallback((
     experiment: ExperimentPreset,
     currentAlgo: string,
     currentState: {
@@ -700,7 +685,7 @@ const UnifiedVisualizer = () => {
       diagPrecondC1: number;
       maxIter: number;
     }
-  ): string[] {
+  ): string[] => {
     const changes: string[] = [];
     const hyper = experiment.hyperparameters;
 
@@ -760,7 +745,7 @@ const UnifiedVisualizer = () => {
     }
 
     return changes;
-  }
+  }, []);
 
   /**
    * Get list of problem-specific configuration changes
@@ -773,7 +758,7 @@ const UnifiedVisualizer = () => {
     experiment: ExperimentPreset,
     currentProblem: string,
     currentConfig: {
-      rotationAngle?: number;
+      problemParameters?: Record<string, number | string>;
       separatingHyperplaneVariant?: string;
     }
   ): string[] {
@@ -784,11 +769,30 @@ const UnifiedVisualizer = () => {
       return changes;
     }
 
-    // Rotation angle (for rotated quadratics)
-    if (experiment.rotationAngle !== undefined &&
-        experiment.rotationAngle !== currentConfig.rotationAngle) {
-      const current = currentConfig.rotationAngle ?? 0;
-      changes.push(`rotation: ${current}°→${experiment.rotationAngle}°`);
+    // Check for parameter changes (rotation angle, condition number, etc.)
+    if (experiment.problemParameters) {
+      const currentParams = currentConfig.problemParameters || {};
+
+      // Rotation angle
+      if (experiment.problemParameters.rotationAngle !== undefined &&
+          experiment.problemParameters.rotationAngle !== currentParams.rotationAngle) {
+        const current = currentParams.rotationAngle ?? 0;
+        changes.push(`rotation: ${current}°→${experiment.problemParameters.rotationAngle}°`);
+      }
+
+      // Condition number
+      if (experiment.problemParameters.conditionNumber !== undefined &&
+          experiment.problemParameters.conditionNumber !== currentParams.conditionNumber) {
+        const current = currentParams.conditionNumber ?? 100;
+        changes.push(`κ: ${current}→${experiment.problemParameters.conditionNumber}`);
+      }
+
+      // Rosenbrock b
+      if (experiment.problemParameters.rosenbrockB !== undefined &&
+          experiment.problemParameters.rosenbrockB !== currentParams.rosenbrockB) {
+        const current = currentParams.rosenbrockB ?? 100;
+        changes.push(`b: ${current}→${experiment.problemParameters.rosenbrockB}`);
+      }
     }
 
     // Separating hyperplane variant
@@ -809,9 +813,6 @@ const UnifiedVisualizer = () => {
     setExperimentJustLoaded(true);
 
     try {
-      // Normalize preset to handle legacy fields
-      const normalized = normalizeExperimentPreset(experiment);
-
       // 1. Update hyperparameters
       if (experiment.hyperparameters.alpha !== undefined) {
         setGdFixedAlpha(experiment.hyperparameters.alpha);
@@ -854,20 +855,9 @@ const UnifiedVisualizer = () => {
           setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
         }
 
-        // Load problem parameters from normalized preset
-        if (normalized.problemParameters) {
-          setProblemParameters(normalized.problemParameters);
-
-          // TEMPORARY: Sync to legacy state during migration
-          if (normalized.problemParameters.rotationAngle !== undefined) {
-            setRotationAngle(normalized.problemParameters.rotationAngle as number);
-          }
-          if (normalized.problemParameters.conditionNumber !== undefined) {
-            setConditionNumber(normalized.problemParameters.conditionNumber as number);
-          }
-          if (normalized.problemParameters.rosenbrockB !== undefined) {
-            setRosenbrockB(normalized.problemParameters.rosenbrockB as number);
-          }
+        // Load problem parameters from preset
+        if (experiment.problemParameters) {
+          setProblemParameters(experiment.problemParameters);
         }
 
         const problem = getProblem(experiment.problem);
@@ -935,10 +925,8 @@ const UnifiedVisualizer = () => {
         changes.push(`Switched to problem ${problemName}`);
       } else {
         // Same problem - check if problem config changed
-        // Note: We need to track current rotation angle and variant in state
-        // For now, we'll check if the experiment has these fields
         const problemConfigChanges = getProblemConfigChanges(experiment, currentProblem, {
-          rotationAngle: experiment.rotationAngle,
+          problemParameters,
           separatingHyperplaneVariant: experiment.separatingHyperplaneVariant,
         });
         if (problemConfigChanges.length > 0) {
@@ -974,7 +962,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [currentProblem, selectedTab, gdFixedAlpha, gdLSC1, newtonHessianDamping, newtonLineSearch, newtonC1, lbfgsM, lbfgsHessianDamping, lbfgsC1, diagPrecondHessianDamping, diagPrecondLineSearch, diagPrecondC1, maxIter]);
+  }, [currentProblem, selectedTab, gdFixedAlpha, gdLSC1, newtonHessianDamping, newtonLineSearch, newtonC1, lbfgsM, lbfgsHessianDamping, lbfgsC1, diagPrecondHessianDamping, diagPrecondLineSearch, diagPrecondC1, maxIter, problemParameters, getHyperparameterChanges]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -1764,18 +1752,7 @@ const UnifiedVisualizer = () => {
         problemParameters={problemParameters}
         onProblemParameterChange={(key, value) => {
           setProblemParameters(prev => ({ ...prev, [key]: value }));
-
-          // TEMPORARY: Sync to legacy state during migration
-          if (key === 'rotationAngle') setRotationAngle(value as number);
-          if (key === 'conditionNumber') setConditionNumber(value as number);
-          if (key === 'rosenbrockB') setRosenbrockB(value as number);
         }}
-        rotationAngle={rotationAngle}
-        onRotationAngleChange={setRotationAngle}
-        conditionNumber={conditionNumber}
-        onConditionNumberChange={setConditionNumber}
-        rosenbrockB={rosenbrockB}
-        onRosenbrockBChange={setRosenbrockB}
         separatingHyperplaneVariant={separatingHyperplaneVariant}
         onSeparatingHyperplaneVariantChange={setSeparatingHyperplaneVariant}
         customPoints={customPoints}

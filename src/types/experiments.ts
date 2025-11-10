@@ -49,19 +49,11 @@ export interface ExperimentPreset {
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
   problem: ProblemType;
 
-  // NEW: Generic parameter support
+  // Generic parameter support
   problemParameters?: Record<string, number | string>;
 
   dataset?: DataPoint[];
   separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
-
-  // DEPRECATED: Legacy parameter fields (keep for backward compatibility)
-  /** @deprecated Use problemParameters.rotationAngle instead */
-  rotationAngle?: number;
-  /** @deprecated Use problemParameters.conditionNumber instead */
-  conditionNumber?: number;
-  /** @deprecated Use problemParameters.rosenbrockB instead */
-  rosenbrockB?: number;
 
   hyperparameters: {
     alpha?: number;
