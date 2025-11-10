@@ -240,7 +240,11 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, separatingHyperplaneVariant]);
 
-  // Calculate global minimum for dataset-based problems (logistic regression, separating hyperplane) when data changes
+  // QUESTIONABLE SPECIAL CASE: Global minimum calculation
+  // TODO: Consider if this should be generalized or removed
+  // Currently only dataset problems compute global minimum via L-BFGS
+  // This is used for viewport centering and visualization purposes.
+  // See: docs/plans/2025-11-10-dataset-problems-registry-migration.md
   useEffect(() => {
     if (requiresDataset(currentProblem)) {
       try {
@@ -1166,7 +1170,10 @@ const UnifiedVisualizer = () => {
     const toCanvasX = (x1: number) => margins.left + ((x1 - minX1) / rangeX1) * plotWidth;
     const toCanvasY = (x2: number) => margins.top + ((maxX2 - x2) / rangeX2) * plotHeight;
 
-    // Draw decision boundary for logistic regression and separating hyperplane
+    // JUSTIFIED SPECIAL CASE: Decision boundary rendering
+    // Classification problems (logistic regression, separating hyperplane) display geometric decision boundaries.
+    // This is acknowledged in the migration plan as a UI-only special case.
+    // See: docs/plans/2025-11-10-dataset-problems-registry-migration.md
     const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
                        selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
                        selectedTab === 'newton' ? newton.iterations[newton.currentIter] :

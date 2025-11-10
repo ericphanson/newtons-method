@@ -250,6 +250,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           })()}
 
           <div className="flex gap-6">
+            {/* JUSTIFIED SPECIAL CASE: Data canvas rendering
+                Dataset problems (logistic regression, separating hyperplane) need interactive point editing UI.
+                This is acknowledged in the migration plan as a UI-only special case.
+                See: docs/plans/2025-11-10-dataset-problems-registry-migration.md */}
             {/* Data Space Canvas */}
             <div className="flex-1">
               <canvas
