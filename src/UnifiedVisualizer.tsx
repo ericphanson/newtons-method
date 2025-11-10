@@ -104,29 +104,38 @@ const UnifiedVisualizer = () => {
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm) => {
     const currentHash = window.location.hash;
+    console.log('[TAB CHANGE] Starting - currentHash:', currentHash, 'newTab:', newTab);
 
     // Disable IntersectionObserver updates BEFORE tab switch
     isNavigatingRef.current = true;
+    console.log('[TAB CHANGE] Set isNavigatingRef = true');
 
     setSelectedTab(newTab);
+    console.log('[TAB CHANGE] Called setSelectedTab');
 
     // After React renders the new tab, try to scroll to the hash if it exists
     if (currentHash) {
       setTimeout(() => {
+        console.log('[TAB CHANGE] After 50ms delay, looking for element:', currentHash);
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
+          console.log('[TAB CHANGE] Found element, scrolling to it');
           targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          console.log('[TAB CHANGE] Element not found (fallback A)');
         }
         // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
 
         // Re-enable IntersectionObserver after scroll completes (smooth scroll takes ~300-500ms)
         setTimeout(() => {
+          console.log('[TAB CHANGE] After 600ms, setting isNavigatingRef = false');
           isNavigatingRef.current = false;
         }, 600);
       }, 50); // Small delay to ensure tab content has rendered
     } else {
       // If no hash to preserve, re-enable observer after render
       setTimeout(() => {
+        console.log('[TAB CHANGE] No hash, setting isNavigatingRef = false after 100ms');
         isNavigatingRef.current = false;
       }, 100);
     }
@@ -313,14 +322,22 @@ const UnifiedVisualizer = () => {
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       // Note: IntersectionObserverEntry is a built-in browser API type, no import needed
+      console.log('[OBSERVER] Callback fired, isNavigatingRef:', isNavigatingRef.current, 'entries:', entries.length);
+
       // Skip hash updates during programmatic navigation to prevent jerkiness
-      if (isNavigatingRef.current) return;
+      if (isNavigatingRef.current) {
+        console.log('[OBSERVER] Skipping hash updates (isNavigatingRef is true)');
+        return;
+      }
 
       entries.forEach(entry => {
+        console.log('[OBSERVER] Entry:', entry.target.id, 'isIntersecting:', entry.isIntersecting);
         if (entry.isIntersecting && entry.target.id) {
           // Update URL hash without scrolling
           const newHash = `#${entry.target.id}`;
+          console.log('[OBSERVER] Want to set hash to:', newHash, 'current hash:', window.location.hash);
           if (window.location.hash !== newHash) {
+            console.log('[OBSERVER] Setting hash via replaceState');
             window.history.replaceState(null, '', newHash);
           }
         }
