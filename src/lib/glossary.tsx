@@ -98,10 +98,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'strongly convex',
     definition: (
       <>
-        <strong>Strongly convex function:</strong> Has a positive lower bound μ &gt; 0 on the
-        Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere. This is stronger than regular convexity
-        (∇²f(x) ⪰ 0) and guarantees a unique global minimum. The strong convexity parameter μ
-        controls convergence speed.
+        <strong>Strongly convex function:</strong> For twice-differentiable functions, has a
+        positive lower bound μ &gt; 0 on the Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere.
+        This is stronger than regular convexity (∇²f(x) ⪰ 0) and guarantees a unique global
+        minimum. The strong convexity parameter μ controls convergence speed.
       </>
     ),
   },
@@ -110,10 +110,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'strong convexity',
     definition: (
       <>
-        <strong>Strongly convex function:</strong> Has a positive lower bound μ &gt; 0 on the
-        Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere. This is stronger than regular convexity
-        (∇²f(x) ⪰ 0) and guarantees a unique global minimum. The strong convexity parameter μ
-        controls convergence speed.
+        <strong>Strongly convex function:</strong> For twice-differentiable functions, has a
+        positive lower bound μ &gt; 0 on the Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere.
+        This is stronger than regular convexity (∇²f(x) ⪰ 0) and guarantees a unique global
+        minimum. The strong convexity parameter μ controls convergence speed.
       </>
     ),
   },
@@ -122,9 +122,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'convex',
     definition: (
       <>
-        <strong>Convex function:</strong> Has non-negative Hessian eigenvalues: ∇²f(x) ⪰ 0
-        everywhere. Weaker than strong convexity; may have slower convergence rates. Any local
-        minimum is also a global minimum.
+        <strong>Convex function:</strong> For twice-differentiable functions, has non-negative
+        Hessian eigenvalues: ∇²f(x) ⪰ 0 everywhere. Weaker than strong convexity; may have
+        slower convergence rates. Any local minimum is also a global minimum.
       </>
     ),
   },
