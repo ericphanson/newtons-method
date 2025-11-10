@@ -111,7 +111,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
     {/* 3. Side-by-Side: Canvas + Metrics */}
     <div className="flex gap-4 mb-6">
       {/* Left: Parameter Space Visualization */}
-      <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+      <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
         <p className="text-sm text-gray-600 mb-3">
           Loss landscape. Orange path = trajectory. Red dot = current position.
@@ -187,6 +187,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="Quick Start"
       defaultExpanded={false}
       storageKey="gd-ls-quick-start"
+      id="quick-start"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -256,6 +257,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="Line Search Details"
       defaultExpanded={false}
       storageKey="gd-ls-line-search-details"
+      id="line-search-details"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -340,6 +342,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="Try This"
       defaultExpanded={false}
       storageKey="gd-ls-try-this"
+      id="try-this"
     >
       <div className="space-y-3">
         <p className="text-gray-800 mb-4">
@@ -359,6 +362,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="When Things Go Wrong"
       defaultExpanded={false}
       storageKey="gd-ls-when-wrong"
+      id="when-things-go-wrong"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -436,6 +440,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="Mathematical Derivations"
       defaultExpanded={false}
       storageKey="gd-ls-math-derivations"
+      id="mathematical-derivations"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -490,6 +495,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       title="Advanced Topics"
       defaultExpanded={false}
       storageKey="gd-ls-advanced"
+      id="advanced-topics"
     >
       <div className="space-y-4 text-gray-800">
         <div>
