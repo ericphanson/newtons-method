@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2, requiresDataset } from '../problems';
+import { resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2, requiresDataset } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -71,15 +71,13 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
     // Get problem metadata from registry
     const entry = problemRegistryV2[newProblem];
     if (!requiresDataset(newProblem)) {
-      const problem = getProblem(newProblem);
-      if (problem) {
-        problemName = problem.name;
-        if (problem.domain) {
-          bounds = {
-            w0: problem.domain.w0,
-            w1: problem.domain.w1,
-          };
-        }
+      const problem = resolveProblem(newProblem, getDefaultParameters(newProblem));
+      problemName = problem.name;
+      if (problem.domain) {
+        bounds = {
+          w0: problem.domain.w0,
+          w1: problem.domain.w1,
+        };
       }
     } else {
       problemName = entry?.displayName || 'Dataset Problem';
