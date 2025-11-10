@@ -5,6 +5,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     id: 'diag-precond-aligned-success',
     name: 'Success: Aligned with Axes',
     description: 'Ellipse aligned with axes - diagonal preconditioner is perfect!',
+    algorithm: 'diagonal-precond',
     problem: 'ill-conditioned-quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -21,6 +22,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     id: 'diag-precond-rotated-failure',
     name: 'Failure: Rotated Problem',
     description: 'Ellipse rotated 45° - diagonal preconditioner struggles!',
+    algorithm: 'diagonal-precond',
     problem: 'quadratic',
     rotationAngle: 45,
     hyperparameters: {
@@ -38,6 +40,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     id: 'diag-precond-circular',
     name: 'Demo: No Rotation Dependence on Circular Bowl',
     description: 'Circular problem (κ=1) has no preferred direction',
+    algorithm: 'diagonal-precond',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.0001,
