@@ -47,14 +47,24 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
           <div className="flex-none">
             <button
               onClick={onShowTOC}
-              className="text-left hover:bg-white/10 px-3 py-2 rounded-lg transition-all"
-              title="View table of contents"
+              className="text-left hover:bg-white/10 px-3 py-2 rounded-lg transition-all group"
+              title="Click to view table of contents"
             >
-              <div className="font-semibold text-sm text-blue-100">
-                {story.title}
+              <div className="flex items-center gap-2">
+                <div className="font-semibold text-sm text-blue-100 group-hover:text-white transition-colors">
+                  {story.title}
+                </div>
+                <svg
+                  className="w-4 h-4 text-blue-300 group-hover:text-white transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
               <div className="text-xs text-blue-200 mt-0.5">
-                Step {safeIndex + 1} of {story.steps.length}
+                Story Step {safeIndex + 1} of {story.steps.length}
               </div>
             </button>
           </div>
