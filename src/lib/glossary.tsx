@@ -259,6 +259,17 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'basin-of-convergence': {
+    term: 'basin of convergence',
+    definition: (
+      <>
+        <strong>Basin of convergence:</strong> The set of starting points from which an
+        optimization algorithm converges to a particular local minimum. Different minima have
+        different basin sizes. The basin picker tool visualizes these regions.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
