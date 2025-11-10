@@ -22,7 +22,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
-import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
+import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem, resolveProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -45,7 +45,6 @@ const UnifiedVisualizer = () => {
   const [lambda, setLambda] = useState(0.0001);
 
   // NEW: Unified parameter state
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
 
   // LEGACY: Keep for backward compatibility during migration
@@ -201,32 +200,8 @@ const UnifiedVisualizer = () => {
         requiresDataset: true,
         dimensionality: 3, // 3D weights [w0, w1, w2]
       };
-    } else if (currentProblem === 'quadratic') {
-      // Return parametrized rotated quadratic
-      const problem = createRotatedQuadratic(rotationAngle);
-      return {
-        ...problem,
-        requiresDataset: false,
-        dimensionality: 2, // 2D weights [w0, w1]
-      };
-    } else if (currentProblem === 'ill-conditioned-quadratic') {
-      // Return parametrized ill-conditioned quadratic
-      const problem = createIllConditionedQuadratic(conditionNumber);
-      return {
-        ...problem,
-        requiresDataset: false,
-        dimensionality: 2, // 2D weights [w0, w1]
-      };
-    } else if (currentProblem === 'rosenbrock') {
-      // Return parametrized Rosenbrock
-      const problem = createRosenbrockProblem(rosenbrockB);
-      return {
-        ...problem,
-        requiresDataset: false,
-        dimensionality: 2, // 2D weights [w0, w1]
-      };
     } else if (currentProblem === 'separating-hyperplane') {
-      // Return separating hyperplane wrapped as problem interface
+      // Special case: dataset-based problem
       const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
       return {
         name: 'Separating Hyperplane',
@@ -242,18 +217,15 @@ const UnifiedVisualizer = () => {
         dimensionality: 3, // 3D weights [w0, w1, w2]
       };
     } else {
-      // Get problem from registry
-      const problem = getProblem(currentProblem);
-      if (!problem) {
-        throw new Error(`Problem not found: ${currentProblem}`);
-      }
+      // NEW: Use centralized resolution for all registry problems
+      const problem = resolveProblem(currentProblem, problemParameters);
       return {
         ...problem,
         requiresDataset: false,
-        dimensionality: 2, // 2D weights [w0, w1]
+        dimensionality: 2,
       };
     }
-  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, problemParameters, separatingHyperplaneVariant]);
 
   // Get current problem functions for algorithm execution
   // For parametrized problems (rotated quadratic, ill-conditioned quadratic, Rosenbrock),
