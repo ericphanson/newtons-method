@@ -43,9 +43,25 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
+
+  // NEW: Unified parameter state
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
+
+  // LEGACY: Keep for backward compatibility during migration
   const [rotationAngle, setRotationAngle] = useState(0);
   const [conditionNumber, setConditionNumber] = useState(100);
   const [rosenbrockB, setRosenbrockB] = useState(100);
+
+  // Sync legacy state to unified state (temporary bridge)
+  useEffect(() => {
+    setProblemParameters({
+      rotationAngle,
+      conditionNumber,
+      rosenbrockB,
+    });
+  }, [rotationAngle, conditionNumber, rosenbrockB]);
+
   const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
     useState<SeparatingHyperplaneVariant>('soft-margin');
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
