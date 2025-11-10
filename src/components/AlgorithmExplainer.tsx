@@ -427,7 +427,8 @@ export function AlgorithmExplainer() {
       >
         <div className="space-y-3 text-gray-800">
           <p>
-            <strong>Type:</strong> Quasi-Newton method (approximates Hessian from gradients)
+            <strong>Type:</strong>{' '}
+            <GlossaryTooltip termKey="first-order-method" /> (approximates second-order behavior)
           </p>
 
           <div>
