@@ -202,10 +202,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             <div>
               <strong>Objective:</strong>{' '}
               {currentProblem === 'quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>
+                <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath>
               )}
               {currentProblem === 'ill-conditioned-quadratic' && (
-                <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
+                <InlineMath>{String.raw`f(w) = w_0^2 + 100w_1^2`}</InlineMath>
               )}
               {currentProblem === 'rosenbrock' && (
                 <InlineMath>{String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}</InlineMath>
