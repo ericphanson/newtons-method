@@ -135,7 +135,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
           {/* 3. Side-by-Side: Canvas + Metrics */}
           <div className="flex gap-4 mb-6">
             {/* Left: Parameter Space Visualization */}
-            <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+            <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
               <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
               <p className="text-sm text-gray-600 mb-3">
                 Loss landscape. Orange path = trajectory. Red dot = current position.
@@ -213,6 +213,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             title="Quick Start"
             defaultExpanded={false}
             storageKey="diagonal-precond-quick-start"
+            id="quick-start"
           >
             <div className="space-y-4 text-gray-800">
               <div>
@@ -311,6 +312,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             title="Why Diagonal Preconditioner Fails on Rotated Problems"
             defaultExpanded={false}
             storageKey="diagonal-precond-rotation-failure"
+            id="rotation-failure"
           >
             <div className="space-y-4 text-gray-800">
               <div>
@@ -401,6 +403,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             title="Try This"
             defaultExpanded={false}
             storageKey="diagonal-precond-try-this"
+            id="try-this"
           >
             <div className="space-y-3">
         <p className="text-gray-800 mb-4">
