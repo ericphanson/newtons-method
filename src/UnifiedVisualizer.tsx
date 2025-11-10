@@ -14,6 +14,7 @@ import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDIteration used in commented state, will be removed in Task 8
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDLineSearchIteration used in commented state, will be removed in Task 8
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { runDiagonalPreconditioner, DiagonalPrecondIteration } from './algorithms/diagonal-preconditioner';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
@@ -64,10 +65,10 @@ const UnifiedVisualizer = () => {
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
 
-  // GD Line search state
-  const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
-  const [gdLSSummary, setGdLSSummary] = useState<AlgorithmSummary | null>(null);
-  const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
+  // GD Line search state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
+  // const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
+  // const [gdLSSummary, setGdLSSummary] = useState<AlgorithmSummary | null>(null);
+  // const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
 
@@ -317,6 +318,26 @@ const UnifiedVisualizer = () => {
     { jumpToEnd: experimentJustLoaded }
   );
 
+  // Use custom hook for GD Line Search algorithm
+  const gdLS = useAlgorithmIterations(
+    'GD Line Search',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      return runGradientDescentLineSearch(problemFuncs, {
+        maxIter,
+        c1: gdLSC1,
+        lambda,
+        initialPoint,
+        tolerance: gdLSTolerance,
+      });
+    },
+    [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
     iterations: Array<{ w: number[]; wNew: number[] }>,
@@ -427,8 +448,8 @@ const UnifiedVisualizer = () => {
   );
 
   const gdLSParamBounds = React.useMemo(
-    () => calculateParamBounds(gdLSIterations, 'GD Line Search'),
-    [gdLSIterations, calculateParamBounds]
+    () => calculateParamBounds(gdLS.iterations, 'GD Line Search'),
+    [gdLS.iterations, calculateParamBounds]
   );
 
   const diagPrecondParamBounds = React.useMemo(
@@ -592,7 +613,7 @@ const UnifiedVisualizer = () => {
     setInitialW0(cfg.initialW0);
     setInitialW1(cfg.initialW1);
     gdFixed.setCurrentIter(0);
-    setGdLSCurrentIter(0);
+    gdLS.setCurrentIter(0);
     setDiagPrecondCurrentIter(0);
     setNewtonCurrentIter(0);
     setLbfgsCurrentIter(0);
@@ -601,41 +622,6 @@ const UnifiedVisualizer = () => {
   }, []);
 
   // Recompute algorithms when shared state changes
-  useEffect(() => {
-    try {
-      // Preserve current position as percentage
-      const oldPercentage = gdLSIterations.length > 0
-        ? gdLSCurrentIter / Math.max(1, gdLSIterations.length - 1)
-        : 0;
-
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      const result = runGradientDescentLineSearch(problemFuncs, {
-        maxIter,
-        c1: gdLSC1,
-        lambda,
-        initialPoint,
-        tolerance: gdLSTolerance,
-      });
-      const iterations = result.iterations;
-      setGdLSIterations(iterations);
-      setGdLSSummary(result.summary);
-
-      // Restore position at same percentage
-      const newIter = iterations.length > 0
-        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
-        : 0;
-      setGdLSCurrentIter(newIter);
-    } catch (error) {
-      console.error('GD Line Search error:', error);
-      setGdLSIterations([]);
-    }
-    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentLineSearch above
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gdLSCurrentIter and gdLSIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
-  }, [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
-
   useEffect(() => {
     try {
       // Preserve current position as percentage
@@ -823,10 +809,10 @@ const UnifiedVisualizer = () => {
           gdFixed.setCurrentIter(gdFixed.currentIter + 1);
         }
       } else if (selectedTab === 'gd-linesearch') {
-        if (e.key === 'ArrowLeft' && gdLSCurrentIter > 0) {
-          setGdLSCurrentIter(gdLSCurrentIter - 1);
-        } else if (e.key === 'ArrowRight' && gdLSCurrentIter < gdLSIterations.length - 1) {
-          setGdLSCurrentIter(gdLSCurrentIter + 1);
+        if (e.key === 'ArrowLeft' && gdLS.currentIter > 0) {
+          gdLS.setCurrentIter(gdLS.currentIter - 1);
+        } else if (e.key === 'ArrowRight' && gdLS.currentIter < gdLS.iterations.length - 1) {
+          gdLS.setCurrentIter(gdLS.currentIter + 1);
         }
        } else if (selectedTab === 'diagonal-precond') {
           if (e.key === 'ArrowLeft' && diagPrecondCurrentIter > 0) {
@@ -852,7 +838,7 @@ const UnifiedVisualizer = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
-  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLSCurrentIter, gdLSIterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
+  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -937,7 +923,7 @@ const UnifiedVisualizer = () => {
 
     // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
-                       selectedTab === 'gd-linesearch' ? gdLSIterations[gdLSCurrentIter] :
+                       selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
                        selectedTab === 'newton' ? newtonIterations[newtonCurrentIter] :
                        lbfgsIterations[lbfgsCurrentIter];
     if ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && currentIter) {
@@ -995,7 +981,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLSIterations, gdLSCurrentIter, newtonIterations, newtonCurrentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newtonIterations, newtonCurrentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1439,23 +1425,23 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = gdLSParamCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-linesearch') return;
-    const iter = gdLSIterations[gdLSCurrentIter];
+    const iter = gdLS.iterations[gdLS.currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblem();
-    drawParameterSpacePlot(canvas, gdLSParamBounds, gdLSIterations, gdLSCurrentIter, problem);
+    drawParameterSpacePlot(canvas, gdLSParamBounds, gdLS.iterations, gdLS.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdLSCurrentIter, data, gdLSIterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [gdLS.currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw GD Line Search plot
   useEffect(() => {
     const canvas = gdLSLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-linesearch') return;
-    const iter = gdLSIterations[gdLSCurrentIter];
+    const iter = gdLS.iterations[gdLS.currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [gdLSIterations, gdLSCurrentIter, selectedTab]);
+  }, [gdLS.iterations, gdLS.currentIter, selectedTab]);
 
   // Draw Diagonal Preconditioner parameter space
   useEffect(() => {
@@ -1499,8 +1485,7 @@ const UnifiedVisualizer = () => {
 
           // Reset algorithm state when problem changes
           gdFixed.setCurrentIter(0);
-          setGdLSCurrentIter(0);
-          setGdLSIterations([]);
+          gdLS.setCurrentIter(0);
           setDiagPrecondCurrentIter(0);
           setDiagPrecondIterations([]);
           setNewtonCurrentIter(0);
@@ -1665,11 +1650,11 @@ const UnifiedVisualizer = () => {
               onGdLSC1Change={setGdLSC1}
               gdLSTolerance={gdLSTolerance}
               onGdLSToleranceChange={setGdLSTolerance}
-              iterations={gdLSIterations}
-              currentIter={gdLSCurrentIter}
-              onIterChange={(val) => setGdLSCurrentIter(val)}
-              onResetIter={() => setGdLSCurrentIter(0)}
-              summary={gdLSSummary}
+              iterations={gdLS.iterations}
+              currentIter={gdLS.currentIter}
+              onIterChange={(val) => gdLS.setCurrentIter(val)}
+              onResetIter={() => gdLS.setCurrentIter(0)}
+              summary={gdLS.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
