@@ -188,6 +188,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'ill-conditioned': {
+    term: 'ill-conditioned',
+    definition: (
+      <>
+        <strong>Ill-conditioned problem:</strong> Has a large condition number (κ ≫ 1),
+        meaning the Hessian has very different curvatures in different directions. This
+        causes gradient descent to zig-zag slowly, while Newton's method adapts to the
+        varying curvatures and converges much faster.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
