@@ -822,19 +822,8 @@ const UnifiedVisualizer = () => {
         if (experiment) {
           loadExperiment(experiment);
 
-          // Switch to appropriate tab based on experiment ID prefix
-          // Note: Experiment IDs follow naming convention: algorithm-specific-name
-          if (experiment.id.startsWith('gd-fixed-')) {
-            handleTabChange('gd-fixed');
-          } else if (experiment.id.startsWith('gd-linesearch-')) {
-            handleTabChange('gd-linesearch');
-          } else if (experiment.id.startsWith('diag-precond-')) {
-            handleTabChange('diagonal-precond');
-          } else if (experiment.id.startsWith('newton-')) {
-            handleTabChange('newton');
-          } else if (experiment.id.startsWith('lbfgs-')) {
-            handleTabChange('lbfgs');
-          }
+          // Switch to the experiment's algorithm tab
+          handleTabChange(experiment.algorithm);
         }
       }
     }
