@@ -1746,6 +1746,15 @@ const UnifiedVisualizer = () => {
         }}
         lambda={lambda}
         onLambdaChange={setLambda}
+        problemParameters={problemParameters}
+        onProblemParameterChange={(key, value) => {
+          setProblemParameters(prev => ({ ...prev, [key]: value }));
+
+          // TEMPORARY: Sync to legacy state during migration
+          if (key === 'rotationAngle') setRotationAngle(value as number);
+          if (key === 'conditionNumber') setConditionNumber(value as number);
+          if (key === 'rosenbrockB') setRosenbrockB(value as number);
+        }}
         rotationAngle={rotationAngle}
         onRotationAngleChange={setRotationAngle}
         conditionNumber={conditionNumber}

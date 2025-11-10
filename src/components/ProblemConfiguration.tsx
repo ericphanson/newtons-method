@@ -5,6 +5,8 @@ import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, crea
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
+import { getProblemParameters } from '../problems';
+import { ParameterControls } from './ParameterControls';
 
 interface ProblemConfigurationProps {
   currentProblem: string;
@@ -22,6 +24,11 @@ interface ProblemConfigurationProps {
   addPointMode: 0 | 1 | 2;
   onAddPointModeChange: (mode: 0 | 1 | 2) => void;
 
+  // NEW: Generic parameter support
+  problemParameters: Record<string, number | string>;
+  onProblemParameterChange: (key: string, value: number | string) => void;
+
+  // LEGACY: Keep for backward compatibility
   // Rotated quadratic parameters
   rotationAngle: number;
   onRotationAngleChange: (theta: number) => void;
@@ -51,12 +58,14 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onProblemChange,
   lambda,
   onLambdaChange,
+  problemParameters,
+  onProblemParameterChange,
   rotationAngle,
-  onRotationAngleChange,
+  onRotationAngleChange, // LEGACY: kept for backward compatibility
   conditionNumber,
-  onConditionNumberChange,
+  onConditionNumberChange, // LEGACY: kept for backward compatibility
   rosenbrockB,
-  onRosenbrockBChange,
+  onRosenbrockBChange, // LEGACY: kept for backward compatibility
   separatingHyperplaneVariant,
   onSeparatingHyperplaneVariantChange,
   customPoints,
@@ -67,6 +76,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onCanvasClick,
   onShowToast,
 }) => {
+  // Suppress unused vars warnings for legacy props (kept for backward compatibility during migration)
+  void onRotationAngleChange;
+  void onConditionNumberChange;
+  void onRosenbrockBChange;
   const [showProblemExplainer, setShowProblemExplainer] = useState(false);
 
   // Handle problem selection change
@@ -346,8 +359,19 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         </div>
       )}
 
+      {/* NEW: Parameters section - auto-generated from registry */}
+      {currentProblem !== 'logistic-regression' &&
+       currentProblem !== 'separating-hyperplane' && (
+        <ParameterControls
+          parameters={getProblemParameters(currentProblem)}
+          values={problemParameters}
+          onChange={onProblemParameterChange}
+        />
+      )}
+
+      {/* TODO: Remove after full migration - LEGACY HARDCODED PARAMETER SECTIONS */}
       {/* Parameters for rotated ellipse */}
-      {currentProblem === 'quadratic' && (
+      {/* {currentProblem === 'quadratic' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
           <div className="flex gap-4">
@@ -381,10 +405,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Parameters for ill-conditioned quadratic */}
-      {currentProblem === 'ill-conditioned-quadratic' && (
+      {/* {currentProblem === 'ill-conditioned-quadratic' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
           <div className="flex gap-4">
@@ -413,10 +437,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Parameters for Rosenbrock */}
-      {currentProblem === 'rosenbrock' && (
+      {/* {currentProblem === 'rosenbrock' && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
           <div className="flex gap-4">
@@ -445,7 +469,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Info for Saddle Point */}
       {currentProblem === 'non-convex-saddle' && (
