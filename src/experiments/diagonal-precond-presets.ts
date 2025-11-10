@@ -42,6 +42,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     description: 'Circular problem (κ=1) has no preferred direction',
     algorithm: 'diagonal-precond',
     problem: 'quadratic',
+    problemParameters: { rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
