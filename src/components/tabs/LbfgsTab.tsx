@@ -215,24 +215,53 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             </p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-amber-800 mb-2">The Algorithm</h3>
-            <ol className="list-decimal ml-6 space-y-1">
-              <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
-              <li>
+          <Pseudocode
+            color="amber"
+            inputs={[
+              {
+                id: "w",
+                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
+                description: "current parameter vector"
+              },
+              {
+                id: "f",
+                display: <InlineMath>f</InlineMath>,
+                description: "objective function to minimize"
+              },
+              {
+                id: "M",
+                display: <InlineMath>M</InlineMath>,
+                description: "memory size (number of recent pairs to keep)"
+              },
+              {
+                id: "lambda_damp",
+                display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                description: "Hessian damping parameter"
+              }
+            ]}
+            outputs={[
+              {
+                id: "w_new",
+                display: <InlineMath>w'</InlineMath>,
+                description: "updated parameter vector"
+              }
+            ]}
+            steps={[
+              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>
                 Use <strong>two-loop recursion</strong> to compute{' '}
-                <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> from M recent (s,y) pairs
-              </li>
-              <li>Add damping to initial Hessian approximation: <InlineMath>{'B_0 + \\lambda_{\\text{damp}} \\cdot I'}</InlineMath></li>
-              <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
-              <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
-              <li>
-                Store new pair: <InlineMath>s = \alpha p</InlineMath> (parameter change),{' '}
-                <InlineMath>{'y = \\nabla f_{new} - \\nabla f_{old}'}</InlineMath> (gradient change)
-              </li>
-              <li>Keep only M most recent pairs (discard oldest)</li>
-            </ol>
-          </div>
+                <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{'H^{-1}'}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from <Var id="M"><InlineMath>M</InlineMath></Var> recent (<Var id="s"><InlineMath>s</InlineMath></Var>,<Var id="y"><InlineMath>y</InlineMath></Var>) pairs
+              </>,
+              <>Add damping to initial Hessian approximation: <Var id="B_0"><InlineMath>{'B_0'}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></>,
+              <>Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>,
+              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>,
+              <>
+                Store new pair: <Var id="s"><InlineMath>s</InlineMath></Var> = <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> (parameter change),{' '}
+                <Var id="y"><InlineMath>y</InlineMath></Var> = <Var id="grad"><InlineMath>{'\\nabla f_{\\text{new}}'}</InlineMath></Var> − <Var id="grad"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> (gradient change)
+              </>,
+              <>Keep only <Var id="M"><InlineMath>M</InlineMath></Var> most recent pairs (discard oldest)</>
+            ]}
+          />
 
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">Key Idea</h3>
