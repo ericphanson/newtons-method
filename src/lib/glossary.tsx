@@ -128,6 +128,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'hessian': {
+    term: 'Hessian',
+    definition: (
+      <>
+        <strong>Hessian matrix:</strong> The matrix of second partial derivatives ∇²f(x).
+        For f: ℝⁿ → ℝ, the Hessian H[i,j] = ∂²f/∂xᵢ∂xⱼ. Encodes local curvature
+        information. Positive definite Hessian indicates a local minimum; indefinite
+        Hessian indicates a saddle point.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
