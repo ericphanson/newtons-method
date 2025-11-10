@@ -5,6 +5,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-success-quadratic',
     name: 'Success: Strongly Convex Quadratic',
     description: 'Watch quadratic convergence in 1-2 iterations on a simple bowl',
+    algorithm: 'newton',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -21,6 +22,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-failure-saddle',
     name: 'Failure: Non-Convex Saddle Point',
     description: 'Start near a saddle to see Hessian with negative eigenvalue',
+    algorithm: 'newton',
     problem: 'non-convex-saddle',
     hyperparameters: {
       c1: 0.0001,
@@ -37,6 +39,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-fixed-linesearch',
     name: 'Fixed: Line Search Rescue',
     description: 'Same non-convex problem but line search prevents divergence',
+    algorithm: 'newton',
     problem: 'rosenbrock',
     hyperparameters: {
       c1: 0.0001,
@@ -53,6 +56,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-compare-ill-conditioned',
     name: 'Compare: Newton vs GD on Ill-Conditioned',
     description: 'Elongated ellipse where GD zig-zags but Newton excels',
+    algorithm: 'newton',
     problem: 'ill-conditioned-quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -71,6 +75,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-rotated-quadratic',
     name: 'Demo: Why a Vector of αs Isn\'t Enough',
     description: 'Rotated ellipse - valley runs diagonally, no per-coordinate step sizes can align with it',
+    algorithm: 'newton',
     problem: 'quadratic',
     rotationAngle: 45,
     hyperparameters: {
@@ -88,6 +93,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-perceptron-failure',
     name: 'Failure: Perceptron with No Safeguards',
     description: 'Perceptron with no line search or damping - full Newton step explodes loss',
+    algorithm: 'newton',
     problem: 'separating-hyperplane',
     separatingHyperplaneVariant: 'perceptron',
     hyperparameters: {
@@ -120,6 +126,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-perceptron-damping-fix',
     name: 'Workaround: Line Search',
     description: 'Line search shrinks huge Newton steps but just obscures the underlying problem',
+    algorithm: 'newton',
     problem: 'separating-hyperplane',
     separatingHyperplaneVariant: 'perceptron',
     hyperparameters: {
@@ -140,6 +147,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     id: 'newton-perceptron-hessian-damping',
     name: 'Workaround: Hessian Damping',
     description: 'Hessian damping prevents huge steps but still fundamentally unsuited for perceptron',
+    algorithm: 'newton',
     problem: 'separating-hyperplane',
     separatingHyperplaneVariant: 'perceptron',
     hyperparameters: {
