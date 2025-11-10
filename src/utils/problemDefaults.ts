@@ -80,7 +80,7 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
       return {
         gdFixedAlpha: 0.1,
         maxIter: 50,
-        initialPoint: [0.2, 0.2, 0],  // 3D: [w0, w1, bias] - non-zero to ensure perceptron moves
+        initialPoint: [0.2, 0.2],  // 2D: [w0, w1] - bias is now a separate parameter
         c1: 1e-4,
         lbfgsM: 10,
       };

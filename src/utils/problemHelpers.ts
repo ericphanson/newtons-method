@@ -9,20 +9,18 @@ export function isDatasetProblem(problemType: string | undefined): boolean {
 
 /**
  * Construct initial point array based on problem dimensionality
- * Dataset problems (logistic regression, separating hyperplane) use 3D [w0, w1, bias]
- * Pure optimization problems use 2D [w0, w1]
+ * All problems now use 2D [w0, w1]
+ * (Bias for dataset problems is a separate parameter, not part of weights)
  *
  * @param problemType The problem type
  * @param w0 First weight parameter
  * @param w1 Second weight parameter
- * @returns Initial point array with correct dimensionality
+ * @returns Initial point array (always 2D)
  */
 export function constructInitialPoint(
   problemType: string,
   w0: number,
   w1: number
-): [number, number] | [number, number, number] {
-  return isDatasetProblem(problemType)
-    ? [w0, w1, 0]
-    : [w0, w1];
+): [number, number] {
+  return [w0, w1];
 }
