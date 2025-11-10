@@ -51,12 +51,18 @@ export function createRotatedQuadratic(thetaDegrees: number = 0, kappa: number =
   const h01 = (kappa - 1) * c * s;
   const h11 = kappa * s * s + c * c;
 
+  const isAxisAligned = thetaDegrees === 0;
+
   return {
     name: 'Rotated Ellipse',
-    objectiveFormula: <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>,
+    objectiveFormula: isAxisAligned ? (
+      <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
+    ) : (
+      <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>
+    ),
     description: (
       <>
-        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>\kappa</InlineMath>={kappa}){kappa <= 2 ? ' (well-conditioned)' : ''}, shows coordinate system dependence
+        {isAxisAligned ? 'Axis-aligned ellipse' : 'Rotated ellipse'} (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>\kappa</InlineMath>={kappa}){kappa <= 2 ? ' (well-conditioned)' : kappa >= 50 ? ' (ill-conditioned)' : ''}
       </>
     ),
 
@@ -161,7 +167,7 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
 // Educational content for rotated ellipse problem
 export const quadraticExplainer = (
   <CollapsibleSection
-    title="Rotated Ellipse (Rotation Invariance)"
+    title="Rotated Ellipse (Two Sources of Difficulty)"
     defaultExpanded={false}
     storageKey="problem-explainer-quadratic"
   >
@@ -171,7 +177,7 @@ export const quadraticExplainer = (
       </p>
 
       <p>
-        <strong>Parameters:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°), <InlineMath>\kappa</InlineMath> (condition number, 1 to 500)
+        <strong>Parameters:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°), <InlineMath>\kappa</InlineMath> (<GlossaryTooltip termKey="condition-number" />, 1 to 500)
       </p>
 
       <div>
@@ -185,41 +191,63 @@ export const quadraticExplainer = (
       </div>
 
       <div>
-        <p className="font-semibold">Hessian (depends on θ and κ):</p>
+        <p className="font-semibold">Hessian:</p>
         <BlockMath>
           {String.raw`H = R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
         </BlockMath>
         <p className="text-sm mt-1">
-          Condition number: <InlineMath>\kappa</InlineMath> (adjustable parameter, eigenvalues κ and 1)
+          Eigenvalues: <InlineMath>\kappa</InlineMath> and 1 (independent of rotation)
         </p>
       </div>
 
       <p>
-        <strong>What it does:</strong> An elliptical bowl (κ:1 aspect ratio) rotated by angle θ.
-        The same problem in different coordinate systems.
+        <strong>What it does:</strong> Creates an elliptical bowl with two independent sources of difficulty for optimization.
       </p>
 
       <p>
-        <strong>Why it's interesting:</strong> <strong>This is the ONLY problem that demonstrates coordinate system dependence.</strong>
-        Shows how rotation affects gradient descent but not Newton/L-BFGS.
-      </p>
-
-      <p>
-        <strong>Key pedagogical insight - Rotation Invariance:</strong>
+        <strong>Why it's interesting:</strong> This problem elegantly separates two distinct challenges:
       </p>
       <ul className="text-sm list-disc ml-5 space-y-1">
-        <li><strong>θ=0°:</strong> Axis-aligned ellipse. Gradient descent is efficient along axes.</li>
-        <li><strong>θ=45°:</strong> Maximum misalignment. Gradient descent zigzags badly between steep/shallow directions.</li>
-        <li><strong>Newton & L-BFGS:</strong> Performance unchanged by rotation! They adapt to the coordinate system.</li>
+        <li><strong>Intrinsic difficulty (<InlineMath>\kappa</InlineMath>):</strong> Elongation of the ellipse. High <InlineMath>\kappa</InlineMath> makes the problem <GlossaryTooltip termKey="ill-conditioned" />, causing all first-order methods to slow down.</li>
+        <li><strong>Extrinsic difficulty (<InlineMath>\theta</InlineMath>):</strong> Misalignment with coordinate axes. Rotation affects gradient descent but not second-order methods.</li>
       </ul>
 
-      <div className="bg-green-50 rounded p-3">
+      <div className="bg-blue-50 rounded p-3 mt-2">
+        <p className="text-sm font-semibold mb-1">Understanding κ (Condition Number):</p>
+        <ul className="text-sm list-disc ml-5 space-y-1">
+          <li><strong>κ=1:</strong> Perfectly conditioned circle. All methods converge efficiently regardless of θ.</li>
+          <li><strong>κ=5-10:</strong> Mildly elongated. Good for demonstrating rotation effects without extreme conditioning.</li>
+          <li><strong>κ=100:</strong> Moderately <GlossaryTooltip termKey="ill-conditioned" />. Gradient descent shows clear slowdown and zig-zagging.</li>
+          <li><strong>κ=500:</strong> Extremely elongated. Gradient descent becomes nearly unusable.</li>
+        </ul>
+      </div>
+
+      <div className="bg-green-50 rounded p-3 mt-2">
+        <p className="text-sm font-semibold mb-1">Understanding θ (Rotation Angle):</p>
+        <ul className="text-sm list-disc ml-5 space-y-1">
+          <li><strong>θ=0°:</strong> Axis-aligned ellipse. Gradient descent moves efficiently along coordinate axes. <em>Pure conditioning test.</em></li>
+          <li><strong>θ=45°:</strong> Maximum misalignment. Gradient steps zigzag badly between steep and shallow directions. <em>Pure rotation challenge.</em></li>
+          <li><strong>Newton & L-BFGS:</strong> Performance unchanged by θ! Second-order methods are rotation invariant.</li>
+        </ul>
+      </div>
+
+      <div className="bg-purple-50 rounded p-3 mt-2">
+        <p className="text-sm font-semibold mb-1">Algorithm Performance on High κ Problems:</p>
+        <ul className="text-sm list-disc ml-5 space-y-1">
+          <li><strong>GD (fixed or line search):</strong> Iterations scale with κ. Heavy zig-zagging perpendicular to contours.</li>
+          <li><strong>Newton:</strong> ~5 iterations regardless of κ. Uses H⁻¹ to perfectly scale each direction.</li>
+          <li><strong>L-BFGS:</strong> Learns curvature from gradient history, adapts quickly to conditioning.</li>
+          <li><strong>Diagonal Preconditioner:</strong> Perfect for θ=0° (axis-aligned), struggles when θ≠0° (off-diagonal Hessian terms).</li>
+        </ul>
+      </div>
+
+      <div className="bg-amber-50 rounded p-3 mt-2">
         <p className="text-sm font-semibold mb-1">Perfect for demonstrating:</p>
         <ul className="text-sm list-disc ml-5">
-          <li>Rotation invariance of second-order methods</li>
-          <li>How coordinate systems affect gradient descent</li>
-          <li>Why Newton/L-BFGS handle arbitrary orientations</li>
-          <li>The difference between intrinsic (κ) and extrinsic (rotation) difficulty</li>
+          <li>The difference between intrinsic difficulty (κ) and coordinate system effects (θ)</li>
+          <li>Why per-coordinate step sizes (diagonal preconditioning) aren't enough for rotated problems</li>
+          <li>Rotation invariance: second-order methods handle any θ equally well</li>
+          <li>How condition number affects convergence speed for all algorithms</li>
         </ul>
       </div>
     </div>
