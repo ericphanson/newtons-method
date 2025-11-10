@@ -4,6 +4,7 @@ interface CollapsibleSectionProps {
   title: string;
   defaultExpanded?: boolean;
   storageKey?: string;  // For localStorage persistence
+  id?: string;  // For hash navigation
   children: React.ReactNode;
 }
 
@@ -17,6 +18,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   defaultExpanded = true,
   storageKey,
+  id,
   children
 }) => {
   const [isExpanded, setIsExpanded] = useState(() => {
@@ -40,7 +42,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   return (
-    <div className="mb-4">
+    <div id={id} className="mb-4">
       <button
         onClick={toggleExpanded}
         aria-expanded={isExpanded}
