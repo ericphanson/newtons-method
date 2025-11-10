@@ -98,6 +98,23 @@ const UnifiedVisualizer = () => {
   const [experimentLoading, setExperimentLoading] = useState(false);
   const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
 
+  // Hash-preserving tab change handler
+  const handleTabChange = (newTab: Algorithm) => {
+    const currentHash = window.location.hash;
+    setSelectedTab(newTab);
+
+    // After React renders the new tab, try to scroll to the hash if it exists
+    if (currentHash) {
+      setTimeout(() => {
+        const targetElement = document.querySelector(currentHash);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
+      }, 50); // Small delay to ensure tab content has rendered
+    }
+  };
+
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
   const [visualizationBounds, setVisualizationBounds] = useState({
@@ -1463,7 +1480,7 @@ const UnifiedVisualizer = () => {
         <div className="sticky top-0 z-40 flex border-b border-gray-200 bg-white rounded-t-lg">
           {/* Stories Tab - FIRST position */}
           <button
-            onClick={() => setSelectedTab('stories')}
+            onClick={() => handleTabChange('stories')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'stories'
                 ? 'text-pink-700 border-b-2 border-pink-600 bg-pink-50'
@@ -1474,7 +1491,7 @@ const UnifiedVisualizer = () => {
           </button>
           {/* Algorithms Tab */}
           <button
-            onClick={() => setSelectedTab('algorithms')}
+            onClick={() => handleTabChange('algorithms')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'algorithms'
                 ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
@@ -1484,7 +1501,7 @@ const UnifiedVisualizer = () => {
             Algorithms
           </button>
           <button
-            onClick={() => setSelectedTab('gd-fixed')}
+            onClick={() => handleTabChange('gd-fixed')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'gd-fixed'
                 ? 'text-green-700 border-b-2 border-green-600 bg-green-50'
@@ -1494,7 +1511,7 @@ const UnifiedVisualizer = () => {
             GD (Fixed Step)
           </button>
           <button
-            onClick={() => setSelectedTab('gd-linesearch')}
+            onClick={() => handleTabChange('gd-linesearch')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'gd-linesearch'
                 ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
@@ -1505,7 +1522,7 @@ const UnifiedVisualizer = () => {
           </button>
           {/* Diagonal Preconditioner Tab */}
           <button
-            onClick={() => setSelectedTab('diagonal-precond')}
+            onClick={() => handleTabChange('diagonal-precond')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'diagonal-precond'
                 ? 'text-teal-700 border-b-2 border-teal-600 bg-teal-50'
@@ -1515,7 +1532,7 @@ const UnifiedVisualizer = () => {
             Diagonal Precond
           </button>
           <button
-            onClick={() => setSelectedTab('newton')}
+            onClick={() => handleTabChange('newton')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'newton'
                 ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50'
@@ -1525,7 +1542,7 @@ const UnifiedVisualizer = () => {
             Newton's Method
           </button>
           <button
-            onClick={() => setSelectedTab('lbfgs')}
+            onClick={() => handleTabChange('lbfgs')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
               selectedTab === 'lbfgs'
                 ? 'text-amber-700 border-b-2 border-amber-600 bg-amber-50'
