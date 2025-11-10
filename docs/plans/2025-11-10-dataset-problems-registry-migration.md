@@ -32,12 +32,25 @@ After 3D-to-2D conversion, LR and SH are conceptually identical to other paramet
 ✅ Formula rendering from registry
 ✅ Variant selection (generic system)
 
-### What Remains Special (UI Only)
+### What Remains Special
 
-⚠️ Data canvas component (interactive point editing)
-⚠️ Decision boundary rendering (geometric visualization)
+#### UI Only (Justified)
+✅ Data canvas component (interactive point editing)
+✅ Decision boundary rendering (geometric visualization)
 
 These are **UI concerns**, not algorithmic or structural special cases.
+
+#### Non-UI Special Cases (Being Addressed)
+⚠️ Global minimum calculation (only for dataset problems) - marked as QUESTIONABLE in code
+⚠️ Separate state management (lambda, bias, variant) - not yet unified into problemParameters
+
+#### Previously Special, Now Unified
+✅ Bounds centering logic - now controlled via registry metadata (`visualization.centerOnGlobalMin`)
+✅ Problem type detection - now uses `requiresDataset()` from registry (deleted `isDatasetProblem()`)
+✅ String literal comparisons - replaced with registry queries
+
+#### Follow-up Work
+See `docs/logs/2025-11-10-registry-migration-followup-plan.md` for cleanup tasks.
 
 ---
 
