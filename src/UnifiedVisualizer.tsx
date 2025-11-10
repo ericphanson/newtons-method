@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useAlgorithmIterations } from './hooks/useAlgorithmIterations';
 import {
   DataPoint,
   generateCrescents,
@@ -11,6 +12,7 @@ import {
 } from './utils/logisticRegression';
 import { runNewton, NewtonIteration } from './algorithms/newton';
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDIteration used in commented state, will be removed in Task 8
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
 import { runDiagonalPreconditioner, DiagonalPrecondIteration } from './algorithms/diagonal-preconditioner';
@@ -55,10 +57,10 @@ const UnifiedVisualizer = () => {
     return 'algorithms';
   });
 
-  // GD Fixed step state
-  const [gdFixedIterations, setGdFixedIterations] = useState<GDIteration[]>([]);
-  const [gdFixedSummary, setGdFixedSummary] = useState<AlgorithmSummary | null>(null);
-  const [gdFixedCurrentIter, setGdFixedCurrentIter] = useState(0);
+  // GD Fixed step state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
+  // const [gdFixed.iterations, setGdFixedIterations] = useState<GDIteration[]>([]);
+  // const [gdFixed.summary, setGdFixedSummary] = useState<AlgorithmSummary | null>(null);
+  // const [gdFixed.currentIter, gdFixed.setCurrentIter] = useState(0);
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
 
@@ -110,6 +112,8 @@ const UnifiedVisualizer = () => {
 
   // Experiment state
   const [experimentLoading, setExperimentLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- setExperimentJustLoaded will be used in Task 7
+  const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
 
   // Problem state
   const [currentProblem, setCurrentProblem] = useState<string>('logistic-regression');
@@ -386,6 +390,26 @@ const UnifiedVisualizer = () => {
     };
   }, [currentProblem, logisticGlobalMin]);
 
+  // Use custom hook for GD Fixed algorithm
+  const gdFixed = useAlgorithmIterations(
+    'GD Fixed',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      return runGradientDescent(problemFuncs, {
+        maxIter,
+        alpha: gdFixedAlpha,
+        lambda,
+        initialPoint,
+        tolerance: gdFixedTolerance,
+      });
+    },
+    [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Calculate parameter bounds for both algorithms
   const newtonParamBounds = React.useMemo(
     () => calculateParamBounds(newtonIterations, 'Newton'),
@@ -398,8 +422,8 @@ const UnifiedVisualizer = () => {
   );
 
   const gdFixedParamBounds = React.useMemo(
-    () => calculateParamBounds(gdFixedIterations, 'GD Fixed'),
-    [gdFixedIterations, calculateParamBounds]
+    () => calculateParamBounds(gdFixed.iterations, 'GD Fixed'),
+    [gdFixed.iterations, calculateParamBounds]
   );
 
   const gdLSParamBounds = React.useMemo(
@@ -567,50 +591,16 @@ const UnifiedVisualizer = () => {
     setMaxIter(cfg.maxIter);
     setInitialW0(cfg.initialW0);
     setInitialW1(cfg.initialW1);
-    setGdFixedCurrentIter(0);
+    gdFixed.setCurrentIter(0);
     setGdLSCurrentIter(0);
     setDiagPrecondCurrentIter(0);
     setNewtonCurrentIter(0);
     setLbfgsCurrentIter(0);
     setCustomPoints([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed will be updated in Task 9
   }, []);
 
   // Recompute algorithms when shared state changes
-  useEffect(() => {
-    try {
-      // Preserve current position as percentage
-      const oldPercentage = gdFixedIterations.length > 0
-        ? gdFixedCurrentIter / Math.max(1, gdFixedIterations.length - 1)
-        : 0;
-
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      const result = runGradientDescent(problemFuncs, {
-        maxIter,
-        alpha: gdFixedAlpha,
-        lambda,
-        initialPoint,
-        tolerance: gdFixedTolerance,
-      });
-      const iterations = result.iterations;
-      setGdFixedIterations(iterations);
-      setGdFixedSummary(result.summary);
-
-      // Restore position at same percentage
-      const newIter = iterations.length > 0
-        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
-        : 0;
-      setGdFixedCurrentIter(newIter);
-    } catch (error) {
-      console.error('GD Fixed error:', error);
-      setGdFixedIterations([]);
-    }
-    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runGradientDescentFixedStep above
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixedCurrentIter and gdFixedIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
-  }, [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
-
   useEffect(() => {
     try {
       // Preserve current position as percentage
@@ -827,10 +817,10 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedTab === 'gd-fixed') {
-        if (e.key === 'ArrowLeft' && gdFixedCurrentIter > 0) {
-          setGdFixedCurrentIter(gdFixedCurrentIter - 1);
-        } else if (e.key === 'ArrowRight' && gdFixedCurrentIter < gdFixedIterations.length - 1) {
-          setGdFixedCurrentIter(gdFixedCurrentIter + 1);
+        if (e.key === 'ArrowLeft' && gdFixed.currentIter > 0) {
+          gdFixed.setCurrentIter(gdFixed.currentIter - 1);
+        } else if (e.key === 'ArrowRight' && gdFixed.currentIter < gdFixed.iterations.length - 1) {
+          gdFixed.setCurrentIter(gdFixed.currentIter + 1);
         }
       } else if (selectedTab === 'gd-linesearch') {
         if (e.key === 'ArrowLeft' && gdLSCurrentIter > 0) {
@@ -861,7 +851,8 @@ const UnifiedVisualizer = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedTab, gdFixedCurrentIter, gdFixedIterations.length, gdLSCurrentIter, gdLSIterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
+  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLSCurrentIter, gdLSIterations.length, newtonCurrentIter, newtonIterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -945,7 +936,7 @@ const UnifiedVisualizer = () => {
     const toCanvasY = (x2: number) => ((maxX2 - x2) / rangeX2) * h;
 
     // Draw decision boundary for logistic regression and separating hyperplane
-    const currentIter = selectedTab === 'gd-fixed' ? gdFixedIterations[gdFixedCurrentIter] :
+    const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
                        selectedTab === 'gd-linesearch' ? gdLSIterations[gdLSCurrentIter] :
                        selectedTab === 'newton' ? newtonIterations[newtonCurrentIter] :
                        lbfgsIterations[lbfgsCurrentIter];
@@ -1004,7 +995,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixedIterations, gdFixedCurrentIter, gdLSIterations, gdLSCurrentIter, newtonIterations, newtonCurrentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLSIterations, gdLSCurrentIter, newtonIterations, newtonCurrentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1436,13 +1427,13 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = gdFixedParamCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-fixed') return;
-    const iter = gdFixedIterations[gdFixedCurrentIter];
+    const iter = gdFixed.iterations[gdFixed.currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblem();
-    drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixedIterations, gdFixedCurrentIter, problem);
+    drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixed.iterations, gdFixed.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdFixedCurrentIter, data, gdFixedIterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [gdFixed.currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw GD Line Search parameter space
   useEffect(() => {
@@ -1507,8 +1498,7 @@ const UnifiedVisualizer = () => {
           setCurrentProblem(newProblem);
 
           // Reset algorithm state when problem changes
-          setGdFixedCurrentIter(0);
-          setGdFixedIterations([]);
+          gdFixed.setCurrentIter(0);
           setGdLSCurrentIter(0);
           setGdLSIterations([]);
           setDiagPrecondCurrentIter(0);
@@ -1648,11 +1638,11 @@ const UnifiedVisualizer = () => {
               onGdFixedAlphaChange={setGdFixedAlpha}
               gdFixedTolerance={gdFixedTolerance}
               onGdFixedToleranceChange={setGdFixedTolerance}
-              iterations={gdFixedIterations}
-              currentIter={gdFixedCurrentIter}
-              onIterChange={(val) => setGdFixedCurrentIter(val)}
-              onResetIter={() => setGdFixedCurrentIter(0)}
-              summary={gdFixedSummary}
+              iterations={gdFixed.iterations}
+              currentIter={gdFixed.currentIter}
+              onIterChange={(val) => gdFixed.setCurrentIter(val)}
+              onResetIter={() => gdFixed.setCurrentIter(0)}
+              summary={gdFixed.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
