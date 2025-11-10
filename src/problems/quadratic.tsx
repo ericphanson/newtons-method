@@ -3,39 +3,6 @@ import { InlineMath, BlockMath } from '../components/Math';
 import { GlossaryTooltip } from '../components/GlossaryTooltip';
 import { CollapsibleSection } from '../components/CollapsibleSection';
 
-// Simple quadratic bowl: f(w) = w0^2 + w1^2
-// Well-conditioned problem with circular level sets
-export const quadraticProblem: ProblemDefinition = {
-  name: 'Quadratic Bowl',
-  objectiveFormula: <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath>,
-  description: (
-    <>
-      Simple quadratic bowl: <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath> (well-conditioned)
-    </>
-  ),
-
-  objective: (w: number[]): number => {
-    const [w0, w1] = w;
-    return w0 * w0 + w1 * w1;
-  },
-
-  gradient: (w: number[]): number[] => {
-    const [w0, w1] = w;
-    return [2 * w0, 2 * w1];
-  },
-
-  hessian: (): number[][] => {
-    return [[2, 0], [0, 2]];
-  },
-
-  domain: {
-    w0: [-3, 3],
-    w1: [-3, 3],
-  },
-
-  globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
-};
-
 // Rotated ellipse: demonstrates coordinate system dependence
 // f(w) = 0.5 * w^T * R * diag(κ, 1) * R^T * w, where R is rotation by θ
 // Factory function that creates a parametrized rotated quadratic
