@@ -37,11 +37,10 @@ export const quadraticProblem: ProblemDefinition = {
 };
 
 // Rotated ellipse: demonstrates coordinate system dependence
-// f(w) = 0.5 * w^T * R * diag(5, 1) * R^T * w, where R is rotation by θ
+// f(w) = 0.5 * w^T * R * diag(κ, 1) * R^T * w, where R is rotation by θ
 // Factory function that creates a parametrized rotated quadratic
-export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinition {
+export function createRotatedQuadratic(thetaDegrees: number = 0, kappa: number = 5): ProblemDefinition {
   const theta = (thetaDegrees * Math.PI) / 180; // Convert to radians
-  const kappa = 5; // Moderate condition number to show rotation effect
 
   // Rotation matrix: R = [[cos(θ), -sin(θ)], [sin(θ), cos(θ)]]
   const c = Math.cos(theta);
@@ -54,10 +53,10 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
 
   return {
     name: 'Rotated Ellipse',
-    objectiveFormula: <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>,
+    objectiveFormula: <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>,
     description: (
       <>
-        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>{String.raw`\kappa=5`}</InlineMath>), shows coordinate system dependence
+        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>\kappa</InlineMath>={kappa}){kappa <= 2 ? ' (well-conditioned)' : ''}, shows coordinate system dependence
       </>
     ),
 
@@ -172,13 +171,13 @@ export const quadraticExplainer = (
       </p>
 
       <p>
-        <strong>Parameter:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°)
+        <strong>Parameters:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°), <InlineMath>\kappa</InlineMath> (condition number, 1 to 100)
       </p>
 
       <div>
         <p className="font-semibold">Objective Function:</p>
         <BlockMath>
-          {String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}
+          {String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}
         </BlockMath>
         <p className="text-sm mt-1">
           where <InlineMath>R(\theta)</InlineMath> is a 2D rotation matrix
@@ -186,17 +185,17 @@ export const quadraticExplainer = (
       </div>
 
       <div>
-        <p className="font-semibold">Hessian (depends on θ):</p>
+        <p className="font-semibold">Hessian (depends on θ and κ):</p>
         <BlockMath>
-          {String.raw`H = R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
+          {String.raw`H = R(\theta) \begin{bmatrix} \kappa & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
         </BlockMath>
         <p className="text-sm mt-1">
-          Condition number: <InlineMath>\kappa = 5</InlineMath> (moderate, eigenvalues 5 and 1)
+          Condition number: <InlineMath>\kappa</InlineMath> (adjustable parameter, eigenvalues κ and 1)
         </p>
       </div>
 
       <p>
-        <strong>What it does:</strong> An elliptical bowl (5:1 aspect ratio) rotated by angle θ.
+        <strong>What it does:</strong> An elliptical bowl (κ:1 aspect ratio) rotated by angle θ.
         The same problem in different coordinate systems.
       </p>
 
