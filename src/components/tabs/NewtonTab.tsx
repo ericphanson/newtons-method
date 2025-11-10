@@ -137,7 +137,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
     {/* 3. Side-by-Side: Canvas + Metrics */}
     <div className="flex gap-4 mb-6">
       {/* Left: Parameter Space Visualization */}
-      <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+      <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
         <p className="text-sm text-gray-600 mb-3">
           Loss landscape. Orange path = trajectory. Red dot = current position.
@@ -217,6 +217,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="Quick Start"
       defaultExpanded={false}
       storageKey="newton-quick-start"
+      id="quick-start"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -387,6 +388,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="Line Search Details"
       defaultExpanded={false}
       storageKey="newton-line-search-details"
+      id="line-search-details"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -432,6 +434,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="Try This"
       defaultExpanded={false}
       storageKey="newton-try-this"
+      id="try-this"
     >
       <div className="space-y-3">
         <p className="text-gray-800 mb-4">
@@ -451,6 +454,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="When Things Go Wrong"
       defaultExpanded={false}
       storageKey="newton-when-wrong"
+      id="when-things-go-wrong"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -526,6 +530,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="Mathematical Derivations"
       defaultExpanded={false}
       storageKey="newton-math-derivations"
+      id="mathematical-derivations"
     >
       <div className="space-y-4 text-gray-800">
         <div>
@@ -633,6 +638,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       title="Advanced Topics"
       defaultExpanded={false}
       storageKey="newton-advanced"
+      id="advanced-topics"
     >
       <div className="space-y-4 text-gray-800">
         <div>
