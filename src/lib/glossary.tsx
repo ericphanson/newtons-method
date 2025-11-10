@@ -213,6 +213,17 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'positive-definite': {
+    term: 'positive definite',
+    definition: (
+      <>
+        <strong>Positive definite matrix:</strong> A symmetric matrix H where all eigenvalues
+        are positive (λᵢ &gt; 0). Equivalently, xᵀHx &gt; 0 for all non-zero x. At a
+        critical point, a positive definite Hessian guarantees a local minimum.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
