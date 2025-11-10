@@ -28,14 +28,14 @@ export function Toast({ message, type = 'success', onClose, duration = 3000, bot
 
   return (
     <div
-      className={`fixed right-4 px-4 py-3 rounded-lg border shadow-lg ${colors[type]} animate-slide-up z-50`}
+      className={`fixed right-4 px-4 py-3 rounded-lg border shadow-lg ${colors[type]} animate-slide-up z-50 max-w-md`}
       style={{ bottom: bottomPosition }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">{message}</span>
+      <div className="flex items-start gap-2">
+        <span className="text-sm font-medium whitespace-pre-line flex-1">{message}</span>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 ml-2"
+          className="text-gray-500 hover:text-gray-700 flex-shrink-0"
           aria-label="Close"
         >
           ×

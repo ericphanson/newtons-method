@@ -163,7 +163,7 @@ const UnifiedVisualizer = () => {
   const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | [number, number, number] | null>(null);
 
   // Toast state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; duration?: number } | null>(null);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -684,6 +684,22 @@ const UnifiedVisualizer = () => {
   const diagPrecondLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
   /**
+   * Format a number for display in toast messages
+   * @param value - Number or string to format
+   * @returns Formatted string with floats rounded to 4-5 decimals
+   */
+  function formatParamValue(value: number | string): string {
+    if (typeof value === 'string') return value;
+    // Round floats to 4-5 significant digits for readability
+    if (Number.isInteger(value)) return value.toString();
+    // Use toPrecision for very small/large numbers, toFixed for normal range
+    if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
+      return value.toPrecision(4);
+    }
+    return value.toFixed(Math.min(5, Math.max(2, 4 - Math.floor(Math.log10(Math.abs(value))))));
+  }
+
+  /**
    * Get list of hyperparameter changes for current algorithm
    * @param experiment - Experiment being loaded
    * @param currentAlgo - Currently selected algorithm tab
@@ -714,56 +730,56 @@ const UnifiedVisualizer = () => {
     switch (currentAlgo) {
       case 'gd-fixed':
         if (hyper.alpha !== undefined && hyper.alpha !== currentState.gdFixedAlpha) {
-          changes.push(`α: ${currentState.gdFixedAlpha}→${hyper.alpha}`);
+          changes.push(`α: ${formatParamValue(currentState.gdFixedAlpha)}→${formatParamValue(hyper.alpha)}`);
         }
         break;
 
       case 'gd-linesearch':
         if (hyper.c1 !== undefined && hyper.c1 !== currentState.gdLSC1) {
-          changes.push(`c1: ${currentState.gdLSC1}→${hyper.c1}`);
+          changes.push(`c1: ${formatParamValue(currentState.gdLSC1)}→${formatParamValue(hyper.c1)}`);
         }
         break;
 
       case 'newton':
         if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.newtonHessianDamping) {
-          changes.push(`damping: ${currentState.newtonHessianDamping}→${hyper.hessianDamping}`);
+          changes.push(`damping: ${formatParamValue(currentState.newtonHessianDamping)}→${formatParamValue(hyper.hessianDamping)}`);
         }
         if (hyper.lineSearch !== undefined && hyper.lineSearch !== currentState.newtonLineSearch) {
-          changes.push(`line search: ${currentState.newtonLineSearch}→${hyper.lineSearch}`);
+          changes.push(`line search: ${formatParamValue(currentState.newtonLineSearch)}→${formatParamValue(hyper.lineSearch)}`);
         }
         if (hyper.c1 !== undefined && hyper.c1 !== currentState.newtonC1) {
-          changes.push(`c1: ${currentState.newtonC1}→${hyper.c1}`);
+          changes.push(`c1: ${formatParamValue(currentState.newtonC1)}→${formatParamValue(hyper.c1)}`);
         }
         break;
 
       case 'lbfgs':
         if (hyper.m !== undefined && hyper.m !== currentState.lbfgsM) {
-          changes.push(`m: ${currentState.lbfgsM}→${hyper.m}`);
+          changes.push(`m: ${formatParamValue(currentState.lbfgsM)}→${formatParamValue(hyper.m)}`);
         }
         if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.lbfgsHessianDamping) {
-          changes.push(`damping: ${currentState.lbfgsHessianDamping}→${hyper.hessianDamping}`);
+          changes.push(`damping: ${formatParamValue(currentState.lbfgsHessianDamping)}→${formatParamValue(hyper.hessianDamping)}`);
         }
         if (hyper.c1 !== undefined && hyper.c1 !== currentState.lbfgsC1) {
-          changes.push(`c1: ${currentState.lbfgsC1}→${hyper.c1}`);
+          changes.push(`c1: ${formatParamValue(currentState.lbfgsC1)}→${formatParamValue(hyper.c1)}`);
         }
         break;
 
       case 'diagonal-precond':
         if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.diagPrecondHessianDamping) {
-          changes.push(`damping: ${currentState.diagPrecondHessianDamping}→${hyper.hessianDamping}`);
+          changes.push(`damping: ${formatParamValue(currentState.diagPrecondHessianDamping)}→${formatParamValue(hyper.hessianDamping)}`);
         }
         if (hyper.lineSearch !== undefined && hyper.lineSearch !== currentState.diagPrecondLineSearch) {
-          changes.push(`line search: ${currentState.diagPrecondLineSearch}→${hyper.lineSearch}`);
+          changes.push(`line search: ${formatParamValue(currentState.diagPrecondLineSearch)}→${formatParamValue(hyper.lineSearch)}`);
         }
         if (hyper.c1 !== undefined && hyper.c1 !== currentState.diagPrecondC1) {
-          changes.push(`c1: ${currentState.diagPrecondC1}→${hyper.c1}`);
+          changes.push(`c1: ${formatParamValue(currentState.diagPrecondC1)}→${formatParamValue(hyper.c1)}`);
         }
         break;
     }
 
     // Check maxIter (common to all algorithms)
     if (hyper.maxIter !== undefined && hyper.maxIter !== currentState.maxIter) {
-      changes.push(`maxIter: ${currentState.maxIter}→${hyper.maxIter}`);
+      changes.push(`maxIter: ${formatParamValue(currentState.maxIter)}→${formatParamValue(hyper.maxIter)}`);
     }
 
     return changes;
@@ -941,10 +957,13 @@ const UnifiedVisualizer = () => {
       }
 
       if (changes.length > 0) {
-        message += ` • ${changes.join(' • ')}`;
+        // Use newlines for better readability when there are changes
+        message += '\n' + changes.join('\n');
       }
 
-      setToast({ message, type: 'success' });
+      // Use longer duration when there are changes to give user time to read
+      const duration = changes.length > 0 ? 5000 : 3000;
+      setToast({ message, type: 'success', duration });
 
     } catch (error) {
       console.error('Error loading experiment:', error);
@@ -1001,8 +1020,18 @@ const UnifiedVisualizer = () => {
         }
       }
     }
-    // Note: loadExperiment and handleTabChange intentionally omitted to prevent re-triggering
-    // when UI state changes. This effect should only run when story/step changes.
+    // IMPORTANT: loadExperiment and handleTabChange are intentionally omitted from dependencies.
+    //
+    // Why? Including loadExperiment would cause this effect to re-trigger whenever ANY UI state
+    // changes (problem, algorithm, hyperparameters, etc.) because loadExperiment depends on all
+    // of them via its useCallback dependencies.
+    //
+    // Problem this causes: If a user manually changes the problem while in story mode, the story
+    // would immediately reload and reset it back to the story's problem. This prevents users from
+    // exploring variations while in story mode.
+    //
+    // Solution: This effect should ONLY run when the story ID or step changes, allowing users to
+    // manually modify UI state without the story overriding their changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStoryId, currentStoryStep]);
 
@@ -2022,6 +2051,7 @@ const UnifiedVisualizer = () => {
         <Toast
           message={toast.message}
           type={toast.type}
+          duration={toast.duration}
           onClose={() => setToast(null)}
           bottomOffset={currentStoryId ? 80 : 0}
         />
