@@ -229,9 +229,10 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, lambda, bias]);
 
-  // Sync variant for separating hyperplane
+  // Sync variant for problems that support variants
   useEffect(() => {
-    if (currentProblem === 'separating-hyperplane') {
+    const entry = problemRegistryV2[currentProblem];
+    if (entry?.variants && entry.variants.length > 0) {
       setProblemParameters(prev => ({
         ...prev,
         variant: separatingHyperplaneVariant
@@ -482,7 +483,7 @@ const UnifiedVisualizer = () => {
     }
 
     // Include global minimum in bounds if it exists
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
+    const problemDef = !requiresDataset(currentProblem) ? getProblem(currentProblem) : null;
     const globalMin = problemDef?.globalMinimum || (requiresDataset(currentProblem) ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
@@ -509,7 +510,9 @@ const UnifiedVisualizer = () => {
     const pad1 = w1Range * 0.2;
 
     // Make bounds symmetric around global minimum if one exists (for better contour visualization)
-    // Skip for separating-hyperplane - just include the minimum in bounds without centering
+    // Note: Separating hyperplane skips centering because its optimal weights are data-dependent
+    // and centering can artificially constrain the view during convergence. For other dataset
+    // problems, centering improves contour visualization by ensuring symmetric bounds.
     const shouldCenterOnGlobalMin = globalMin && currentProblem !== 'separating-hyperplane';
     if (shouldCenterOnGlobalMin) {
       const [gm0, gm1] = globalMin;
@@ -824,26 +827,26 @@ const UnifiedVisualizer = () => {
         setInitialW1(experiment.initialPoint[1]);
       }
 
-      // 3. Switch problem if needed
-      if (experiment.problem !== 'logistic-regression') {
-        setCurrentProblem(experiment.problem);
+      // 3. Switch problem (always set, regardless of type)
+      setCurrentProblem(experiment.problem);
 
-        // Set separating hyperplane variant if specified
-        if (experiment.problem === 'separating-hyperplane' && experiment.separatingHyperplaneVariant) {
-          setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
-        }
+      // Set variant if problem supports variants
+      const entry = problemRegistryV2[experiment.problem];
+      if (entry?.variants && experiment.separatingHyperplaneVariant) {
+        setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
+      }
 
-        // Load problem parameters from preset
-        if (experiment.problemParameters) {
-          setProblemParameters(experiment.problemParameters);
-        }
+      // Load problem parameters from preset
+      if (experiment.problemParameters) {
+        setProblemParameters(experiment.problemParameters);
+      }
 
+      // For non-dataset problems, ensure problem definition is available
+      if (!requiresDataset(experiment.problem)) {
         const problem = getProblem(experiment.problem);
         if (problem) {
           // Problem is now active via getCurrentProblem()
         }
-      } else {
-        setCurrentProblem('logistic-regression');
       }
 
       // 4. Load custom dataset if provided
@@ -1476,8 +1479,8 @@ const UnifiedVisualizer = () => {
     });
 
     // Draw optimum markers (global minimum or critical points)
-    const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMinimum3D = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin || undefined : undefined);
+    const problemDef = !requiresDataset(currentProblem) ? getProblem(currentProblem) : null;
+    const globalMinimum3D = problemDef?.globalMinimum || (requiresDataset(currentProblem) ? logisticGlobalMin || undefined : undefined);
     // For drawing markers, only use the first 2 coordinates (projection onto 2D slice)
     const globalMinimum = globalMinimum3D ? [globalMinimum3D[0], globalMinimum3D[1]] as [number, number] : undefined;
     if (globalMinimum || problemDef?.criticalPoint) {

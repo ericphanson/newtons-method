@@ -5,7 +5,7 @@ import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { GlossaryTooltip } from '../GlossaryTooltip';
-import { getProblem } from '../../problems';
+import { getProblem, requiresDataset } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { fmt, fmtVec } from '../../shared-utils';
@@ -127,7 +127,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <canvas ref={paramCanvasRef} style={{ width: '100%', height: '500px' }} className="border border-gray-300 rounded" />
 
           {/* Legend for optimum markers */}
-          {currentProblem !== 'logistic-regression' && (
+          {!requiresDataset(currentProblem) && (
             <div className="mt-3 flex gap-4 text-sm text-gray-700">
               {(() => {
                 const problem = getProblem(currentProblem);

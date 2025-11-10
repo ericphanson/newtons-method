@@ -68,7 +68,9 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
     let problemName = 'Logistic Regression';
     let bounds = { w0: [-3, 3] as [number, number], w1: [-3, 3] as [number, number] };
 
-    if (newProblem !== 'logistic-regression') {
+    // Get problem metadata from registry
+    const entry = problemRegistryV2[newProblem];
+    if (!requiresDataset(newProblem)) {
       const problem = getProblem(newProblem);
       if (problem) {
         problemName = problem.name;
@@ -79,11 +81,14 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           };
         }
       }
+    } else {
+      problemName = entry?.displayName || 'Dataset Problem';
     }
 
-    // Reset separating hyperplane variant
-    if (newProblem === 'separating-hyperplane') {
-      onSeparatingHyperplaneVariantChange?.('soft-margin');
+    // Reset variant for problems that support variants
+    if (entry?.variants && entry.variants.length > 0) {
+      const defaultVariant = entry.variants[0].id as SeparatingHyperplaneVariant;
+      onSeparatingHyperplaneVariantChange?.(defaultVariant);
     }
 
     // Initialize default parameters for the new problem
@@ -92,7 +97,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       onProblemParameterChange(key, value);
     });
 
-    const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
+    const defaults = getProblemDefaults(newProblem);
 
     onProblemChange(newProblem, defaults, bounds);
     onShowToast(<div>Switched to: <span className="font-semibold">{problemName}</span></div>, 'info');
@@ -100,7 +105,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
   // Get contextual tips based on current parameters
   const getContextualTip = (): string | null => {
-    if (currentProblem !== 'logistic-regression' && currentProblem !== 'separating-hyperplane') return null;
+    if (!requiresDataset(currentProblem)) return null;
 
     // Tips for lambda (regularization)
     if (lambda > 0.001) {
@@ -151,7 +156,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         </div>
 
         {/* Mathematical Formulation */}
-        {currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane' ? (
+        {requiresDataset(currentProblem) ? (
           <div className={`space-y-2 text-gray-800 text-sm p-3 rounded ${
             currentProblem === 'logistic-regression' ? 'bg-purple-50' : 'bg-green-50'
           }`}>
@@ -372,8 +377,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       )}
 
       {/* Parameters section - auto-generated from registry */}
-      {currentProblem !== 'logistic-regression' &&
-       currentProblem !== 'separating-hyperplane' && (
+      {!requiresDataset(currentProblem) && (
         <ParameterControls
           parameters={getProblemParameters(currentProblem)}
           values={problemParameters}
