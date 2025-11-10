@@ -1,10 +1,14 @@
 // src/components/StoryBanner.tsx
 import React from 'react';
 import { Story } from '../stories/types';
+import { ExperimentPreset } from '../types/experiments';
+import { getProblem } from '../problems';
+import { getAlgorithmDisplayName } from '../utils/algorithmNames';
 
 interface StoryBannerProps {
   story: Story;
   currentStepIndex: number;
+  currentExperiment: ExperimentPreset;
   onPrevious: () => void;
   onNext: () => void;
   onExit: () => void;
@@ -14,6 +18,7 @@ interface StoryBannerProps {
 export const StoryBanner: React.FC<StoryBannerProps> = ({
   story,
   currentStepIndex,
+  currentExperiment,
   onPrevious,
   onNext,
   onExit,
@@ -28,6 +33,10 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
   const currentStep = story.steps[safeIndex];
   const isFirst = safeIndex === 0;
   const isLast = safeIndex === story.steps.length - 1;
+
+  // Get display names for current experiment
+  const problemName = getProblem(currentExperiment.problem)?.name || currentExperiment.problem;
+  const algorithmName = getAlgorithmDisplayName(currentExperiment.algorithm);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl z-50 border-t-2 border-blue-400">
@@ -65,6 +74,9 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
               </div>
               <div className="text-xs text-blue-200 mt-0.5">
                 Story Step {safeIndex + 1} of {story.steps.length}
+              </div>
+              <div className="text-xs text-blue-200 mt-1 opacity-90">
+                Problem: {problemName} | Algo: {algorithmName}
               </div>
             </button>
           </div>
