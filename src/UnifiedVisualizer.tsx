@@ -330,7 +330,7 @@ const UnifiedVisualizer = () => {
     gdLSC1: 0.0001,
     newtonC1: 0.0001,
     lbfgsC1: 0.0001,
-    lambda: 0.0001,
+    lambda: getDefaultLambda(),
     lbfgsM: 5,
     maxIter: 100,
     initialW0: -1,
