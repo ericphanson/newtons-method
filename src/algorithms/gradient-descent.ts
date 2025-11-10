@@ -96,7 +96,8 @@ export const runGradientDescent = (
     gradNorm: finalGradNorm,
     gtol: tolerance,
     iters: iterations.length,
-    maxIter
+    maxIter,
+    isSecondOrder: false  // Gradient descent uses only first-order (gradient) information
   });
 
   const summary: AlgorithmSummary = {

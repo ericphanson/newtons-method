@@ -233,7 +233,8 @@ export const runDiagonalPreconditioner = (
     funcChange: finalFunctionChange,
     ftol,
     iters: iterations.length,
-    maxIter
+    maxIter,
+    isSecondOrder: false  // Diagonal preconditioner uses Hessian diagonal but doesn't verify minimum
   });
 
   const summary: AlgorithmSummary = {

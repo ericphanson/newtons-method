@@ -436,7 +436,8 @@ export const runNewton = (
     ftol,
     iters: iterations.length,
     maxIter,
-    eigenvalues: lastIter?.eigenvalues
+    eigenvalues: lastIter?.eigenvalues,
+    isSecondOrder: true  // Newton's method uses second-order (Hessian) information
   });
 
   const summary: AlgorithmSummary = {

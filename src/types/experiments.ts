@@ -129,5 +129,5 @@ export interface ProblemRegistryEntry {
     defaultExpanded?: boolean;
     storageKey: string;  // For localStorage persistence
     content: React.ReactNode;
-  };
+  } | React.ReactNode;
 }

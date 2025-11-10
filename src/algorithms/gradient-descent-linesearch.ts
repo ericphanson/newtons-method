@@ -119,7 +119,8 @@ export const runGradientDescentLineSearch = (
     gradNorm: finalGradNorm,
     gtol: tolerance,
     iters: iterations.length,
-    maxIter
+    maxIter,
+    isSecondOrder: false  // GD with line search uses only first-order (gradient) information
   });
 
   const summary: AlgorithmSummary = {

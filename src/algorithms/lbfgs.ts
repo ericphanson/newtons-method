@@ -221,7 +221,8 @@ export const runLBFGS = (
     gradNorm: finalGradNorm,
     gtol: tolerance,
     iters: iterations.length,
-    maxIter
+    maxIter,
+    isSecondOrder: false  // L-BFGS approximates second-order info but doesn't verify eigenvalues
   });
 
   const summary: AlgorithmSummary = {

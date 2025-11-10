@@ -1,15 +1,33 @@
 import { ProblemRegistryEntry, ProblemDefinition, ParameterMetadata } from '../types/experiments';
-import { createRotatedQuadratic, createIllConditionedQuadratic } from './quadratic';
-import { createRosenbrockProblem } from './rosenbrock';
-import { saddleProblem } from './saddle';
-import { himmelblauProblem } from './himmelblau';
-import { threeHumpCamelProblem } from './threeHumpCamel';
+import { createRotatedQuadratic, createIllConditionedQuadratic, quadraticExplainer, illConditionedExplainer } from './quadratic';
+import { createRosenbrockProblem, rosenbrockExplainer } from './rosenbrock';
+import { saddleProblem, saddleExplainer, saddleKeyInsights } from './saddle';
+import { himmelblauProblem, himmelblauExplainer } from './himmelblau';
+import { threeHumpCamelProblem, threeHumpCamelExplainer } from './threeHumpCamel';
+import { logisticRegressionExplainer } from './logisticRegression';
+import { separatingHyperplaneExplainer } from './separatingHyperplane';
 
 /**
  * Parameter-aware problem registry
  * Maps problem type to registry entry with factory and metadata
  */
 export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
+  'logistic-regression': {
+    // No factory or defaultInstance (special handling elsewhere)
+    parameters: [],
+    displayName: 'Logistic Regression',
+    category: 'classification',
+    explainerContent: logisticRegressionExplainer,
+  },
+
+  'separating-hyperplane': {
+    // No factory or defaultInstance (special handling elsewhere)
+    parameters: [],
+    displayName: 'Separating Hyperplane',
+    category: 'classification',
+    explainerContent: separatingHyperplaneExplainer,
+  },
+
   'quadratic': {
     factory: (params) => createRotatedQuadratic((params.rotationAngle as number) || 0),
     parameters: [
@@ -28,6 +46,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     ],
     displayName: 'Rotated Quadratic',
     category: 'convex',
+    explainerContent: quadraticExplainer,
   },
 
   'ill-conditioned-quadratic': {
@@ -48,6 +67,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     ],
     displayName: 'Ill-Conditioned Quadratic',
     category: 'convex',
+    explainerContent: illConditionedExplainer,
   },
 
   'rosenbrock': {
@@ -68,6 +88,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     ],
     displayName: 'Rosenbrock Function',
     category: 'non-convex',
+    explainerContent: rosenbrockExplainer,
   },
 
   // Non-parametrized problems
@@ -76,6 +97,8 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     parameters: [],
     displayName: 'Saddle Point',
     category: 'non-convex',
+    keyInsights: saddleKeyInsights,
+    explainerContent: saddleExplainer,
   },
 
   'himmelblau': {
@@ -83,6 +106,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     parameters: [],
     displayName: "Himmelblau's Function",
     category: 'non-convex',
+    explainerContent: himmelblauExplainer,
   },
 
   'three-hump-camel': {
@@ -90,6 +114,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     parameters: [],
     displayName: 'Three-Hump Camel',
     category: 'non-convex',
+    explainerContent: threeHumpCamelExplainer,
   },
 };
 
@@ -168,4 +193,18 @@ export function getDefaultParameters(problemType: string): Record<string, number
 export function isProblemParametrized(problemType: string): boolean {
   const entry = problemRegistryV2[problemType];
   return !!entry && entry.parameters.length > 0;
+}
+
+/**
+ * Get key insights for a problem (if any)
+ */
+export function getProblemKeyInsights(problemType: string): React.ReactNode | undefined {
+  return problemRegistryV2[problemType]?.keyInsights;
+}
+
+/**
+ * Get explainer content for a problem (if any)
+ */
+export function getProblemExplainerContent(problemType: string): ProblemRegistryEntry['explainerContent'] | undefined {
+  return problemRegistryV2[problemType]?.explainerContent;
 }
