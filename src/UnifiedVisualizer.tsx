@@ -1424,11 +1424,11 @@ const UnifiedVisualizer = () => {
           setCurrentProblem(newProblem);
 
           // Reset algorithm state when problem changes
-          gdFixed.setCurrentIter(0);
-          gdLS.setCurrentIter(0);
+          gdFixed.resetIter();
+          gdLS.resetIter();
           diagPrecond.resetIter();
-          newton.setCurrentIter(0);
-          lbfgs.setCurrentIter(0);
+          newton.resetIter();
+          lbfgs.resetIter();
 
           // Apply problem-specific defaults
           setGdFixedAlpha(defaults.gdFixedAlpha);
