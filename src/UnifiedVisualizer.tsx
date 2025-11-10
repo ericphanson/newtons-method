@@ -28,6 +28,11 @@ import { GdLineSearchTab } from './components/tabs/GdLineSearchTab';
 import { NewtonTab } from './components/tabs/NewtonTab';
 import { LbfgsTab } from './components/tabs/LbfgsTab';
 import { DiagonalPrecondTab } from './components/tabs/DiagonalPrecondTab';
+import { StoriesPage } from './components/StoriesPage';
+import { StoryBanner } from './components/StoryBanner';
+import { StoryTOC } from './components/StoryTOC';
+import { getStory } from './stories';
+import { getExperimentById } from './experiments';
 
 type Algorithm = 'stories' | 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
@@ -424,6 +429,15 @@ const UnifiedVisualizer = () => {
       ? (logisticGlobalMin as [number, number, number])[2]
       : 0;
   }, [currentProblem, logisticGlobalMin]);
+
+  // Story state
+  const [currentStoryId, setCurrentStoryId] = useState<string | null>(() =>
+    localStorage.getItem('currentStory')
+  );
+  const [currentStoryStep, setCurrentStoryStep] = useState<number>(() =>
+    parseInt(localStorage.getItem('currentStoryStep') || '0', 10)
+  );
+  const [showStoryTOC, setShowStoryTOC] = useState(false);
 
   // Get problem functions and problem for AlgorithmConfiguration
   const problemFuncs = getCurrentProblemFunctions();
