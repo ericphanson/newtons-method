@@ -5,13 +5,14 @@ interface ToastProps {
   type?: 'success' | 'error' | 'info';
   onClose: () => void;
   duration?: number;
+  bottomOffset?: number; // Offset from bottom (e.g., for story banner)
 }
 
 /**
  * Toast notification component with auto-dismiss
  * Displays a temporary message with configurable type and duration
  */
-export function Toast({ message, type = 'success', onClose, duration = 3000 }: ToastProps) {
+export function Toast({ message, type = 'success', onClose, duration = 3000, bottomOffset = 0 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
@@ -23,8 +24,13 @@ export function Toast({ message, type = 'success', onClose, duration = 3000 }: T
     info: 'bg-blue-50 border-blue-200 text-blue-900',
   };
 
+  const bottomPosition = bottomOffset > 0 ? `${bottomOffset + 16}px` : '1rem';
+
   return (
-    <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg border shadow-lg ${colors[type]} animate-slide-up z-50`}>
+    <div
+      className={`fixed right-4 px-4 py-3 rounded-lg border shadow-lg ${colors[type]} animate-slide-up z-50`}
+      style={{ bottom: bottomPosition }}
+    >
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">{message}</span>
         <button

@@ -30,45 +30,59 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
   const isLast = safeIndex === story.steps.length - 1;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-4 shadow-lg z-50">
-      <div className="max-w-6xl mx-auto flex items-center gap-4">
-        {/* Exit button */}
-        <button
-          onClick={onExit}
-          className="text-white hover:bg-blue-700 px-2 py-1 rounded transition-colors"
-          aria-label="Exit story"
-        >
-          ✕
-        </button>
-
-        {/* Story progress (clickable for TOC) */}
-        <div className="flex-none">
-          <button onClick={onShowTOC} className="hover:underline">
-            {story.title} - Step {safeIndex + 1}/{story.steps.length}
-          </button>
-        </div>
-
-        {/* Narrative text */}
-        <div className="flex-1 text-sm">
-          {currentStep.narrative}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex gap-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl z-50 border-t-2 border-blue-400">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center gap-6">
+          {/* Exit button */}
           <button
-            onClick={onPrevious}
-            disabled={isFirst}
-            className="px-3 py-1 bg-blue-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-800 transition-colors"
+            onClick={onExit}
+            className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all text-lg font-semibold"
+            aria-label="Exit story"
+            title="Exit story"
           >
-            ← Previous
+            ✕
           </button>
-          <button
-            onClick={onNext}
-            disabled={isLast}
-            className="px-3 py-1 bg-blue-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-800 transition-colors"
-          >
-            Next →
-          </button>
+
+          {/* Story progress (clickable for TOC) */}
+          <div className="flex-none">
+            <button
+              onClick={onShowTOC}
+              className="text-left hover:bg-white/10 px-3 py-2 rounded-lg transition-all"
+              title="View table of contents"
+            >
+              <div className="font-semibold text-sm text-blue-100">
+                {story.title}
+              </div>
+              <div className="text-xs text-blue-200 mt-0.5">
+                Step {safeIndex + 1} of {story.steps.length}
+              </div>
+            </button>
+          </div>
+
+          {/* Narrative text */}
+          <div className="flex-1 text-sm leading-relaxed px-4">
+            {currentStep.narrative}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex gap-3 flex-none">
+            <button
+              onClick={onPrevious}
+              disabled={isFirst}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
+              title={isFirst ? "Already at first step" : "Previous step"}
+            >
+              ← Previous
+            </button>
+            <button
+              onClick={onNext}
+              disabled={isLast}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
+              title={isLast ? "Already at last step" : "Next step"}
+            >
+              Next →
+            </button>
+          </div>
         </div>
       </div>
     </div>

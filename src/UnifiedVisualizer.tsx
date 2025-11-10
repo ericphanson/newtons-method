@@ -1839,6 +1839,7 @@ const UnifiedVisualizer = () => {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+          bottomOffset={currentStoryId ? 80 : 0}
         />
       )}
     </div>
