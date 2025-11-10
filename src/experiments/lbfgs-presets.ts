@@ -5,6 +5,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     id: 'lbfgs-success-quadratic',
     name: 'Success: Strongly Convex Problem',
     description: 'Fast Newton-like convergence without computing Hessian',
+    algorithm: 'lbfgs',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -22,6 +23,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     id: 'lbfgs-memory-comparison',
     name: 'Memory Matters: M=3 vs M=10',
     description: 'Compare different memory sizes on same problem',
+    algorithm: 'lbfgs',
     problem: 'ill-conditioned-quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -39,6 +41,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     id: 'lbfgs-rosenbrock',
     name: 'Challenge: Rosenbrock Valley',
     description: 'Non-convex problem tests quasi-Newton approximation',
+    algorithm: 'lbfgs',
     problem: 'rosenbrock',
     hyperparameters: {
       c1: 0.0001,
