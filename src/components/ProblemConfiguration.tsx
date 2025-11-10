@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2 } from '../problems';
+import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2, requiresDataset } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
 import { getProblemParameters } from '../problems';
 import { ParameterControls } from './ParameterControls';
-import { isDatasetProblem } from '../utils/problemHelpers';
 
 interface ProblemConfigurationProps {
   currentProblem: string;
@@ -210,7 +209,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       </div>
 
       {/* Parameters section - for dataset-based problems */}
-      {isDatasetProblem(currentProblem) && (
+      {requiresDataset(currentProblem) && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
 

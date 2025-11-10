@@ -12,7 +12,7 @@ import { runGradientDescentLineSearch } from './algorithms/gradient-descent-line
 import { runDiagonalPreconditioner } from './algorithms/diagonal-preconditioner';
 import type { ProblemFunctions } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
-import { isDatasetProblem, constructInitialPoint } from './utils/problemHelpers';
+import { constructInitialPoint } from './utils/problemHelpers';
 import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
@@ -225,7 +225,7 @@ const UnifiedVisualizer = () => {
 
   // Calculate global minimum for dataset-based problems (logistic regression, separating hyperplane) when data changes
   useEffect(() => {
-    if (isDatasetProblem(currentProblem)) {
+    if (requiresDataset(currentProblem)) {
       try {
         const problemFuncs = getCurrentProblemFunctions();
         // Run L-BFGS with tight convergence to find global minimum
@@ -467,7 +467,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (isDatasetProblem(currentProblem) ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || (requiresDataset(currentProblem) ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -1152,7 +1152,7 @@ const UnifiedVisualizer = () => {
                        selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
                        selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
                        lbfgs.iterations[lbfgs.currentIter];
-    if (isDatasetProblem(currentProblem) && currentIter) {
+    if (requiresDataset(currentProblem) && currentIter) {
       const [w0, w1] = currentIter.wNew;
 
       ctx.strokeStyle = '#10b981';
