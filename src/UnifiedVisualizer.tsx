@@ -1547,7 +1547,7 @@ const UnifiedVisualizer = () => {
       />
 
       {/* Algorithm Tabs */}
-      <div className="bg-white rounded-lg shadow-md mb-6">
+      <div className="sticky top-0 z-40 bg-white rounded-lg shadow-md mb-6">
         <div className="flex border-b border-gray-200">
           {/* Stories Tab - FIRST position */}
           <button
