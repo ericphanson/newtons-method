@@ -41,12 +41,12 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl z-50 border-t-2 border-blue-400">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           {/* Exit button */}
           <button
             onClick={onExit}
-            className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all text-lg font-semibold"
+            className="text-white/90 hover:text-white hover:bg-white/10 px-2 sm:px-3 py-2 rounded-lg transition-all text-lg font-semibold"
             aria-label="Exit story"
             title="Exit story"
           >
@@ -57,7 +57,7 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
           <div className="flex-none">
             <button
               onClick={onShowTOC}
-              className="text-left hover:bg-white/10 px-3 py-2 rounded-lg transition-all group"
+              className="text-left hover:bg-white/10 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all group"
               title="Click to view table of contents"
             >
               <div className="flex items-center gap-2">
@@ -82,17 +82,12 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
             </button>
           </div>
 
-          {/* Narrative text */}
-          <div className="flex-1 text-sm leading-relaxed px-4">
-            {currentStep.narrative}
-          </div>
-
           {/* Navigation */}
-          <div className="flex gap-3 flex-none">
+          <div className="flex gap-2 sm:gap-3 flex-none ml-auto">
             <button
               onClick={onPrevious}
               disabled={isFirst}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
+              className="px-3 sm:px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
               title={isFirst ? "Already at first step" : "Previous step"}
             >
               ← Previous
@@ -100,11 +95,16 @@ export const StoryBanner: React.FC<StoryBannerProps> = ({
             <button
               onClick={onNext}
               disabled={isLast}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
+              className="px-3 sm:px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/20 transition-all font-medium text-sm shadow-sm"
               title={isLast ? "Already at last step" : "Next step"}
             >
               Next →
             </button>
+          </div>
+
+          {/* Narrative text - wraps to full width on smaller screens */}
+          <div className="w-full lg:w-auto lg:flex-1 text-sm leading-relaxed lg:px-4 lg:order-3">
+            {currentStep.narrative}
           </div>
         </div>
       </div>

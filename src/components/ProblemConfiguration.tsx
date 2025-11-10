@@ -16,23 +16,14 @@ interface ProblemConfigurationProps {
     bounds: { w0: [number, number]; w1: [number, number] }
   ) => void;
 
-  // Logistic regression parameters
-  lambda: number;
-  onLambdaChange: (lambda: number) => void;
-  bias: number;
-  onBiasChange: (bias: number) => void;
   customPoints: DataPoint[];
   onCustomPointsChange: (points: DataPoint[]) => void;
   addPointMode: 0 | 1 | 2;
   onAddPointModeChange: (mode: 0 | 1 | 2) => void;
 
-  // Generic parameter support
+  // Unified parameter support - ALL parameters go through this
   problemParameters: Record<string, number | string>;
   onProblemParameterChange: (key: string, value: number | string) => void;
-
-  // Separating hyperplane parameters
-  separatingHyperplaneVariant?: SeparatingHyperplaneVariant;
-  onSeparatingHyperplaneVariantChange?: (variant: SeparatingHyperplaneVariant) => void;
 
   // Data canvas (for logistic regression)
   dataCanvasRef?: React.RefObject<HTMLCanvasElement>;
@@ -45,14 +36,8 @@ interface ProblemConfigurationProps {
 export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   currentProblem,
   onProblemChange,
-  lambda,
-  onLambdaChange,
-  bias,
-  onBiasChange,
   problemParameters,
   onProblemParameterChange,
-  separatingHyperplaneVariant,
-  onSeparatingHyperplaneVariantChange,
   customPoints,
   onCustomPointsChange,
   addPointMode,
@@ -61,6 +46,10 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onCanvasClick,
   onShowToast,
 }) => {
+  // Extract parameters from unified object with defaults
+  const lambda = (problemParameters.lambda as number) ?? 0.0001;
+  const bias = (problemParameters.bias as number) ?? 0;
+  const separatingHyperplaneVariant = (problemParameters.variant as SeparatingHyperplaneVariant) ?? 'soft-margin';
   const [showProblemExplainer, setShowProblemExplainer] = useState(false);
 
   // Handle problem selection change
@@ -83,11 +72,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       problemName = entry?.displayName || 'Dataset Problem';
     }
 
-    // Reset variant for problems that support variants
-    if (entry?.variants && entry.variants.length > 0) {
-      const defaultVariant = entry.variants[0].id as SeparatingHyperplaneVariant;
-      onSeparatingHyperplaneVariantChange?.(defaultVariant);
-    }
+    // Reset variant for problems that support variants (handled by getDefaultParameters)
+    // No need to explicitly set variant here - it will be set via the useEffect in UnifiedVisualizer
 
     // Initialize default parameters for the new problem
     const defaultParams = getDefaultParameters(newProblem);
@@ -164,11 +150,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
               const problem = entry?.requiresDataset
                 ? resolveProblem(
                     currentProblem,
-                    {
-                      lambda,
-                      bias,
-                      ...(separatingHyperplaneVariant ? { variant: separatingHyperplaneVariant } : {})
-                    },
+                    problemParameters,
                     customPoints.length > 0 ? customPoints : [{ x1: 0, x2: 0, y: 1 }]
                   )
                 : null;
@@ -226,7 +208,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                     <select
                       value={separatingHyperplaneVariant}
                       onChange={(e) =>
-                        onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
+                        onProblemParameterChange('variant', e.target.value)
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
                     >
@@ -285,7 +267,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                         max={lambdaParam.max}
                         step={lambdaParam.step}
                         value={lambda}
-                        onChange={(e) => onLambdaChange(parseFloat(e.target.value))}
+                        onChange={(e) => onProblemParameterChange('lambda', parseFloat(e.target.value))}
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-gray-600 mt-1">
@@ -318,7 +300,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                         max={biasParam.max}
                         step={biasParam.step}
                         value={bias}
-                        onChange={(e) => onBiasChange(parseFloat(e.target.value))}
+                        onChange={(e) => onProblemParameterChange('bias', parseFloat(e.target.value))}
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-gray-600 mt-1">

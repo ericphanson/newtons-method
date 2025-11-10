@@ -28,12 +28,12 @@ export const newtonConvexity: Story = {
     },
     {
       experimentId: 'newton-perceptron-damping-fix',
-      narrative: 'Now a piecewise linear loss: the perceptron. This is convex, but flat regions have near-zero curvature. What happens when the Hessian contains almost no information?',
+      narrative: 'Now a piecewise linear loss: the perceptron. The loss itself has zero curvature (H=0), so the ONLY curvature comes from L2 regularization: H = λI where λ=0.0001. What happens when the Hessian is this uninformative?',
       scrollTo: 'problem'
     },
     {
       experimentId: 'newton-perceptron-damping-fix',
-      narrative: 'Eigenvalues: λ≈0.0001 - technically positive (convex!) but tiny. The inverse H⁻¹ amplifies by 10,000×, requiring aggressive line search damping. Positive definite isn\'t enough - you need informative curvature!',
+      narrative: 'Eigenvalues are exactly λ = 0.0001. Technically positive definite (convex!), but H⁻¹ = (1/λ)I amplifies the gradient by 10,000×! Even with line search to rescue the huge steps, Newton gains no advantage over gradient descent here.',
       scrollTo: 'metrics'
     },
     {

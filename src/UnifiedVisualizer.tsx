@@ -11,13 +11,12 @@ import { runGradientDescent } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch } from './algorithms/gradient-descent-linesearch';
 import { runDiagonalPreconditioner } from './algorithms/diagonal-preconditioner';
 import type { ProblemFunctions } from './algorithms/types';
-import { SeparatingHyperplaneVariant } from './types/experiments';
 import { constructInitialPoint } from './utils/problemHelpers';
 import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
-import { resolveProblem, getDefaultParameters, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant, shouldCenterOnGlobalMin as shouldCenterOnGlobalMinRegistry } from './problems';
+import { resolveProblem, getDefaultParameters, problemRegistryV2, requiresDataset, shouldCenterOnGlobalMin as shouldCenterOnGlobalMinRegistry } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -42,6 +41,11 @@ const UnifiedVisualizer = () => {
   const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>(() => {
     return getDefaultParameters('logistic-regression');
   });
+
+  // Convenience accessors for commonly used parameters (read-only, extracted from unified state)
+  const lambda = (problemParameters.lambda as number) ?? 0.0001;
+  const bias = (problemParameters.bias as number) ?? 0;
+
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
@@ -199,27 +203,10 @@ const UnifiedVisualizer = () => {
     localStorage.setItem('selectedAlgorithmTab', selectedTab);
   }, [selectedTab]);
 
-  // Sync lambda and bias for dataset problems
+  // Reset problemParameters to defaults when problem changes
   useEffect(() => {
-    if (requiresDataset(currentProblem)) {
-      setProblemParameters(prev => ({
-        ...prev,
-        lambda,
-        bias,
-      }));
-    }
-  }, [currentProblem, lambda, bias]);
-
-  // Sync variant for problems that support variants
-  useEffect(() => {
-    const entry = problemRegistryV2[currentProblem];
-    if (entry?.variants && entry.variants.length > 0) {
-      setProblemParameters(prev => ({
-        ...prev,
-        variant: separatingHyperplaneVariant
-      }));
-    }
-  }, [currentProblem, separatingHyperplaneVariant]);
+    setProblemParameters(getDefaultParameters(currentProblem));
+  }, [currentProblem]);
 
   // QUESTIONABLE SPECIAL CASE: Global minimum calculation
   // TODO: Consider if this should be generalized or removed
@@ -316,7 +303,6 @@ const UnifiedVisualizer = () => {
     gdLSC1: 0.0001,
     newtonC1: 0.0001,
     lbfgsC1: 0.0001,
-    lambda: getDefaultLambda(),
     lbfgsM: 5,
     maxIter: 100,
     initialW0: -1,
@@ -790,7 +776,11 @@ const UnifiedVisualizer = () => {
         setDiagPrecondC1(experiment.hyperparameters.c1);
       }
       if (experiment.hyperparameters.lambda !== undefined) {
-        setLambda(experiment.hyperparameters.lambda);
+        const lambdaValue = experiment.hyperparameters.lambda;
+        setProblemParameters(prev => ({
+          ...prev,
+          lambda: lambdaValue
+        }));
       }
       if (experiment.hyperparameters.m !== undefined) {
         setLbfgsM(experiment.hyperparameters.m);
@@ -818,7 +808,11 @@ const UnifiedVisualizer = () => {
       // Set variant if problem supports variants
       const entry = problemRegistryV2[experiment.problem];
       if (entry?.variants && experiment.separatingHyperplaneVariant) {
-        setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
+        const variantValue = experiment.separatingHyperplaneVariant;
+        setProblemParameters(prev => ({
+          ...prev,
+          variant: variantValue
+        }));
       }
 
       // Load problem parameters from preset
@@ -944,7 +938,7 @@ const UnifiedVisualizer = () => {
     setGdLSC1(cfg.gdLSC1);
     setNewtonC1(cfg.newtonC1);
     setLbfgsC1(cfg.lbfgsC1);
-    setLambda(cfg.lambda);
+    setProblemParameters(getDefaultParameters(currentProblem));
     setLbfgsM(cfg.lbfgsM);
     setMaxIter(cfg.maxIter);
     setInitialW0(cfg.initialW0);
@@ -956,7 +950,7 @@ const UnifiedVisualizer = () => {
     newton.resetIter();
     lbfgs.resetIter();
     setCustomPoints([]);
-  }, [gdFixed, gdLS, diagPrecond, newton, lbfgs]);
+  }, [gdFixed, gdLS, diagPrecond, newton, lbfgs, currentProblem]);
 
 
 
@@ -1324,7 +1318,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, bias, separatingHyperplaneVariant]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, problemParameters]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1832,16 +1826,10 @@ const UnifiedVisualizer = () => {
           setInitialW0(defaults.initialPoint[0]);
           setInitialW1(defaults.initialPoint[1]);
         }}
-        lambda={lambda}
-        onLambdaChange={setLambda}
-        bias={bias}
-        onBiasChange={setBias}
         problemParameters={problemParameters}
         onProblemParameterChange={(key, value) => {
           setProblemParameters(prev => ({ ...prev, [key]: value }));
         }}
-        separatingHyperplaneVariant={separatingHyperplaneVariant}
-        onSeparatingHyperplaneVariantChange={setSeparatingHyperplaneVariant}
         customPoints={customPoints}
         onCustomPointsChange={setCustomPoints}
         addPointMode={addPointMode}
@@ -2141,7 +2129,7 @@ const UnifiedVisualizer = () => {
           type={toast.type}
           duration={toast.duration}
           onClose={() => setToast(null)}
-          bottomOffset={currentStoryId ? 80 : 0}
+          bottomOffset={currentStoryId ? 140 : 0}
         />
       )}
     </div>

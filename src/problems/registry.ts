@@ -9,8 +9,16 @@ import { createSeparatingHyperplaneProblem, separatingHyperplaneExplainer } from
 import { DataPoint } from '../shared-utils';
 
 /**
- * Parameter-aware problem registry
- * Maps problem type to registry entry with factory and metadata
+ * Parameter-aware problem registry (V2)
+ *
+ * This registry replaced the old static problemRegistry in November 2024.
+ * All problems are now resolved via resolveProblem() with parameters.
+ *
+ * Historical note: The old system had a mathematical inconsistency where
+ * quadraticProblem used f(w) = w₀² + w₁² while createRotatedQuadratic
+ * used f(w) = ½(κw₀² + w₁²). The unified system corrects this.
+ *
+ * Migration completed: 2025-11-11
  */
 export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
   'logistic-regression': {
