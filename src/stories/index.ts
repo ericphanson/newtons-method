@@ -1,8 +1,9 @@
 // src/stories/index.ts
 import { Story } from './types';
+import { stepSizeEvolution } from './step-size-evolution';
 
 export const allStories: Story[] = [
-  // Stories will be added here
+  stepSizeEvolution,
 ];
 
 export function getStory(id: string): Story | undefined {
