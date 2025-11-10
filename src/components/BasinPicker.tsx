@@ -69,8 +69,8 @@ interface BasinPickerProps {
     };
   };
   problemFuncs: ProblemFunctions;
-  initialPoint: [number, number] | [number, number, number];
-  onInitialPointChange: (point: [number, number] | [number, number, number]) => void;
+  initialPoint: [number, number];
+  onInitialPointChange: (point: [number, number]) => void;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
 }
 

@@ -8,7 +8,7 @@
 export interface ProblemDefaults {
   gdFixedAlpha: number;
   maxIter: number;
-  initialPoint: [number, number] | [number, number, number];
+  initialPoint: [number, number];
   // Line search algorithms (GD-LS, Newton, L-BFGS) work well with same defaults
   c1: number;
   lbfgsM: number;

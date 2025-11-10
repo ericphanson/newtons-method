@@ -171,10 +171,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           <div className="space-y-2 text-gray-800 text-sm bg-green-50 p-3 rounded">
             <div className="mb-2 pb-2 border-b border-green-200">
               <strong>Variables:</strong>{' '}
-              <InlineMath>w = [w_0, w_1, w_2]</InlineMath> (weights + bias),{' '}
+              <InlineMath>w = [w_0, w_1]</InlineMath> (feature weights),{' '}
+              <InlineMath>b</InlineMath> (bias),{' '}
               <InlineMath>x = [x_1, x_2]</InlineMath> (data point),{' '}
               <InlineMath>{'y \\in \\{-1, +1\\}'}</InlineMath> (class label),{' '}
-              <InlineMath>z = w_0 x_1 + w_1 x_2 + w_2</InlineMath> (decision value)
+              <InlineMath>z = w_0 x_1 + w_1 x_2 + b</InlineMath> (decision value)
             </div>
             {separatingHyperplaneVariant === 'soft-margin' && (
               <div>

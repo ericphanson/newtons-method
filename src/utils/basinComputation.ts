@@ -10,7 +10,7 @@ import { runDiagonalPreconditioner } from '../algorithms/diagonal-preconditioner
  * Compute basin point by running algorithm from a starting point
  */
 export function computeBasinPoint(
-  initialPoint: [number, number] | [number, number, number],
+  initialPoint: [number, number],
   problemFuncs: ProblemFunctions,
   algorithm: 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

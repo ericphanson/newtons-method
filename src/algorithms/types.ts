@@ -45,7 +45,7 @@ export interface TerminationThresholds {
 
 export interface AlgorithmOptions {
   maxIter: number;
-  initialPoint?: number[]; // If not provided, use default [0.1, 0.1] or [0.1, 0.1, 0.0]
+  initialPoint?: number[]; // If not provided, use default [0.1, 0.1]
   tolerance?: number; // DEPRECATED: Use termination.gtol instead. Kept for backward compatibility.
   termination?: TerminationThresholds; // Enhanced termination criteria
 }
