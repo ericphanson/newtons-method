@@ -77,7 +77,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Rotated ellipse - valley runs diagonally, no per-coordinate step sizes can align with it',
     algorithm: 'newton',
     problem: 'quadratic',
-    rotationAngle: 45,
+    problemParameters: { rotationAngle: 45 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

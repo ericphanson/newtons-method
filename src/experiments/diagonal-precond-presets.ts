@@ -24,7 +24,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     description: 'Ellipse rotated 45° - diagonal preconditioner struggles!',
     algorithm: 'diagonal-precond',
     problem: 'quadratic',
-    rotationAngle: 45,
+    problemParameters: { rotationAngle: 45 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

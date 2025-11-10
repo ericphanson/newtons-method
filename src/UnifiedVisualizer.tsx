@@ -35,6 +35,7 @@ import { StoryBanner } from './components/StoryBanner';
 import { StoryTOC } from './components/StoryTOC';
 import { getStory } from './stories';
 import { getExperimentById } from './experiments';
+import { normalizeExperimentPreset } from './experiments/migration-helper';
 
 type Algorithm = 'stories' | 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
@@ -808,6 +809,9 @@ const UnifiedVisualizer = () => {
     setExperimentJustLoaded(true);
 
     try {
+      // Normalize preset to handle legacy fields
+      const normalized = normalizeExperimentPreset(experiment);
+
       // 1. Update hyperparameters
       if (experiment.hyperparameters.alpha !== undefined) {
         setGdFixedAlpha(experiment.hyperparameters.alpha);
@@ -850,9 +854,20 @@ const UnifiedVisualizer = () => {
           setSeparatingHyperplaneVariant(experiment.separatingHyperplaneVariant);
         }
 
-        // Set rotation angle for rotated quadratic if specified
-        if (experiment.problem === 'quadratic' && experiment.rotationAngle !== undefined) {
-          setRotationAngle(experiment.rotationAngle);
+        // Load problem parameters from normalized preset
+        if (normalized.problemParameters) {
+          setProblemParameters(normalized.problemParameters);
+
+          // TEMPORARY: Sync to legacy state during migration
+          if (normalized.problemParameters.rotationAngle !== undefined) {
+            setRotationAngle(normalized.problemParameters.rotationAngle as number);
+          }
+          if (normalized.problemParameters.conditionNumber !== undefined) {
+            setConditionNumber(normalized.problemParameters.conditionNumber as number);
+          }
+          if (normalized.problemParameters.rosenbrockB !== undefined) {
+            setRosenbrockB(normalized.problemParameters.rosenbrockB as number);
+          }
         }
 
         const problem = getProblem(experiment.problem);
