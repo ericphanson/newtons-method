@@ -152,6 +152,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'quadratic-convergence': {
+    term: 'quadratic convergence',
+    definition: (
+      <>
+        <strong>Quadratic convergence:</strong> The error is squared at each iteration:
+        ||eₖ₊₁|| ≤ C||eₖ||². This means the number of correct digits roughly doubles
+        each iteration near the solution. Much faster than linear convergence.
+        Newton's method achieves this under appropriate conditions.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
