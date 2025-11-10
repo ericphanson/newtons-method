@@ -69,7 +69,7 @@ function testEigenvalues(matrix: number[][]): number[] {
   const problem: ProblemFunctions = {
     objective: (w: number[]) => 0.5 * w.reduce((sum, wi, i) =>
       sum + w.reduce((s, wj, j) => s + wi * matrix[i][j] * wj, 0), 0),
-    gradient: (w: number[]) => matrix.map((row, i) =>
+    gradient: (w: number[]) => matrix.map((row) =>
       row.reduce((sum, val, j) => sum + val * w[j], 0)),
     hessian: () => matrix,
     dimensionality: n
