@@ -1,10 +1,47 @@
 # Mathematical Correctness Review - Master Report
 ## Newton's Method Educational Codebase
 
-**Date:** 2025-11-09
+**Date:** 2025-11-09 (Original Review)
+**Updated:** 2025-11-10 (Verification & Actionable Proposals Added)
 **Review Team:** 7 Parallel Agents (Convergence Theory, Error Analysis, Algorithmic Descriptions, Numerical Properties, Failure Modes, Pedagogical Content, Optimization Problems)
-**Total Issues Found:** 35 issues across all severity levels
+**Total Issues Found:** 35 issues across all severity levels (note: some were already fixed)
 **Overall Assessment:** Strong mathematical foundation with several critical corrections needed
+
+---
+
+## UPDATE: 2025-11-10 - Status Verification & Concrete Proposals
+
+All issues have been re-verified against the current codebase and updated with:
+- ✅ Current status (FIXED/CONFIRMED/etc.)
+- 📍 Updated line numbers
+- 🎯 Concrete, actionable proposals with code examples
+- ⏱️ Estimated effort for each fix
+
+### Quick Status Summary
+
+**SIGNIFICANT ISSUES:**
+- Issue #6: ✅ **FIXED** - Diagonal preconditioner text corrected
+- Issue #9: ⚠️ **CONFIRMED** - Missing stopping criteria (2 options provided)
+- Issue #13: ⚠️ **CONFIRMED** - Power iteration issues (analytical 2×2 and 3×3 formulas recommended)
+- Issue #14: ⚠️ **CONFIRMED** - L-BFGS damping comment misleading
+- Issue #19: ⚠️ **CONFIRMED** - Division by zero risk
+- Issue #20: 🚨 **BOTH SOURCES WRONG** - Three-Hump Camel local minima are at f≈0.30, NOT 2.1 or 0.0!
+  - Analytically verified: exact values are (±1.74755, ∓0.87378) with f = 0.2986384
+
+**MODERATE ISSUES:**
+- Issues #22-23: Glossary section proposed (combines smoothness + strong convexity definitions)
+- Issue #24: ✅ **ALREADY FIXED** - Uses scipy's approach
+- Issue #25: ✅ **ALREADY CONSISTENT** - Both use L1/dimension
+- Issue #26: ✅ **ALREADY DOCUMENTED** - Comment exists
+- Issues #27-28: Documentation improvements proposed
+- Issue #29: Terminology preference (rotation vs affine invariance)
+- Issue #30: Addressed by #23
+
+**MINOR ISSUES:**
+- All confirmed with concrete implementation proposals provided
+
+**Total Issues Needing Action:** ~15 (rest are already fixed or very low priority)
+**Total Estimated Effort:** ~3-4 hours for all fixes
 
 ---
 
@@ -23,19 +60,21 @@ This comprehensive review examined the mathematical correctness of a Newton's me
 
 # SIGNIFICANT ISSUES (Should Fix for Clarity)
 
-## 6. Diagonal Preconditioner "Quadratic Convergence" - Unsupported Claim ⚠️
+## 6. Diagonal Preconditioner "Quadratic Convergence" - Unsupported Claim ⚠️ [FIXED ✓]
 
 **Domain:** Convergence Theory
-**Location:** `src/components/AlgorithmExplainer.tsx:222-223`
+**Location:** `src/components/AlgorithmExplainer.tsx:224-226`
 
-**Claim:** "Can achieve quadratic convergence on axis-aligned problems!"
+**STATUS:** ✅ **FIXED** - The text has already been corrected.
 
-**Issue:**
-- No theoretical support found for "quadratic convergence"
-- What actually happens: solves axis-aligned quadratics in 1-2 iterations (becomes equivalent to Newton)
-- This is "exact solution in one step" not "quadratic convergence rate"
+**Current Text:**
+```
+Solves axis-aligned quadratic problems in 1-2 iterations
+(becomes equivalent to Newton's method when Hessian is diagonal). Degrades to linear
+convergence on rotated problems where off-diagonal Hessian structure is ignored.
+```
 
-**Fix:** "Solves axis-aligned quadratic problems in 1-2 iterations (equivalent to Newton when Hessian is diagonal). Degrades to linear convergence on rotated problems."
+**Action Required:** None - this issue has been resolved.
 
 ---
 
@@ -44,45 +83,253 @@ This comprehensive review examined the mathematical correctness of a Newton's me
 **Domain:** Error Analysis
 **Location:** `src/algorithms/types.ts:33-38`
 
-**Missing:**
-- Maximum wall-clock time (only maxiter)
-- Maximum function evaluations (not tracked separately)
-- Relative gradient norm (uses only absolute)
+**STATUS:** ✅ **CONFIRMED** - The issue is still present.
+
+**Current State:**
+The `ConvergenceCriterion` type currently includes:
+- `gradient` - gradient norm check (absolute only)
+- `ftol` - relative function change
+- `xtol` - relative step size
+- `maxiter` - iteration limit
+- `diverged` - NaN/Inf detection
+
+**Missing Criteria:**
+- Maximum wall-clock time (important for real-time applications)
+- Maximum function evaluations (tracked separately from iterations in scipy)
+- Relative gradient norm (currently only absolute)
 - User-defined callbacks
 
-**Impact:** Missing standard safeguards used in production optimization software.
+**Concrete Proposal:**
 
-**Recommendation:** Document why certain criteria were excluded, or add them for completeness.
+**Option 1: Documentation approach (Lower effort, educational focus)**
+Add a comment in [types.ts:33-38](src/algorithms/types.ts#L33-L38) explaining the design decision:
+```typescript
+// NOTE: This is an educational implementation focused on core convergence theory.
+// Production optimizers (scipy, nlopt) also support:
+// - Wall-clock time limits (for real-time constraints)
+// - Function evaluation budgets (different from iteration count for line search)
+// - Relative gradient tolerance (||g|| / max(||x||, 1) < tol)
+// - User callbacks (for custom stopping logic, progress monitoring)
+// These are omitted here to keep the focus on fundamental convergence criteria.
+export type ConvergenceCriterion = ...
+```
+
+**Option 2: Full implementation (Higher effort, production-like)**
+Extend the type system to support additional criteria:
+```typescript
+export type ConvergenceCriterion =
+  | 'gradient'
+  | 'ftol'
+  | 'xtol'
+  | 'maxiter'
+  | 'maxfev'        // Maximum function evaluations
+  | 'maxtime'       // Wall-clock time limit
+  | 'callback'      // User-defined stopping condition
+  | 'diverged';
+
+export interface TerminationThresholds {
+  gtol?: number;        // Absolute gradient tolerance
+  gtol_rel?: number;    // Relative gradient tolerance
+  ftol?: number;
+  xtol?: number;
+  maxtime?: number;     // In milliseconds
+  maxfev?: number;      // Max function evaluations
+  callback?: (iter: IterationData) => boolean;  // User stopping logic
+}
+```
+
+**Recommended Action:** Option 1 (documentation) - aligns with educational purpose while acknowledging limitations.
+
+**Estimated Effort:**
+- Option 1: 5 minutes (add comment)
+- Option 2: 2-3 hours (implementation + testing)
 
 ---
 
 ## 13. Power Iteration Accuracy Issues ⚠️
 
 **Domain:** Numerical Properties
-**Location:** `src/algorithms/newton.ts:75-100`
+**Location:** `src/algorithms/newton.ts:75-100` (function `computeEigenvalues`)
 
-**Issues:**
+**STATUS:** ✅ **CONFIRMED** - The issue is still present.
+
+**Current Implementation:**
+```typescript
+for (let iter = 0; iter < 50; iter++) {  // Fixed 50 iterations
+  const Av = v.map((_, i) => AMat[i].reduce((sum, val, j) => sum + val * v[j], 0));
+  lambda = Math.sqrt(Av.reduce((sum, val) => sum + val * val, 0));
+  v = Av.map(val => val / lambda);
+}
+// No convergence check!
+```
+
+**Problems:**
 1. Fixed 50 iterations may be insufficient for poorly-separated eigenvalues
 2. Hotelling's deflation accumulates rounding errors
-3. No convergence verification
+3. No convergence verification means we don't know if eigenvalues are accurate
 
-**Recommendation:**
-- Increase to 100-200 iterations
-- Add convergence tolerance check
-- For 2×2 matrices, consider analytical formula
+**Concrete Proposal:**
+
+**Option 1: Increase iterations + add convergence check (Quick fix)**
+```typescript
+const computeEigenvalues = (A: number[][]): number[] => {
+  const n = A.length;
+  const eigenvalues: number[] = [];
+  const AMat = A.map(row => [...row]);
+
+  for (let eig = 0; eig < n; eig++) {
+    let v = Array(n).fill(1);
+    let lambda = 0;
+    let prevLambda = 0;
+
+    for (let iter = 0; iter < 100; iter++) {  // Increased from 50 to 100
+      const Av = v.map((_, i) => AMat[i].reduce((sum, val, j) => sum + val * v[j], 0));
+      lambda = Math.sqrt(Av.reduce((sum, val) => sum + val * val, 0));
+      v = Av.map(val => val / lambda);
+
+      // Convergence check
+      if (iter > 0 && Math.abs(lambda - prevLambda) < 1e-10) {
+        break;  // Converged early
+      }
+      prevLambda = lambda;
+    }
+
+    eigenvalues.push(lambda);
+    // Hotelling's deflation...
+  }
+  return eigenvalues.sort((a, b) => Math.abs(b) - Math.abs(a));
+};
+```
+
+**Option 2: Analytical formulas for 2×2 and 3×3 (Better accuracy, educational clarity)**
+The codebase has both 2×2 problems (pure optimization) and 3×3 problems (logistic regression with bias). Both have analytical eigenvalue formulas:
+
+```typescript
+const computeEigenvalues = (A: number[][]): number[] => {
+  const n = A.length;
+
+  if (n === 2) {
+    // Analytical formula for 2×2 symmetric matrix
+    // Eigenvalues of [[a, b], [b, d]] are:
+    // λ = (trace ± √(trace² - 4·det)) / 2
+    const [[a, b], [_, d]] = A;
+    const trace = a + d;
+    const det = a * d - b * b;
+    const discriminant = trace * trace - 4 * det;
+
+    if (discriminant < 0) {
+      // Should not happen for real symmetric matrices
+      console.warn('Negative discriminant in eigenvalue calculation');
+      return [trace / 2, trace / 2];
+    }
+
+    const sqrtDisc = Math.sqrt(discriminant);
+    const lambda1 = (trace + sqrtDisc) / 2;
+    const lambda2 = (trace - sqrtDisc) / 2;
+
+    // Return sorted by absolute value (largest first)
+    return Math.abs(lambda1) >= Math.abs(lambda2)
+      ? [lambda1, lambda2]
+      : [lambda2, lambda1];
+  }
+
+  if (n === 3) {
+    // Analytical formula for 3×3 symmetric matrix using characteristic polynomial
+    // and Cardano's formula for cubic equations
+    const [[a, b, c], [_, d, e], [__, ___, f]] = A;
+
+    // Characteristic polynomial: det(A - λI) = 0
+    // For symmetric 3×3, use closed-form cubic solution
+    const trace = a + d + f;
+    const p1 = b*b + c*c + e*e;
+    const q = trace / 3;
+    const p2 = (a - q)*(a - q) + (d - q)*(d - q) + (f - q)*(f - q) + 2*p1;
+    const p = Math.sqrt(p2 / 6);
+
+    // Compute B = (1/p)(A - qI)
+    const B = [
+      [(a - q) / p, b / p, c / p],
+      [b / p, (d - q) / p, e / p],
+      [c / p, e / p, (f - q) / p]
+    ];
+    const detB = B[0][0]*(B[1][1]*B[2][2] - B[1][2]*B[2][1])
+               - B[0][1]*(B[1][0]*B[2][2] - B[1][2]*B[2][0])
+               + B[0][2]*(B[1][0]*B[2][1] - B[1][1]*B[2][0]);
+    const r = detB / 2;
+
+    // Eigenvalues from cubic formula
+    const phi = Math.acos(Math.max(-1, Math.min(1, r))) / 3;
+    const lambda1 = q + 2 * p * Math.cos(phi);
+    const lambda2 = q + 2 * p * Math.cos(phi + (2 * Math.PI / 3));
+    const lambda3 = trace - lambda1 - lambda2; // From trace property
+
+    return [lambda1, lambda2, lambda3].sort((a, b) => Math.abs(b) - Math.abs(a));
+  }
+
+  // Fall back to power iteration for n > 3 (future-proofing)
+  return computeEigenvaluesPowerIteration(A);
+};
+```
+
+**Option 3: Use existing library (Lowest maintenance)**
+Import a numerical library like `numeric.js` or `mathjs` that has robust eigenvalue solvers.
+
+**Recommended Action:** Option 2 (analytical formulas) - most accurate, educational, and handles all current problem dimensions (2D and 3D).
+
+**Estimated Effort:**
+- Option 1: 15 minutes
+- Option 2: 45 minutes (2×2 + 3×3 formulas + testing on both problem types)
+- Option 3: 1 hour (dependency + integration)
 
 ---
 
 ## 14. L-BFGS Damping Scope ⚠️
 
 **Domain:** Numerical Properties
-**Location:** `src/algorithms/lbfgs.ts:121-126`
+**Location:** `src/algorithms/lbfgs.ts:122-123`
 
-**Claim:** "Exact analog to Newton's (H + λI)"
+**STATUS:** ✅ **CONFIRMED** - Misleading comment.
 
-**Actual Behavior:** Damping only affects initial scaling H₀ = γI, not the full quasi-Newton approximation with memory corrections.
+**Current Code:**
+```typescript
+const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+// Apply Hessian damping: exact analog to Newton's (H + λI)
+// For L-BFGS: B_0 + λI where B_0 = (1/γ)I, so (B_0 + λI)^{-1} = γ/(1 + λγ) I
+const gamma = hessianDamping > 0
+  ? gammaBase / (1 + hessianDamping * gammaBase)
+  : gammaBase;
+```
 
-**Fix:** Clarify that only the base scaling is damped, not the rank-2k updates from history.
+**Problem:**
+The comment "exact analog to Newton's (H + λI)" is misleading. In Newton's method, damping adds λI to the **full Hessian**. In L-BFGS, damping only affects the **base scaling H₀ = γI**, not the rank-2k corrections from history.
+
+**Mathematical Reality:**
+- Newton damping: (H + λI)⁻¹g
+- L-BFGS damping: Two-loop recursion with H₀ = (γ/(1 + λγ))I + rank-2k corrections
+
+The corrections from memory still use the original curvature information, unaffected by damping.
+
+**Concrete Proposal:**
+
+Update the comment at [lbfgs.ts:122-123](src/algorithms/lbfgs.ts#L122-L123):
+```typescript
+const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+
+// Apply Hessian damping to the base scaling (H_0 = γI)
+// NOTE: Unlike Newton's method where damping affects the full Hessian (H + λI),
+// L-BFGS damping only modifies the initial scaling H_0. The rank-2k updates
+// from memory still use the original curvature information.
+// Formula: (H_0 + λI)^{-1} = (1/γ + λ)^{-1} I = γ/(1 + λγ) I
+const gamma = hessianDamping > 0
+  ? gammaBase / (1 + hessianDamping * gammaBase)
+  : gammaBase;
+```
+
+**Alternative:** Add a note in the AlgorithmExplainer.tsx explaining this difference.
+
+**Recommended Action:** Update the comment to accurately describe the limited scope of damping.
+
+**Estimated Effort:** 5 minutes
 
 ---
 
@@ -91,28 +338,103 @@ This comprehensive review examined the mathematical correctness of a Newton's me
 **Domain:** Numerical Properties
 **Location:** `src/algorithms/newton.ts:154`
 
-**Issue:** No check for near-zero minimum eigenvalue before division.
+**STATUS:** ✅ **CONFIRMED** - Division without zero check.
 
-**Risk:** Produces `Infinity` for singular/near-singular Hessians without warning.
-
-**Fix:** Add check:
+**Current Code:**
 ```typescript
+const eigenvalues = computeEigenvalues(hessian);
+const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
+```
+
+**Problem:**
+If the minimum eigenvalue is zero or near-zero (singular/near-singular Hessian), this produces `Infinity` without any warning or validation. While `Infinity` is mathematically correct, it should be explicitly handled for clarity.
+
+**Concrete Proposal:**
+
+Replace the line at [newton.ts:154](src/algorithms/newton.ts#L154) with:
+```typescript
+const eigenvalues = computeEigenvalues(hessian);
+const minEigenAbs = Math.abs(eigenvalues[eigenvalues.length - 1]);
+
+// Condition number κ(H) = |λ_max| / |λ_min|
+// For singular/near-singular matrices, set explicitly to Infinity
 const conditionNumber = minEigenAbs < 1e-15
   ? Infinity
   : Math.abs(eigenvalues[0]) / minEigenAbs;
 ```
 
+**Benefits:**
+1. Makes singular matrix handling explicit
+2. Avoids potential NaN issues (0/0 if both eigenvalues are zero)
+3. Self-documenting code
+4. Matches numerical best practices
+
+**Recommended Action:** Implement the fix above.
+
+**Estimated Effort:** 5 minutes
+
 ---
 
-## 20. Three-Hump Camel Local Minima Inconsistency ⚠️
+## 20. Three-Hump Camel Local Minima Inconsistency ⚠️ [BOTH WRONG!]
 
 **Domain:** Optimization Problems
-**Location:** `src/problems/threeHumpCamel.ts:9-10` vs `ProblemExplainer.tsx:610-614`
+**Location:** `src/problems/threeHumpCamel.ts:9-10` vs `src/components/ProblemExplainer.tsx:623-624`
 
-**Code Says:** f ≈ 2.1 at local minima
-**Docs Say:** f ≈ 0.0 at local minima
+**STATUS:** ✅ **CONFIRMED** - **BOTH sources have incorrect values!**
 
-**Issue:** Conflicting values need numerical verification.
+**Current Claims:**
+- **threeHumpCamel.ts:9-10** says: `f ≈ 2.1` at local minima
+- **ProblemExplainer.tsx:623-624** says: `f ≈ 0.0` at local minima
+
+**Numerical Verification (Analytical Solution):**
+Solving the gradient equations ∇f = 0 analytically, the Three-Hump Camel function `f(w) = 2w₀² - 1.05w₀⁴ + w₀⁶/6 + w₀w₁ + w₁²` has:
+
+**All Critical Points:**
+```
+Point                    f(w)      Type
+(0.00000, 0.00000)      0.0000    LOCAL MINIMUM (global)
+(±1.74755, ∓0.87378)    0.2986    LOCAL MINIMUM (2 symmetric points)
+(±1.07054, ∓0.53527)    0.8774    SADDLE POINT (2 symmetric points)
+```
+
+**CORRECTED VALUES:**
+- Global minimum: (0, 0) with f = 0 ✓
+- Local minima: (±1.74755, ∓0.87378) with f ≈ **0.2986** (NOT 2.1, NOT 0.0!)
+- The approximate values in the code (±1.7, ∓0.85) are close but slightly imprecise
+
+**Literature Verification:** Standard optimization benchmarks (SFU, al-roomi.org) confirm the function has three local minima with only the global minimum documented. The local minima values were computed analytically.
+
+**Concrete Proposal:**
+
+**Fix 1:** Update [threeHumpCamel.ts:9-10](src/problems/threeHumpCamel.ts#L9-L10):
+```typescript
+// The three minima are:
+//   1. Global minimum: (0, 0) → f = 0
+//   2. Local minimum: approximately (1.75, -0.87) → f ≈ 0.30
+//   3. Local minimum: approximately (-1.75, 0.87) → f ≈ 0.30
+```
+
+**Fix 2:** Update [ProblemExplainer.tsx:623-624](src/components/ProblemExplainer.tsx#L623-L624):
+```tsx
+<ul className="text-sm list-disc ml-5">
+  <li><strong>Global:</strong> (0, 0) with f = 0</li>
+  <li><strong>Local:</strong> approximately (1.75, -0.87) with f ≈ 0.30</li>
+  <li><strong>Local:</strong> approximately (-1.75, 0.87) with f ≈ 0.30</li>
+</ul>
+```
+
+**Fix 3:** Update [ProblemExplainer.tsx:630](src/components/ProblemExplainer.tsx#L630):
+Change "two shallow local minima" to be more accurate:
+```tsx
+<strong>What it does:</strong> A standard multimodal benchmark with three valleys
+- one deep global minimum at f=0 and two shallow local minima at f≈0.30.
+```
+
+**Technical Note:** The exact local minima (from solving ∇f = 0 analytically) are at (±1.74755, ∓0.87378) with f = 0.2986384. The rounded values above are appropriate for educational display.
+
+**Recommended Action:** Implement all three fixes for consistency.
+
+**Estimated Effort:** 10 minutes
 
 ---
 
@@ -121,34 +443,171 @@ const conditionNumber = minEigenAbs < 1e-15
 ## 22. Missing Smoothness Conditions Throughout
 
 **Domain:** Convergence Theory
+**Location:** Multiple locations in `src/components/AlgorithmExplainer.tsx`
 
-All convergence rate claims implicitly assume **smooth** (Lipschitz gradient) objective functions, but this is rarely mentioned. Acceptable for introductory material but worth noting in a glossary.
+**STATUS:** ✅ **CONFIRMED** - "Smooth" used without definition.
+
+**Current Usage:**
+- Line 44: "Linear convergence for strongly convex smooth functions"
+- Line 46: "convex (but not strongly convex) smooth functions"
+- Line 121: "Linear convergence for strongly convex smooth functions"
+
+**Problem:**
+The term "smooth" is used without defining what it means mathematically. In optimization literature, "smooth" typically means "Lipschitz continuous gradient" or "continuously differentiable with L-Lipschitz gradient."
+
+**Concrete Proposal:**
+
+**Option 1: Add a glossary tooltip (Educational approach)**
+Create a reusable tooltip component in AlgorithmExplainer.tsx:
+```tsx
+const SmoothTooltip = () => (
+  <span className="relative group">
+    smooth
+    <span className="invisible group-hover:visible absolute bottom-full left-0 bg-gray-800 text-white text-xs rounded p-2 w-64 mb-1">
+      <strong>Smooth function:</strong> Has Lipschitz continuous gradient
+      (||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L).
+      Equivalently: continuously differentiable with bounded gradient variation.
+    </span>
+  </span>
+);
+```
+
+Then use it: `Linear convergence for strongly convex <SmoothTooltip /> functions`
+
+**Option 2: Add footnote/glossary section (Simpler)**
+Add a collapsible "Mathematical Assumptions" section:
+```tsx
+<CollapsibleSection title="Mathematical Assumptions" defaultExpanded={false}>
+  <div className="text-sm text-gray-700">
+    <p><strong>Smooth function:</strong> Has Lipschitz continuous gradient, meaning
+    ||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L. All test problems in this
+    tool are smooth.</p>
+
+    <p><strong>Strongly convex:</strong> Has positive lower bound on Hessian eigenvalues,
+    meaning ∇²f(x) ⪰ μI for some μ > 0.</p>
+  </div>
+</CollapsibleSection>
+```
+
+**Option 3: Inline clarification (Minimal change)**
+Update line 44 to:
+```
+Linear convergence for strongly convex smooth (Lipschitz continuous gradient) functions.
+```
+
+**Recommended Action:** Option 2 (glossary section) - provides educational value without cluttering the main text.
+
+**Estimated Effort:**
+- Option 1: 30 minutes
+- Option 2: 15 minutes
+- Option 3: 5 minutes
 
 ---
 
 ## 23. Strong Convexity Definition Not Provided
 
 **Domain:** Convergence Theory
+**Location:** Multiple locations (AlgorithmExplainer.tsx, GdFixedTab.tsx:361, NewtonTab.tsx:578)
 
-Term "strongly convex" used without definition. For educational completeness, add tooltip defining μ-strong convexity.
+**STATUS:** ✅ **CONFIRMED** - Term used without definition.
+
+**Current Usage:**
+- "strongly convex smooth functions" - used multiple times
+- "strong convexity parameter μ" mentioned in GdFixedTab.tsx:364 but not defined
+
+**Problem:**
+The term "strongly convex" is used without explaining what it means. Students may confuse it with regular convexity.
+
+**Concrete Proposal:**
+
+This can be addressed together with Issue #22 by adding the "Mathematical Assumptions" glossary section:
+```tsx
+<CollapsibleSection title="Mathematical Assumptions" defaultExpanded={false}>
+  <div className="space-y-2 text-sm text-gray-700">
+    <div>
+      <p className="font-semibold">Smooth function:</p>
+      <p>Has Lipschitz continuous gradient: ||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L.
+      Equivalently, continuously differentiable with bounded gradient variation.
+      All test problems in this tool are smooth.</p>
+    </div>
+
+    <div>
+      <p className="font-semibold">Strongly convex function:</p>
+      <p>Has a positive lower bound μ > 0 on the Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere.
+      This is stronger than regular convexity (∇²f(x) ⪰ 0) and guarantees a unique global minimum.
+      The strong convexity parameter μ controls convergence speed.</p>
+    </div>
+
+    <div>
+      <p className="font-semibold">Convex function:</p>
+      <p>Has non-negative Hessian eigenvalues: ∇²f(x) ⪰ 0 everywhere. Weaker than strong convexity;
+      may have slower convergence rates.</p>
+    </div>
+  </div>
+</CollapsibleSection>
+```
+
+**Alternative:** Add inline definitions the first time each term is used.
+
+**Recommended Action:** Combine with Issue #22 fix for comprehensive glossary.
+
+**Estimated Effort:** 20 minutes (if combined with #22)
 
 ---
 
 ## 24. Relative Function Change Denominator Choice
 
 **Domain:** Error Analysis
-**Location:** `src/algorithms/newton.ts:188`
+**Location:** `src/algorithms/newton.ts:191`
 
-Uses `max(|f(x_k)|, 1e-8)` instead of `max(|f^k|, |f^{k+1}|, 1)`. Works correctly for most cases but can misbehave when loss approaches zero. Scipy's approach is better.
+**STATUS:** ⚠️ **PARTIALLY FIXED** - Now uses scipy's approach!
+
+**Current Code (line 191):**
+```typescript
+const relativeFuncChange = funcChange / Math.max(Math.abs(loss), Math.abs(previousLoss), 1.0);
+```
+
+**Original Issue:**
+The review claimed the code used `max(|f(x_k)|, 1e-8)`, but the current implementation actually uses scipy's recommended approach: `max(|f^k|, |f^{k+1}|, 1)`.
+
+**STATUS UPDATE:** ✅ This issue appears to have been fixed since the original review. The current implementation matches scipy's best practice.
+
+**Action Required:** None - mark as resolved.
+
+**Note:** The original review may have been based on an older version of the code.
 
 ---
 
 ## 25. Step Size Relative Normalization Inconsistency
 
 **Domain:** Error Analysis
-**Location:** `src/algorithms/newton.ts:245` vs line 296
+**Location:** `src/algorithms/newton.ts:249` and `newton.ts:299`
 
-Uses `stepSize / sqrt(dimension)` during iteration but `stepSize / max(||x||, 1)` in final summary. Inconsistent normalizations can confuse users.
+**STATUS:** ✅ **ACTUALLY CONSISTENT** - Both use the same normalization!
+
+**Current Code:**
+- Line 249 (during iteration): `const avgAbsoluteStep = l1Norm / dimension;`
+- Line 299 (final summary): `sub(finalLocation, previousW).reduce((sum, val) => sum + Math.abs(val), 0) / finalLocation.length`
+
+**Analysis:**
+Both locations use **L1 norm divided by dimension**, which is scipy's Newton-CG approach. The original review incorrectly stated there was an inconsistency.
+
+**Actual Implementation:**
+```typescript
+// Both use: ||Δx||_1 / n (average absolute step per dimension)
+```
+
+This is consistent with scipy's `newton_cg` which uses:
+```python
+xnorm = np.max(np.abs(xk))
+xnorm = np.where(xnorm == 0, 1, xnorm)
+if np.linalg.norm(dx) / n <= xtol * xnorm:
+    # converged
+```
+
+**STATUS UPDATE:** ✅ No issue - both locations are consistent.
+
+**Action Required:** None - mark as resolved.
 
 ---
 
@@ -157,7 +616,26 @@ Uses `stepSize / sqrt(dimension)` during iteration but `stepSize / max(||x||, 1)
 **Domain:** Error Analysis
 **Location:** `src/UnifiedVisualizer.tsx:75`
 
-Value `2.22e-9` is scipy's default but lacks explanation. Add comment: "scipy L-BFGS-B default: factr × machine_epsilon"
+**STATUS:** ✅ **ALREADY DOCUMENTED** - Comment exists!
+
+**Current Code (line 75):**
+```typescript
+const [newtonFtol, setNewtonFtol] = useState(2.22e-9);        // ftol: matches scipy L-BFGS-B default
+```
+
+**Analysis:**
+The code already has an inline comment explaining this is scipy's L-BFGS-B default. While the comment could be more detailed (mentioning `factr × machine_epsilon`), it provides sufficient context for users.
+
+**Optional Enhancement:**
+If more detail is desired, update the comment to:
+```typescript
+const [newtonFtol, setNewtonFtol] = useState(2.22e-9);
+// ftol: matches scipy L-BFGS-B default (factr=1e7 × machine_epsilon ≈ 2.22e-16 = 2.22e-9)
+```
+
+**Recommended Action:** Optional - current documentation is adequate.
+
+**Estimated Effort:** 2 minutes if enhancement desired.
 
 ---
 
@@ -166,24 +644,155 @@ Value `2.22e-9` is scipy's default but lacks explanation. Add comment: "scipy L-
 **Domain:** Numerical Properties
 **Location:** `src/algorithms/newton.ts:47`
 
-Uses absolute threshold `1e-10` instead of relative (scaled by matrix norm). Works for this codebase but not optimal practice.
+**STATUS:** ✅ **CONFIRMED** - Uses absolute threshold.
+
+**Current Code (line 47):**
+```typescript
+if (Math.abs(augmented[i][i]) < 1e-10) {
+  return null;  // Singular matrix
+}
+```
+
+**Problem:**
+Uses absolute threshold `1e-10` instead of relative threshold scaled by matrix norm. This works for the current problem scales but is not best practice for general-purpose code.
+
+**Concrete Proposal:**
+
+**Option 1: Add relative scaling (Best practice)**
+```typescript
+const invertMatrix = (A: number[][]): number[][] | null => {
+  const n = A.length;
+  const augmented = A.map((row, i) => [...row, ...Array(n).fill(0).map((_, j) => i === j ? 1 : 0)]);
+
+  // Compute Frobenius norm for relative threshold
+  const frobNorm = Math.sqrt(
+    A.reduce((sum, row) => sum + row.reduce((s, val) => s + val * val, 0), 0)
+  );
+  const threshold = Math.max(1e-10, frobNorm * 1e-12);  // Relative to matrix scale
+
+  for (let i = 0; i < n; i++) {
+    // ... pivoting code ...
+
+    if (Math.abs(augmented[i][i]) < threshold) {
+      return null;  // Singular matrix
+    }
+    // ... rest of code ...
+  }
+};
+```
+
+**Option 2: Document the limitation (Lower effort)**
+Add a comment at line 47:
+```typescript
+// Check for singularity using absolute threshold
+// NOTE: Best practice would use relative threshold (e.g., eps * ||A||_F)
+// but absolute threshold works for this educational codebase's problem scales
+if (Math.abs(augmented[i][i]) < 1e-10) {
+  return null;
+}
+```
+
+**Recommended Action:** Option 2 (documentation) - acknowledges limitation while keeping code simple.
+
+**Estimated Effort:**
+- Option 1: 15 minutes
+- Option 2: 2 minutes
 
 ---
 
 ## 28. Default Hessian Damping Value
 
 **Domain:** Numerical Properties
-**Location:** `src/algorithms/newton.ts:121`
+**Location:** `src/algorithms/newton.ts:121` and `src/algorithms/diagonal-preconditioner.ts:63`
 
-Newton uses 0.01, diagonal preconditioner uses 1e-8. Different values are justified (different algorithms) but could confuse users. Add explanation.
+**STATUS:** ✅ **CONFIRMED** - Different default values without explanation.
+
+**Current State:**
+- **Newton's method** (newton.ts:121): `hessianDamping = 0.01`
+- **Diagonal preconditioner** (diagonal-preconditioner.ts:63): `hessianDamping = 1e-8`
+
+**Why Different:**
+These different defaults are actually appropriate:
+- **Newton (0.01):** Needs significant damping because it inverts the full Hessian. Larger damping helps with numerical stability and near-indefinite Hessians.
+- **Diagonal preconditioner (1e-8):** Only uses diagonal elements, so needs minimal damping just to avoid division by zero. Too much damping would destroy the adaptive step sizes.
+
+**Problem:**
+No explanation for why these differ, which could confuse users.
+
+**Concrete Proposal:**
+
+Add explanatory comments in both files:
+
+**In newton.ts:121:**
+```typescript
+const { maxIter, c1 = 0.0001, lambda = 0,
+  // Default damping of 0.01 provides numerical stability when inverting full Hessian.
+  // Larger than diagonal preconditioner's default (1e-8) because full matrix inversion
+  // is more sensitive to near-singular conditions.
+  hessianDamping = 0.01,
+  initialPoint, lineSearch = 'armijo', termination } = options;
+```
+
+**In diagonal-preconditioner.ts:63:**
+```typescript
+const {
+  maxIter,
+  lineSearch = 'none',
+  c1 = 0.0001,
+  lambda = 0,
+  // Minimal damping (1e-8) to avoid division by zero on diagonal.
+  // Much smaller than Newton's default (0.01) because we only invert diagonal elements,
+  // not the full matrix, so numerical stability is less critical.
+  hessianDamping = 1e-8,
+  termination
+} = options;
+```
+
+**Recommended Action:** Add the explanatory comments above.
+
+**Estimated Effort:** 5 minutes
 
 ---
 
 ## 29. "Rotation Invariance" vs "Affine Invariance"
 
 **Domain:** Pedagogical Content
+**Location:** Multiple locations in component files
 
-Literature uses "affine invariance" (stronger property). Using "rotation invariance" is correct but doesn't match standard terminology. Consider updating.
+**STATUS:** ⚠️ **LOW PRIORITY** - Terminology preference.
+
+**Current Usage:**
+The codebase uses "rotation invariance" to describe Newton's method's property of being independent of coordinate system rotation.
+
+**Literature Standard:**
+Optimization literature typically uses "affine invariance" which is a stronger property (invariant under all affine transformations, not just rotations).
+
+**Analysis:**
+- "Rotation invariance" is technically correct and easier for students to understand
+- "Affine invariance" is the standard term in professional literature
+- Newton's method actually has affine invariance, so the current term undersells its properties
+
+**Concrete Proposal:**
+
+**Option 1: Use standard terminology**
+Search and replace "rotation invariance" with "affine invariance" throughout the codebase, adding a brief explanation:
+```tsx
+<p><strong>Affine invariance:</strong> Newton's method is independent of linear
+coordinate transformations (rotations, scalings, skews). The iteration count to
+convergence doesn't change if you rotate or rescale your problem.</p>
+```
+
+**Option 2: Keep current term with clarification**
+Add a note where rotation invariance is first mentioned:
+```tsx
+<p><strong>Rotation invariance</strong> (more precisely: affine invariance):
+Newton's method converges in the same number of iterations regardless of how you
+rotate or scale the coordinate system.</p>
+```
+
+**Recommended Action:** Option 2 - balances educational clarity with technical precision.
+
+**Estimated Effort:** 10 minutes
 
 ---
 
@@ -191,7 +800,16 @@ Literature uses "affine invariance" (stronger property). Using "rotation invaria
 
 **Domain:** Pedagogical Content
 
-Uses both terms without explaining difference. Add brief explanation: strongly convex has positive lower bound on Hessian eigenvalues.
+**STATUS:** ✅ **ADDRESSED BY ISSUE #23**
+
+This issue is fully addressed by the glossary section proposed in Issue #23 (Strong Convexity Definition). The glossary will explain:
+- Smooth functions
+- Convex functions (∇²f ⪰ 0)
+- Strongly convex functions (∇²f ⪰ μI, μ > 0)
+
+**Action Required:** Implement Issue #23's glossary section.
+
+**Estimated Effort:** See Issue #23 (20 minutes)
 
 ---
 
@@ -200,40 +818,198 @@ Uses both terms without explaining difference. Add brief explanation: strongly c
 ## 31. Gradient Tolerance is Absolute, Not Relative
 
 **Domain:** Error Analysis
+**Location:** `src/algorithms/types.ts` and throughout algorithms
 
-Absolute gradient tolerance can be scale-dependent. For robustness, consider adding relative option. Acceptable for current problem scales.
+**STATUS:** ✅ **CONFIRMED** - Only absolute gradient tolerance supported.
+
+**Current State:**
+The `gtol` parameter checks `||∇f|| < gtol` (absolute) but doesn't offer a relative option like `||∇f|| / max(||x||, 1) < gtol_rel`.
+
+**Impact:**
+For educational purposes with fixed problem scales, absolute tolerance is fine. Production optimizers (scipy, nlopt) often provide both options.
+
+**Concrete Proposal:**
+
+**Option 1: Add relative tolerance (Full feature)**
+See Issue #9 for details on extending the termination system.
+
+**Option 2: Document the limitation (Quick)**
+Add to Issue #9's documentation comment that relative gradient tolerance is also omitted.
+
+**Recommended Action:** Document as part of Issue #9 fix.
+
+**Estimated Effort:** Included in Issue #9.
 
 ---
 
 ## 32. No Check for Zero Gradient at Start
 
 **Domain:** Error Analysis
+**Location:** `src/algorithms/newton.ts:182` and similar in other algorithms
 
-If initial point is at critical point, algorithm immediately terminates. Add special message: "Initial point is already a critical point."
+**STATUS:** ✅ **CONFIRMED** - Immediate termination without special message.
+
+**Current Behavior:**
+If the initial point happens to be at a critical point (||∇f(x₀)|| < gtol), the algorithm terminates immediately with reason='gradient', which could confuse users.
+
+**Concrete Proposal:**
+
+Add a check at iteration 0:
+```typescript
+if (gradNorm < gtol) {
+  if (iter === 0) {
+    // Special case: initial point is already at a critical point
+    terminationReason = 'gradient';
+    // Could add a flag to OptimizationResult to distinguish this case
+    // or add a console warning for educational feedback
+  } else {
+    terminationReason = 'gradient';
+  }
+}
+```
+
+**Alternative:** Add a field to `AlgorithmSummary`:
+```typescript
+export interface AlgorithmSummary {
+  // ... existing fields ...
+  convergedAtInitialPoint?: boolean;  // True if terminated at iter=0
+}
+```
+
+**Recommended Action:** Add the `convergedAtInitialPoint` flag for better UI feedback.
+
+**Estimated Effort:** 15 minutes
 
 ---
 
 ## 33. Missing NaN/Inf Check on Hessian Eigenvalues
 
 **Domain:** Error Analysis
+**Location:** `src/algorithms/newton.ts:153` (after `computeEigenvalues`)
 
-Should add defensive check for non-finite eigenvalues to fail fast.
+**STATUS:** ✅ **CONFIRMED** - No validation of eigenvalue finiteness.
+
+**Current Code:**
+```typescript
+const eigenvalues = computeEigenvalues(hessian);
+const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
+// No check if eigenvalues contain NaN or Infinity
+```
+
+**Risk:**
+If eigenvalue computation fails (shouldn't happen for 2×2, but could with power iteration bugs), NaN values propagate silently.
+
+**Concrete Proposal:**
+
+Add defensive check after eigenvalue computation:
+```typescript
+const eigenvalues = computeEigenvalues(hessian);
+
+// Defensive check for numerical issues in eigenvalue computation
+if (!eigenvalues.every(isFinite)) {
+  console.warn('Non-finite eigenvalues detected', eigenvalues);
+  terminationReason = 'diverged';
+  // Store iteration and break
+}
+
+const minEigenAbs = Math.abs(eigenvalues[eigenvalues.length - 1]);
+const conditionNumber = minEigenAbs < 1e-15
+  ? Infinity
+  : Math.abs(eigenvalues[0]) / minEigenAbs;
+```
+
+**Recommended Action:** Add the check for robustness.
+
+**Estimated Effort:** 5 minutes
 
 ---
 
 ## 34. No Hessian Symmetry Check
 
 **Domain:** Numerical Properties
+**Location:** Throughout algorithm implementations
 
-Assumes Hessians are symmetric but never verifies. Add development mode assertion.
+**STATUS:** ✅ **CONFIRMED** - No validation that Hessian is symmetric.
+
+**Current State:**
+All algorithms assume the provided Hessian function returns symmetric matrices, but this is never verified.
+
+**Concrete Proposal:**
+
+Add a development-mode assertion in newton.ts:
+```typescript
+const hessian = problem.hessian(w);
+
+// Development mode: verify Hessian symmetry
+if (process.env.NODE_ENV === 'development') {
+  const n = hessian.length;
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const asymmetry = Math.abs(hessian[i][j] - hessian[j][i]);
+      if (asymmetry > 1e-10) {
+        console.warn(
+          `Hessian not symmetric at (${i},${j}): ` +
+          `H[${i}][${j}]=${hessian[i][j]}, H[${j}][${i}]=${hessian[j][i]}, ` +
+          `difference=${asymmetry}`
+        );
+      }
+    }
+  }
+}
+```
+
+**Recommended Action:** Add the development-mode check.
+
+**Estimated Effort:** 10 minutes
 
 ---
 
 ## 35. Eigenvalue Sorting Doesn't Preserve Sign for Visualization
 
 **Domain:** Numerical Properties
+**Location:** `src/algorithms/newton.ts:99` (eigenvalue sorting)
 
-Eigenvalue signs matter for detecting indefiniteness but sorting by absolute value doesn't clearly display this. Add separate positive/negative count field.
+**STATUS:** ✅ **CONFIRMED** - Sign information not prominently displayed.
+
+**Current Implementation:**
+```typescript
+return eigenvalues.sort((a, b) => Math.abs(b) - Math.abs(a));
+```
+
+This sorts by absolute value, so a Hessian with eigenvalues [+5, -3] and [+3, +5] both become [5, 3] after sorting (losing sign information).
+
+**Problem:**
+Sign matters for detecting indefiniteness (saddle points), but the visualization doesn't make negative eigenvalues obvious.
+
+**Concrete Proposal:**
+
+**Option 1: Add eigenvalue statistics to iteration data**
+```typescript
+export interface NewtonIteration {
+  // ... existing fields ...
+  eigenvalues: number[];
+  numPositiveEigenvalues: number;  // Count of positive eigenvalues
+  numNegativeEigenvalues: number;  // Count of negative eigenvalues
+  conditionNumber: number;
+}
+```
+
+Then in the computation:
+```typescript
+const eigenvalues = computeEigenvalues(hessian);
+const numPositive = eigenvalues.filter(ev => ev > 1e-10).length;
+const numNegative = eigenvalues.filter(ev => ev < -1e-10).length;
+```
+
+**Option 2: Don't sort, preserve sign order**
+Keep eigenvalues in their natural order from computation, don't sort by absolute value.
+
+**Option 3: Visual indicator in UI**
+Add color coding in the visualization: green for positive eigenvalues, red for negative.
+
+**Recommended Action:** Option 1 (add counts) - provides structured data for UI without changing existing behavior.
+
+**Estimated Effort:** 15 minutes
 
 ---
 
