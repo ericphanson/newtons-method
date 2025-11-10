@@ -8,23 +8,23 @@ export const stepSizeEvolution: Story = {
   steps: [
     {
       experimentId: 'gd-fixed-ill-conditioned',
-      narrative: 'Fixed step size struggles on ill-conditioned problems - notice the severe zig-zagging.'
+      narrative: 'Fixed step size struggles on ill-conditioned problems (where dimensions have vastly different curvatures). Watch the severe zig-zagging - the optimizer overshoots in steep directions while making tiny progress in flat ones.'
     },
     {
       experimentId: 'gd-linesearch-ill-conditioned',
-      narrative: 'Line search adapts step size per iteration, reducing zig-zag but still slow.'
+      narrative: 'Line search adapts the global step size each iteration by searching along the gradient direction. Notice how this reduces oscillation and stabilizes the path, but convergence is still slow because all dimensions share one step size.'
     },
     {
       experimentId: 'diag-precond-aligned-success',
-      narrative: 'Diagonal preconditioning: per-coordinate step sizes work perfectly when aligned with axes!'
+      narrative: 'Diagonal preconditioning gives each coordinate its own step size, estimated from the diagonal of the Hessian (per-dimension curvature). When the problem axes align with coordinate axes, this works beautifully - watch the optimizer take nearly optimal steps!'
     },
     {
       experimentId: 'diag-precond-rotated-failure',
-      narrative: 'But diagonal fails on rotated problems - we need off-diagonal Hessian information.'
+      narrative: 'But rotate the same problem 45°, and diagonal preconditioning fails! The Hessian has large off-diagonal entries, capturing how dimensions interact. Diagonal methods ignore this coupling, so the optimizer still zig-zags despite per-coordinate adaptation.'
     },
     {
       experimentId: 'newton-rotated-quadratic',
-      narrative: 'Full Newton uses complete H⁻¹ to handle rotation - converges in just a few steps.'
+      narrative: 'Newton\'s method uses the full inverse Hessian H⁻¹, capturing all pairwise dimension interactions. This transforms the problem into a perfect sphere, enabling it to handle arbitrary rotations. Watch it converge in just a few near-perfect steps!'
     }
   ]
 };
