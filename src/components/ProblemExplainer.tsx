@@ -637,8 +637,9 @@ export function ProblemExplainer() {
           </p>
 
           <p>
-            <strong>Why it's interesting:</strong> Demonstrates <strong>asymmetric basin structure</strong>
-            where the deeper global minimum has a larger basin of attraction than the shallow local minima.
+            <strong>Why it's interesting:</strong> Demonstrates asymmetric{' '}
+            <GlossaryTooltip termKey="basin-of-convergence" /> structure where the
+            deeper global minimum has a larger basin than the shallow local minima.
             Shows how optimization quality (depth) relates to basin size.
           </p>
 
