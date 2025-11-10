@@ -1,5 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
-import { InlineMath } from '../components/Math';
+import { InlineMath, BlockMath } from '../components/Math';
 
 // Simple quadratic bowl: f(w) = w0^2 + w1^2
 // Well-conditioned problem with circular level sets
@@ -156,3 +156,70 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
     globalMinimum: [0, 0],  // Analytical solution: ∇f = 0 at origin
   };
 }
+
+// Educational content for rotated ellipse problem
+export const quadraticExplainer = {
+  title: 'Rotated Ellipse (Rotation Invariance)',
+  defaultExpanded: false,
+  storageKey: 'problem-explainer-quadratic',
+  content: (
+    <div className="space-y-3 text-gray-800">
+      <p>
+        <strong>Type:</strong> Strongly Convex
+      </p>
+
+      <p>
+        <strong>Parameter:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°)
+      </p>
+
+      <div>
+        <p className="font-semibold">Objective Function:</p>
+        <BlockMath>
+          {String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}
+        </BlockMath>
+        <p className="text-sm mt-1">
+          where <InlineMath>R(\theta)</InlineMath> is a 2D rotation matrix
+        </p>
+      </div>
+
+      <div>
+        <p className="font-semibold">Hessian (depends on θ):</p>
+        <BlockMath>
+          {String.raw`H = R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
+        </BlockMath>
+        <p className="text-sm mt-1">
+          Condition number: <InlineMath>\kappa = 5</InlineMath> (moderate, eigenvalues 5 and 1)
+        </p>
+      </div>
+
+      <p>
+        <strong>What it does:</strong> An elliptical bowl (5:1 aspect ratio) rotated by angle θ.
+        The same problem in different coordinate systems.
+      </p>
+
+      <p>
+        <strong>Why it's interesting:</strong> <strong>This is the ONLY problem that demonstrates coordinate system dependence.</strong>
+        Shows how rotation affects gradient descent but not Newton/L-BFGS.
+      </p>
+
+      <p>
+        <strong>Key pedagogical insight - Rotation Invariance:</strong>
+      </p>
+      <ul className="text-sm list-disc ml-5 space-y-1">
+        <li><strong>θ=0°:</strong> Axis-aligned ellipse. Gradient descent is efficient along axes.</li>
+        <li><strong>θ=45°:</strong> Maximum misalignment. Gradient descent zigzags badly between steep/shallow directions.</li>
+        <li><strong>Newton & L-BFGS:</strong> Performance unchanged by rotation! They adapt to the coordinate system.</li>
+      </ul>
+
+      <div className="bg-green-50 rounded p-3">
+        <p className="text-sm font-semibold mb-1">Perfect for demonstrating:</p>
+        <ul className="text-sm list-disc ml-5">
+          <li>Rotation invariance of second-order methods</li>
+          <li>How coordinate systems affect gradient descent</li>
+          <li>Why Newton/L-BFGS handle arbitrary orientations</li>
+          <li>The difference between intrinsic (κ) and extrinsic (rotation) difficulty</li>
+        </ul>
+      </div>
+    </div>
+  ),
+};
