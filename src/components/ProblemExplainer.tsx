@@ -335,7 +335,7 @@ export function ProblemExplainer() {
           </p>
 
           <p>
-            <strong>Parameter:</strong> <InlineMath>\kappa</InlineMath> (condition number, 1 to 1000, default 100)
+            <strong>Parameter:</strong> <InlineMath>\kappa</InlineMath> (<GlossaryTooltip termKey="condition-number" />, 1 to 1000, default 100)
           </p>
 
           <div>
@@ -494,7 +494,7 @@ export function ProblemExplainer() {
               {String.raw`H = \begin{bmatrix} 2 & 0 \\ 0 & -2 \end{bmatrix}`}
             </BlockMath>
             <p className="text-sm mt-1">
-              Eigenvalues: λ₁ = 2 (positive), λ₂ = -2 (negative)
+              <GlossaryTooltip termKey="eigenvalue" />s: λ₁ = 2 (positive), λ₂ = -2 (negative)
             </p>
           </div>
 
@@ -506,7 +506,7 @@ export function ProblemExplainer() {
           <p>
             <strong>Why it's interesting:</strong> Classic failure mode demonstrating the importance
             of second-order optimality conditions. At a saddle point, the gradient is zero (∇f = 0)
-            but the Hessian has mixed eigenvalues (one positive, one negative).
+            but the <GlossaryTooltip termKey="hessian" /> has mixed <GlossaryTooltip termKey="eigenvalue" />s (one positive, one negative).
           </p>
 
           <p>
@@ -556,7 +556,7 @@ export function ProblemExplainer() {
 
           <p>
             <strong>What it does:</strong> A classic multimodal test function with four valleys
-            of equal depth, creating symmetric basins of convergence.
+            of equal depth, creating symmetric <GlossaryTooltip termKey="basin-of-convergence" />s.
           </p>
 
           <p>
