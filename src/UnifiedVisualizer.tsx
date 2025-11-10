@@ -1726,6 +1726,8 @@ const UnifiedVisualizer = () => {
         }}
         lambda={lambda}
         onLambdaChange={setLambda}
+        bias={bias}
+        onBiasChange={setBias}
         problemParameters={problemParameters}
         onProblemParameterChange={(key, value) => {
           setProblemParameters(prev => ({ ...prev, [key]: value }));

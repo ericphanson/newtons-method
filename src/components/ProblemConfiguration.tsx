@@ -20,6 +20,8 @@ interface ProblemConfigurationProps {
   // Logistic regression parameters
   lambda: number;
   onLambdaChange: (lambda: number) => void;
+  bias: number;
+  onBiasChange: (bias: number) => void;
   customPoints: DataPoint[];
   onCustomPointsChange: (points: DataPoint[]) => void;
   addPointMode: 0 | 1 | 2;
@@ -46,6 +48,8 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   onProblemChange,
   lambda,
   onLambdaChange,
+  bias,
+  onBiasChange,
   problemParameters,
   onProblemParameterChange,
   separatingHyperplaneVariant,
@@ -283,6 +287,31 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                   <span className="text-sm text-gray-600">
                     <InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}
                   </span>
+                </div>
+              )}
+
+              {isDatasetProblem(currentProblem) && (
+                <div className="mt-3">
+                  <h4 className="font-medium text-gray-700 mb-2">
+                    Bias (<InlineMath>b</InlineMath>)
+                  </h4>
+                  <input
+                    type="range"
+                    min={-3}
+                    max={3}
+                    step={0.1}
+                    value={bias}
+                    onChange={(e) => onBiasChange(parseFloat(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 mt-1">
+                    <span>-3</span>
+                    <span className="font-semibold">{bias.toFixed(1)}</span>
+                    <span>3</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Shifts the decision boundary perpendicular to the normal vector
+                  </p>
                 </div>
               )}
 
