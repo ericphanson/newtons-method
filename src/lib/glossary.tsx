@@ -248,6 +248,17 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'second-order-method': {
+    term: 'second-order method',
+    definition: (
+      <>
+        <strong>Second-order method:</strong> An optimization algorithm that uses the Hessian
+        (second derivatives) in addition to gradients. Newton's method is the primary example.
+        More expensive per iteration but achieves faster convergence (quadratic vs. linear).
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
