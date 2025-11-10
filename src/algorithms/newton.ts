@@ -72,7 +72,95 @@ const invertMatrix = (A: number[][]): number[][] | null => {
   return augmented.map(row => row.slice(n));
 };
 
-const computeEigenvalues = (A: number[][]): number[] => {
+/**
+ * Computes eigenvalues of a 2×2 symmetric matrix using analytical formula.
+ * For symmetric matrix [[a, b], [b, d]], eigenvalues are:
+ *   λ = (trace ± √(trace² - 4·det)) / 2
+ * where trace = a + d and det = ad - b²
+ */
+const computeEigenvalues2x2 = (A: number[][]): number[] => {
+  const a = A[0][0];
+  const b = A[0][1];  // assumes symmetric: A[0][1] = A[1][0]
+  const d = A[1][1];
+
+  const trace = a + d;
+  const det = a * d - b * b;
+  const discriminant = trace * trace - 4 * det;
+
+  // For symmetric matrices, discriminant should always be non-negative
+  // If negative due to numerical error, treat as zero
+  if (discriminant < 0) {
+    if (discriminant < -1e-10) {
+      console.warn(`Negative discriminant in 2×2 eigenvalue computation: ${discriminant}`);
+    }
+    // Both eigenvalues equal trace/2
+    return [trace / 2, trace / 2];
+  }
+
+  const sqrtDisc = Math.sqrt(discriminant);
+  const lambda1 = (trace + sqrtDisc) / 2;
+  const lambda2 = (trace - sqrtDisc) / 2;
+
+  // Sort by absolute value (largest first)
+  return [lambda1, lambda2].sort((a, b) => Math.abs(b) - Math.abs(a));
+};
+
+/**
+ * Computes eigenvalues of a 3×3 symmetric matrix using analytical formula.
+ * Based on the characteristic polynomial and cubic formula.
+ * Reference: https://en.wikipedia.org/wiki/Eigenvalue_algorithm#3×3_matrices
+ */
+const computeEigenvalues3x3 = (A: number[][]): number[] => {
+  const a = A[0][0], b = A[0][1], c = A[0][2];
+  const d = A[1][1], e = A[1][2];
+  const f = A[2][2];
+
+  const trace = a + d + f;
+  const p1 = b * b + c * c + e * e;
+
+  // Special case: identity or near-identity matrix
+  // When p1 ≈ 0, matrix is diagonal or near-diagonal
+  if (p1 < 1e-15) {
+    // Return diagonal elements sorted by absolute value
+    return [a, d, f].sort((x, y) => Math.abs(y) - Math.abs(x));
+  }
+
+  const q = trace / 3;
+  const p2 = (a - q) * (a - q) + (d - q) * (d - q) + (f - q) * (f - q) + 2 * p1;
+  const p = Math.sqrt(p2 / 6);
+
+  // Compute B = (1/p)(A - qI)
+  const B = [
+    [(a - q) / p, b / p, c / p],
+    [b / p, (d - q) / p, e / p],
+    [c / p, e / p, (f - q) / p]
+  ];
+
+  // Compute determinant of B
+  const detB = B[0][0] * (B[1][1] * B[2][2] - B[1][2] * B[2][1])
+             - B[0][1] * (B[1][0] * B[2][2] - B[1][2] * B[2][0])
+             + B[0][2] * (B[1][0] * B[2][1] - B[1][1] * B[2][0]);
+
+  const r = detB / 2;
+
+  // Clamp r to [-1, 1] to handle numerical errors
+  const rClamped = Math.max(-1, Math.min(1, r));
+  const phi = Math.acos(rClamped) / 3;
+
+  // Compute eigenvalues using cubic formula
+  const lambda1 = q + 2 * p * Math.cos(phi);
+  const lambda2 = q + 2 * p * Math.cos(phi + (2 * Math.PI / 3));
+  const lambda3 = trace - lambda1 - lambda2;  // Use trace property for numerical stability
+
+  // Sort by absolute value (largest first)
+  return [lambda1, lambda2, lambda3].sort((a, b) => Math.abs(b) - Math.abs(a));
+};
+
+/**
+ * Computes eigenvalues using power iteration with Hotelling's deflation.
+ * Fallback method for matrices larger than 3×3.
+ */
+const computeEigenvaluesPowerIteration = (A: number[][]): number[] => {
   const n = A.length;
   const eigenvalues: number[] = [];
   const AMat = A.map(row => [...row]);
@@ -97,6 +185,23 @@ const computeEigenvalues = (A: number[][]): number[] => {
   }
 
   return eigenvalues.sort((a, b) => Math.abs(b) - Math.abs(a));
+};
+
+/**
+ * Computes eigenvalues of a symmetric matrix.
+ * Uses analytical formulas for 2×2 and 3×3 matrices, falls back to power iteration for larger matrices.
+ */
+const computeEigenvalues = (A: number[][]): number[] => {
+  const n = A.length;
+
+  if (n === 2) {
+    return computeEigenvalues2x2(A);
+  } else if (n === 3) {
+    return computeEigenvalues3x3(A);
+  } else {
+    // Fallback to power iteration for n > 3 (future-proofing)
+    return computeEigenvaluesPowerIteration(A);
+  }
 };
 
 /**
@@ -151,7 +256,13 @@ export const runNewton = (
     const hessian = problem.hessian(w);
     const gradNorm = norm(grad);
     const eigenvalues = computeEigenvalues(hessian);
-    const conditionNumber = Math.abs(eigenvalues[0]) / Math.abs(eigenvalues[eigenvalues.length - 1]);
+
+    // Compute condition number κ(H) = |λ_max| / |λ_min|
+    // For singular/near-singular matrices, set explicitly to Infinity
+    const minEigenAbs = Math.abs(eigenvalues[eigenvalues.length - 1]);
+    const conditionNumber = minEigenAbs < 1e-15
+      ? Infinity
+      : Math.abs(eigenvalues[0]) / minEigenAbs;
 
     // Early divergence detection
     if (!isFinite(loss) || !isFinite(gradNorm)) {

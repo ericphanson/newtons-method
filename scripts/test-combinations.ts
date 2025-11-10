@@ -119,7 +119,12 @@ function runTest(config: TestConfig): TestResult {
           lambda: 0,
           hessianDamping,
           lineSearch,
-          initialPoint: finalInitialPoint
+          initialPoint: finalInitialPoint,
+          termination: {
+            gtol: 1e-5,
+            ftol: 1e-9,
+            xtol: 1e-9
+          }
         });
         break;
       case 'lbfgs':
