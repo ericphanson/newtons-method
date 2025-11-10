@@ -4,6 +4,7 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
+import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -453,7 +454,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
 
         <div>
           <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
-          <p>For L-smooth functions:</p>
+          <p>For L-<GlossaryTooltip termKey="smooth" /> functions:</p>
           <BlockMath>
             {`f(w + \\alpha p) \\leq f(w) + \\alpha \\nabla f^T p + \\frac{L\\alpha^2}{2}\\|p\\|^2`}
           </BlockMath>
