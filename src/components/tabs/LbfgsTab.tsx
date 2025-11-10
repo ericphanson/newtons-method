@@ -9,13 +9,11 @@ import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { fmt, fmtVec } from '../../shared-utils';
-import { Pseudocode, Var } from '../Pseudocode';
+import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { LBFGSIteration } from '../../algorithms/lbfgs';
 import type { ExperimentPreset } from '../../types/experiments';
-
-type LogisticMinimum = [number, number] | [number, number, number] | null;
 
 interface LbfgsTabProps {
   maxIter: number;
@@ -41,8 +39,6 @@ interface LbfgsTabProps {
   problem: Record<string, unknown>;
   currentProblem: string;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
-  biasSlice: number;
-  logisticGlobalMin: LogisticMinimum;
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
@@ -73,8 +69,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   problem: problemDefinition,
   currentProblem,
   bounds,
-  biasSlice,
-  logisticGlobalMin,
   paramCanvasRef,
   lineSearchCanvasRef,
   experimentLoading,
@@ -109,7 +103,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           problem={problemDefinition}
           currentProblem={currentProblem}
           bounds={bounds}
-          biasSlice={biasSlice}
         />
       </CollapsibleSection>
 
@@ -202,10 +195,14 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-amber-800 mb-2">The Core Idea</h3>
             <p>
               Newton's method uses <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> for smarter steps,
-              but computing H costs O(n³). <strong>L-BFGS approximates</strong>{' '}
+              but computing H costs O(d³) and storing it costs O(d²). <strong>L-BFGS approximates</strong>{' '}
               <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> using only recent gradient changes—no
-              Hessian computation needed. We add Hessian damping (Levenberg-Marquardt regularization) for
+              Hessian computation or storage needed. We add Hessian damping (Levenberg-Marquardt regularization) for
               numerical stability.
+            </p>
+            <p className="mt-2 text-sm">
+              <strong>Key insight:</strong> No matrices are ever formed or inverted! The two-loop recursion
+              implicitly applies H<sup>−1</sup> using only vector operations: O(Md) time, O(Md) memory.
             </p>
           </div>
 
@@ -241,36 +238,36 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
+              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from history</span>
+                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> from history <Complexity explanation="M pairs × d dimensions. No matrix operations!">O(Md)</Complexity></span>
               </>,
               <>
-                <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0"><InlineMath>{`B_0`}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var> with damping)</span>
+                <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0" type="d×d matrix (scaled identity)"><InlineMath>{`B_0`}</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> with damping)</span>
               </>,
               <>
-                <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></span>
+                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking: typically 1-4 function evaluations">O(1) to O(k·d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Save old gradient <Var id="grad_old"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> ← <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></span>
+                <span className="ml-4">Save old gradient <Var id="grad_old" type="vector ℝᵈ"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> ← <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Compute new gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                <span className="ml-4">Compute new gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Second gradient evaluation per iteration">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Store new pair: <Var id="s"><InlineMath>s</InlineMath></Var> ← <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var>, <Var id="y"><InlineMath>y</InlineMath></Var> ← <Var id="grad"><InlineMath>\nabla f</InlineMath></Var> − <Var id="grad_old"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var></span>
+                <span className="ml-4">Store new pair: <Var id="s" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var> ← <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var>, <Var id="y" type="vector ℝᵈ"><InlineMath>y</InlineMath></Var> ← <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> − <Var id="grad_old" type="vector ℝᵈ"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Add (<Var id="s"><InlineMath>s</InlineMath></Var>, <Var id="y"><InlineMath>y</InlineMath></Var>) to history; if |history| {'>'} <Var id="M"><InlineMath>M</InlineMath></Var>, remove oldest pair</span>
+                <span className="ml-4">Add (<Var id="s" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var>, <Var id="y" type="vector ℝᵈ"><InlineMath>y</InlineMath></Var>) to history; if |history| {'>'} <Var id="M" type="scalar"><InlineMath>M</InlineMath></Var>, remove oldest pair <Complexity>O(1)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 
@@ -297,8 +294,10 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               initial approximation improves numerical stability.
             </p>
             <p className="text-sm mt-2">
-              <strong>Implementation:</strong> Damping is applied by modifying the initial scaling factor: <InlineMath>{'\\gamma_{\\text{damped}} = \\gamma/(1 + \\lambda_{\\text{damp}}\\gamma)'}</InlineMath>,
+              <strong>Implementation note:</strong> B and B<sup>−1</sup> are never formed as matrices!
+              Damping is applied by modifying the initial scaling factor: <InlineMath>{'\\gamma_{\\text{damped}} = \\gamma/(1 + \\lambda_{\\text{damp}}\\gamma)'}</InlineMath>,
               which is mathematically equivalent to <InlineMath>{String.raw`(B_0 + \lambda I)^{-1}`}</InlineMath> where <InlineMath>{'B_0 = (1/\\gamma)I'}</InlineMath>.
+              All operations are vector arithmetic in the two-loop recursion.
             </p>
             <p className="text-sm mt-1 text-gray-600">
               (When λ_damp = 0, this is pure L-BFGS: <InlineMath>{'p \\approx -B^{-1}\\nabla f'}</InlineMath>)

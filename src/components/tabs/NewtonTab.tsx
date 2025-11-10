@@ -8,13 +8,11 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var } from '../Pseudocode';
+import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
-
-type LogisticMinimum = [number, number] | [number, number, number] | null;
 
 interface NewtonTabProps {
   maxIter: number;
@@ -44,8 +42,6 @@ interface NewtonTabProps {
   problem: Record<string, unknown>;
   currentProblem: string;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
-  biasSlice: number;
-  logisticGlobalMin: LogisticMinimum;
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
   hessianCanvasRef: React.RefObject<HTMLCanvasElement>;
@@ -81,8 +77,6 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   problem: problemDefinition,
   currentProblem,
   bounds,
-  biasSlice,
-  logisticGlobalMin,
   paramCanvasRef,
   lineSearchCanvasRef,
   hessianCanvasRef,
@@ -122,7 +116,6 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           problem={problemDefinition}
           currentProblem={currentProblem}
           bounds={bounds}
-          biasSlice={biasSlice}
         />
       </CollapsibleSection>
 
@@ -252,36 +245,41 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
+              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Compute Hessian <Var id="H"><InlineMath>H(w)</InlineMath></Var> (matrix of all second derivatives)</span>
+                <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> <Complexity explanation="d² second derivatives for finite differences, or problem-specific">O(d²)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Add damping: <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></span>
+                <span className="ml-4">Add damping: <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> <Complexity explanation="Adding diagonal to matrix">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Solve <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f</InlineMath></Var> for search direction <Var id="p"><InlineMath>p</InlineMath></Var></span>
+                <span className="ml-4">Solve linear system <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> = −<Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> for <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity explanation="Cholesky or LU decomposition + back substitution. Never invert!">O(d³)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></span>
+                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Typically 1-3 function evaluations">O(1)</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Key Formula</h3>
-            <p>Newton direction (with damping):</p>
-            <BlockMath>{'p = -(H + \\lambda_{\\text{damp}} I)^{-1}\\nabla f'}</BlockMath>
+            <p>Newton direction via linear solve (with damping):</p>
+            <BlockMath>{'(H + \\lambda_{\\text{damp}} I) p = -\\nabla f'}</BlockMath>
             <p className="text-sm mt-2">
-              <strong>Intuition:</strong> <InlineMath>{`H^{-1}`}</InlineMath> transforms the gradient into the
+              <strong>Implementation note:</strong> Never invert <InlineMath>H</InlineMath>! Instead, solve the linear system using
+              Cholesky decomposition (if <InlineMath>H</InlineMath> is positive definite) or LU decomposition.
+              This is much faster (O(d³) vs O(d³) but better constants) and more numerically stable.
+            </p>
+            <p className="text-sm mt-2">
+              <strong>Intuition:</strong> The solve implicitly applies <InlineMath>{`H^{-1}`}</InlineMath> to transform the gradient into the
               natural coordinate system of the problem. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
               numerical stability when <InlineMath>H</InlineMath> has tiny <GlossaryTooltip termKey="eigenvalue" />s.
             </p>

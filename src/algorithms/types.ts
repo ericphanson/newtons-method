@@ -27,7 +27,7 @@ export interface ProblemFunctions {
   objective: ObjectiveFunction;
   gradient: GradientFunction;
   hessian?: HessianFunction; // Optional, only needed for Newton
-  dimensionality: number; // 2 for pure optimization, 3 for logistic regression
+  dimensionality: number; // Always 2 for all problems (bias is a separate parameter for dataset problems)
 }
 
 export type ConvergenceCriterion =

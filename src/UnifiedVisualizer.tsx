@@ -1159,14 +1159,14 @@ const UnifiedVisualizer = () => {
                        selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
                        lbfgs.iterations[lbfgs.currentIter];
     if (isDatasetProblem(currentProblem) && currentIter) {
-      const [w0, w1, w2] = currentIter.wNew;
+      const [w0, w1] = currentIter.wNew;
       if (Math.abs(w1) > 1e-6) {
         ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 3;
         ctx.beginPath();
         const step = rangeX1 / 50; // Use 50 points across the range
         for (let x1 = minX1; x1 <= maxX1; x1 += step) {
-          const x2 = -(w0 * x1 + w2) / w1;
+          const x2 = -(w0 * x1 + bias) / w1;
           const cx = toCanvasX(x1);
           const cy = toCanvasY(x2);
           if (x1 === minX1) ctx.moveTo(cx, cy);
@@ -1213,7 +1213,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, bias]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1854,7 +1854,6 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={0}
               paramCanvasRef={gdFixedParamCanvasRef}
               experimentLoading={experimentLoading}
               onLoadExperiment={loadExperiment}
@@ -1881,8 +1880,6 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={0}
-              logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={gdLSParamCanvasRef}
               lineSearchCanvasRef={gdLSLineSearchCanvasRef}
               experimentLoading={experimentLoading}
@@ -1918,8 +1915,6 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={0}
-              logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={newtonParamCanvasRef}
               lineSearchCanvasRef={newtonLineSearchCanvasRef}
               hessianCanvasRef={newtonHessianCanvasRef}
@@ -1952,8 +1947,6 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={0}
-              logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={lbfgsParamCanvasRef}
               lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
               experimentLoading={experimentLoading}
@@ -1989,8 +1982,6 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={0}
-              logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={diagPrecondParamCanvasRef}
               lineSearchCanvasRef={diagPrecondLineSearchCanvasRef}
               experimentLoading={experimentLoading}

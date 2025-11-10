@@ -8,7 +8,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var } from '../Pseudocode';
+import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDIteration } from '../../algorithms/gradient-descent';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -33,7 +33,6 @@ interface GdFixedTabProps {
   problem: Record<string, unknown>;
   currentProblem: string;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
-  biasSlice: number;
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
   onLoadExperiment: (experiment: ExperimentPreset) => void;
@@ -59,7 +58,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
   problem: problemDefinition,
   currentProblem,
   bounds,
-  biasSlice,
   paramCanvasRef,
   experimentLoading,
   onLoadExperiment,
@@ -89,7 +87,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           problem={problemDefinition}
           currentProblem={currentProblem}
           bounds={bounds}
-          biasSlice={biasSlice}
         />
       </CollapsibleSection>
 
@@ -216,15 +213,15 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
+              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> − <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> − <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity>O(d)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 

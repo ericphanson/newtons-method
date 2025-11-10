@@ -65,7 +65,6 @@ interface AlgorithmConfigurationProps {
   problem: Record<string, unknown>;
   currentProblem?: string; // Name of current problem (e.g., 'logistic-regression', 'separating-hyperplane')
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
-  biasSlice?: number;
 }
 
 export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (props) => {

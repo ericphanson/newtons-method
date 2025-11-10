@@ -16,22 +16,64 @@ interface VarProps {
   id: string;
   children: ReactNode;
   className?: string;
+  /** Type annotation to show on hover (e.g., "vector ℝᵈ", "scalar", "d×d matrix") */
+  type?: string;
 }
 
-export const Var: React.FC<VarProps> = ({ id, children, className = '' }) => {
+export const Var: React.FC<VarProps> = ({ id, children, className = '', type }) => {
   const { hoveredVar, setHoveredVar } = useContext(PseudocodeContext);
   const isHighlighted = hoveredVar === id;
+  const [showTooltip, setShowTooltip] = useState(false);
 
   return (
     <span
-      className={`pseudocode-var inline-block transition-all duration-150 rounded px-0.5 ${
+      className={`pseudocode-var relative inline-block transition-all duration-150 rounded px-0.5 ${
         isHighlighted ? 'bg-yellow-200 ring-2 ring-yellow-400' : 'hover:bg-yellow-50'
       } ${className}`}
-      onMouseEnter={() => setHoveredVar(id)}
-      onMouseLeave={() => setHoveredVar(null)}
+      onMouseEnter={() => {
+        setHoveredVar(id);
+        if (type) setShowTooltip(true);
+      }}
+      onMouseLeave={() => {
+        setHoveredVar(null);
+        setShowTooltip(false);
+      }}
       data-var-id={id}
     >
       {children}
+      {type && showTooltip && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-10 pointer-events-none">
+          {type}
+          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-800"></span>
+        </span>
+      )}
+    </span>
+  );
+};
+
+// Component for complexity annotations
+interface ComplexityProps {
+  children: ReactNode;
+  /** Additional explanation to show on hover */
+  explanation?: string;
+}
+
+export const Complexity: React.FC<ComplexityProps> = ({ children, explanation }) => {
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  return (
+    <span
+      className="relative inline-block ml-1 text-xs font-mono text-gray-500 cursor-help"
+      onMouseEnter={() => explanation && setShowExplanation(true)}
+      onMouseLeave={() => setShowExplanation(false)}
+    >
+      [{children}]
+      {explanation && showExplanation && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-10 pointer-events-none w-max max-w-xs">
+          {explanation}
+          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-800"></span>
+        </span>
+      )}
     </span>
   );
 };

@@ -7,13 +7,10 @@ import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var } from '../Pseudocode';
+import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { DiagonalPrecondIteration } from '../../algorithms/diagonal-preconditioner';
 import type { ExperimentPreset } from '../../types/experiments';
-import { isDatasetProblem } from '../../utils/problemHelpers';
-
-type LogisticMinimum = [number, number] | [number, number, number] | null;
 
 interface DiagonalPrecondTabProps {
   maxIter: number;
@@ -43,8 +40,6 @@ interface DiagonalPrecondTabProps {
   problem: Record<string, unknown>;
   currentProblem: string;
   bounds: { minW0: number; maxW0: number; minW1: number; maxW1: number };
-  biasSlice: number;
-  logisticGlobalMin: LogisticMinimum;
   paramCanvasRef: React.RefObject<HTMLCanvasElement>;
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
@@ -79,8 +74,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
   problem: problemDefinition,
   currentProblem,
   bounds,
-  biasSlice,
-  logisticGlobalMin,
   paramCanvasRef,
   lineSearchCanvasRef,
   experimentLoading,
@@ -121,7 +114,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             problem={problemDefinition}
             currentProblem={currentProblem}
             bounds={bounds}
-            biasSlice={biasSlice}
           />
         </CollapsibleSection>
         {/* 2. Playback Section */}
@@ -247,30 +239,30 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 }
               ]}
               steps={[
-                <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
+                <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
                 <><strong>repeat</strong> until convergence:</>,
                 <>
-                  <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+                  <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute Hessian <Var id="H"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives)</span>
+                  <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives) <Complexity explanation="d² function evaluations for finite differences">O(d²)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Extract diagonal: <Var id="d_i"><InlineMath>{'d_i'}</InlineMath></Var> ← <Var id="H"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate <InlineMath>i</InlineMath></span>
+                  <span className="ml-4">Extract diagonal: <Var id="d_i" type="scalar (per coordinate)"><InlineMath>{'d_i'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate <InlineMath>i</InlineMath> <Complexity>O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Build diagonal preconditioner: <Var id="D"><InlineMath>{'D'}</InlineMath></Var> ← <InlineMath>{'\\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath></span>
+                  <span className="ml-4">Build diagonal preconditioner: <Var id="D" type="d×d diagonal matrix"><InlineMath>{'D'}</InlineMath></Var> ← <InlineMath>{'\\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath> <Complexity>O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute preconditioned direction: <Var id="p"><InlineMath>p</InlineMath></Var> ← −<Var id="D"><InlineMath>D</InlineMath></Var> · <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></span>
+                  <span className="ml-4">Compute preconditioned direction: <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ← −<Var id="D" type="d×d diagonal matrix"><InlineMath>D</InlineMath></Var> · <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity explanation="Diagonal matrix-vector multiply">O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> = 1)</span>
+                  <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> = 1) <Complexity explanation="Optional: backtracking line search if enabled">O(1) or O(k·d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+                  <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
                 </>,
-                <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
+                <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
               ]}
             />
 

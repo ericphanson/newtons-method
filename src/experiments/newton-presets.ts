@@ -106,7 +106,7 @@ export const newtonExperiments: ExperimentPreset[] = [
       hessianDamping: 0,
       lineSearch: 'none',
     },
-    initialPoint: [0.5, 0.5, 0.0],
+    initialPoint: [0.5, 0.5],
     expectation: 'Newton direction is 10,000x gradient magnitude, oscillates wildly, never converges',
     ui: {
       tone: 'orange',
@@ -139,7 +139,7 @@ export const newtonExperiments: ExperimentPreset[] = [
       hessianDamping: 0,
       lineSearch: 'armijo',
     },
-    initialPoint: [0.5, 0.5, 0.0],
+    initialPoint: [0.5, 0.5],
     expectation: 'Line search prevents explosion but Newton still struggles - takes many iterations with tiny steps',
     ui: {
       tone: 'amber',
@@ -160,7 +160,7 @@ export const newtonExperiments: ExperimentPreset[] = [
       hessianDamping: 1.0,
       lineSearch: 'none',
     },
-    initialPoint: [0.5, 0.5, 0.0],
+    initialPoint: [0.5, 0.5],
     expectation: 'Damping masks symptoms but Newton remains inefficient - better to use GD or L-BFGS',
     ui: {
       tone: 'amber',

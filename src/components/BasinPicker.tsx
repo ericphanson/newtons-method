@@ -37,7 +37,6 @@ import { computeBasinIncremental, BasinTimingData } from '../utils/basinComputat
 import { encodeBasinColors } from '../utils/basinColorEncoding';
 import { ColorbarLegend } from './ColorbarLegend';
 import { clusterConvergenceLocations, assignHuesToClusters } from '../utils/basinClustering';
-import { isDatasetProblem } from '../utils/problemHelpers';
 
 // Extend window interface to expose timing data and basin data for debugging
 declare global {
@@ -62,7 +61,6 @@ interface BasinPickerProps {
     diagPrecondLineSearch?: 'armijo' | 'none';
     tolerance?: number;
     lambda?: number;
-    biasSlice?: number;
     useLineSearch?: boolean;
     termination?: {
       gtol?: number;
@@ -82,7 +80,7 @@ interface BasinPickerProps {
 
 export const BasinPicker: React.FC<BasinPickerProps> = ({
   problem,
-  currentProblem,
+  currentProblem: _currentProblem, // eslint-disable-line @typescript-eslint/no-unused-vars -- Unused but kept for API consistency
   algorithm,
   algorithmParams,
   problemFuncs,
@@ -186,9 +184,9 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       console.log(`Algorithm Params:`, algorithmParams);
       console.log(`Problem Functions dimensionality:`, problemFuncs.dimensionality);
       // Log a sample evaluation to see if problem functions work
-      const testPoint = [0, 0, algorithmParams.biasSlice || 0];
+      const testPoint = [0, 0];
       const grad = problemFuncs.gradient(testPoint);
-      console.log(`Test evaluation at [0,0,${algorithmParams.biasSlice || 0}]:`, {
+      console.log(`Test evaluation at [0,0]:`, {
         loss: problemFuncs.objective(testPoint),
         gradNorm: Math.sqrt(grad.reduce((sum: number, g: number) => sum + g*g, 0))
       });
@@ -281,7 +279,6 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
     algorithmParams.diagPrecondLineSearch,
     algorithmParams.tolerance,
     algorithmParams.lambda,
-    algorithmParams.biasSlice,
     // Full objects needed by computeBasinIncremental
     algorithmParams,
     bounds,
