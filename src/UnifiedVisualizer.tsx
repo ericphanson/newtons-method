@@ -104,11 +104,14 @@ const UnifiedVisualizer = () => {
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm) => {
     const currentHash = window.location.hash;
+
+    // Disable IntersectionObserver updates BEFORE tab switch
+    isNavigatingRef.current = true;
+
     setSelectedTab(newTab);
 
     // After React renders the new tab, try to scroll to the hash if it exists
     if (currentHash) {
-      isNavigatingRef.current = true; // Disable IntersectionObserver updates
       setTimeout(() => {
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
@@ -121,6 +124,11 @@ const UnifiedVisualizer = () => {
           isNavigatingRef.current = false;
         }, 600);
       }, 50); // Small delay to ensure tab content has rendered
+    } else {
+      // If no hash to preserve, re-enable observer after render
+      setTimeout(() => {
+        isNavigatingRef.current = false;
+      }, 100);
     }
   };
 
