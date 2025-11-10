@@ -76,6 +76,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     description: 'Armijo line search adapts step size per iteration but convergence still slow on κ=100',
     algorithm: 'gd-linesearch',
     problem: 'ill-conditioned-quadratic',
+    problemParameters: { conditionNumber: 100 },
     hyperparameters: {
       c1: 0.0001,
       maxIter: 100,

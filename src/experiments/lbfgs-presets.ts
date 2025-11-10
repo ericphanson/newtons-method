@@ -25,6 +25,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     description: 'Compare different memory sizes on same problem',
     algorithm: 'lbfgs',
     problem: 'ill-conditioned-quadratic',
+    problemParameters: { conditionNumber: 100 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

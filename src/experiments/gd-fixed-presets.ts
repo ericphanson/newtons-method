@@ -58,6 +58,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'Elongated ellipse causes zig-zagging',
     algorithm: 'gd-fixed',
     problem: 'ill-conditioned-quadratic',
+    problemParameters: { conditionNumber: 100 },
     hyperparameters: {
       alpha: 0.01,
       lambda: 0,

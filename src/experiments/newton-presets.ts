@@ -59,6 +59,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Elongated ellipse where GD zig-zags but Newton excels',
     algorithm: 'newton',
     problem: 'ill-conditioned-quadratic',
+    problemParameters: { conditionNumber: 100 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

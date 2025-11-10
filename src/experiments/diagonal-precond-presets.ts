@@ -7,6 +7,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
     description: 'Ellipse aligned with axes - diagonal preconditioner is perfect!',
     algorithm: 'diagonal-precond',
     problem: 'ill-conditioned-quadratic',
+    problemParameters: { conditionNumber: 100 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
