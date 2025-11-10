@@ -98,6 +98,9 @@ const UnifiedVisualizer = () => {
   const [experimentLoading, setExperimentLoading] = useState(false);
   const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
 
+  // Ref to prevent IntersectionObserver from interfering during programmatic scrolls
+  const isNavigatingRef = useRef(false);
+
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm) => {
     const currentHash = window.location.hash;
@@ -105,12 +108,18 @@ const UnifiedVisualizer = () => {
 
     // After React renders the new tab, try to scroll to the hash if it exists
     if (currentHash) {
+      isNavigatingRef.current = true; // Disable IntersectionObserver updates
       setTimeout(() => {
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
           targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
+
+        // Re-enable IntersectionObserver after scroll completes (smooth scroll takes ~300-500ms)
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 600);
       }, 50); // Small delay to ensure tab content has rendered
     }
   };
@@ -296,6 +305,9 @@ const UnifiedVisualizer = () => {
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       // Note: IntersectionObserverEntry is a built-in browser API type, no import needed
+      // Skip hash updates during programmatic navigation to prevent jerkiness
+      if (isNavigatingRef.current) return;
+
       entries.forEach(entry => {
         if (entry.isIntersecting && entry.target.id) {
           // Update URL hash without scrolling
