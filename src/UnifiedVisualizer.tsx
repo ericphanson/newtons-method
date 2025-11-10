@@ -29,7 +29,7 @@ import { NewtonTab } from './components/tabs/NewtonTab';
 import { LbfgsTab } from './components/tabs/LbfgsTab';
 import { DiagonalPrecondTab } from './components/tabs/DiagonalPrecondTab';
 
-type Algorithm = 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
+type Algorithm = 'stories' | 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
 const UnifiedVisualizer = () => {
   // Shared state
@@ -44,7 +44,7 @@ const UnifiedVisualizer = () => {
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
-    if (saved && ['algorithms', 'gd-fixed', 'gd-linesearch', 'diagonal-precond', 'newton', 'lbfgs'].includes(saved)) {
+    if (saved && ['stories', 'algorithms', 'gd-fixed', 'gd-linesearch', 'diagonal-precond', 'newton', 'lbfgs'].includes(saved)) {
       return saved as Algorithm;
     }
     return 'algorithms';
