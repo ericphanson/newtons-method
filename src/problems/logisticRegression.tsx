@@ -24,6 +24,24 @@ export const logisticRegressionExplainer = (
       </div>
 
       <p>
+        <strong>Parameters:</strong>
+      </p>
+      <ul className="text-sm list-disc ml-5 space-y-1">
+        <li>
+          <InlineMath>\lambda</InlineMath> (regularization): Controls model complexity
+        </li>
+        <li>
+          <InlineMath>b</InlineMath> (bias): Shifts the decision boundary. Unlike feature weights,
+          bias is a configuration parameter (not learned during optimization).
+        </li>
+      </ul>
+
+      <p>
+        <strong>Decision boundary:</strong> The line where <InlineMath>w_0 x_1 + w_1 x_2 + b = 0</InlineMath>.
+        Changing <InlineMath>b</InlineMath> shifts this line perpendicular to <InlineMath>(w_0, w_1)</InlineMath>.
+      </p>
+
+      <p>
         <strong>What it does:</strong> Finds a linear decision boundary to separate
         two classes (red and blue crescents).
       </p>

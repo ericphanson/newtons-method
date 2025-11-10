@@ -23,9 +23,12 @@ export const separatingHyperplaneExplainer = (
         <h5 className="font-semibold text-sm mb-2">Notation (for beginners)</h5>
         <div className="space-y-1 text-sm">
           <p>
-            <InlineMath>w = [w_0, w_1, w_2]</InlineMath> — The <strong>weights</strong> we're optimizing.
-            <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath> define the slope,
-            <InlineMath>w_2</InlineMath> is the bias (intercept).
+            <InlineMath>w = [w_0, w_1]</InlineMath> — The <strong>feature weights</strong> being optimized.
+            <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath> define the slope of the decision boundary.
+          </p>
+          <p>
+            <InlineMath>b</InlineMath> — The <strong>bias</strong> (configuration parameter, not optimized).
+            Shifts the decision boundary perpendicular to <InlineMath>(w_0, w_1)</InlineMath>.
           </p>
           <p>
             <InlineMath>x = [x_1, x_2]</InlineMath> — A <strong>data point</strong> in 2D space (e.g., a red or blue dot).
@@ -35,11 +38,11 @@ export const separatingHyperplaneExplainer = (
             <InlineMath>y = -1</InlineMath> for class 0 (red), <InlineMath>y = +1</InlineMath> for class 1 (blue).
           </p>
           <p>
-            <InlineMath>z = w_0 x_1 + w_1 x_2 + w_2</InlineMath> — The <strong>decision value</strong>.
+            <InlineMath>z = w_0 x_1 + w_1 x_2 + b</InlineMath> — The <strong>decision value</strong>.
             If <InlineMath>{'z > 0'}</InlineMath>, we predict class 1; if <InlineMath>{'z < 0'}</InlineMath>, we predict class 0.
           </p>
           <p className="pt-2 border-t border-blue-300 mt-2">
-            <strong>Decision Boundary:</strong> <InlineMath>w_0 x_1 + w_1 x_2 + w_2 = 0</InlineMath>
+            <strong>Decision Boundary:</strong> <InlineMath>w_0 x_1 + w_1 x_2 + b = 0</InlineMath>
             <br />
             <span className="text-xs">This is the line where <InlineMath>z = 0</InlineMath>. Points on one side are predicted as class 0, points on the other side as class 1.</span>
           </p>
