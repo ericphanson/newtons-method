@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights } from '../problems';
+import { getProblem, resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2 } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -153,51 +153,38 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         </div>
 
         {/* Mathematical Formulation */}
-        {currentProblem === 'logistic-regression' ? (
-          <div className="space-y-2 text-gray-800 text-sm bg-purple-50 p-3 rounded">
-            <div>
-              <strong>Model:</strong>{' '}
-              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + b)</InlineMath>
-            </div>
-            <div>
-              <strong>Loss:</strong>{' '}
-              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x + b)) + (1-y) \log(1-\sigma(w^T x + b))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
-            </div>
+        {currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane' ? (
+          <div className={`space-y-2 text-gray-800 text-sm p-3 rounded ${
+            currentProblem === 'logistic-regression' ? 'bg-purple-50' : 'bg-green-50'
+          }`}>
+            {/* Show formula from registry */}
+            {(() => {
+              const entry = problemRegistryV2[currentProblem];
+              const problem = entry?.requiresDataset
+                ? resolveProblem(
+                    currentProblem,
+                    {
+                      lambda,
+                      bias,
+                      ...(separatingHyperplaneVariant ? { variant: separatingHyperplaneVariant } : {})
+                    },
+                    customPoints.length > 0 ? customPoints : [{ x1: 0, x2: 0, y: 1 }]
+                  )
+                : null;
+
+              if (problem?.objectiveFormula) {
+                return (
+                  <div>
+                    <p className="text-base font-semibold mb-2">Objective:</p>
+                    {problem.objectiveFormula}
+                  </div>
+                );
+              }
+              return null;
+            })()}
             <div>
               <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
             </div>
-          </div>
-        ) : currentProblem === 'separating-hyperplane' ? (
-          <div className="space-y-2 text-gray-800 text-sm bg-green-50 p-3 rounded">
-            <div className="mb-2 pb-2 border-b border-green-200">
-              <strong>Variables:</strong>{' '}
-              <InlineMath>w = [w_0, w_1]</InlineMath> (feature weights),{' '}
-              <InlineMath>b</InlineMath> (bias),{' '}
-              <InlineMath>x = [x_1, x_2]</InlineMath> (data point),{' '}
-              <InlineMath>{'y \\in \\{-1, +1\\}'}</InlineMath> (class label),{' '}
-              <InlineMath>z = w_0 x_1 + w_1 x_2 + b</InlineMath> (decision value)
-            </div>
-            {separatingHyperplaneVariant === 'soft-margin' && (
-              <div>
-                <strong>Soft-Margin:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + \lambda \sum \max(0, 1-y_i z_i)`}</InlineMath>
-                <br />
-                <small>Hinge loss allows misclassifications with adjustable penalty λ</small>
-              </div>
-            )}
-            {separatingHyperplaneVariant === 'perceptron' && (
-              <div>
-                <strong>Perceptron:</strong> min <InlineMath>{String.raw`\sum \max(0, -y_i z_i) + \frac{\lambda}{2} \|w\|^2`}</InlineMath>
-                <br />
-                <small>Penalizes only misclassified points with adjustable regularization λ</small>
-              </div>
-            )}
-            {separatingHyperplaneVariant === 'squared-hinge' && (
-              <div>
-                <strong>Squared-Hinge:</strong> min <InlineMath>{String.raw`\frac{1}{2}\|w\|^2 + \lambda \sum [\max(0, 1-y_i z_i)]^2`}</InlineMath>
-                <br />
-                <small>Smooth variant with adjustable quadratic penalty λ, twice differentiable</small>
-              </div>
-            )}
           </div>
         ) : (
           <div className="space-y-2 text-gray-800 text-sm bg-blue-50 p-3 rounded">
@@ -227,31 +214,37 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
 
-          {/* Variant selector for separating hyperplane */}
-          {currentProblem === 'separating-hyperplane' && (
-            <div className="mb-4 flex gap-4 items-center">
-              <div className="w-64">
-                <label className="block font-medium text-gray-700 mb-2">Variant:</label>
-                <select
-                  value={separatingHyperplaneVariant}
-                  onChange={(e) =>
-                    onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
-                >
-                  <option value="soft-margin">Soft-Margin SVM</option>
-                  <option value="perceptron">Perceptron</option>
-                  <option value="squared-hinge">Squared-Hinge</option>
-                </select>
-              </div>
-              <div className="flex-1 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-xs text-green-900">
-                  Different objective functions lead to different separating hyperplanes.
-                  Try switching variants to see how the optimization behavior changes!
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Variant selector - use registry metadata */}
+          {(() => {
+            const entry = problemRegistryV2[currentProblem];
+            if (entry?.variants && entry.variants.length > 0) {
+              return (
+                <div className="mb-4 flex gap-4 items-center">
+                  <div className="w-64">
+                    <label className="block font-medium text-gray-700 mb-2">Variant:</label>
+                    <select
+                      value={separatingHyperplaneVariant}
+                      onChange={(e) =>
+                        onSeparatingHyperplaneVariantChange?.(e.target.value as SeparatingHyperplaneVariant)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded bg-white"
+                    >
+                      {entry.variants.map(v => (
+                        <option key={v.id} value={v.id}>{v.displayName}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-xs text-green-900">
+                      Different objective functions lead to different separating hyperplanes.
+                      Try switching variants to see how the optimization behavior changes!
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           <div className="flex gap-6">
             {/* Data Space Canvas */}
@@ -271,50 +264,71 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
             {/* Controls Sidebar */}
             <div className="w-64 space-y-4">
-              {isDatasetProblem(currentProblem) && (
-                <div>
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    Regularization (<InlineMath>\lambda</InlineMath>)
-                  </h4>
-                  <input
-                    type="range"
-                    min="-6"
-                    max="-2"
-                    step="0.1"
-                    value={Math.log10(lambda)}
-                    onChange={(e) => onLambdaChange(Math.pow(10, parseFloat(e.target.value)))}
-                    className="w-full"
-                  />
-                  <span className="text-sm text-gray-600">
-                    <InlineMath>\lambda</InlineMath> = {lambda.toExponential(1)}
-                  </span>
-                </div>
-              )}
+              {/* Lambda slider - use registry metadata */}
+              {(() => {
+                const entry = problemRegistryV2[currentProblem];
+                const lambdaParam = entry?.parameters.find(p => p.key === 'lambda');
+                if (lambdaParam && lambdaParam.type === 'range') {
+                  return (
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        {lambdaParam.label || 'Regularization'} (<InlineMath>\lambda</InlineMath>)
+                      </h4>
+                      <input
+                        type="range"
+                        min={lambdaParam.min}
+                        max={lambdaParam.max}
+                        step={lambdaParam.step}
+                        value={lambda}
+                        onChange={(e) => onLambdaChange(parseFloat(e.target.value))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>{lambdaParam.min}</span>
+                        <span className="font-semibold">{lambda.toFixed(1)}</span>
+                        <span>{lambdaParam.max}</span>
+                      </div>
+                      {lambdaParam.description && (
+                        <p className="text-xs text-gray-500 mt-1">{lambdaParam.description}</p>
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
-              {isDatasetProblem(currentProblem) && (
-                <div className="mt-3">
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    Bias (<InlineMath>b</InlineMath>)
-                  </h4>
-                  <input
-                    type="range"
-                    min={-3}
-                    max={3}
-                    step={0.1}
-                    value={bias}
-                    onChange={(e) => onBiasChange(parseFloat(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600 mt-1">
-                    <span>-3</span>
-                    <span className="font-semibold">{bias.toFixed(1)}</span>
-                    <span>3</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Shifts the decision boundary perpendicular to the normal vector
-                  </p>
-                </div>
-              )}
+              {/* Bias slider - use registry metadata */}
+              {(() => {
+                const entry = problemRegistryV2[currentProblem];
+                const biasParam = entry?.parameters.find(p => p.key === 'bias');
+                if (biasParam && biasParam.type === 'range') {
+                  return (
+                    <div className="mt-3">
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        {biasParam.label || 'Bias'} (<InlineMath>b</InlineMath>)
+                      </h4>
+                      <input
+                        type="range"
+                        min={biasParam.min}
+                        max={biasParam.max}
+                        step={biasParam.step}
+                        value={bias}
+                        onChange={(e) => onBiasChange(parseFloat(e.target.value))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>{biasParam.min}</span>
+                        <span className="font-semibold">{bias.toFixed(1)}</span>
+                        <span>{biasParam.max}</span>
+                      </div>
+                      {biasParam.description && (
+                        <p className="text-xs text-gray-500 mt-1">{biasParam.description}</p>
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <div>
                 <h4 className="font-medium text-gray-700 mb-2">Dataset Editing</h4>
