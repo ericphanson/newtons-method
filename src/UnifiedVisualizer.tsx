@@ -125,9 +125,9 @@ const UnifiedVisualizer = () => {
         console.log('[TAB CHANGE] After 50ms delay, looking for element:', currentHash);
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
-          console.log('[TAB CHANGE] Found element, scrolling to it');
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Restore hash after scrolling starts
+          console.log('[TAB CHANGE] Found element, scrolling to it instantly');
+          targetElement.scrollIntoView({ block: 'start' });
+          // Restore hash after scrolling
           console.log('[TAB CHANGE] Restoring hash to URL');
           window.history.replaceState(null, '', window.location.pathname + window.location.search + currentHash);
         } else {
