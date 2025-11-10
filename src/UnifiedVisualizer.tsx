@@ -44,6 +44,7 @@ const UnifiedVisualizer = () => {
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
   const [lambda, setLambda] = useState(0.0001);
+  const [bias, setBias] = useState<number>(0);
 
   // Unified parameter state
   const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
@@ -161,8 +162,8 @@ const UnifiedVisualizer = () => {
     w1: [-3, 3] as [number, number],
   });
 
-  // Logistic regression / separating hyperplane global minimum (computed, can be 2D or 3D)
-  const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | [number, number, number] | null>(null);
+  // Logistic regression / separating hyperplane global minimum (computed, 2D only)
+  const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | null>(null);
 
   // Toast state
   const [toast, setToast] = useState<{ content: React.ReactNode; type: 'success' | 'error' | 'info'; duration?: number } | null>(null);
@@ -173,23 +174,23 @@ const UnifiedVisualizer = () => {
   const getCurrentProblem = useCallback(() => {
     if (currentProblem === 'logistic-regression') {
       // Return logistic regression wrapped as problem interface
-      // Note: Logistic regression uses 3D weights [w0, w1, w2] with bias
+      // Note: Logistic regression uses 2D weights [w0, w1] with bias parameter
       return {
         name: 'Logistic Regression',
         description: 'Binary classification with L2 regularization',
-        objective: (w: number[]) => logisticObjective(w, data, lambda),
-        gradient: (w: number[]) => logisticGradient(w, data, lambda),
-        hessian: (w: number[]) => logisticHessian(w, data, lambda),
+        objective: (w: number[]) => logisticObjective(w, data, lambda, bias),
+        gradient: (w: number[]) => logisticGradient(w, data, lambda, bias),
+        hessian: (w: number[]) => logisticHessian(w, data, lambda, bias),
         domain: {
           w0: [-3, 3],
           w1: [-3, 3],
         },
         requiresDataset: true,
-        dimensionality: 3, // 3D weights [w0, w1, w2]
+        dimensionality: 2, // 2D weights [w0, w1]
       };
     } else if (currentProblem === 'separating-hyperplane') {
       // Special case: dataset-based problem
-      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
+      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
       return {
         name: 'Separating Hyperplane',
         description: `Separating hyperplane (${separatingHyperplaneVariant})`,
@@ -201,7 +202,7 @@ const UnifiedVisualizer = () => {
           w1: [-3, 3],
         },
         requiresDataset: true,
-        dimensionality: 3, // 3D weights [w0, w1, w2]
+        dimensionality: 2, // 2D weights [w0, w1]
       };
     } else {
       // NEW: Use centralized resolution for all registry problems
@@ -212,26 +213,26 @@ const UnifiedVisualizer = () => {
         dimensionality: 2,
       };
     }
-  }, [currentProblem, data, lambda, problemParameters, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, bias, problemParameters, separatingHyperplaneVariant]);
 
   // Get current problem functions for algorithm execution
   // For parametrized problems (rotated quadratic, ill-conditioned quadratic, Rosenbrock),
   // we create instances with current parameter values
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
     if (currentProblem === 'logistic-regression') {
-      return logisticRegressionToProblemFunctions(data, lambda);
+      return logisticRegressionToProblemFunctions(data, lambda, bias);
     } else if (currentProblem === 'separating-hyperplane') {
       // Special case: dataset-based problem
       if (!data || data.length === 0) {
         throw new Error('Separating hyperplane requires dataset');
       }
-      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
+      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
     } else {
       // NEW: Use centralized resolution for all registry problems
       const problem = resolveProblem(currentProblem, problemParameters);
       return problemToProblemFunctions(problem);
     }
-  }, [currentProblem, data, lambda, problemParameters, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, bias, problemParameters, separatingHyperplaneVariant]);
 
   // Track visualization bounds updates
   useEffect(() => {
@@ -248,8 +249,8 @@ const UnifiedVisualizer = () => {
     if (isDatasetProblem(currentProblem)) {
       try {
         const problemFuncs = currentProblem === 'logistic-regression'
-          ? logisticRegressionToProblemFunctions(data, lambda)
-          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
+          ? logisticRegressionToProblemFunctions(data, lambda, bias)
+          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
         // Run L-BFGS with tight convergence to find global minimum
         const result = runLBFGS(problemFuncs, {
           maxIter: 1000,
@@ -257,16 +258,14 @@ const UnifiedVisualizer = () => {
           c1: 0.0001,
           lambda,
           hessianDamping: 0.01, // Use default damping for stability
-          initialPoint: [0, 0, 0],
+          initialPoint: [0, 0],
           tolerance: 1e-10, // Very tight tolerance for accurate minimum
         });
         const iterations = result.iterations;
         if (iterations.length > 0) {
           const lastIter = iterations[iterations.length - 1];
-          // Store all 3 coordinates for 3D problems (separating hyperplane)
-          if (lastIter.wNew.length >= 3) {
-            setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1], lastIter.wNew[2]]);
-          } else {
+          // Store 2D coordinates only
+          if (lastIter.wNew.length >= 2) {
             setLogisticGlobalMin([lastIter.wNew[0], lastIter.wNew[1]]);
           }
         }
@@ -277,7 +276,7 @@ const UnifiedVisualizer = () => {
     } else {
       setLogisticGlobalMin(null);
     }
-  }, [currentProblem, data, lambda, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, bias, separatingHyperplaneVariant]);
 
   // Automatically update URL hash based on visible section
   useEffect(() => {
@@ -592,12 +591,6 @@ const UnifiedVisualizer = () => {
     };
   }, []);
 
-  // Bias slice for 3D problems (logistic regression, separating hyperplane)
-  const biasSlice = React.useMemo(() => {
-    return (isDatasetProblem(currentProblem) && logisticGlobalMin && logisticGlobalMin.length >= 3)
-      ? (logisticGlobalMin as [number, number, number])[2]
-      : 0;
-  }, [currentProblem, logisticGlobalMin]);
 
   // Story state
   const [currentStoryId, setCurrentStoryId] = useState<string | null>(() =>
@@ -1305,21 +1298,14 @@ const UnifiedVisualizer = () => {
     const resolution = 60;
     const lossGrid: number[][] = [];
 
-    // For 3D problems, use the bias from the global minimum to slice the visualization
-    const biasSlice: number = ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3)
-      ? (logisticGlobalMin as [number, number, number])[2]
-      : 0;
-
     // Compute loss landscape as 2D grid
     for (let i = 0; i < resolution; i++) {
       const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
         const w0 = minW0 + (i / resolution) * w0Range;
         const w1 = minW1 + (j / resolution) * w1Range;
-        // Use problem interface for loss computation
-        const loss = problem.dimensionality === 3
-          ? problem.objective([w0, w1, biasSlice])
-          : problem.objective([w0, w1]);
+        // Use problem interface for loss computation (always 2D)
+        const loss = problem.objective([w0, w1]);
         row.push(loss);
       }
       lossGrid.push(row);
@@ -1866,7 +1852,7 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={biasSlice}
+              biasSlice={0}
               paramCanvasRef={gdFixedParamCanvasRef}
               experimentLoading={experimentLoading}
               onLoadExperiment={loadExperiment}
@@ -1893,7 +1879,7 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={biasSlice}
+              biasSlice={0}
               logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={gdLSParamCanvasRef}
               lineSearchCanvasRef={gdLSLineSearchCanvasRef}
@@ -1930,7 +1916,7 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={biasSlice}
+              biasSlice={0}
               logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={newtonParamCanvasRef}
               lineSearchCanvasRef={newtonLineSearchCanvasRef}
@@ -1964,7 +1950,7 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={biasSlice}
+              biasSlice={0}
               logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={lbfgsParamCanvasRef}
               lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
@@ -2001,7 +1987,7 @@ const UnifiedVisualizer = () => {
               problem={problem}
               currentProblem={currentProblem}
               bounds={bounds}
-              biasSlice={biasSlice}
+              biasSlice={0}
               logisticGlobalMin={logisticGlobalMin}
               paramCanvasRef={diagPrecondParamCanvasRef}
               lineSearchCanvasRef={diagPrecondLineSearchCanvasRef}
