@@ -23,7 +23,7 @@ export const stepSizeEvolution: Story = {
     },
     {
       experimentId: 'diag-precond-aligned-success',
-      narrative: 'Diagonal preconditioning solves this by giving each coordinate its own step size, estimated from the diagonal of the Hessian. Since our problem axes align with coordinate axes, this captures the per-dimension curvature perfectly!',
+      narrative: 'Diagonal preconditioning solves this in 2 iterations by giving each coordinate its own step size, estimated from the diagonal of the Hessian. Since our problem axes align with coordinate axes, this captures the per-dimension curvature perfectly!',
       scrollTo: 'canvas'
     },
     {
@@ -33,7 +33,7 @@ export const stepSizeEvolution: Story = {
     },
     {
       experimentId: 'diag-precond-rotated-failure',
-      narrative: 'Diagonal preconditioning fails! When rotated, the Hessian has large off-diagonal entries that capture how dimensions interact. Diagonal methods ignore this coupling, treating each dimension independently, so we\'re back to zig-zagging.',
+      narrative: 'Diagonal preconditioning now takes 30 iterations! When rotated, the Hessian has large off-diagonal entries that capture how dimensions interact. Diagonal methods ignore this coupling, treating each dimension independently, so we\'re back to zig-zagging.',
       scrollTo: 'canvas'
     },
     {
