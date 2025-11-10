@@ -54,7 +54,7 @@ export function createRotatedQuadratic(thetaDegrees: number = 0, kappa: number =
   const isAxisAligned = thetaDegrees === 0;
 
   return {
-    name: 'Rotated Ellipse',
+    name: 'Rotated Quadratic',
     objectiveFormula: isAxisAligned ? (
       <InlineMath>{String.raw`f(w) = \frac{1}{2}(\kappa w_0^2 + w_1^2)`}</InlineMath>
     ) : (
@@ -62,7 +62,7 @@ export function createRotatedQuadratic(thetaDegrees: number = 0, kappa: number =
     ),
     description: (
       <>
-        {isAxisAligned ? 'Axis-aligned ellipse' : 'Rotated ellipse'} (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>\kappa</InlineMath>={kappa}){kappa <= 2 ? ' (well-conditioned)' : kappa >= 50 ? ' (ill-conditioned)' : ''}
+        {isAxisAligned ? 'Axis-aligned quadratic' : 'Rotated quadratic'} (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>\kappa</InlineMath>={kappa}){kappa <= 2 ? ' (well-conditioned)' : kappa >= 50 ? ' (ill-conditioned)' : ''}
       </>
     ),
 
@@ -164,10 +164,10 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
   };
 }
 
-// Educational content for rotated ellipse problem
+// Educational content for rotated quadratic problem
 export const quadraticExplainer = (
   <CollapsibleSection
-    title="Rotated Ellipse (Two Sources of Difficulty)"
+    title="Rotated Quadratic (Two Sources of Difficulty)"
     defaultExpanded={false}
     storageKey="problem-explainer-quadratic"
   >
@@ -201,14 +201,14 @@ export const quadraticExplainer = (
       </div>
 
       <p>
-        <strong>What it does:</strong> Creates an elliptical bowl with two independent sources of difficulty for optimization.
+        <strong>What it does:</strong> Creates a quadratic bowl with two independent sources of difficulty for optimization.
       </p>
 
       <p>
-        <strong>Why it's interesting:</strong> This problem elegantly separates two distinct challenges:
+        <strong>Why it's interesting:</strong> This problem separates two distinct challenges:
       </p>
       <ul className="text-sm list-disc ml-5 space-y-1">
-        <li><strong>Intrinsic difficulty (<InlineMath>\kappa</InlineMath>):</strong> Elongation of the ellipse. High <InlineMath>\kappa</InlineMath> makes the problem <GlossaryTooltip termKey="ill-conditioned" />, causing all first-order methods to slow down.</li>
+        <li><strong>Intrinsic difficulty (<InlineMath>\kappa</InlineMath>):</strong> Elongation of the bowl. High <InlineMath>\kappa</InlineMath> makes the problem <GlossaryTooltip termKey="ill-conditioned" />, causing all first-order methods to slow down.</li>
         <li><strong>Extrinsic difficulty (<InlineMath>\theta</InlineMath>):</strong> Misalignment with coordinate axes. Rotation affects gradient descent but not second-order methods.</li>
       </ul>
 
@@ -225,7 +225,7 @@ export const quadraticExplainer = (
       <div className="bg-green-50 rounded p-3 mt-2">
         <p className="text-sm font-semibold mb-1">Understanding θ (Rotation Angle):</p>
         <ul className="text-sm list-disc ml-5 space-y-1">
-          <li><strong>θ=0°:</strong> Axis-aligned ellipse. Gradient descent moves efficiently along coordinate axes. <em>Pure conditioning test.</em></li>
+          <li><strong>θ=0°:</strong> Axis-aligned quadratic. Gradient descent moves efficiently along coordinate axes. <em>Pure conditioning test.</em></li>
           <li><strong>θ=45°:</strong> Maximum misalignment. Gradient steps zigzag badly between steep and shallow directions. <em>Pure rotation challenge.</em></li>
           <li><strong>Newton & L-BFGS:</strong> Performance unchanged by θ! Second-order methods are rotation invariant.</li>
         </ul>
