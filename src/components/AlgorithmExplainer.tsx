@@ -23,7 +23,8 @@ export function AlgorithmExplainer() {
       >
         <div className="space-y-3 text-gray-800">
           <p>
-            <strong>Type:</strong> First-order method (uses only gradient)
+            <strong>Type:</strong>{' '}
+            <GlossaryTooltip termKey="first-order-method" /> (uses only gradient)
           </p>
 
           <div>
@@ -94,7 +95,8 @@ export function AlgorithmExplainer() {
       >
         <div className="space-y-3 text-gray-800">
           <p>
-            <strong>Type:</strong> First-order method with adaptive step size
+            <strong>Type:</strong>{' '}
+            <GlossaryTooltip termKey="first-order-method" /> with adaptive step size
           </p>
 
           <div>
@@ -304,8 +306,8 @@ export function AlgorithmExplainer() {
       >
         <div className="space-y-3 text-gray-800">
           <p>
-            <strong>Type:</strong> Second-order method (uses{' '}
-            <GlossaryTooltip termKey="hessian" /> matrix)
+            <strong>Type:</strong>{' '}
+            <GlossaryTooltip termKey="second-order-method" /> (uses Hessian matrix)
           </p>
 
           <div>
