@@ -411,7 +411,9 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           <p>"Look ahead" before computing gradient:</p>
           <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k + \\beta v_k) + \\beta v_k'}</BlockMath>
           <p className="text-sm mt-2">
-            Provably optimal convergence rate for smooth convex functions.
+            Provably optimal convergence rate for{' '}
+            <GlossaryTooltip termKey="smooth" />{' '}
+            <GlossaryTooltip termKey="convex" /> functions.
           </p>
         </div>
 
