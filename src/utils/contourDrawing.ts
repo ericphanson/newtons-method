@@ -567,3 +567,106 @@ export function getPlotArea(
     height: canvasHeight - margins.top - margins.bottom
   };
 }
+
+/**
+ * Draw axes with ticks and labels for data space (x₁, x₂)
+ */
+interface DataSpaceAxisOptions {
+  ctx: CanvasRenderingContext2D;
+  bounds: { minX1: number; maxX1: number; minX2: number; maxX2: number };
+  canvasWidth: number;
+  canvasHeight: number;
+  margins?: { left: number; right: number; top: number; bottom: number };
+  fontSize?: number;
+  tickLength?: number;
+}
+
+export function drawDataSpaceAxes(options: DataSpaceAxisOptions): void {
+  const {
+    ctx,
+    bounds,
+    canvasWidth,
+    canvasHeight,
+    margins = { left: 60, right: 20, top: 20, bottom: 60 },
+    fontSize = 12,
+    tickLength = 6
+  } = options;
+
+  const { minX1, maxX1, minX2, maxX2 } = bounds;
+  const x1Range = maxX1 - minX1;
+  const x2Range = maxX2 - minX2;
+
+  const plotWidth = canvasWidth - margins.left - margins.right;
+  const plotHeight = canvasHeight - margins.top - margins.bottom;
+
+  // Helper functions to convert from data space to plot space
+  const toPlotX = (x1: number) => margins.left + ((x1 - minX1) / x1Range) * plotWidth;
+  const toPlotY = (x2: number) => margins.top + ((maxX2 - x2) / x2Range) * plotHeight;
+
+  ctx.save();
+  ctx.strokeStyle = '#374151';
+  ctx.fillStyle = '#374151';
+  ctx.lineWidth = 1.5;
+  ctx.font = `${fontSize}px sans-serif`;
+
+  // Draw bottom axis (x1)
+  const x1Ticks = calculateNiceTicks(minX1, maxX1, 6);
+  ctx.beginPath();
+  ctx.moveTo(margins.left, canvasHeight - margins.bottom);
+  ctx.lineTo(canvasWidth - margins.right, canvasHeight - margins.bottom);
+  ctx.stroke();
+
+  // Draw x1 ticks and labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  x1Ticks.forEach(tick => {
+    const x = toPlotX(tick);
+    // Tick mark
+    ctx.beginPath();
+    ctx.moveTo(x, canvasHeight - margins.bottom);
+    ctx.lineTo(x, canvasHeight - margins.bottom + tickLength);
+    ctx.stroke();
+    // Label
+    const label = tick === 0 ? '0.00' : (Math.abs(tick) < 0.01 ? tick.toExponential(1) : tick.toFixed(2));
+    ctx.fillText(label, x, canvasHeight - margins.bottom + tickLength + 4);
+  });
+
+  // Draw x1 axis label
+  ctx.font = `${fontSize + 2}px sans-serif`;
+  ctx.textBaseline = 'top';
+  ctx.fillText('x₁', canvasWidth / 2, canvasHeight - margins.bottom + tickLength + 4 + fontSize + 2);
+
+  // Draw left axis (x2)
+  ctx.font = `${fontSize}px sans-serif`;
+  const x2Ticks = calculateNiceTicks(minX2, maxX2, 6);
+  ctx.beginPath();
+  ctx.moveTo(margins.left, margins.top);
+  ctx.lineTo(margins.left, canvasHeight - margins.bottom);
+  ctx.stroke();
+
+  // Draw x2 ticks and labels
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  x2Ticks.forEach(tick => {
+    const y = toPlotY(tick);
+    // Tick mark
+    ctx.beginPath();
+    ctx.moveTo(margins.left - tickLength, y);
+    ctx.lineTo(margins.left, y);
+    ctx.stroke();
+    // Label
+    const label = tick === 0 ? '0.00' : (Math.abs(tick) < 0.01 ? tick.toExponential(1) : tick.toFixed(2));
+    ctx.fillText(label, margins.left - tickLength - 4, y);
+  });
+
+  // Draw x2 axis label
+  ctx.font = `${fontSize + 2}px sans-serif`;
+  ctx.save();
+  ctx.translate(14, canvasHeight / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('x₂', 0, 0);
+  ctx.restore();
+
+  ctx.restore();
+}

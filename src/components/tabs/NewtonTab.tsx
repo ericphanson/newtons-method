@@ -10,9 +10,10 @@ import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
-import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
+import type { ProblemFunctions } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
+import { computeIterationSummary } from '../../utils/iterationSummaryUtils';
 
 interface NewtonTabProps {
   maxIter: number;
@@ -37,7 +38,6 @@ interface NewtonTabProps {
   currentIter: number;
   onIterChange: (val: number) => void;
   onResetIter: () => void;
-  summary: AlgorithmSummary | null;
   problemFuncs: ProblemFunctions;
   problem: Record<string, unknown>;
   currentProblem: string;
@@ -72,7 +72,6 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   currentIter,
   onIterChange,
   onResetIter,
-  summary,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
@@ -193,7 +192,21 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               tolerance={newtonTolerance}
               ftol={newtonFtol}
               xtol={newtonXtol}
-              summary={summary}
+              summary={computeIterationSummary({
+                currentIndex: currentIter,
+                totalIterations: iterations.length,
+                gradNorm: iterations[currentIter].gradNorm,
+                loss: iterations[currentIter].newLoss,
+                location: iterations[currentIter].wNew,
+                gtol: newtonTolerance,
+                ftol: newtonFtol,
+                xtol: newtonXtol,
+                eigenvalues: iterations[currentIter].eigenvalues,
+                isSecondOrder: true,
+                maxIter,
+                previousLoss: currentIter > 0 ? iterations[currentIter - 1].newLoss : undefined,
+                previousLocation: currentIter > 0 ? iterations[currentIter - 1].wNew : undefined
+              })}
               onIterationChange={onIterChange}
             />
           </div>

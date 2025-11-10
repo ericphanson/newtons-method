@@ -22,7 +22,7 @@ import { isDatasetProblem, constructInitialPoint } from './utils/problemHelpers'
 import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
-import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
+import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
 import { getProblem, resolveProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
@@ -1101,6 +1101,17 @@ const UnifiedVisualizer = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // Define margins (same as in drawing code)
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    const plotWidth = rect.width - margins.left - margins.right;
+    const plotHeight = rect.height - margins.top - margins.bottom;
+
+    // Check if click is within plot area
+    if (x < margins.left || x > rect.width - margins.right ||
+        y < margins.top || y > rect.height - margins.bottom) {
+      return; // Click outside plot area
+    }
+
     // Compute data bounds (same as in drawing code)
     const padding = 0.3;
     let minX1 = Infinity, maxX1 = -Infinity, minX2 = Infinity, maxX2 = -Infinity;
@@ -1118,9 +1129,9 @@ const UnifiedVisualizer = () => {
     const rangeX1 = maxX1 - minX1;
     const rangeX2 = maxX2 - minX2;
 
-    // Transform canvas coordinates to data space
-    const x1 = (x / rect.width) * rangeX1 + minX1;
-    const x2 = maxX2 - (y / rect.height) * rangeX2;
+    // Transform canvas coordinates to data space (accounting for margins)
+    const x1 = ((x - margins.left) / plotWidth) * rangeX1 + minX1;
+    const x2 = maxX2 - ((y - margins.top) / plotHeight) * rangeX2;
     setCustomPoints([...customPoints, { x1, x2, y: addPointMode - 1 }]);
   };
 
@@ -1132,6 +1143,11 @@ const UnifiedVisualizer = () => {
     const { ctx, width: w, height: h } = setupCanvas(canvas);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
+
+    // Define margins for axes
+    const margins = { left: 60, right: 20, top: 20, bottom: 60 };
+    const plotWidth = w - margins.left - margins.right;
+    const plotHeight = h - margins.top - margins.bottom;
 
     // Compute data bounds dynamically with padding
     const padding = 0.3;
@@ -1150,8 +1166,8 @@ const UnifiedVisualizer = () => {
     const rangeX1 = maxX1 - minX1;
     const rangeX2 = maxX2 - minX2;
 
-    const toCanvasX = (x1: number) => ((x1 - minX1) / rangeX1) * w;
-    const toCanvasY = (x2: number) => ((maxX2 - x2) / rangeX2) * h;
+    const toCanvasX = (x1: number) => margins.left + ((x1 - minX1) / rangeX1) * plotWidth;
+    const toCanvasY = (x2: number) => margins.top + ((maxX2 - x2) / rangeX2) * plotHeight;
 
     // Draw decision boundary for logistic regression and separating hyperplane
     const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
@@ -1160,19 +1176,123 @@ const UnifiedVisualizer = () => {
                        lbfgs.iterations[lbfgs.currentIter];
     if (isDatasetProblem(currentProblem) && currentIter) {
       const [w0, w1] = currentIter.wNew;
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+
+      // Decision boundary: w0*x1 + w1*x2 + bias = 0
+      // Clip boundary to visible viewport to avoid drawing off-screen lines
+
+      // Find intersections with viewport edges
+      const intersections: Array<{ x1: number; x2: number }> = [];
+
       if (Math.abs(w1) > 1e-6) {
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        const step = rangeX1 / 50; // Use 50 points across the range
-        for (let x1 = minX1; x1 <= maxX1; x1 += step) {
-          const x2 = -(w0 * x1 + bias) / w1;
-          const cx = toCanvasX(x1);
-          const cy = toCanvasY(x2);
-          if (x1 === minX1) ctx.moveTo(cx, cy);
-          else ctx.lineTo(cx, cy);
+        // Left edge (x1 = minX1)
+        const x2_left = -(w0 * minX1 + bias) / w1;
+        if (x2_left >= minX2 && x2_left <= maxX2) {
+          intersections.push({ x1: minX1, x2: x2_left });
         }
+
+        // Right edge (x1 = maxX1)
+        const x2_right = -(w0 * maxX1 + bias) / w1;
+        if (x2_right >= minX2 && x2_right <= maxX2) {
+          intersections.push({ x1: maxX1, x2: x2_right });
+        }
+      }
+
+      if (Math.abs(w0) > 1e-6) {
+        // Bottom edge (x2 = minX2)
+        const x1_bottom = -(w1 * minX2 + bias) / w0;
+        if (x1_bottom >= minX1 && x1_bottom <= maxX1) {
+          intersections.push({ x1: x1_bottom, x2: minX2 });
+        }
+
+        // Top edge (x2 = maxX2)
+        const x1_top = -(w1 * maxX2 + bias) / w0;
+        if (x1_top >= minX1 && x1_top <= maxX1) {
+          intersections.push({ x1: x1_top, x2: maxX2 });
+        }
+      }
+
+      // Draw boundary if it intersects viewport (need at least 2 points)
+      if (intersections.length >= 2) {
+        ctx.beginPath();
+        const p1 = intersections[0];
+        const p2 = intersections[1];
+        ctx.moveTo(toCanvasX(p1.x1), toCanvasY(p1.x2));
+        ctx.lineTo(toCanvasX(p2.x1), toCanvasY(p2.x2));
         ctx.stroke();
+      } else if (intersections.length === 0 && (Math.abs(w0) > 1e-6 || Math.abs(w1) > 1e-6)) {
+        // Boundary exists but is entirely off-screen
+        // Determine which direction it's in by checking the center point
+        const x1_test = (minX1 + maxX1) / 2;
+        const x2_test = (minX2 + maxX2) / 2;
+        const z_center = w0 * x1_test + w1 * x2_test + bias;
+
+        // Show indicator that boundary is off-screen
+        ctx.fillStyle = '#10b981';
+        ctx.globalAlpha = 0.15;
+
+        // Draw small dashed indicator in corner based on which side boundary is on
+        const cornerSize = 40;
+        if (z_center > 0) {
+          // Boundary is on the "negative" side (all visible points are positive)
+          // Draw indicator in top-left
+          ctx.fillRect(margins.left, margins.top, cornerSize, cornerSize);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#10b981';
+          ctx.setLineDash([5, 5]);
+          ctx.lineWidth = 2;
+          ctx.strokeRect(margins.left + 2, margins.top + 2, cornerSize - 4, cornerSize - 4);
+          ctx.setLineDash([]);
+        } else {
+          // Boundary is on the "positive" side (all visible points are negative)
+          // Draw indicator in bottom-right
+          ctx.fillRect(margins.left + plotWidth - cornerSize, margins.top + plotHeight - cornerSize, cornerSize, cornerSize);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#10b981';
+          ctx.setLineDash([5, 5]);
+          ctx.lineWidth = 2;
+          ctx.strokeRect(margins.left + plotWidth - cornerSize + 2, margins.top + plotHeight - cornerSize + 2, cornerSize - 4, cornerSize - 4);
+          ctx.setLineDash([]);
+        }
+
+        // Add explanatory text
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#10b981';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          '⚠️ Decision boundary off-screen',
+          margins.left + plotWidth / 2,
+          margins.top + 18
+        );
+        ctx.font = '13px sans-serif';
+        ctx.fillText(
+          '(Try reducing |bias| to bring it into view)',
+          margins.left + plotWidth / 2,
+          margins.top + 36
+        );
+      } else if (Math.abs(w0) <= 1e-6 && Math.abs(w1) <= 1e-6) {
+        // Degenerate case: w0 ≈ 0 and w1 ≈ 0
+        // Decision is constant: z = bias everywhere
+        // Show uniform classification across entire space
+        if (Math.abs(bias) > 1e-6) {
+          const predictedClass = bias > 0 ? 1 : 0;
+          ctx.fillStyle = predictedClass === 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+          ctx.fillRect(margins.left, margins.top, plotWidth, plotHeight);
+
+          // Add explanatory text
+          ctx.fillStyle = '#1f2937';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            `⚠️ Weights collapsed: all points → class ${predictedClass}`,
+            margins.left + plotWidth / 2,
+            margins.top + 30
+          );
+        }
+        // If bias ≈ 0 too, the entire space is on the boundary (ambiguous)
       }
     }
 
@@ -1192,15 +1312,14 @@ const UnifiedVisualizer = () => {
       }
     }
 
-    // Draw axes
-    ctx.strokeStyle = '#e5e7eb';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(toCanvasX(0), 0);
-    ctx.lineTo(toCanvasX(0), h);
-    ctx.moveTo(0, toCanvasY(0));
-    ctx.lineTo(w, toCanvasY(0));
-    ctx.stroke();
+    // Draw professional axes with ticks and labels
+    drawDataSpaceAxes({
+      ctx,
+      bounds: { minX1, maxX1, minX2, maxX2 },
+      canvasWidth: w,
+      canvasHeight: h,
+      margins
+    });
 
     // Add mode indicator
     if (addPointMode > 0) {
@@ -1213,7 +1332,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, bias]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, bias, separatingHyperplaneVariant]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1849,7 +1968,6 @@ const UnifiedVisualizer = () => {
               currentIter={gdFixed.currentIter}
               onIterChange={(val) => gdFixed.setCurrentIter(val)}
               onResetIter={() => gdFixed.setCurrentIter(0)}
-              summary={gdFixed.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -1875,7 +1993,6 @@ const UnifiedVisualizer = () => {
               currentIter={gdLS.currentIter}
               onIterChange={(val) => gdLS.setCurrentIter(val)}
               onResetIter={() => gdLS.setCurrentIter(0)}
-              summary={gdLS.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -1910,7 +2027,6 @@ const UnifiedVisualizer = () => {
               currentIter={newton.currentIter}
               onIterChange={(val) => newton.setCurrentIter(val)}
               onResetIter={() => newton.setCurrentIter(0)}
-              summary={newton.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -1942,7 +2058,6 @@ const UnifiedVisualizer = () => {
               currentIter={lbfgs.currentIter}
               onIterChange={(val) => lbfgs.setCurrentIter(val)}
               onResetIter={() => lbfgs.setCurrentIter(0)}
-              summary={lbfgs.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -1977,7 +2092,6 @@ const UnifiedVisualizer = () => {
               currentIter={diagPrecond.currentIter}
               onIterChange={(val) => diagPrecond.setCurrentIter(val)}
               onResetIter={() => diagPrecond.resetIter()}
-              summary={diagPrecond.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}

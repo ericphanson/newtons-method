@@ -10,9 +10,10 @@ import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
-import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
+import type { ProblemFunctions } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
+import { computeIterationSummary } from '../../utils/iterationSummaryUtils';
 
 interface GdLineSearchTabProps {
   maxIter: number;
@@ -29,7 +30,6 @@ interface GdLineSearchTabProps {
   currentIter: number;
   onIterChange: (val: number) => void;
   onResetIter: () => void;
-  summary: AlgorithmSummary | null;
   problemFuncs: ProblemFunctions;
   problem: Record<string, unknown>;
   currentProblem: string;
@@ -55,7 +55,6 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   currentIter,
   onIterChange,
   onResetIter,
-  summary,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
@@ -163,7 +162,15 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               tolerance={gdLSTolerance}
               ftol={1e-9}
               xtol={1e-9}
-              summary={summary}
+              summary={computeIterationSummary({
+                currentIndex: currentIter,
+                totalIterations: iterations.length,
+                gradNorm: iterations[currentIter].gradNorm,
+                loss: iterations[currentIter].newLoss,
+                location: iterations[currentIter].wNew,
+                gtol: gdLSTolerance,
+                maxIter
+              })}
               onIterationChange={onIterChange}
             />
           </div>

@@ -8,9 +8,10 @@ import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
-import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
+import type { ProblemFunctions } from '../../algorithms/types';
 import type { DiagonalPrecondIteration } from '../../algorithms/diagonal-preconditioner';
 import type { ExperimentPreset } from '../../types/experiments';
+import { computeIterationSummary } from '../../utils/iterationSummaryUtils';
 
 interface DiagonalPrecondTabProps {
   maxIter: number;
@@ -35,7 +36,6 @@ interface DiagonalPrecondTabProps {
   currentIter: number;
   onIterChange: (val: number) => void;
   onResetIter: () => void;
-  summary: AlgorithmSummary | null;
   problemFuncs: ProblemFunctions;
   problem: Record<string, unknown>;
   currentProblem: string;
@@ -69,7 +69,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
   currentIter,
   onIterChange,
   onResetIter,
-  summary,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
@@ -188,7 +187,20 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 tolerance={diagPrecondTolerance}
                 ftol={diagPrecondFtol}
                 xtol={diagPrecondXtol}
-                summary={summary}
+                summary={computeIterationSummary({
+                  currentIndex: currentIter,
+                  totalIterations: iterations.length,
+                  gradNorm: iterations[currentIter].gradNorm,
+                  loss: iterations[currentIter].newLoss,
+                  location: iterations[currentIter].wNew,
+                  gtol: diagPrecondTolerance,
+                  ftol: diagPrecondFtol,
+                  xtol: diagPrecondXtol,
+                  isSecondOrder: false,
+                  maxIter,
+                  previousLoss: currentIter > 0 ? iterations[currentIter - 1].newLoss : undefined,
+                  previousLocation: currentIter > 0 ? iterations[currentIter - 1].wNew : undefined
+                })}
                 onIterationChange={onIterChange}
               />
             </div>
