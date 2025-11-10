@@ -60,24 +60,6 @@ This comprehensive review examined the mathematical correctness of a Newton's me
 
 # SIGNIFICANT ISSUES (Should Fix for Clarity)
 
-## 6. Diagonal Preconditioner "Quadratic Convergence" - Unsupported Claim ⚠️ [FIXED ✓]
-
-**Domain:** Convergence Theory
-**Location:** `src/components/AlgorithmExplainer.tsx:224-226`
-
-**STATUS:** ✅ **FIXED** - The text has already been corrected.
-
-**Current Text:**
-```
-Solves axis-aligned quadratic problems in 1-2 iterations
-(becomes equivalent to Newton's method when Hessian is diagonal). Degrades to linear
-convergence on rotated problems where off-diagonal Hessian structure is ignored.
-```
-
-**Action Required:** None - this issue has been resolved.
-
----
-
 ## 9. Missing Stopping Criteria ⚠️
 
 **Domain:** Error Analysis
@@ -552,90 +534,6 @@ This can be addressed together with Issue #22 by adding the "Mathematical Assump
 **Recommended Action:** Combine with Issue #22 fix for comprehensive glossary.
 
 **Estimated Effort:** 20 minutes (if combined with #22)
-
----
-
-## 24. Relative Function Change Denominator Choice
-
-**Domain:** Error Analysis
-**Location:** `src/algorithms/newton.ts:191`
-
-**STATUS:** ⚠️ **PARTIALLY FIXED** - Now uses scipy's approach!
-
-**Current Code (line 191):**
-```typescript
-const relativeFuncChange = funcChange / Math.max(Math.abs(loss), Math.abs(previousLoss), 1.0);
-```
-
-**Original Issue:**
-The review claimed the code used `max(|f(x_k)|, 1e-8)`, but the current implementation actually uses scipy's recommended approach: `max(|f^k|, |f^{k+1}|, 1)`.
-
-**STATUS UPDATE:** ✅ This issue appears to have been fixed since the original review. The current implementation matches scipy's best practice.
-
-**Action Required:** None - mark as resolved.
-
-**Note:** The original review may have been based on an older version of the code.
-
----
-
-## 25. Step Size Relative Normalization Inconsistency
-
-**Domain:** Error Analysis
-**Location:** `src/algorithms/newton.ts:249` and `newton.ts:299`
-
-**STATUS:** ✅ **ACTUALLY CONSISTENT** - Both use the same normalization!
-
-**Current Code:**
-- Line 249 (during iteration): `const avgAbsoluteStep = l1Norm / dimension;`
-- Line 299 (final summary): `sub(finalLocation, previousW).reduce((sum, val) => sum + Math.abs(val), 0) / finalLocation.length`
-
-**Analysis:**
-Both locations use **L1 norm divided by dimension**, which is scipy's Newton-CG approach. The original review incorrectly stated there was an inconsistency.
-
-**Actual Implementation:**
-```typescript
-// Both use: ||Δx||_1 / n (average absolute step per dimension)
-```
-
-This is consistent with scipy's `newton_cg` which uses:
-```python
-xnorm = np.max(np.abs(xk))
-xnorm = np.where(xnorm == 0, 1, xnorm)
-if np.linalg.norm(dx) / n <= xtol * xnorm:
-    # converged
-```
-
-**STATUS UPDATE:** ✅ No issue - both locations are consistent.
-
-**Action Required:** None - mark as resolved.
-
----
-
-## 26. Default ftol Value Documentation
-
-**Domain:** Error Analysis
-**Location:** `src/UnifiedVisualizer.tsx:75`
-
-**STATUS:** ✅ **ALREADY DOCUMENTED** - Comment exists!
-
-**Current Code (line 75):**
-```typescript
-const [newtonFtol, setNewtonFtol] = useState(2.22e-9);        // ftol: matches scipy L-BFGS-B default
-```
-
-**Analysis:**
-The code already has an inline comment explaining this is scipy's L-BFGS-B default. While the comment could be more detailed (mentioning `factr × machine_epsilon`), it provides sufficient context for users.
-
-**Optional Enhancement:**
-If more detail is desired, update the comment to:
-```typescript
-const [newtonFtol, setNewtonFtol] = useState(2.22e-9);
-// ftol: matches scipy L-BFGS-B default (factr=1e7 × machine_epsilon ≈ 2.22e-16 = 2.22e-9)
-```
-
-**Recommended Action:** Optional - current documentation is adequate.
-
-**Estimated Effort:** 2 minutes if enhancement desired.
 
 ---
 
