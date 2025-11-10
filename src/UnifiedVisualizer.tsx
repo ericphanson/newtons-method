@@ -1318,7 +1318,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, problemParameters]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, problemParameters, bias]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
