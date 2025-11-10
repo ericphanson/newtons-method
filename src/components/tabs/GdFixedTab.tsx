@@ -193,9 +193,9 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             color="green"
             inputs={[
               {
-                id: "w",
-                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
-                description: "current parameter vector"
+                id: "w_0",
+                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                description: "initial parameter vector"
               },
               {
                 id: "f",
@@ -210,16 +210,21 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             ]}
             outputs={[
               {
-                id: "w_new",
-                display: <InlineMath>w'</InlineMath>,
-                description: "updated parameter vector"
+                id: "w_star",
+                display: <InlineMath>{'w^*'}</InlineMath>,
+                description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
-              <>Scale by step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>,
-              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> − <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
-              <>Repeat until convergence</>
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+              <><strong>repeat</strong> until convergence:</>,
+              <>
+                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> − <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+              </>,
+              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 

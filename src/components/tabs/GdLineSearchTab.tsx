@@ -205,9 +205,9 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             color="teal"
             inputs={[
               {
-                id: "w",
-                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
-                description: "current parameter vector"
+                id: "w_0",
+                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                description: "initial parameter vector"
               },
               {
                 id: "f",
@@ -217,20 +217,27 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             ]}
             outputs={[
               {
-                id: "w_new",
-                display: <InlineMath>w'</InlineMath>,
-                description: "updated parameter vector"
+                id: "w_star",
+                display: <InlineMath>{'w^*'}</InlineMath>,
+                description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
-              <>Set search direction <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+              <><strong>repeat</strong> until convergence:</>,
               <>
-                <strong>Line search:</strong> find step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> that
-                decreases loss sufficiently
+                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
               </>,
-              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>,
-              <>Repeat until convergence</>
+              <>
+                <span className="ml-4">Set search direction <Var id="p"><InlineMath>p</InlineMath></Var> ← −<Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4"><strong>Line search:</strong> find step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> that decreases loss sufficiently</span>
+              </>,
+              <>
+                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+              </>,
+              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 

@@ -235,9 +235,9 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             color="blue"
             inputs={[
               {
-                id: "w",
-                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
-                description: "current parameter vector"
+                id: "w_0",
+                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                description: "initial parameter vector"
               },
               {
                 id: "f",
@@ -252,18 +252,33 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             ]}
             outputs={[
               {
-                id: "w_new",
-                display: <InlineMath>w'</InlineMath>,
-                description: "updated parameter vector"
+                id: "w_star",
+                display: <InlineMath>{'w^*'}</InlineMath>,
+                description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
-              <>Compute Hessian <Var id="H"><InlineMath>H(<Var id="w">w</Var>)</InlineMath></Var> (matrix of all second derivatives)</>,
-              <>Add damping: <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> = <Var id="H"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></>,
-              <>Solve <Var id="H_d"><InlineMath>H_d</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f</InlineMath></Var> for search direction <Var id="p"><InlineMath>p</InlineMath></Var></>,
-              <>Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>,
-              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+              <><strong>repeat</strong> until convergence:</>,
+              <>
+                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Compute Hessian <Var id="H"><InlineMath>H(w)</InlineMath></Var> (matrix of all second derivatives)</span>
+              </>,
+              <>
+                <span className="ml-4">Add damping: <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Solve <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f</InlineMath></Var> for search direction <Var id="p"><InlineMath>p</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+              </>,
+              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 

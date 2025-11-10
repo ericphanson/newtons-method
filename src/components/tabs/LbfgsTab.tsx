@@ -219,9 +219,9 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             color="amber"
             inputs={[
               {
-                id: "w",
-                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
-                description: "current parameter vector"
+                id: "w_0",
+                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                description: "initial parameter vector"
               },
               {
                 id: "f",
@@ -241,25 +241,42 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             ]}
             outputs={[
               {
-                id: "w_new",
-                display: <InlineMath>w'</InlineMath>,
-                description: "updated parameter vector"
+                id: "w_star",
+                display: <InlineMath>{'w^*'}</InlineMath>,
+                description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
+              <><strong>repeat</strong> until convergence:</>,
               <>
-                Use <strong>two-loop recursion</strong> to compute{' '}
-                <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{'H^{-1}'}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from <Var id="M"><InlineMath>M</InlineMath></Var> recent (<Var id="s"><InlineMath>s</InlineMath></Var>,<Var id="y"><InlineMath>y</InlineMath></Var>) pairs
+                <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
               </>,
-              <>Add damping to initial Hessian approximation: <Var id="B_0"><InlineMath>{'B_0'}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></>,
-              <>Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>,
-              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>,
               <>
-                Store new pair: <Var id="s"><InlineMath>s</InlineMath></Var> = <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> (parameter change),{' '}
-                <Var id="y"><InlineMath>y</InlineMath></Var> = <Var id="grad"><InlineMath>{'\\nabla f_{\\text{new}}'}</InlineMath></Var> − <Var id="grad"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> (gradient change)
+                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{'H^{-1}'}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from history</span>
               </>,
-              <>Keep only <Var id="M"><InlineMath>M</InlineMath></Var> most recent pairs (discard oldest)</>
+              <>
+                <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0"><InlineMath>{'B_0'}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var> with damping)</span>
+              </>,
+              <>
+                <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Save old gradient <Var id="grad_old"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> ← <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Compute new gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Store new pair: <Var id="s"><InlineMath>s</InlineMath></Var> ← <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var>, <Var id="y"><InlineMath>y</InlineMath></Var> ← <Var id="grad"><InlineMath>\nabla f</InlineMath></Var> − <Var id="grad_old"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var></span>
+              </>,
+              <>
+                <span className="ml-4">Add (<Var id="s"><InlineMath>s</InlineMath></Var>, <Var id="y"><InlineMath>y</InlineMath></Var>) to history; if |history| {'>'} <Var id="M"><InlineMath>M</InlineMath></Var>, remove oldest pair</span>
+              </>,
+              <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
             ]}
           />
 

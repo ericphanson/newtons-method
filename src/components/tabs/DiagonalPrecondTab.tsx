@@ -231,9 +231,9 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               color="teal"
               inputs={[
                 {
-                  id: "w",
-                  display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
-                  description: "current parameter vector"
+                  id: "w_0",
+                  display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                  description: "initial parameter vector"
                 },
                 {
                   id: "f",
@@ -248,21 +248,36 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               ]}
               outputs={[
                 {
-                  id: "w_new",
-                  display: <InlineMath>w'</InlineMath>,
-                  description: "updated parameter vector"
+                  id: "w_star",
+                  display: <InlineMath>{'w^*'}</InlineMath>,
+                  description: "optimized parameter vector"
                 }
               ]}
               steps={[
-                <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
-                <>Compute Hessian <Var id="H"><InlineMath>H(<Var id="w">w</Var>)</InlineMath></Var> (matrix of second derivatives)</>,
-                <>Extract diagonal: <Var id="d_i"><InlineMath>{'d_i'}</InlineMath></Var> = <Var id="H"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate</>,
+                <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+                <><strong>repeat</strong> until convergence:</>,
                 <>
-                  Build diagonal preconditioner:{' '}
-                  <Var id="D"><InlineMath>D</InlineMath></Var> = <InlineMath>{'\\text{diag}(1/(H_{00}+'}</InlineMath><Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var><InlineMath>{'), 1/(H_{11}+'}</InlineMath><Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var><InlineMath>{'), ...)'}</InlineMath>
+                  <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
                 </>,
-                <>Compute preconditioned direction: <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="D"><InlineMath>D</InlineMath></Var> · <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></>,
-                <>Take step: <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> (<Var id="alpha"><InlineMath>\alpha</InlineMath></Var>=1 or from line search)</>
+                <>
+                  <span className="ml-4">Compute Hessian <Var id="H"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives)</span>
+                </>,
+                <>
+                  <span className="ml-4">Extract diagonal: <Var id="d_i"><InlineMath>{'d_i'}</InlineMath></Var> ← <Var id="H"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate <InlineMath>i</InlineMath></span>
+                </>,
+                <>
+                  <span className="ml-4">Build diagonal preconditioner: <Var id="D"><InlineMath>{'D'}</InlineMath></Var> ← <InlineMath>{'\\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath></span>
+                </>,
+                <>
+                  <span className="ml-4">Compute preconditioned direction: <Var id="p"><InlineMath>p</InlineMath></Var> ← −<Var id="D"><InlineMath>D</InlineMath></Var> · <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></span>
+                </>,
+                <>
+                  <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> = 1)</span>
+                </>,
+                <>
+                  <span className="ml-4"><Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></span>
+                </>,
+                <><strong>return</strong> <Var id="w"><InlineMath>w</InlineMath></Var></>
               ]}
             />
 
