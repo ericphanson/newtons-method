@@ -64,7 +64,7 @@ export interface ExperimentPreset {
     hessianDamping?: number; // for Newton's method and L-BFGS
     lineSearch?: 'armijo' | 'none'; // for Newton's method
   };
-  initialPoint?: [number, number] | [number, number, number];
+  initialPoint?: [number, number];
   expectation: string; // What to observe
   ui?: ExperimentUiConfig;
 }
