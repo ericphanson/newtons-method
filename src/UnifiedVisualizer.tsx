@@ -17,7 +17,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
-import { getProblem, resolveProblem, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant, shouldCenterOnGlobalMin as shouldCenterOnGlobalMinRegistry } from './problems';
+import { resolveProblem, getDefaultParameters, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant, shouldCenterOnGlobalMin as shouldCenterOnGlobalMinRegistry } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -487,8 +487,8 @@ const UnifiedVisualizer = () => {
     }
 
     // Include global minimum in bounds if it exists
-    const problemDef = !requiresDataset(currentProblem) ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || (requiresDataset(currentProblem) ? logisticGlobalMin : null);
+    const problemDef = resolveProblem(currentProblem, problemParameters, data);
+    const globalMin = problemDef?.globalMinimum || logisticGlobalMin;
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -553,7 +553,7 @@ const UnifiedVisualizer = () => {
       w0Range: finalMaxW0 - finalMinW0,
       w1Range: finalMaxW1 - finalMinW1
     };
-  }, [currentProblem, logisticGlobalMin]);
+  }, [currentProblem, problemParameters, data, logisticGlobalMin]);
 
   // Calculate parameter bounds for both algorithms
   const newtonParamBounds = React.useMemo(
@@ -847,10 +847,13 @@ const UnifiedVisualizer = () => {
 
       // For non-dataset problems, ensure problem definition is available
       if (!requiresDataset(experiment.problem)) {
-        const problem = getProblem(experiment.problem);
-        if (problem) {
-          // Problem is now active via getCurrentProblem()
-        }
+        // Verify problem can be resolved (will throw if invalid)
+        resolveProblem(
+          experiment.problem,
+          experiment.problemParameters || getDefaultParameters(experiment.problem),
+          data
+        );
+        // Problem is now active via getCurrentProblem()
       }
 
       // 4. Load custom dataset if provided
@@ -906,7 +909,11 @@ const UnifiedVisualizer = () => {
 
       // Check problem change
       if (problemChanging) {
-        const problemName = getProblem(experiment.problem)?.name || experiment.problem;
+        const problemName = resolveProblem(
+          experiment.problem,
+          experiment.problemParameters || getDefaultParameters(experiment.problem),
+          data
+        ).name;
         changes.push(`Switched to problem ${problemName}`);
       } else {
         // Same problem - check if problem config changed
@@ -947,7 +954,7 @@ const UnifiedVisualizer = () => {
       console.error('Error loading experiment:', error);
       setExperimentLoading(false);
     }
-  }, [currentProblem, selectedTab, gdFixedAlpha, gdLSC1, newtonHessianDamping, newtonLineSearch, newtonC1, lbfgsM, lbfgsHessianDamping, lbfgsC1, diagPrecondHessianDamping, diagPrecondLineSearch, diagPrecondC1, maxIter, problemParameters, getHyperparameterChanges]);
+  }, [currentProblem, selectedTab, gdFixedAlpha, gdLSC1, newtonHessianDamping, newtonLineSearch, newtonC1, lbfgsM, lbfgsHessianDamping, lbfgsC1, diagPrecondHessianDamping, diagPrecondLineSearch, diagPrecondC1, maxIter, problemParameters, data, getHyperparameterChanges]);
 
   // Reset all parameters to defaults
   const resetToDefaults = useCallback(() => {
@@ -1486,8 +1493,8 @@ const UnifiedVisualizer = () => {
     });
 
     // Draw optimum markers (global minimum or critical points)
-    const problemDef = !requiresDataset(currentProblem) ? getProblem(currentProblem) : null;
-    const globalMinimum3D = problemDef?.globalMinimum || (requiresDataset(currentProblem) ? logisticGlobalMin || undefined : undefined);
+    const problemDef = resolveProblem(currentProblem, problemParameters, data);
+    const globalMinimum3D = problemDef?.globalMinimum || logisticGlobalMin || undefined;
     // For drawing markers, only use the first 2 coordinates (projection onto 2D slice)
     const globalMinimum = globalMinimum3D ? [globalMinimum3D[0], globalMinimum3D[1]] as [number, number] : undefined;
     if (globalMinimum || problemDef?.criticalPoint) {
