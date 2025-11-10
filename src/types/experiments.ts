@@ -119,4 +119,15 @@ export interface ProblemRegistryEntry {
   // Problem metadata
   displayName: string;
   category?: 'convex' | 'non-convex' | 'classification';
+
+  // Contextual insights shown in ProblemConfiguration
+  keyInsights?: React.ReactNode;
+
+  // Educational content for ProblemExplainer modal
+  explainerContent?: {
+    title: string;
+    defaultExpanded?: boolean;
+    storageKey: string;  // For localStorage persistence
+    content: React.ReactNode;
+  };
 }
