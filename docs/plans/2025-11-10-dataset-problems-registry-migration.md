@@ -31,6 +31,103 @@ This plan outlines how to fully integrate them into the registry system to:
 
 ---
 
+## Conceptual Model: Dataset Problems as Parametrized Problems
+
+After the 3D-to-2D conversion, logistic regression and separating hyperplane are **conceptually "just parametrized problems"** - no different from how Rosenbrock is parametrized by `b` or how rotated quadratic is parametrized by `rotationAngle`.
+
+### Parameter Comparison
+
+| Problem | Parameters |
+|---------|-----------|
+| **Rosenbrock** | `b` (valley steepness) |
+| **Rotated Quadratic** | `rotationAngle` (degree of misalignment) |
+| **Logistic Regression** | `dataset` (interactive), `lambda` (slider), `bias` (slider) |
+| **Separating Hyperplane** | `dataset` (interactive), `variant` (dropdown), `lambda` (slider), `bias` (slider) |
+
+The **key insight**: Dataset is just another parameter that happens to be:
+- **Interactive data** instead of a scalar value
+- **Edited via data canvas** instead of a slider
+- **Multiple points** instead of a single number
+
+But algorithmically and architecturally, it's treated the same way as any other parameter.
+
+### What's Unified After Migration
+
+Once LR/SH are in the registry with `datasetFactory`:
+
+✅ **Problem Resolution**
+- All problems use `resolveProblem()` - no special cases
+- Dataset is passed as optional third parameter
+- Parameter values flow through the same mechanism
+
+✅ **Factory Pattern**
+```typescript
+// Regular parametrized problem
+resolveProblem('rosenbrock', { rosenbrockB: 100 })
+
+// Dataset-parametrized problem (dataset is "just another parameter")
+resolveProblem('logistic-regression', { lambda: 1.0, bias: 0 }, dataset)
+```
+
+✅ **Parameter Metadata**
+- Lambda, bias, variant all in `parameters[]` array
+- Auto-generated UI controls (sliders, dropdowns)
+- Descriptions, ranges, defaults - all in registry
+
+✅ **Formula Rendering**
+- Comes from `problem.objectiveFormula` in registry
+- No hardcoded JSX in UI components
+- Variant selection updates formula automatically
+
+✅ **Variant System**
+- Generic `variants[]` array in registry (could work for Rosenbrock variants too)
+- Dropdown populated from metadata
+- Factory handles variant dispatch
+
+### What Remains Special (Justifiably)
+
+Only **UI-specific concerns** remain special-cased:
+
+⚠️ **Data Canvas** - Interactive point editing
+- Unique UI component (click to add/remove points)
+- Geometric visualization (red/blue classes)
+- Generation tools (crescent pattern)
+- **Why special?** This is a data input method, like a slider is for scalars
+
+⚠️ **Decision Boundary Rendering** - Geometric overlay
+- Visualizes learned hyperplane on data canvas
+- Requires dataset + weights to compute
+- Shows classification regions
+- **Why special?** This is a visualization concern, not algorithmic
+
+**Key Point:** These are **not algorithmic or structural special cases**. The problem resolution, parameter handling, factory dispatch, and metadata management are all unified with other problems.
+
+### What's No Longer Special ✅
+
+After 3D conversion + registry migration, these are **eliminated**:
+
+❌ ~~3D weights~~ - Now 2D weights `[w0, w1]` + bias parameter
+❌ ~~Dimensionality checks~~ - No `if (dimensionality === 3)` anywhere
+❌ ~~Bias slice computation~~ - Bias is configured, not optimized
+❌ ~~Union types~~ - No more `[number, number] | [number, number, number]`
+❌ ~~Special-case resolution~~ - All via `resolveProblem()`
+❌ ~~Hardcoded formulas~~ - All from registry `objectiveFormula`
+❌ ~~Hardcoded parameters~~ - All from registry `parameters[]`
+
+### Summary
+
+**Before (pre-3D-conversion):** LR/SH were special in **three ways**:
+1. ❌ 3D weights (structural special case)
+2. ❌ Dataset requirement (algorithmic special case)
+3. ⚠️ Data canvas UI (justified UI special case)
+
+**After (post-3D-conversion + registry migration):** LR/SH are special in **one way**:
+1. ⚠️ Data canvas UI (justified UI special case)
+
+They're now **architecturally equivalent to other parametrized problems**, with dataset treated as "just another parameter" that happens to be interactive data instead of a slider value.
+
+---
+
 ## Key Simplifications (Post-3D Conversion)
 
 ### What's Now Simpler ✅

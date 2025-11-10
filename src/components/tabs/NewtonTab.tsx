@@ -451,13 +451,55 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </p>
 
             <div className="mt-3">
-              <p className="font-semibold">Backtracking Algorithm:</p>
-              <ol className="list-decimal ml-6 space-y-1 text-sm">
-                <li>Start with <InlineMath>\alpha = 1</InlineMath> (full Newton step)</li>
-                <li>Check if Armijo condition satisfied</li>
-                <li>If yes → accept <InlineMath>\alpha</InlineMath></li>
-                <li>If no → reduce <InlineMath>\alpha \leftarrow 0.5\alpha</InlineMath> and repeat</li>
-              </ol>
+              <Pseudocode
+                color="blue"
+                inputs={[
+                  {
+                    id: "p",
+                    display: <InlineMath>p</InlineMath>,
+                    description: "search direction"
+                  },
+                  {
+                    id: "w",
+                    display: <InlineMath>w</InlineMath>,
+                    description: "current parameters"
+                  },
+                  {
+                    id: "f_w",
+                    display: <InlineMath>f(w)</InlineMath>,
+                    description: "current loss"
+                  },
+                  {
+                    id: "grad",
+                    display: <InlineMath>\nabla f(w)</InlineMath>,
+                    description: "current gradient"
+                  }
+                ]}
+                outputs={[
+                  {
+                    id: "alpha",
+                    display: <InlineMath>\alpha</InlineMath>,
+                    description: "step size that satisfies Armijo condition"
+                  }
+                ]}
+                steps={[
+                  <>Initialize <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 1 (full Newton step)</>,
+                  <><strong>repeat</strong> until Armijo condition satisfied:</>,
+                  <>
+                    <span className="ml-4">Evaluate <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var></span>
+                  </>,
+                  <>
+                    <span className="ml-4"><strong>if</strong> <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var> ≤ <Var id="f_w"><InlineMath>f(w)</InlineMath></Var> + <InlineMath>{'c_1'}</InlineMath><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var><sup>T</sup><Var id="p"><InlineMath>p</InlineMath></Var>:</span>
+                  </>,
+                  <>
+                    <span className="ml-8"><strong>break</strong> (accept <Var id="alpha"><InlineMath>\alpha</InlineMath></Var>)</span>
+                  </>,
+                  <>
+                    <span className="ml-4"><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 0.5 · <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (reduce step size)</span>
+                  </>,
+                  <><strong>return</strong> <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>
+                ]}
+              />
             </div>
 
             <p className="text-sm mt-3">
