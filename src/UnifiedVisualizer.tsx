@@ -1001,7 +1001,10 @@ const UnifiedVisualizer = () => {
         }
       }
     }
-  }, [currentStoryId, currentStoryStep, loadExperiment]);
+    // Note: loadExperiment and handleTabChange intentionally omitted to prevent re-triggering
+    // when UI state changes. This effect should only run when story/step changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStoryId, currentStoryStep]);
 
   // Keyboard navigation
   useEffect(() => {
