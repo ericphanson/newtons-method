@@ -1,10 +1,15 @@
 import { ProblemDefinition } from '../types/experiments';
+import { InlineMath } from '../components/Math';
 
 // Simple quadratic bowl: f(w) = w0^2 + w1^2
 // Well-conditioned problem with circular level sets
 export const quadraticProblem: ProblemDefinition = {
   name: 'Quadratic Bowl',
-  description: 'Simple quadratic bowl: f(w) = w0^2 + w1^2 (well-conditioned)',
+  description: (
+    <>
+      Simple quadratic bowl: <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath> (well-conditioned)
+    </>
+  ),
 
   objective: (w: number[]): number => {
     const [w0, w1] = w;
@@ -46,7 +51,11 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
 
   return {
     name: 'Rotated Ellipse',
-    description: `Rotated ellipse (θ=${thetaDegrees}°, κ=5), shows coordinate system dependence`,
+    description: (
+      <>
+        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees}°, <InlineMath>{String.raw`\kappa=5`}</InlineMath>), shows coordinate system dependence
+      </>
+    ),
 
     objective: (w: number[]): number => {
       const [w0, w1] = w;
@@ -79,7 +88,11 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
 // Matches Python validation suite: f(w) = w0^2 + 100*w1^2
 export const illConditionedQuadratic: ProblemDefinition = {
   name: 'Ill-Conditioned Quadratic',
-  description: 'Elongated ellipse: f(w) = w0^2 + 100*w1^2 (condition number κ=100)',
+  description: (
+    <>
+      Elongated ellipse: <InlineMath>{String.raw`f(w) = w_0^2 + 100w_1^2`}</InlineMath> (condition number <InlineMath>{String.raw`\kappa=100`}</InlineMath>)
+    </>
+  ),
 
   objective: (w: number[]): number => {
     const [w0, w1] = w;
@@ -107,7 +120,11 @@ export const illConditionedQuadratic: ProblemDefinition = {
 export function createIllConditionedQuadratic(conditionNumber: number = 100): ProblemDefinition {
   return {
     name: 'Ill-Conditioned Quadratic',
-    description: `Elongated ellipse with condition number κ=${conditionNumber}`,
+    description: (
+      <>
+        Elongated ellipse with condition number <InlineMath>\kappa</InlineMath>={conditionNumber}
+      </>
+    ),
 
     objective: (w: number[]): number => {
       const [w0, w1] = w;

@@ -1,4 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
+import { InlineMath } from '../components/Math';
 
 // Himmelblau's function: f(w) = (w0^2 + w1 - 11)^2 + (w0 + w1^2 - 7)^2
 // Classic multimodal test function with four global minima (all f = 0)
@@ -17,7 +18,11 @@ import { ProblemDefinition } from '../types/experiments';
 // - Named after David Mautner Himmelblau (1972)
 export const himmelblauProblem: ProblemDefinition = {
   name: "Himmelblau's Function",
-  description: 'Multimodal function with 4 equivalent minima, creates symmetric basin boundaries',
+  description: (
+    <>
+      Multimodal function with <InlineMath>4</InlineMath> equivalent minima, creates symmetric basin boundaries
+    </>
+  ),
 
   objective: (w: number[]): number => {
     const [w0, w1] = w;

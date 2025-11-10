@@ -1,4 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
+import { InlineMath } from '../components/Math';
 
 // Three-Hump Camel function: f(w) = 2w0^2 - 1.05w0^4 + w0^6/6 + w0·w1 + w1^2
 // Classic multimodal test function with three local minima (one global, two local)
@@ -16,7 +17,11 @@ import { ProblemDefinition } from '../types/experiments';
 // - Polynomial optimization landscape with multiple valleys
 export const threeHumpCamelProblem: ProblemDefinition = {
   name: 'Three-Hump Camel',
-  description: 'Multimodal polynomial with 1 global + 2 local minima, asymmetric basins',
+  description: (
+    <>
+      Multimodal polynomial with <InlineMath>1</InlineMath> global + <InlineMath>2</InlineMath> local minima, asymmetric basins
+    </>
+  ),
 
   objective: (w: number[]): number => {
     const [w0, w1] = w;

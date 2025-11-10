@@ -74,7 +74,7 @@ export interface ProblemDefinition {
     w0: [number, number];
     w1: [number, number];
   };
-  description: string;
+  description: React.ReactNode;
   globalMinimum?: [number, number];  // Analytical global minimum (if exists)
   criticalPoint?: [number, number];  // For saddle points or local min/max
 }

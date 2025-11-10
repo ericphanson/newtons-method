@@ -1,4 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
+import { InlineMath } from '../components/Math';
 
 // Rosenbrock function: f(w) = (1-w0)^2 + b(w1-w0^2)^2
 // Non-convex, banana-shaped valley, classic optimization test
@@ -6,7 +7,11 @@ import { ProblemDefinition } from '../types/experiments';
 export function createRosenbrockProblem(b: number = 100): ProblemDefinition {
   return {
     name: 'Rosenbrock Function',
-    description: `Non-convex banana valley (b=${b}), global minimum at (1,1)`,
+    description: (
+      <>
+        Non-convex banana valley (<InlineMath>b</InlineMath>={b}), global minimum at <InlineMath>(1,1)</InlineMath>
+      </>
+    ),
 
     objective: (w: number[]): number => {
       const [w0, w1] = w;

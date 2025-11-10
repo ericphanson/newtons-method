@@ -1,11 +1,16 @@
 import { ProblemDefinition } from '../types/experiments';
+import { InlineMath } from '../components/Math';
 
 // Non-convex function with saddle point at origin
 // f(w) = w0^2 - w1^2 (hyperbolic paraboloid)
 // Has saddle point at (0, 0) with one positive and one negative eigenvalue
 export const saddleProblem: ProblemDefinition = {
   name: 'Saddle Point Function',
-  description: 'Non-convex hyperbolic paraboloid f(w) = w₀² - w₁² with saddle at origin',
+  description: (
+    <>
+      Non-convex hyperbolic paraboloid <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath> with saddle at origin
+    </>
+  ),
 
   objective: (w: number[]): number => {
     const [w0, w1] = w;

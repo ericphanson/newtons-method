@@ -1,9 +1,9 @@
 import { ProblemDefinition } from '../types/experiments';
-import { quadraticProblem, createRotatedQuadratic, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic';
-import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock';
-import { saddleProblem } from './saddle';
-import { himmelblauProblem } from './himmelblau';
-import { threeHumpCamelProblem } from './threeHumpCamel';
+import { quadraticProblem, createRotatedQuadratic, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic.tsx';
+import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock.tsx';
+import { saddleProblem } from './saddle.tsx';
+import { himmelblauProblem } from './himmelblau.tsx';
+import { threeHumpCamelProblem } from './threeHumpCamel.tsx';
 
 /**
  * Registry of all available optimization problems
