@@ -117,7 +117,6 @@ const UnifiedVisualizer = () => {
 
   // Experiment state
   const [experimentLoading, setExperimentLoading] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- setExperimentJustLoaded will be used in Task 7
   const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
 
   // Problem state
@@ -608,6 +607,9 @@ const UnifiedVisualizer = () => {
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
     setExperimentLoading(true);
 
+    // Signal all algorithms to jump to end on next update
+    setExperimentJustLoaded(true);
+
     try {
       // 1. Update hyperparameters
       if (experiment.hyperparameters.alpha !== undefined) {
@@ -679,6 +681,10 @@ const UnifiedVisualizer = () => {
 
       // Clear loading state immediately (no artificial delay to avoid race conditions)
       setExperimentLoading(false);
+
+      // Reset jump-to-end flag after a tick so all useEffects can read it
+      // This uses the event loop to ensure hooks see experimentJustLoaded: true before it resets
+      setTimeout(() => setExperimentJustLoaded(false), 0);
 
       // Show success toast
       setToast({
