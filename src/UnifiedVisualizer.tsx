@@ -5,17 +5,11 @@ import {
   generateCrescents,
   setupCanvas,
 } from './shared-utils';
-import {
-  logisticObjective,
-  logisticGradient,
-  logisticHessian
-} from './utils/logisticRegression';
 import { runNewton } from './algorithms/newton';
 import { runLBFGS } from './algorithms/lbfgs';
 import { runGradientDescent } from './algorithms/gradient-descent';
 import { runGradientDescentLineSearch } from './algorithms/gradient-descent-linesearch';
 import { runDiagonalPreconditioner } from './algorithms/diagonal-preconditioner';
-import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
 import type { ProblemFunctions } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
 import { isDatasetProblem, constructInitialPoint } from './utils/problemHelpers';
@@ -23,7 +17,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
-import { getProblem, resolveProblem } from './problems';
+import { getProblem, resolveProblem, problemRegistryV2, requiresDataset } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -172,67 +166,40 @@ const UnifiedVisualizer = () => {
 
   // Get current problem definition (logistic regression or from registry)
   const getCurrentProblem = useCallback(() => {
-    if (currentProblem === 'logistic-regression') {
-      // Return logistic regression wrapped as problem interface
-      // Note: Logistic regression uses 2D weights [w0, w1] with bias parameter
-      return {
-        name: 'Logistic Regression',
-        description: 'Binary classification with L2 regularization',
-        objective: (w: number[]) => logisticObjective(w, data, lambda, bias),
-        gradient: (w: number[]) => logisticGradient(w, data, lambda, bias),
-        hessian: (w: number[]) => logisticHessian(w, data, lambda, bias),
-        domain: {
-          w0: [-3, 3],
-          w1: [-3, 3],
-        },
-        requiresDataset: true,
-        dimensionality: 2, // 2D weights [w0, w1]
-      };
-    } else if (currentProblem === 'separating-hyperplane') {
-      // Special case: dataset-based problem
-      const { objective, gradient, hessian } = separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
-      return {
-        name: 'Separating Hyperplane',
-        description: `Separating hyperplane (${separatingHyperplaneVariant})`,
-        objective,
-        gradient,
-        hessian,
-        domain: {
-          w0: [-3, 3],
-          w1: [-3, 3],
-        },
-        requiresDataset: true,
-        dimensionality: 2, // 2D weights [w0, w1]
-      };
-    } else {
-      // NEW: Use centralized resolution for all registry problems
-      const problem = resolveProblem(currentProblem, problemParameters);
-      return {
-        ...problem,
-        requiresDataset: false,
-        dimensionality: 2,
-      };
-    }
-  }, [currentProblem, data, lambda, bias, problemParameters, separatingHyperplaneVariant]);
+    const entry = problemRegistryV2[currentProblem];
+
+    // Unified resolution for all problems
+    const problem = resolveProblem(
+      currentProblem,
+      problemParameters,
+      entry?.requiresDataset ? data : undefined
+    );
+
+    return {
+      ...problem,
+      requiresDataset: entry?.requiresDataset || false,
+    };
+  }, [currentProblem, data, problemParameters]);
 
   // Get current problem functions for algorithm execution
   // For parametrized problems (rotated quadratic, ill-conditioned quadratic, Rosenbrock),
   // we create instances with current parameter values
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
-    if (currentProblem === 'logistic-regression') {
-      return logisticRegressionToProblemFunctions(data, lambda, bias);
-    } else if (currentProblem === 'separating-hyperplane') {
-      // Special case: dataset-based problem
-      if (!data || data.length === 0) {
-        throw new Error('Separating hyperplane requires dataset');
-      }
-      return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
-    } else {
-      // NEW: Use centralized resolution for all registry problems
-      const problem = resolveProblem(currentProblem, problemParameters);
-      return problemToProblemFunctions(problem);
-    }
-  }, [currentProblem, data, lambda, bias, problemParameters, separatingHyperplaneVariant]);
+    const entry = problemRegistryV2[currentProblem];
+
+    const problem = resolveProblem(
+      currentProblem,
+      problemParameters,
+      entry?.requiresDataset ? data : undefined
+    );
+
+    return {
+      objective: problem.objective,
+      gradient: problem.gradient,
+      hessian: problem.hessian,
+      dimensionality: 2, // All problems are 2D
+    };
+  }, [currentProblem, data, problemParameters]);
 
   // Track visualization bounds updates
   useEffect(() => {
@@ -244,13 +211,32 @@ const UnifiedVisualizer = () => {
     localStorage.setItem('selectedAlgorithmTab', selectedTab);
   }, [selectedTab]);
 
+  // Sync lambda and bias for dataset problems
+  useEffect(() => {
+    if (requiresDataset(currentProblem)) {
+      setProblemParameters(prev => ({
+        ...prev,
+        lambda,
+        bias,
+      }));
+    }
+  }, [currentProblem, lambda, bias]);
+
+  // Sync variant for separating hyperplane
+  useEffect(() => {
+    if (currentProblem === 'separating-hyperplane') {
+      setProblemParameters(prev => ({
+        ...prev,
+        variant: separatingHyperplaneVariant
+      }));
+    }
+  }, [currentProblem, separatingHyperplaneVariant]);
+
   // Calculate global minimum for dataset-based problems (logistic regression, separating hyperplane) when data changes
   useEffect(() => {
     if (isDatasetProblem(currentProblem)) {
       try {
-        const problemFuncs = currentProblem === 'logistic-regression'
-          ? logisticRegressionToProblemFunctions(data, lambda, bias)
-          : separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda, bias);
+        const problemFuncs = getCurrentProblemFunctions();
         // Run L-BFGS with tight convergence to find global minimum
         const result = runLBFGS(problemFuncs, {
           maxIter: 1000,
@@ -276,7 +262,7 @@ const UnifiedVisualizer = () => {
     } else {
       setLogisticGlobalMin(null);
     }
-  }, [currentProblem, data, lambda, bias, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, bias, separatingHyperplaneVariant, getCurrentProblemFunctions]);
 
   // Automatically update URL hash based on visible section
   useEffect(() => {
@@ -1550,7 +1536,7 @@ const UnifiedVisualizer = () => {
     const iter = newton.iterations[newton.currentIter];
     if (!iter) return;
 
-    const problem = getCurrentProblem();
+    const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, newtonParamBounds, newton.iterations, newton.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
   }, [newton.currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
@@ -1738,7 +1724,7 @@ const UnifiedVisualizer = () => {
     const iter = lbfgs.iterations[lbfgs.currentIter];
     if (!iter) return;
 
-    const problem = getCurrentProblem();
+    const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgs.iterations, lbfgs.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
   }, [lbfgs.currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
@@ -1760,7 +1746,7 @@ const UnifiedVisualizer = () => {
     const iter = gdFixed.iterations[gdFixed.currentIter];
     if (!iter) return;
 
-    const problem = getCurrentProblem();
+    const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixed.iterations, gdFixed.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
   }, [gdFixed.currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
@@ -1772,7 +1758,7 @@ const UnifiedVisualizer = () => {
     const iter = gdLS.iterations[gdLS.currentIter];
     if (!iter) return;
 
-    const problem = getCurrentProblem();
+    const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, gdLSParamBounds, gdLS.iterations, gdLS.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
   }, [gdLS.currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
@@ -1794,7 +1780,7 @@ const UnifiedVisualizer = () => {
     const iter = diagPrecond.iterations[diagPrecond.currentIter];
     if (!iter) return;
 
-    const problem = getCurrentProblem();
+    const problem = getCurrentProblemFunctions();
     drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecond.iterations, diagPrecond.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
   }, [diagPrecond.currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
