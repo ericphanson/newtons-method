@@ -121,8 +121,9 @@ const UnifiedVisualizer = () => {
 
     // After React renders the new tab, try to scroll to the hash if it exists
     if (currentHash) {
-      setTimeout(() => {
-        console.log('[TAB CHANGE] After 50ms delay, looking for element:', currentHash);
+      // Use requestAnimationFrame for minimal delay (one frame ~16ms)
+      requestAnimationFrame(() => {
+        console.log('[TAB CHANGE] After one frame, looking for element:', currentHash);
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
           console.log('[TAB CHANGE] Found element, scrolling to it instantly');
@@ -135,18 +136,18 @@ const UnifiedVisualizer = () => {
         }
         // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
 
-        // Re-enable IntersectionObserver after scroll completes (smooth scroll takes ~300-500ms)
-        setTimeout(() => {
-          console.log('[TAB CHANGE] After 600ms, setting isNavigatingRef = false');
+        // Re-enable IntersectionObserver after instant scroll (one more frame)
+        requestAnimationFrame(() => {
+          console.log('[TAB CHANGE] After instant scroll, setting isNavigatingRef = false');
           isNavigatingRef.current = false;
-        }, 600);
-      }, 50); // Small delay to ensure tab content has rendered
+        });
+      });
     } else {
       // If no hash to preserve, re-enable observer after render
-      setTimeout(() => {
-        console.log('[TAB CHANGE] No hash, setting isNavigatingRef = false after 100ms');
+      requestAnimationFrame(() => {
+        console.log('[TAB CHANGE] No hash, setting isNavigatingRef = false after one frame');
         isNavigatingRef.current = false;
-      }, 100);
+      });
     }
   };
 
