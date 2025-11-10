@@ -86,7 +86,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   return (
   <>
     {/* 1. Configuration Section */}
-    <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true}>
+    <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true} data-scroll-target="configuration">
       <AlgorithmConfiguration
         algorithm="lbfgs"
         maxIter={maxIter}
@@ -122,7 +122,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
     )}
 
     {/* 3. Side-by-Side: Canvas + Metrics */}
-    <div className="flex gap-4 mb-6">
+    <div className="flex gap-4 mb-6" data-scroll-target="canvas">
       {/* Left: Parameter Space Visualization */}
       <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
@@ -168,7 +168,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
       {/* Right: Metrics Column */}
       {iterations.length > 0 && iterations[currentIter] && (
-        <div className="w-80 bg-white rounded-lg shadow-md p-4">
+        <div className="w-80 bg-white rounded-lg shadow-md p-4" data-scroll-target="metrics">
           <IterationMetrics
             algorithm="lbfgs"
             iterNum={currentIter}

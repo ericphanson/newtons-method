@@ -122,7 +122,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
   const contextualTip = getContextualTip();
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-scroll-target="problem">
       <h2 className="text-xl font-bold text-gray-900 mb-4">Problem Configuration</h2>
 
       {/* Integrated header: Dropdown + Formulation */}

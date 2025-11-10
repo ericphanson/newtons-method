@@ -71,7 +71,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
   return (
   <>
     {/* 1. Configuration Section */}
-    <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true} id="configuration">
+    <CollapsibleSection title="Algorithm Configuration" defaultExpanded={true} id="configuration" data-scroll-target="configuration">
       <AlgorithmConfiguration
         algorithm="gd-fixed"
         maxIter={maxIter}
@@ -103,7 +103,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
     )}
 
     {/* 3. Side-by-Side: Canvas + Metrics */}
-    <div className="flex gap-4 mb-6">
+    <div className="flex gap-4 mb-6" data-scroll-target="canvas">
       {/* Left: Parameter Space Visualization */}
       <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Parameter Space</h3>
@@ -146,7 +146,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
       {/* Right: Metrics Column */}
       {iterations.length > 0 && iterations[currentIter] && (
-        <div className="w-80 bg-white rounded-lg shadow-md p-4">
+        <div className="w-80 bg-white rounded-lg shadow-md p-4" data-scroll-target="metrics">
           <IterationMetrics
             algorithm="gd-fixed"
             iterNum={currentIter}

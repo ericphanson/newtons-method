@@ -103,9 +103,9 @@ const UnifiedVisualizer = () => {
   const isNavigatingRef = useRef(false);
 
   // Hash-preserving tab change handler
-  const handleTabChange = (newTab: Algorithm) => {
+  const handleTabChange = (newTab: Algorithm, skipScroll = false) => {
     const currentHash = window.location.hash;
-    console.log('[TAB CHANGE] Starting - currentHash:', currentHash, 'newTab:', newTab);
+    console.log('[TAB CHANGE] Starting - currentHash:', currentHash, 'newTab:', newTab, 'skipScroll:', skipScroll);
 
     // Disable IntersectionObserver updates BEFORE tab switch
     isNavigatingRef.current = true;
@@ -121,7 +121,7 @@ const UnifiedVisualizer = () => {
     console.log('[TAB CHANGE] Called setSelectedTab');
 
     // After React renders the new tab, try to scroll to the hash if it exists
-    if (currentHash) {
+    if (currentHash && !skipScroll) {
       // Use requestAnimationFrame for minimal delay (one frame ~16ms)
       requestAnimationFrame(() => {
         console.log('[TAB CHANGE] After one frame, looking for element:', currentHash);
@@ -1025,8 +1025,22 @@ const UnifiedVisualizer = () => {
         if (experiment) {
           loadExperiment(experiment);
 
-          // Switch to the experiment's algorithm tab
-          handleTabChange(experiment.algorithm);
+          // Switch to the experiment's algorithm tab (skip default scroll - story controls it)
+          handleTabChange(experiment.algorithm, true);
+
+          // Scroll to the target section if specified by story
+          if (step.scrollTo) {
+            // Use setTimeout to wait for tab content to render
+            setTimeout(() => {
+              const target = document.querySelector(`[data-scroll-target="${step.scrollTo}"]`);
+              if (target) {
+                target.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center'
+                });
+              }
+            }, 100);
+          }
         }
       }
     }
