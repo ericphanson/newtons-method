@@ -164,6 +164,18 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'linear-convergence': {
+    term: 'linear convergence',
+    definition: (
+      <>
+        <strong>Linear convergence:</strong> The error decreases by a constant factor each
+        iteration: ||eₖ₊₁|| ≤ ρ||eₖ|| for some 0 &lt; ρ &lt; 1. Requires O(log(1/ε))
+        iterations to reach ε accuracy. Gradient descent achieves this on strongly convex
+        smooth functions.
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
