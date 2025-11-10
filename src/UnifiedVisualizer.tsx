@@ -22,7 +22,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
-import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem, resolveProblem } from './problems';
+import { getProblem, resolveProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -233,31 +233,18 @@ const UnifiedVisualizer = () => {
   const getCurrentProblemFunctions = useCallback((): ProblemFunctions => {
     if (currentProblem === 'logistic-regression') {
       return logisticRegressionToProblemFunctions(data, lambda);
-    } else if (currentProblem === 'quadratic') {
-      // Create parametrized version with current rotation angle
-      const problem = createRotatedQuadratic(rotationAngle);
-      return problemToProblemFunctions(problem);
-    } else if (currentProblem === 'ill-conditioned-quadratic') {
-      // Create parametrized version with current condition number
-      const problem = createIllConditionedQuadratic(conditionNumber);
-      return problemToProblemFunctions(problem);
-    } else if (currentProblem === 'rosenbrock') {
-      // Create parametrized version with current b parameter
-      const problem = createRosenbrockProblem(rosenbrockB);
-      return problemToProblemFunctions(problem);
     } else if (currentProblem === 'separating-hyperplane') {
+      // Special case: dataset-based problem
       if (!data || data.length === 0) {
         throw new Error('Separating hyperplane requires dataset');
       }
       return separatingHyperplaneToProblemFunctions(data, separatingHyperplaneVariant, lambda);
     } else {
-      const problem = getProblem(currentProblem);
-      if (!problem) {
-        throw new Error(`Problem not found: ${currentProblem}`);
-      }
+      // NEW: Use centralized resolution for all registry problems
+      const problem = resolveProblem(currentProblem, problemParameters);
       return problemToProblemFunctions(problem);
     }
-  }, [currentProblem, data, lambda, rotationAngle, conditionNumber, rosenbrockB, separatingHyperplaneVariant]);
+  }, [currentProblem, data, lambda, problemParameters, separatingHyperplaneVariant]);
 
   // Track visualization bounds updates
   useEffect(() => {
