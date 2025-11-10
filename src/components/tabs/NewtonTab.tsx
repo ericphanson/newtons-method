@@ -9,6 +9,7 @@ import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var } from '../Pseudocode';
+import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -229,7 +230,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
@@ -239,19 +240,19 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               },
               {
                 id: "lambda_damp",
-                display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                display: <InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath>,
                 description: "Hessian damping parameter"
               }
             ]}
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{'w^*'}</InlineMath>,
+                display: <InlineMath>{`w^*`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
                 <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
@@ -437,97 +438,28 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Current Method: Armijo Backtracking</h3>
-            <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
-            <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
-            <p className="text-sm mt-2">
-              Where <InlineMath>c_1 = </InlineMath>{newtonC1.toFixed(4)} controls how much decrease we require.
-            </p>
-
-            <div className="mt-3">
-              <Pseudocode
-                color="blue"
-                inputs={[
-                  {
-                    id: "p",
-                    display: <InlineMath>p</InlineMath>,
-                    description: "search direction"
-                  },
-                  {
-                    id: "w",
-                    display: <InlineMath>w</InlineMath>,
-                    description: "current parameters"
-                  },
-                  {
-                    id: "f_w",
-                    display: <InlineMath>f(w)</InlineMath>,
-                    description: "current loss"
-                  },
-                  {
-                    id: "grad",
-                    display: <InlineMath>\nabla f(w)</InlineMath>,
-                    description: "current gradient"
-                  }
-                ]}
-                outputs={[
-                  {
-                    id: "alpha",
-                    display: <InlineMath>\alpha</InlineMath>,
-                    description: "step size that satisfies Armijo condition"
-                  }
-                ]}
-                steps={[
-                  <>Initialize <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 1 (full Newton step)</>,
-                  <><strong>repeat</strong> until Armijo condition satisfied:</>,
-                  <>
-                    <span className="ml-4">Evaluate <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var></span>
-                  </>,
-                  <>
-                    <span className="ml-4"><strong>if</strong> <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var> ≤ <Var id="f_w"><InlineMath>f(w)</InlineMath></Var> + <InlineMath>{'c_1'}</InlineMath><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var><sup>T</sup><Var id="p"><InlineMath>p</InlineMath></Var>:</span>
-                  </>,
-                  <>
-                    <span className="ml-8"><strong>break</strong> (accept <Var id="alpha"><InlineMath>\alpha</InlineMath></Var>)</span>
-                  </>,
-                  <>
-                    <span className="ml-4"><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 0.5 · <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (reduce step size)</span>
-                  </>,
-                  <><strong>return</strong> <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>
-                ]}
-              />
-            </div>
-
-            <p className="text-sm mt-3">
-              <strong>Why it works:</strong> Near the minimum with positive definite Hessian,
-              <InlineMath>\alpha = 1</InlineMath> is usually accepted. Far away or in
-              problematic regions, backtracking provides safety.
-            </p>
-
-            <div className="bg-green-50 rounded p-3 mt-4">
-              <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
-              <div className="text-sm space-y-2">
-                <div>
-                  <p className="font-semibold">Cost per iteration:</p>
-                  <ul className="list-disc ml-6">
-                    <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 1-3 per iteration (often accepts <InlineMath>\alpha = 1</InlineMath>)</li>
-                    <li><strong>Gradient evaluations:</strong> No extra cost! Already computed for Newton direction</li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-semibold">Benefits:</p>
-                  <ul className="list-disc ml-6">
-                    <li><strong>Safety:</strong> Prevents divergence from bad Hessian or far from minimum</li>
-                    <li><strong>Fewer iterations:</strong> Good steps mean faster convergence</li>
-                    <li><strong>Robustness:</strong> Works even when theory doesn't guarantee <InlineMath>\alpha = 1</InlineMath> is safe</li>
-                  </ul>
-                </div>
-                <div className="bg-white rounded p-2 mt-2">
-                  <p className="font-semibold">Verdict: <span className="text-green-700">Essential for Newton's method!</span></p>
-                  <p className="text-xs mt-1">
-                    Without line search, Newton can diverge spectacularly. With it, you get both safety
-                    and speed. The cost is minimal since <InlineMath>\alpha = 1</InlineMath> is usually accepted near the solution.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ArmijoLineSearch
+              color="blue"
+              initialAlpha="1 (full Newton step)"
+              typicalFEvals="1-3"
+              c1Value={newtonC1}
+              verdict={{
+                title: "Essential for Newton's method!",
+                description: "Without line search, Newton can diverge spectacularly. With it, you get both safety and speed. The cost is minimal since α = 1 is usually accepted near the solution."
+              }}
+              benefits={[
+                'Safety: Prevents divergence from bad Hessian or far from minimum',
+                'Fewer iterations: Good steps mean faster convergence',
+                "Robustness: Works even when theory doesn't guarantee α = 1 is safe"
+              ]}
+              additionalNotes={
+                <p className="text-sm">
+                  <strong>Why it works:</strong> Near the minimum with positive definite Hessian,
+                  <InlineMath>\alpha = 1</InlineMath> is usually accepted. Far away or in
+                  problematic regions, backtracking provides safety.
+                </p>
+              }
+            />
           </div>
         </div>
       </CollapsibleSection>

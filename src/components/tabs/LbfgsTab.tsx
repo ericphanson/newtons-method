@@ -10,6 +10,7 @@ import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { fmt, fmtVec } from '../../shared-utils';
 import { Pseudocode, Var } from '../Pseudocode';
+import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { LBFGSIteration } from '../../algorithms/lbfgs';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -213,7 +214,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
@@ -228,28 +229,28 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               },
               {
                 id: "lambda_damp",
-                display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                display: <InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath>,
                 description: "Hessian damping parameter"
               }
             ]}
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{'w^*'}</InlineMath>,
+                display: <InlineMath>{`w^*`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
               <><strong>repeat</strong> until convergence:</>,
               <>
                 <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
               </>,
               <>
-                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{'H^{-1}'}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from history</span>
+                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad"><InlineMath>\nabla f</InlineMath></Var> from history</span>
               </>,
               <>
-                <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0"><InlineMath>{'B_0'}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var> with damping)</span>
+                <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0"><InlineMath>{`B_0`}</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var> with damping)</span>
               </>,
               <>
                 <span className="ml-4">Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></span>
@@ -376,99 +377,29 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">Current Method: Armijo Backtracking</h3>
-            <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
-            <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
-            <p className="text-sm mt-2">
-              Where <InlineMath>c_1 = </InlineMath>{lbfgsC1.toFixed(4)} controls how much decrease we require.
-            </p>
-
-            <div className="mt-3">
-              <Pseudocode
-                color="amber"
-                inputs={[
-                  {
-                    id: "p",
-                    display: <InlineMath>p</InlineMath>,
-                    description: "search direction"
-                  },
-                  {
-                    id: "w",
-                    display: <InlineMath>w</InlineMath>,
-                    description: "current parameters"
-                  },
-                  {
-                    id: "f_w",
-                    display: <InlineMath>f(w)</InlineMath>,
-                    description: "current loss"
-                  },
-                  {
-                    id: "grad",
-                    display: <InlineMath>\nabla f(w)</InlineMath>,
-                    description: "current gradient"
-                  }
-                ]}
-                outputs={[
-                  {
-                    id: "alpha",
-                    display: <InlineMath>\alpha</InlineMath>,
-                    description: "step size that satisfies Armijo condition"
-                  }
-                ]}
-                steps={[
-                  <>Initialize <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 1 (try full step first)</>,
-                  <><strong>repeat</strong> until Armijo condition satisfied:</>,
-                  <>
-                    <span className="ml-4">Evaluate <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var></span>
-                  </>,
-                  <>
-                    <span className="ml-4"><strong>if</strong> <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var> ≤ <Var id="f_w"><InlineMath>f(w)</InlineMath></Var> + <InlineMath>{'c_1'}</InlineMath><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var><sup>T</sup><Var id="p"><InlineMath>p</InlineMath></Var>:</span>
-                  </>,
-                  <>
-                    <span className="ml-8"><strong>break</strong> (accept <Var id="alpha"><InlineMath>\alpha</InlineMath></Var>)</span>
-                  </>,
-                  <>
-                    <span className="ml-4"><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 0.5 · <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (reduce step size)</span>
-                  </>,
-                  <><strong>return</strong> <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>
-                ]}
-              />
-            </div>
-
-            <p className="text-sm mt-3">
-              <strong>Typical behavior:</strong> When the quasi-Newton approximation is good
-              (near minimum, after building history), <InlineMath>\alpha = 1</InlineMath> is
-              often accepted. When approximation is poor (early iterations, far from minimum),
-              backtracking finds smaller steps.
-            </p>
-
-            <div className="bg-green-50 rounded p-3 mt-4">
-              <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
-              <div className="text-sm space-y-2">
-                <div>
-                  <p className="font-semibold">Cost per iteration:</p>
-                  <ul className="list-disc ml-6">
-                    <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 1-4 per iteration</li>
-                    <li><strong>Gradient evaluations:</strong> No extra cost! Already computed for direction</li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-semibold">Benefits:</p>
-                  <ul className="list-disc ml-6">
-                    <li><strong>Safety:</strong> Prevents bad steps from approximate Hessian</li>
-                    <li><strong>Robustness:</strong> Works even with limited memory or poor approximation</li>
-                    <li><strong>Faster convergence:</strong> Better steps mean fewer total iterations</li>
-                  </ul>
-                </div>
-                <div className="bg-white rounded p-2 mt-2">
-                  <p className="font-semibold">Verdict: <span className="text-green-700">Critical for L-BFGS!</span></p>
-                  <p className="text-xs mt-1">
-                    L-BFGS uses an approximate Hessian, so line search is essential for robustness.
-                    The overhead is minimal (often accepts <InlineMath>\alpha = 1</InlineMath> after warm-up) and prevents
-                    the disasters that can happen with a fixed step size on an approximate direction.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ArmijoLineSearch
+              color="amber"
+              initialAlpha="1 (try full step first)"
+              typicalFEvals="1-4"
+              c1Value={lbfgsC1}
+              verdict={{
+                title: "Critical for L-BFGS!",
+                description: "L-BFGS uses an approximate Hessian, so line search is essential for robustness. The overhead is minimal (often accepts α = 1 after warm-up) and prevents the disasters that can happen with a fixed step size on an approximate direction."
+              }}
+              benefits={[
+                'Safety: Prevents bad steps from approximate Hessian',
+                'Robustness: Works even with limited memory or poor approximation',
+                'Faster convergence: Better steps mean fewer total iterations'
+              ]}
+              additionalNotes={
+                <p className="text-sm">
+                  <strong>Typical behavior:</strong> When the quasi-Newton approximation is good
+                  (near minimum, after building history), <InlineMath>\alpha = 1</InlineMath> is
+                  often accepted. When approximation is poor (early iterations, far from minimum),
+                  backtracking finds smaller steps.
+                </p>
+              }
+            />
           </div>
 
           <div className="bg-amber-100 rounded p-3 mt-3">

@@ -9,6 +9,7 @@ import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Var } from '../Pseudocode';
+import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -199,7 +200,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
@@ -211,12 +212,12 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{'w^*'}</InlineMath>,
+                display: <InlineMath>{`w^*`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+              <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
                 <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
@@ -309,107 +310,37 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-teal-800 mb-2">Current Method: Armijo Backtracking</h3>
-            <p>The <strong>Armijo condition</strong> ensures sufficient decrease:</p>
-            <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
-            <p className="text-sm mt-2">
-              Where <InlineMath>c_1 = </InlineMath>{gdLSC1.toFixed(4)} controls how much
-              decrease we require.
-            </p>
-
-            <div className="mt-3">
-              <Pseudocode
-                color="teal"
-                inputs={[
-                  {
-                    id: "p",
-                    display: <InlineMath>p</InlineMath>,
-                    description: "search direction"
-                  },
-                  {
-                    id: "w",
-                    display: <InlineMath>w</InlineMath>,
-                    description: "current parameters"
-                  },
-                  {
-                    id: "f_w",
-                    display: <InlineMath>f(w)</InlineMath>,
-                    description: "current loss"
-                  },
-                  {
-                    id: "grad",
-                    display: <InlineMath>\nabla f(w)</InlineMath>,
-                    description: "current gradient"
-                  }
-                ]}
-                outputs={[
-                  {
-                    id: "alpha",
-                    display: <InlineMath>\alpha</InlineMath>,
-                    description: "step size that satisfies Armijo condition"
-                  }
-                ]}
-                steps={[
-                  <>Initialize <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 1 (or previous iteration's value)</>,
-                  <><strong>repeat</strong> until Armijo condition satisfied:</>,
-                  <>
-                    <span className="ml-4">Evaluate <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var></span>
-                  </>,
-                  <>
-                    <span className="ml-4"><strong>if</strong> <Var id="f_trial"><InlineMath>{'f(w + \\alpha p)'}</InlineMath></Var> ≤ <Var id="f_w"><InlineMath>f(w)</InlineMath></Var> + <InlineMath>{'c_1'}</InlineMath><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var><sup>T</sup><Var id="p"><InlineMath>p</InlineMath></Var>:</span>
-                  </>,
-                  <>
-                    <span className="ml-8"><strong>break</strong> (accept <Var id="alpha"><InlineMath>\alpha</InlineMath></Var>)</span>
-                  </>,
-                  <>
-                    <span className="ml-4"><Var id="alpha"><InlineMath>\alpha</InlineMath></Var> ← 0.5 · <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> (reduce step size)</span>
-                  </>,
-                  <><strong>return</strong> <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>
-                ]}
-              />
-            </div>
-
-            <div className="mt-3 bg-teal-50 rounded p-3">
-              <p className="font-semibold text-sm mb-2">Understanding <InlineMath>c_1</InlineMath>:</p>
-              <ul className="text-sm list-disc ml-6">
-                <li>
-                  <strong><InlineMath>c_1</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
-                </li>
-                <li>
-                  <strong><InlineMath>c_1</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
-                </li>
-                <li>
-                  <strong><InlineMath>c_1</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="bg-green-50 rounded p-3 mt-3">
-            <p className="font-bold text-sm mb-2">Cost/Benefit Analysis: Is Line Search Worth It?</p>
-            <div className="text-sm space-y-2">
-              <div>
-                <p className="font-semibold">Cost per iteration:</p>
-                <ul className="list-disc ml-6">
-                  <li><strong>Additional <InlineMath>f</InlineMath> evaluations:</strong> Typically 2-5 per iteration (backtracking)</li>
-                  <li><strong>Gradient evaluations:</strong> No extra cost! We already computed <InlineMath>\nabla f</InlineMath></li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-semibold">Benefits:</p>
-                <ul className="list-disc ml-6">
-                  <li><strong>Fewer total iterations:</strong> Good steps converge faster</li>
-                  <li><strong>Robustness:</strong> Works across problems without tuning <InlineMath>\alpha</InlineMath></li>
-                  <li><strong>Automatic adaptation:</strong> Large steps when safe, small steps when needed</li>
-                </ul>
-              </div>
-              <div className="bg-white rounded p-2 mt-2">
-                <p className="font-semibold">Verdict: <span className="text-green-700">Generally excellent tradeoff!</span></p>
-                <p className="text-xs mt-1">
-                  The extra <InlineMath>f</InlineMath>-evals per iteration are usually offset by needing 2-10× fewer iterations.
-                  Plus, you avoid the nightmare of manual <InlineMath>\alpha</InlineMath> tuning for each problem.
-                </p>
-              </div>
-            </div>
+            <ArmijoLineSearch
+              color="teal"
+              initialAlpha="1 (or previous iteration's value)"
+              typicalFEvals="2-5"
+              c1Value={gdLSC1}
+              verdict={{
+                title: "Generally excellent tradeoff!",
+                description: "The extra f-evals per iteration are usually offset by needing 2-10× fewer iterations. Plus, you avoid the nightmare of manual α tuning for each problem."
+              }}
+              benefits={[
+                'Fewer total iterations: Good steps converge faster',
+                'Robustness: Works across problems without tuning α',
+                'Automatic adaptation: Large steps when safe, small steps when needed'
+              ]}
+              additionalNotes={
+                <div className="bg-teal-50 rounded p-3">
+                  <p className="font-semibold text-sm mb-2">Understanding <InlineMath>c_1</InlineMath>:</p>
+                  <ul className="text-sm list-disc ml-6">
+                    <li>
+                      <strong><InlineMath>c_1</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
+                    </li>
+                    <li>
+                      <strong><InlineMath>c_1</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
+                    </li>
+                    <li>
+                      <strong><InlineMath>c_1</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
+                    </li>
+                  </ul>
+                </div>
+              }
+            />
           </div>
 
           <div className="bg-blue-100 rounded p-3 mt-3">

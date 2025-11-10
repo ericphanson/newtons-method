@@ -225,7 +225,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               inputs={[
                 {
                   id: "w_0",
-                  display: <InlineMath>{'w_0 \\in \\mathbb{R}^d'}</InlineMath>,
+                  display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
                   description: "initial parameter vector"
                 },
                 {
@@ -235,19 +235,19 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 },
                 {
                   id: "lambda_damp",
-                  display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                  display: <InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath>,
                   description: "Hessian damping parameter"
                 }
               ]}
               outputs={[
                 {
                   id: "w_star",
-                  display: <InlineMath>{'w^*'}</InlineMath>,
+                  display: <InlineMath>{`w^*`}</InlineMath>,
                   description: "optimized parameter vector"
                 }
               ]}
               steps={[
-                <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{'w_0'}</InlineMath></Var></>,
+                <>Initialize <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w_0"><InlineMath>{`w_0`}</InlineMath></Var></>,
                 <><strong>repeat</strong> until convergence:</>,
                 <>
                   <span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var></span>
