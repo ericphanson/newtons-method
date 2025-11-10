@@ -7,6 +7,7 @@ import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
 import { getProblemParameters } from '../problems';
 import { ParameterControls } from './ParameterControls';
+import { isDatasetProblem } from '../utils/problemHelpers';
 
 interface ProblemConfigurationProps {
   currentProblem: string;
@@ -217,7 +218,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
       </div>
 
       {/* Parameters section - for dataset-based problems */}
-      {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
+      {isDatasetProblem(currentProblem) && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <h3 className="text-sm font-bold text-gray-800 mb-3">Parameters</h3>
 
@@ -265,7 +266,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
 
             {/* Controls Sidebar */}
             <div className="w-64 space-y-4">
-              {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
+              {isDatasetProblem(currentProblem) && (
                 <div>
                   <h4 className="font-medium text-gray-700 mb-2">
                     Regularization (<InlineMath>\lambda</InlineMath>)

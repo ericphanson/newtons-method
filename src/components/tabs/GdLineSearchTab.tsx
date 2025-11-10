@@ -11,6 +11,7 @@ import { ExperimentCardList } from '../ExperimentCardList';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
+import { isDatasetProblem } from '../../utils/problemHelpers';
 
 type LogisticMinimum = [number, number] | [number, number, number] | null;
 
@@ -118,7 +119,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           </p>
 
           {/* 2D slice notation for 3D problems */}
-          {(currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
+          {isDatasetProblem(currentProblem) && logisticGlobalMin && logisticGlobalMin.length >= 3 && (
             <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700">
               <span className="font-medium">2D slice:</span> w₂ = {(logisticGlobalMin[2] ?? 0).toFixed(3)} (bias from optimal solution)
             </div>

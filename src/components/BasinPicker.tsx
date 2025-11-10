@@ -37,6 +37,7 @@ import { computeBasinIncremental, BasinTimingData } from '../utils/basinComputat
 import { encodeBasinColors } from '../utils/basinColorEncoding';
 import { ColorbarLegend } from './ColorbarLegend';
 import { clusterConvergenceLocations, assignHuesToClusters } from '../utils/basinClustering';
+import { isDatasetProblem } from '../utils/problemHelpers';
 
 // Extend window interface to expose timing data and basin data for debugging
 declare global {
@@ -488,7 +489,7 @@ export const BasinPicker: React.FC<BasinPickerProps> = ({
       </div>
 
       {/* 2D slice notation for 3D problems - matches UnifiedVisualizer styling */}
-      {problemFuncs.dimensionality === 3 && (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && (
+      {problemFuncs.dimensionality === 3 && isDatasetProblem(currentProblem) && (
         <div className="mb-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-gray-700" style={{ width: 'fit-content', maxWidth: '500px' }}>
           <span className="font-medium">2D slice:</span> w₂ = {(algorithmParams.biasSlice || 0).toFixed(3)} (bias from optimal solution)
         </div>

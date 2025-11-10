@@ -18,6 +18,7 @@ import { runDiagonalPreconditioner } from './algorithms/diagonal-preconditioner'
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
 import type { ProblemFunctions } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
+import { isDatasetProblem, constructInitialPoint } from './utils/problemHelpers';
 import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
@@ -244,7 +245,7 @@ const UnifiedVisualizer = () => {
 
   // Calculate global minimum for dataset-based problems (logistic regression, separating hyperplane) when data changes
   useEffect(() => {
-    if (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') {
+    if (isDatasetProblem(currentProblem)) {
       try {
         const problemFuncs = currentProblem === 'logistic-regression'
           ? logisticRegressionToProblemFunctions(data, lambda)
@@ -348,9 +349,7 @@ const UnifiedVisualizer = () => {
     'GD Fixed',
     () => {
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
+      const initialPoint = constructInitialPoint(currentProblem, initialW0, initialW1);
       return runGradientDescent(problemFuncs, {
         maxIter,
         alpha: gdFixedAlpha,
@@ -368,9 +367,7 @@ const UnifiedVisualizer = () => {
     'GD Line Search',
     () => {
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
+      const initialPoint = constructInitialPoint(currentProblem, initialW0, initialW1);
       return runGradientDescentLineSearch(problemFuncs, {
         maxIter,
         c1: gdLSC1,
@@ -388,9 +385,7 @@ const UnifiedVisualizer = () => {
     'Newton',
     () => {
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
+      const initialPoint = constructInitialPoint(currentProblem, initialW0, initialW1);
       return runNewton(problemFuncs, {
         maxIter,
         c1: newtonC1,
@@ -414,9 +409,7 @@ const UnifiedVisualizer = () => {
     'L-BFGS',
     () => {
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
+      const initialPoint = constructInitialPoint(currentProblem, initialW0, initialW1);
       console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1, hessianDamping: lbfgsHessianDamping });
       const result = runLBFGS(problemFuncs, {
         maxIter,
@@ -443,9 +436,7 @@ const UnifiedVisualizer = () => {
     'Diagonal Preconditioner',
     () => {
       const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
+      const initialPoint = constructInitialPoint(currentProblem, initialW0, initialW1);
       console.log('Running Diagonal Preconditioner with:', { problem: currentProblem, initialPoint, maxIter, c1: diagPrecondC1 });
       const result = runDiagonalPreconditioner(problemFuncs, {
         lineSearch: diagPrecondLineSearch,
@@ -499,7 +490,7 @@ const UnifiedVisualizer = () => {
 
     // Include global minimum in bounds if it exists
     const problemDef = currentProblem !== 'logistic-regression' ? getProblem(currentProblem) : null;
-    const globalMin = problemDef?.globalMinimum || ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') ? logisticGlobalMin : null);
+    const globalMin = problemDef?.globalMinimum || (isDatasetProblem(currentProblem) ? logisticGlobalMin : null);
     if (globalMin) {
       const [gm0, gm1] = globalMin;
       minW0 = Math.min(minW0, gm0);
@@ -603,7 +594,7 @@ const UnifiedVisualizer = () => {
 
   // Bias slice for 3D problems (logistic regression, separating hyperplane)
   const biasSlice = React.useMemo(() => {
-    return ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && logisticGlobalMin && logisticGlobalMin.length >= 3)
+    return (isDatasetProblem(currentProblem) && logisticGlobalMin && logisticGlobalMin.length >= 3)
       ? (logisticGlobalMin as [number, number, number])[2]
       : 0;
   }, [currentProblem, logisticGlobalMin]);
@@ -1174,7 +1165,7 @@ const UnifiedVisualizer = () => {
                        selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
                        selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
                        lbfgs.iterations[lbfgs.currentIter];
-    if ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && currentIter) {
+    if (isDatasetProblem(currentProblem) && currentIter) {
       const [w0, w1, w2] = currentIter.wNew;
       if (Math.abs(w1) > 1e-6) {
         ctx.strokeStyle = '#10b981';
