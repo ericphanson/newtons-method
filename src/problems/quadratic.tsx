@@ -5,6 +5,7 @@ import { InlineMath } from '../components/Math';
 // Well-conditioned problem with circular level sets
 export const quadraticProblem: ProblemDefinition = {
   name: 'Quadratic Bowl',
+  objectiveFormula: <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath>,
   description: (
     <>
       Simple quadratic bowl: <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath> (well-conditioned)
@@ -51,9 +52,10 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
 
   return {
     name: 'Rotated Ellipse',
+    objectiveFormula: <InlineMath>{String.raw`f(w) = \frac{1}{2}w^T R(\theta) \begin{bmatrix} 5 & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T w`}</InlineMath>,
     description: (
       <>
-        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees}°, <InlineMath>{String.raw`\kappa=5`}</InlineMath>), shows coordinate system dependence
+        Rotated ellipse (<InlineMath>\theta</InlineMath>={thetaDegrees.toFixed(1)}°, <InlineMath>{String.raw`\kappa=5`}</InlineMath>), shows coordinate system dependence
       </>
     ),
 
@@ -88,6 +90,7 @@ export function createRotatedQuadratic(thetaDegrees: number = 0): ProblemDefinit
 // Matches Python validation suite: f(w) = w0^2 + 100*w1^2
 export const illConditionedQuadratic: ProblemDefinition = {
   name: 'Ill-Conditioned Quadratic',
+  objectiveFormula: <InlineMath>{String.raw`f(w) = w_0^2 + 100w_1^2`}</InlineMath>,
   description: (
     <>
       Elongated ellipse: <InlineMath>{String.raw`f(w) = w_0^2 + 100w_1^2`}</InlineMath> (condition number <InlineMath>{String.raw`\kappa=100`}</InlineMath>)
@@ -120,9 +123,14 @@ export const illConditionedQuadratic: ProblemDefinition = {
 export function createIllConditionedQuadratic(conditionNumber: number = 100): ProblemDefinition {
   return {
     name: 'Ill-Conditioned Quadratic',
+    objectiveFormula: (
+      <>
+        <InlineMath>f(w) = w_0^2</InlineMath> + {conditionNumber.toFixed(3).replace(/\.?0+$/, '')}<InlineMath>w_1^2</InlineMath>
+      </>
+    ),
     description: (
       <>
-        Elongated ellipse with condition number <InlineMath>\kappa</InlineMath>={conditionNumber}
+        Elongated ellipse with condition number <InlineMath>\kappa</InlineMath>={conditionNumber.toFixed(3).replace(/\.?0+$/, '')}
       </>
     ),
 

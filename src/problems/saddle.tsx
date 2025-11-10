@@ -6,6 +6,7 @@ import { InlineMath } from '../components/Math';
 // Has saddle point at (0, 0) with one positive and one negative eigenvalue
 export const saddleProblem: ProblemDefinition = {
   name: 'Saddle Point Function',
+  objectiveFormula: <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>,
   description: (
     <>
       Non-convex hyperbolic paraboloid <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath> with saddle at origin

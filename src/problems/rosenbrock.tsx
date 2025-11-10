@@ -7,9 +7,10 @@ import { InlineMath } from '../components/Math';
 export function createRosenbrockProblem(b: number = 100): ProblemDefinition {
   return {
     name: 'Rosenbrock Function',
+    objectiveFormula: <InlineMath>{String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}</InlineMath>,
     description: (
       <>
-        Non-convex banana valley (<InlineMath>b</InlineMath>={b}), global minimum at <InlineMath>(1,1)</InlineMath>
+        Non-convex banana valley (<InlineMath>b</InlineMath>={b.toFixed(3).replace(/\.?0+$/, '')}), global minimum at <InlineMath>(1,1)</InlineMath>
       </>
     ),
 

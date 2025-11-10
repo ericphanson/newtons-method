@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { getProblem } from '../problems';
+import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -201,27 +201,31 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           <div className="space-y-2 text-gray-800 text-sm bg-blue-50 p-3 rounded">
             <div>
               <strong>Objective:</strong>{' '}
-              {currentProblem === 'quadratic' && (
-                <InlineMath>{String.raw`f(w) = w_0^2 + w_1^2`}</InlineMath>
-              )}
-              {currentProblem === 'ill-conditioned-quadratic' && (
-                <InlineMath>{String.raw`f(w) = w_0^2 + 100w_1^2`}</InlineMath>
-              )}
-              {currentProblem === 'rosenbrock' && (
-                <InlineMath>{String.raw`f(w) = (1-w_0)^2 + b(w_1-w_0^2)^2`}</InlineMath>
-              )}
-              {currentProblem === 'non-convex-saddle' && (
-                <InlineMath>{String.raw`f(w) = w_0^2 - w_1^2`}</InlineMath>
-              )}
-              {currentProblem === 'himmelblau' && (
-                <InlineMath>{String.raw`f(w) = (w_0^2 + w_1 - 11)^2 + (w_0 + w_1^2 - 7)^2`}</InlineMath>
-              )}
-              {currentProblem === 'three-hump-camel' && (
-                <InlineMath>{String.raw`f(w) = 2w_0^2 - 1.05w_0^4 + \frac{w_0^6}{6} + w_0 w_1 + w_1^2`}</InlineMath>
-              )}
+              {(() => {
+                // Get parametrized problem for display
+                if (currentProblem === 'quadratic') {
+                  return createRotatedQuadratic(rotationAngle).objectiveFormula;
+                } else if (currentProblem === 'ill-conditioned-quadratic') {
+                  return createIllConditionedQuadratic(conditionNumber).objectiveFormula;
+                } else if (currentProblem === 'rosenbrock') {
+                  return createRosenbrockProblem(rosenbrockB).objectiveFormula;
+                }
+                return getProblem(currentProblem)?.objectiveFormula || <InlineMath>f(w)</InlineMath>;
+              })()}
             </div>
             <div>
-              <strong>Description:</strong> {getProblem(currentProblem)?.description || 'Optimization problem'}
+              <strong>Description:</strong>{' '}
+              {(() => {
+                // Get parametrized problem for display
+                if (currentProblem === 'quadratic') {
+                  return createRotatedQuadratic(rotationAngle).description;
+                } else if (currentProblem === 'ill-conditioned-quadratic') {
+                  return createIllConditionedQuadratic(conditionNumber).description;
+                } else if (currentProblem === 'rosenbrock') {
+                  return createRosenbrockProblem(rosenbrockB).description;
+                }
+                return getProblem(currentProblem)?.description || 'Optimization problem';
+              })()}
             </div>
             <div>
               <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>

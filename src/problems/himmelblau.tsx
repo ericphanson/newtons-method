@@ -18,6 +18,7 @@ import { InlineMath } from '../components/Math';
 // - Named after David Mautner Himmelblau (1972)
 export const himmelblauProblem: ProblemDefinition = {
   name: "Himmelblau's Function",
+  objectiveFormula: <InlineMath>{String.raw`f(w) = (w_0^2 + w_1 - 11)^2 + (w_0 + w_1^2 - 7)^2`}</InlineMath>,
   description: (
     <>
       Multimodal function with <InlineMath>4</InlineMath> equivalent minima, creates symmetric basin boundaries

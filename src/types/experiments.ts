@@ -67,6 +67,7 @@ export interface ExperimentPreset {
 
 export interface ProblemDefinition {
   name: string;
+  objectiveFormula: React.ReactNode;  // JSX with math rendering
   objective: (w: number[]) => number;
   gradient: (w: number[]) => number[];
   hessian?: (w: number[]) => number[][]; // For Newton

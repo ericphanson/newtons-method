@@ -17,6 +17,7 @@ import { InlineMath } from '../components/Math';
 // - Polynomial optimization landscape with multiple valleys
 export const threeHumpCamelProblem: ProblemDefinition = {
   name: 'Three-Hump Camel',
+  objectiveFormula: <InlineMath>{String.raw`f(w) = 2w_0^2 - 1.05w_0^4 + \frac{w_0^6}{6} + w_0 w_1 + w_1^2`}</InlineMath>,
   description: (
     <>
       Multimodal polynomial with <InlineMath>1</InlineMath> global + <InlineMath>2</InlineMath> local minima, asymmetric basins
