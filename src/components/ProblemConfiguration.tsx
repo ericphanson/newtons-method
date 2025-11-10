@@ -157,11 +157,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           <div className="space-y-2 text-gray-800 text-sm bg-purple-50 p-3 rounded">
             <div>
               <strong>Model:</strong>{' '}
-              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + w_2)</InlineMath>
+              <InlineMath>P(y=1|x) = \sigma(w_0 \cdot x_1 + w_1 \cdot x_2 + b)</InlineMath>
             </div>
             <div>
               <strong>Loss:</strong>{' '}
-              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x)) + (1-y) \log(1-\sigma(w^T x))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
+              <InlineMath>{String.raw`f(w) = -\frac{1}{N} \sum [y \log(\sigma(w^T x + b)) + (1-y) \log(1-\sigma(w^T x + b))] + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</InlineMath>
             </div>
             <div>
               <strong>Goal:</strong> Find <InlineMath>w^*</InlineMath> that minimizes <InlineMath>f(w)</InlineMath>
