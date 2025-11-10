@@ -1,3 +1,5 @@
+import type { DataPoint } from '../shared-utils';
+
 export type ProblemType =
   | 'logistic-regression'
   | 'quadratic'
@@ -13,7 +15,9 @@ export type SeparatingHyperplaneVariant =
   | 'perceptron'
   | 'squared-hinge';
 
-export interface DataPoint {
+// Legacy type - kept for backwards compatibility
+// New code should use DataPoint from '../shared-utils'
+export interface DataPointLegacy {
   x: number;
   y: number;
   label: number;
@@ -52,7 +56,7 @@ export interface ExperimentPreset {
   // Generic parameter support
   problemParameters?: Record<string, number | string>;
 
-  dataset?: DataPoint[];
+  dataset?: DataPointLegacy[]; // Uses legacy format {x, y, label} for presets
   separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
 
   hyperparameters: {

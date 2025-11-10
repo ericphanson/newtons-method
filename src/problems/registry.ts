@@ -4,8 +4,11 @@ import { createRosenbrockProblem, rosenbrockExplainer } from './rosenbrock';
 import { saddleProblem, saddleExplainer, saddleKeyInsights } from './saddle';
 import { himmelblauProblem, himmelblauExplainer } from './himmelblau';
 import { threeHumpCamelProblem, threeHumpCamelExplainer } from './threeHumpCamel';
-import { logisticRegressionExplainer } from './logisticRegression';
-import { separatingHyperplaneExplainer } from './separatingHyperplane';
+import { createLogisticRegressionProblem, logisticRegressionExplainer } from './logisticRegression';
+import { createSeparatingHyperplaneProblem, separatingHyperplaneExplainer } from './separatingHyperplane';
+// DataPoint is used in type annotations for datasetFactory
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { DataPoint } from '../shared-utils';
 
 /**
  * Parameter-aware problem registry
@@ -13,18 +16,93 @@ import { separatingHyperplaneExplainer } from './separatingHyperplane';
  */
 export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
   'logistic-regression': {
-    // No factory or defaultInstance (special handling elsewhere)
-    parameters: [],
+    datasetFactory: (params, dataset) => {
+      const lambda = (params.lambda as number) ?? 1.0;
+      const bias = (params.bias as number) ?? 0;
+      return createLogisticRegressionProblem(lambda, bias, dataset);
+    },
+    parameters: [
+      {
+        key: 'lambda',
+        label: 'Regularization (λ)',
+        type: 'range',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        default: 1.0,
+        scale: 'linear',
+        description: 'L2 regularization strength'
+      },
+      {
+        key: 'bias',
+        label: 'Bias (b)',
+        type: 'range',
+        min: -3,
+        max: 3,
+        step: 0.1,
+        default: 0,
+        scale: 'linear',
+        description: 'Shifts decision boundary perpendicular to normal vector'
+      }
+    ],
     displayName: 'Logistic Regression',
     category: 'classification',
+    requiresDataset: true,
     explainerContent: logisticRegressionExplainer,
   },
 
   'separating-hyperplane': {
-    // No factory or defaultInstance (special handling elsewhere)
-    parameters: [],
+    datasetFactory: (params, dataset) => {
+      const variant = (params.variant as 'soft-margin' | 'perceptron' | 'squared-hinge') ?? 'soft-margin';
+      const lambda = (params.lambda as number) ?? 1.0;
+      const bias = (params.bias as number) ?? 0;
+      return createSeparatingHyperplaneProblem(variant, lambda, bias, dataset);
+    },
+    parameters: [
+      {
+        key: 'variant',
+        label: 'SVM Variant',
+        type: 'select',
+        options: [
+          { value: 'soft-margin', label: 'Soft Margin SVM' },
+          { value: 'perceptron', label: 'Perceptron' },
+          { value: 'squared-hinge', label: 'Squared Hinge' }
+        ],
+        default: 'soft-margin',
+        description: 'Loss function variant'
+      },
+      {
+        key: 'lambda',
+        label: 'Regularization (λ)',
+        type: 'range',
+        min: 0,
+        max: 10,
+        step: 0.1,
+        default: 1.0,
+        scale: 'linear',
+        description: 'L2 regularization strength'
+      },
+      {
+        key: 'bias',
+        label: 'Bias (b)',
+        type: 'range',
+        min: -3,
+        max: 3,
+        step: 0.1,
+        default: 0,
+        scale: 'linear',
+        description: 'Shifts decision boundary perpendicular to normal vector'
+      }
+    ],
     displayName: 'Separating Hyperplane',
     category: 'classification',
+    requiresDataset: true,
+    variants: [
+      { id: 'soft-margin', displayName: 'Soft Margin SVM', description: 'L1 hinge loss' },
+      { id: 'perceptron', displayName: 'Perceptron', description: 'Max-margin with ReLU' },
+      { id: 'squared-hinge', displayName: 'Squared Hinge', description: 'L2 hinge loss' }
+    ],
+    defaultVariant: 'soft-margin',
     explainerContent: separatingHyperplaneExplainer,
   },
 
