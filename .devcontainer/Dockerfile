@@ -48,6 +48,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     nano \
     vim \
+    curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
@@ -77,6 +78,11 @@ RUN ARCH=$(dpkg --print-architecture) && \
     mv just /usr/local/bin/ && \
     chmod +x /usr/local/bin/just && \
     rm "just-${JUST_VERSION}-${JUST_ARCH}-unknown-linux-musl.tar.gz"
+
+# Install uv (Python package manager)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv && \
+    chmod +x /usr/local/bin/uv
 
 # Ensure default node user has access to /usr/local/share
 RUN mkdir -p /usr/local/share/npm-global && \
