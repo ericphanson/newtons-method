@@ -280,6 +280,43 @@ const UnifiedVisualizer = () => {
     }
   }, [currentProblem, data, lambda, separatingHyperplaneVariant]);
 
+  // Automatically update URL hash based on visible section
+  useEffect(() => {
+    // Get all sections that have IDs (our navigation targets)
+    // Using prefix matching (id^=) for section name prefixes, exact match (id=) for "configuration"
+    const sections = document.querySelectorAll('[id^="parameter-"], [id^="quick-"], [id^="try-"], [id^="when-"], [id^="mathematical-"], [id^="advanced-"], [id^="line-search-"], [id^="rotation-"], [id="configuration"]');
+
+    if (sections.length === 0) return;
+
+    const observerOptions = {
+      root: null, // viewport
+      rootMargin: '-20% 0px -70% 0px', // Trigger when section is in upper 30% of viewport
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      // Note: IntersectionObserverEntry is a built-in browser API type, no import needed
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.target.id) {
+          // Update URL hash without scrolling
+          const newHash = `#${entry.target.id}`;
+          if (window.location.hash !== newHash) {
+            window.history.replaceState(null, '', newHash);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+
+    // Cleanup
+    return () => {
+      sections.forEach(section => observer.unobserve(section));
+    };
+  }, [selectedTab]); // Re-run when tab changes to observe new sections
+
   // Note: When rotationAngle, conditionNumber, or rosenbrockB changes, algorithms automatically rerun
   // because getCurrentProblemFunctions includes them in its dependencies, which triggers
   // the algorithm useEffects below to recompute with the new parameter values.
