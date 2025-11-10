@@ -12,6 +12,7 @@ import {
 } from './utils/logisticRegression';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- NewtonIteration used in commented state, will be removed in Task 8
 import { runNewton, NewtonIteration } from './algorithms/newton';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- LBFGSIteration used in commented state, will be removed in Task 8
 import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDIteration used in commented state, will be removed in Task 8
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
@@ -84,10 +85,10 @@ const UnifiedVisualizer = () => {
   const [newtonFtol, setNewtonFtol] = useState(2.22e-9);        // ftol: matches scipy L-BFGS-B default
   const [newtonXtol, setNewtonXtol] = useState(1e-5);           // xtol: matches scipy Newton-CG default
 
-  // L-BFGS state
-  const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
-  const [lbfgsSummary, setLbfgsSummary] = useState<AlgorithmSummary | null>(null);
-  const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
+  // L-BFGS state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
+  // const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
+  // const [lbfgsSummary, setLbfgsSummary] = useState<AlgorithmSummary | null>(null);
+  // const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0);
@@ -365,6 +366,35 @@ const UnifiedVisualizer = () => {
     { jumpToEnd: experimentJustLoaded }
   );
 
+  // Use custom hook for L-BFGS algorithm
+  const lbfgs = useAlgorithmIterations(
+    'L-BFGS',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1, hessianDamping: lbfgsHessianDamping });
+      const result = runLBFGS(problemFuncs, {
+        maxIter,
+        m: lbfgsM,
+        c1: lbfgsC1,
+        lambda,
+        hessianDamping: lbfgsHessianDamping,
+        initialPoint,
+        tolerance: lbfgsTolerance,
+      });
+      console.log('L-BFGS completed:', result.iterations.length, 'iterations');
+      if (result.iterations.length > 0) {
+        console.log('First iteration:', result.iterations[0]);
+        console.log('Last iteration:', result.iterations[result.iterations.length - 1]);
+      }
+      return result;
+    },
+    [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
     iterations: Array<{ w: number[]; wNew: number[] }>,
@@ -465,8 +495,8 @@ const UnifiedVisualizer = () => {
   );
 
   const lbfgsParamBounds = React.useMemo(
-    () => calculateParamBounds(lbfgsIterations, 'L-BFGS'),
-    [lbfgsIterations, calculateParamBounds]
+    () => calculateParamBounds(lbfgs.iterations, 'L-BFGS'),
+    [lbfgs.iterations, calculateParamBounds]
   );
 
   const gdFixedParamBounds = React.useMemo(
@@ -643,54 +673,11 @@ const UnifiedVisualizer = () => {
     gdLS.setCurrentIter(0);
     setDiagPrecondCurrentIter(0);
     newton.setCurrentIter(0);
-    setLbfgsCurrentIter(0);
+    lbfgs.setCurrentIter(0);
     setCustomPoints([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed will be updated in Task 9
   }, []);
 
-  useEffect(() => {
-    try {
-      // Preserve current position as percentage
-      const oldPercentage = lbfgsIterations.length > 0
-        ? lbfgsCurrentIter / Math.max(1, lbfgsIterations.length - 1)
-        : 0;
-
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      console.log('Running L-BFGS with:', { problem: currentProblem, initialPoint, maxIter, m: lbfgsM, c1: lbfgsC1, hessianDamping: lbfgsHessianDamping });
-      const result = runLBFGS(problemFuncs, {
-        maxIter,
-        m: lbfgsM,
-        c1: lbfgsC1,
-        lambda,
-        hessianDamping: lbfgsHessianDamping,
-        initialPoint,
-        tolerance: lbfgsTolerance,
-      });
-      const iterations = result.iterations;
-      console.log('L-BFGS completed:', iterations.length, 'iterations');
-      if (iterations.length > 0) {
-        console.log('First iteration:', iterations[0]);
-        console.log('Last iteration:', iterations[iterations.length - 1]);
-      }
-      setLbfgsIterations(iterations);
-      setLbfgsSummary(result.summary);
-
-      // Restore position at same percentage
-      const newIter = iterations.length > 0
-        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
-        : 0;
-      setLbfgsCurrentIter(newIter);
-    } catch (error) {
-      console.error('L-BFGS error:', error);
-      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-      setLbfgsIterations([]);
-    }
-    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runLBFGS above
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
-  }, [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]);
 
 
   useEffect(() => {
@@ -738,7 +725,6 @@ const UnifiedVisualizer = () => {
       setDiagPrecondIterations([]);
     }
     // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runPre above
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- lbfgsCurrentIter and lbfgsIterations.length are intentionally excluded to prevent infinite loop (they are set by this effect)
   }, [currentProblem, diagPrecondLineSearch,
         lambda,
         diagPrecondHessianDamping,
@@ -811,10 +797,10 @@ const UnifiedVisualizer = () => {
           newton.setCurrentIter(newton.currentIter + 1);
         }
       } else {
-        if (e.key === 'ArrowLeft' && lbfgsCurrentIter > 0) {
-          setLbfgsCurrentIter(lbfgsCurrentIter - 1);
-        } else if (e.key === 'ArrowRight' && lbfgsCurrentIter < lbfgsIterations.length - 1) {
-          setLbfgsCurrentIter(lbfgsCurrentIter + 1);
+        if (e.key === 'ArrowLeft' && lbfgs.currentIter > 0) {
+          lbfgs.setCurrentIter(lbfgs.currentIter - 1);
+        } else if (e.key === 'ArrowRight' && lbfgs.currentIter < lbfgs.iterations.length - 1) {
+          lbfgs.setCurrentIter(lbfgs.currentIter + 1);
         }
       }
     };
@@ -822,7 +808,7 @@ const UnifiedVisualizer = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
-  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgsCurrentIter, lbfgsIterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
+  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgs.currentIter, lbfgs.iterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -909,7 +895,7 @@ const UnifiedVisualizer = () => {
     const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
                        selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
                        selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
-                       lbfgsIterations[lbfgsCurrentIter];
+                       lbfgs.iterations[lbfgs.currentIter];
     if ((currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane') && currentIter) {
       const [w0, w1, w2] = currentIter.wNew;
       if (Math.abs(w1) > 1e-6) {
@@ -965,7 +951,7 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgsIterations, lbfgsCurrentIter, addPointMode, customPoints, selectedTab, currentProblem]);
+  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
@@ -1375,23 +1361,23 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = lbfgsParamCanvasRef.current;
     if (!canvas || selectedTab !== 'lbfgs') return;
-    const iter = lbfgsIterations[lbfgsCurrentIter];
+    const iter = lbfgs.iterations[lbfgs.currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblem();
-    drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgsIterations, lbfgsCurrentIter, problem);
+    drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgs.iterations, lbfgs.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [lbfgsCurrentIter, data, lbfgsIterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [lbfgs.currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw L-BFGS line search
   useEffect(() => {
     const canvas = lbfgsLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'lbfgs') return;
-    const iter = lbfgsIterations[lbfgsCurrentIter];
+    const iter = lbfgs.iterations[lbfgs.currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [lbfgsIterations, lbfgsCurrentIter, selectedTab]);
+  }, [lbfgs.iterations, lbfgs.currentIter, selectedTab]);
 
   // Draw GD Fixed parameter space
   useEffect(() => {
@@ -1473,8 +1459,7 @@ const UnifiedVisualizer = () => {
           setDiagPrecondCurrentIter(0);
           setDiagPrecondIterations([]);
           newton.setCurrentIter(0);
-          setLbfgsCurrentIter(0);
-          setLbfgsIterations([]);
+          lbfgs.setCurrentIter(0);
 
           // Apply problem-specific defaults
           setGdFixedAlpha(defaults.gdFixedAlpha);
@@ -1704,11 +1689,11 @@ const UnifiedVisualizer = () => {
               onLbfgsHessianDampingChange={setLbfgsHessianDamping}
               lbfgsTolerance={lbfgsTolerance}
               onLbfgsToleranceChange={setLbfgsTolerance}
-              iterations={lbfgsIterations}
-              currentIter={lbfgsCurrentIter}
-              onIterChange={(val) => setLbfgsCurrentIter(val)}
-              onResetIter={() => setLbfgsCurrentIter(0)}
-              summary={lbfgsSummary}
+              iterations={lbfgs.iterations}
+              currentIter={lbfgs.currentIter}
+              onIterChange={(val) => lbfgs.setCurrentIter(val)}
+              onResetIter={() => lbfgs.setCurrentIter(0)}
+              summary={lbfgs.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}

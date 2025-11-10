@@ -373,7 +373,8 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Quadratic convergence near the minimum
+            <strong>Convergence rate:</strong>{' '}
+            <GlossaryTooltip termKey="quadratic-convergence" /> near the minimum
             (requires starting close to solution with positive definite Hessian).
             Once in the convergence region, doubles the digits of accuracy each iteration.
             Can diverge if started far from the solution.

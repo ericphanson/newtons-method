@@ -267,7 +267,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <ul className="list-disc ml-6 space-y-1">
             <li>Small-medium problems (n &lt; 1000 parameters)</li>
             <li>Smooth, twice-differentiable objectives</li>
-            <li>Near a local minimum (quadratic convergence)</li>
+            <li>Near a local minimum (<GlossaryTooltip termKey="quadratic-convergence" />)</li>
             <li>When you can afford O(n³) computation per iteration</li>
           </ul>
         </div>
@@ -487,7 +487,8 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
           <ul className="space-y-2">
             <li>
-              <strong>Strongly convex:</strong> Quadratic convergence guaranteed,
+              <strong>Strongly convex:</strong>{' '}
+              <GlossaryTooltip termKey="quadratic-convergence" /> guaranteed,
               H positive definite everywhere
             </li>
             <li>
@@ -567,7 +568,9 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
 
         <div>
           <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
-          <p><strong>Quadratic convergence:</strong></p>
+          <p>
+            <strong><GlossaryTooltip termKey="quadratic-convergence" />:</strong>
+          </p>
           <BlockMath>
             {`\\|e_{k+1}\\| \\leq C\\|e_k\\|^2`}
           </BlockMath>
