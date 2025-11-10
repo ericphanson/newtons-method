@@ -5,6 +5,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     id: 'gd-ls-success',
     name: 'Success: Automatic Adaptation',
     description: 'Line search automatically finds good step sizes',
+    algorithm: 'gd-linesearch',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.0001,
@@ -21,6 +22,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     id: 'gd-ls-c1-too-small',
     name: 'Failure: c₁ Too Small (1e-5)',
     description: 'c₁ = 0.00001 accepts poor steps, slow convergence',
+    algorithm: 'gd-linesearch',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.00001,
@@ -37,6 +39,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     id: 'gd-ls-c1-too-large',
     name: 'Failure: c₁ Too Large (0.5)',
     description: 'c₁ = 0.5 is too conservative, rejects good steps',
+    algorithm: 'gd-linesearch',
     problem: 'quadratic',
     hyperparameters: {
       c1: 0.5,
@@ -53,6 +56,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     id: 'gd-ls-varying-curvature',
     name: 'Advantage: Varying Curvature',
     description: 'Line search handles landscape changes that break fixed step',
+    algorithm: 'gd-linesearch',
     problem: 'rosenbrock',
     hyperparameters: {
       c1: 0.0001,
@@ -69,6 +73,7 @@ export const gdLinesearchExperiments: ExperimentPreset[] = [
     id: 'gd-linesearch-ill-conditioned',
     name: 'Line Search on Ill-Conditioned Quadratic',
     description: 'Armijo line search adapts step size per iteration but convergence still slow on κ=100',
+    algorithm: 'gd-linesearch',
     problem: 'ill-conditioned-quadratic',
     hyperparameters: {
       c1: 0.0001,
