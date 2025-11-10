@@ -170,14 +170,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
       )}
     </div>
 
-    {/* GD Fixed - Why This Algorithm? */}
-    <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-bold text-green-900 mb-4">Gradient Descent (Fixed Step)</h2>
-      <p className="text-gray-800 text-lg">
-        The simplest optimization algorithm: follow the gradient downhill with constant step size <InlineMath>\alpha</InlineMath>.
-      </p>
-    </div>
-
     <CollapsibleSection
       title="Quick Start"
       defaultExpanded={true}
