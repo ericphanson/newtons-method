@@ -35,11 +35,16 @@ export function getTerminationMessage(
       // 2. Eigenvalues are available to verify positive-definiteness
       // 3. All eigenvalues are positive (confirming it's a local minimum)
       const hasPositiveEigenvalues = values.eigenvalues && values.eigenvalues.length > 0 &&
-                                      values.eigenvalues.every(lambda => lambda > 0);
-      const convergenceType = (values.isSecondOrder && hasPositiveEigenvalues)
-        ? 'Second-order'
-        : 'First-order';
-      return `${convergenceType} convergence: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
+        values.eigenvalues.every(lambda => lambda > 0);
+
+      if (values.isSecondOrder && hasPositiveEigenvalues) {
+        // Full second-order proof: gradient small AND Hessian positive-definite
+        const minEigenvalue = values.eigenvalues![values.eigenvalues!.length - 1];
+        return `Second-order convergence: ‖∇f‖ = ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)} and λ_min = ${minEigenvalue.toExponential(2)} > 0 (local minimum)`;
+      } else {
+        // First-order only: just gradient small
+        return `First-order convergence: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
+      }
     }
 
     case 'ftol':
