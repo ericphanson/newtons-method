@@ -17,7 +17,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
-import { getProblem, resolveProblem, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant } from './problems';
+import { getProblem, resolveProblem, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant, shouldCenterOnGlobalMin as shouldCenterOnGlobalMinRegistry } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -510,11 +510,11 @@ const UnifiedVisualizer = () => {
     const pad1 = w1Range * 0.2;
 
     // Make bounds symmetric around global minimum if one exists (for better contour visualization)
-    // Note: Separating hyperplane skips centering because its optimal weights are data-dependent
-    // and centering can artificially constrain the view during convergence. For other dataset
-    // problems, centering improves contour visualization by ensuring symmetric bounds.
-    const shouldCenterOnGlobalMin = globalMin && currentProblem !== 'separating-hyperplane';
-    if (shouldCenterOnGlobalMin) {
+    // Some problems (like separating hyperplane) skip centering because their optimal weights
+    // are data-dependent and centering can artificially constrain the view during convergence.
+    // This behavior is controlled via registry metadata (visualization.centerOnGlobalMin).
+    const shouldCenter = globalMin && shouldCenterOnGlobalMinRegistry(currentProblem);
+    if (shouldCenter) {
       const [gm0, gm1] = globalMin;
       const maxDist0 = Math.max(Math.abs(minW0 - gm0), Math.abs(maxW0 - gm0)) + pad0;
       const maxDist1 = Math.max(Math.abs(minW1 - gm1), Math.abs(maxW1 - gm1)) + pad1;

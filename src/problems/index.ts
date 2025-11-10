@@ -48,5 +48,6 @@ export {
   getProblemVariants,
   getDefaultVariant,
   getProblemKeyInsights,
-  getProblemExplainerContent
+  getProblemExplainerContent,
+  shouldCenterOnGlobalMin
 } from './registry';

@@ -123,6 +123,16 @@ export interface ProblemRegistryEntry {
   displayName: string;
   category?: 'convex' | 'non-convex' | 'classification';
 
+  // UI customization
+  ui?: {
+    backgroundColor?: string; // Tailwind class for background color (e.g., 'bg-purple-50')
+  };
+
+  // Visualization behavior
+  visualization?: {
+    centerOnGlobalMin?: boolean; // Whether to center visualization on global minimum (default: true)
+  };
+
   // Contextual insights shown in ProblemConfiguration
   keyInsights?: React.ReactNode;
 

@@ -158,7 +158,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
         {/* Mathematical Formulation */}
         {requiresDataset(currentProblem) ? (
           <div className={`space-y-2 text-gray-800 text-sm p-3 rounded ${
-            currentProblem === 'logistic-regression' ? 'bg-purple-50' : 'bg-green-50'
+            problemRegistryV2[currentProblem]?.ui?.backgroundColor || 'bg-blue-50'
           }`}>
             {/* Show formula from registry */}
             {(() => {

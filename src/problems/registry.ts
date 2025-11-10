@@ -46,6 +46,9 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     displayName: 'Logistic Regression',
     category: 'classification',
     requiresDataset: true,
+    ui: {
+      backgroundColor: 'bg-purple-50',
+    },
     explainerContent: logisticRegressionExplainer,
   },
 
@@ -95,6 +98,14 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     displayName: 'Separating Hyperplane',
     category: 'classification',
     requiresDataset: true,
+    ui: {
+      backgroundColor: 'bg-green-50',
+    },
+    visualization: {
+      // Don't center on global min - optimal weights are data-dependent
+      // and centering can artificially constrain the view during convergence
+      centerOnGlobalMin: false,
+    },
     variants: [
       { id: 'soft-margin', displayName: 'Soft Margin SVM', description: 'L1 hinge loss' },
       { id: 'perceptron', displayName: 'Perceptron', description: 'Max-margin with ReLU' },
@@ -336,4 +347,13 @@ export function getProblemVariants(problemType: string): Array<{ id: string; dis
 export function getDefaultVariant(problemType: string): string | undefined {
   const entry = problemRegistryV2[problemType];
   return entry?.defaultVariant;
+}
+
+/**
+ * Check if a problem should center visualization on global minimum
+ * Defaults to true if not explicitly set to false
+ */
+export function shouldCenterOnGlobalMin(problemType: string): boolean {
+  const entry = problemRegistryV2[problemType];
+  return entry?.visualization?.centerOnGlobalMin !== false;
 }
