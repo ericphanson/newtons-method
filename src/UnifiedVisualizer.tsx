@@ -1803,6 +1803,37 @@ const UnifiedVisualizer = () => {
         </div>
       </div>
 
+      {/* Story Banner and TOC */}
+      {currentStoryId && (() => {
+        const story = getStory(currentStoryId);
+        if (!story) return null;
+
+        return (
+          <>
+            <StoryBanner
+              story={story}
+              currentStepIndex={currentStoryStep}
+              onPrevious={() => setCurrentStoryStep(Math.max(0, currentStoryStep - 1))}
+              onNext={() => setCurrentStoryStep(Math.min(story.steps.length - 1, currentStoryStep + 1))}
+              onExit={() => {
+                setCurrentStoryId(null);
+                setCurrentStoryStep(0);
+              }}
+              onShowTOC={() => setShowStoryTOC(true)}
+            />
+
+            {showStoryTOC && (
+              <StoryTOC
+                story={story}
+                currentStepIndex={currentStoryStep}
+                onSelectStep={setCurrentStoryStep}
+                onClose={() => setShowStoryTOC(false)}
+              />
+            )}
+          </>
+        );
+      })()}
+
       {toast && (
         <Toast
           message={toast.message}
