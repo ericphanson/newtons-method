@@ -43,7 +43,7 @@ interface ProblemConfigurationProps {
   onCanvasClick?: (e: React.MouseEvent<HTMLCanvasElement>) => void;
 
   // For toast notifications
-  onShowToast: (message: string, type: 'success' | 'error' | 'info') => void;
+  onShowToast: (content: React.ReactNode, type: 'success' | 'error' | 'info') => void;
 }
 
 export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
@@ -95,7 +95,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
     const defaults = newProblem !== 'logistic-regression' ? getProblemDefaults(newProblem) : getProblemDefaults('logistic-regression');
 
     onProblemChange(newProblem, defaults, bounds);
-    onShowToast(`Switched to: ${problemName}`, 'info');
+    onShowToast(<div>Switched to: <span className="font-semibold">{problemName}</span></div>, 'info');
   };
 
   // Get contextual tips based on current parameters

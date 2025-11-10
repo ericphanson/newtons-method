@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 interface ToastProps {
-  message: string;
+  content: React.ReactNode;
   type?: 'success' | 'error' | 'info';
   onClose: () => void;
   duration?: number;
@@ -12,7 +12,7 @@ interface ToastProps {
  * Toast notification component with auto-dismiss
  * Displays a temporary message with configurable type and duration
  */
-export function Toast({ message, type = 'success', onClose, duration = 3000, bottomOffset = 0 }: ToastProps) {
+export function Toast({ content, type = 'success', onClose, duration = 3000, bottomOffset = 0 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
@@ -32,7 +32,7 @@ export function Toast({ message, type = 'success', onClose, duration = 3000, bot
       style={{ bottom: bottomPosition }}
     >
       <div className="flex items-start gap-2">
-        <span className="text-sm font-medium whitespace-pre-line flex-1">{message}</span>
+        <div className="text-sm font-medium flex-1">{content}</div>
         <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 flex-shrink-0"

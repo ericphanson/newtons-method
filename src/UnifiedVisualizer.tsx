@@ -163,7 +163,7 @@ const UnifiedVisualizer = () => {
   const [logisticGlobalMin, setLogisticGlobalMin] = useState<[number, number] | [number, number, number] | null>(null);
 
   // Toast state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; duration?: number } | null>(null);
+  const [toast, setToast] = useState<{ content: React.ReactNode; type: 'success' | 'error' | 'info'; duration?: number } | null>(null);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
 
@@ -908,8 +908,7 @@ const UnifiedVisualizer = () => {
       // This uses the event loop to ensure hooks see experimentJustLoaded: true before it resets
       setTimeout(() => setExperimentJustLoaded(false), 0);
 
-      // Build smart toast message based on what's changing
-      let message = `${experiment.name}`;
+      // Build smart toast content based on what's changing
       const changes: string[] = [];
 
       const algoChanging = experiment.algorithm !== selectedTab;
@@ -957,14 +956,24 @@ const UnifiedVisualizer = () => {
         }
       }
 
-      if (changes.length > 0) {
-        // Use newlines for better readability when there are changes
-        message += '\nChanges:' + '\n• ' + changes.join('\n• ');
-      }
+      // Build JSX content for toast
+      const content = (
+        <div>
+          <div className="font-semibold">{experiment.name}</div>
+          {changes.length > 0 && (
+            <>
+              <div className="mt-1 text-xs opacity-80">Changes:</div>
+              {changes.map((change, i) => (
+                <div key={i} className="text-xs">• {change}</div>
+              ))}
+            </>
+          )}
+        </div>
+      );
 
       // Use longer duration when there are changes to give user time to read
       const duration = changes.length > 0 ? 5000 : 3000;
-      setToast({ message, type: 'success', duration });
+      setToast({ content, type: 'success', duration });
 
     } catch (error) {
       console.error('Error loading experiment:', error);
@@ -1752,7 +1761,7 @@ const UnifiedVisualizer = () => {
         onAddPointModeChange={setAddPointMode}
         dataCanvasRef={dataCanvasRef}
         onCanvasClick={handleCanvasClick}
-        onShowToast={(message, type) => setToast({ message, type })}
+        onShowToast={(content, type) => setToast({ content, type })}
       />
 
       {/* Algorithm Tabs */}
@@ -2050,7 +2059,7 @@ const UnifiedVisualizer = () => {
 
       {toast && (
         <Toast
-          message={toast.message}
+          content={toast.content}
           type={toast.type}
           duration={toast.duration}
           onClose={() => setToast(null)}
