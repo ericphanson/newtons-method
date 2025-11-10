@@ -63,7 +63,7 @@ export const Complexity: React.FC<ComplexityProps> = ({ children, explanation })
 
   return (
     <span
-      className="relative inline-block ml-1 text-xs font-mono text-gray-500 cursor-help"
+      className={`relative inline-block ml-1 text-xs font-mono text-gray-500 ${explanation ? 'cursor-help' : ''}`}
       onMouseEnter={() => explanation && setShowExplanation(true)}
       onMouseLeave={() => setShowExplanation(false)}
     >

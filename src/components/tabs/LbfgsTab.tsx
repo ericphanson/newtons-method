@@ -241,16 +241,16 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var>, history = [ ] (empty list of pairs)</>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> from history <Complexity explanation="M pairs × d dimensions. No matrix operations!">O(Md)</Complexity></span>
+                <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> from history <Complexity explanation="M pairs × d, vector ops only">O(Md)</Complexity></span>
               </>,
               <>
                 <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0" type="d×d matrix (scaled identity)"><InlineMath>{`B_0`}</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> with damping)</span>
               </>,
               <>
-                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking: typically 1-4 function evaluations">O(1) to O(k·d)</Complexity></span>
+                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
               </>,
               <>
                 <span className="ml-4">Save old gradient <Var id="grad_old" type="vector ℝᵈ"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> ← <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var></span>
@@ -259,7 +259,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Compute new gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Second gradient evaluation per iteration">O(d)</Complexity></span>
+                <span className="ml-4">Compute new gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
                 <span className="ml-4">Store new pair: <Var id="s" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var> ← <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var>, <Var id="y" type="vector ℝᵈ"><InlineMath>y</InlineMath></Var> ← <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> − <Var id="grad_old" type="vector ℝᵈ"><InlineMath>{'\\nabla f_{\\text{old}}'}</InlineMath></Var> <Complexity>O(d)</Complexity></span>

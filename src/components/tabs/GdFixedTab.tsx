@@ -216,7 +216,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
                 <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> − <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity>O(d)</Complexity></span>

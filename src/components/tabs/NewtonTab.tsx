@@ -248,19 +248,19 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
+                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> <Complexity explanation="d² second derivatives for finite differences, or problem-specific">O(d²)</Complexity></span>
+                <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Add damping: <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> <Complexity explanation="Adding diagonal to matrix">O(d)</Complexity></span>
+                <span className="ml-4">Add damping: <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> <Complexity explanation="Add diagonal">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Solve linear system <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> = −<Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> for <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity explanation="Cholesky or LU decomposition + back substitution. Never invert!">O(d³)</Complexity></span>
+                <span className="ml-4">Solve linear system <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> = −<Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> for <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity explanation="Cholesky/LU, never invert">O(d³)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Typically 1-3 function evaluations">O(1)</Complexity></span>
+                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking">≈1-3 f evals</Complexity></span>
               </>,
               <>
                 <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>

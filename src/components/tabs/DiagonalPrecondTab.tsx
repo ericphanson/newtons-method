@@ -242,10 +242,10 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
                 <><strong>repeat</strong> until convergence:</>,
                 <>
-                  <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="d function evaluations for finite differences, or problem-specific">O(d)</Complexity></span>
+                  <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives) <Complexity explanation="d² function evaluations for finite differences">O(d²)</Complexity></span>
+                  <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives) <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
                 </>,
                 <>
                   <span className="ml-4">Extract diagonal: <Var id="d_i" type="scalar (per coordinate)"><InlineMath>{'d_i'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate <InlineMath>i</InlineMath> <Complexity>O(d)</Complexity></span>
@@ -254,10 +254,10 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                   <span className="ml-4">Build diagonal preconditioner: <Var id="D" type="d×d diagonal matrix"><InlineMath>{'D'}</InlineMath></Var> ← <InlineMath>{'\\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath> <Complexity>O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute preconditioned direction: <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ← −<Var id="D" type="d×d diagonal matrix"><InlineMath>D</InlineMath></Var> · <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity explanation="Diagonal matrix-vector multiply">O(d)</Complexity></span>
+                  <span className="ml-4">Compute preconditioned direction: <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ← −<Var id="D" type="d×d diagonal matrix"><InlineMath>D</InlineMath></Var> · <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity explanation="Diagonal multiply">O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> = 1) <Complexity explanation="Optional: backtracking line search if enabled">O(1) or O(k·d)</Complexity></span>
+                  <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> = 1) <Complexity explanation="Optional backtracking">0-4 f evals</Complexity></span>
                 </>,
                 <>
                   <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
