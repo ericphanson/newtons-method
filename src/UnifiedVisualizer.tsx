@@ -297,6 +297,26 @@ const UnifiedVisualizer = () => {
     initialW1: 1,
   });
 
+  // Use custom hook for GD Fixed algorithm (must come before functions that reference it)
+  const gdFixed = useAlgorithmIterations(
+    'GD Fixed',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      return runGradientDescent(problemFuncs, {
+        maxIter,
+        alpha: gdFixedAlpha,
+        lambda,
+        initialPoint,
+        tolerance: gdFixedTolerance,
+      });
+    },
+    [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
     iterations: Array<{ w: number[]; wNew: number[] }>,
@@ -389,26 +409,6 @@ const UnifiedVisualizer = () => {
       w1Range: finalMaxW1 - finalMinW1
     };
   }, [currentProblem, logisticGlobalMin]);
-
-  // Use custom hook for GD Fixed algorithm
-  const gdFixed = useAlgorithmIterations(
-    'GD Fixed',
-    () => {
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      return runGradientDescent(problemFuncs, {
-        maxIter,
-        alpha: gdFixedAlpha,
-        lambda,
-        initialPoint,
-        tolerance: gdFixedTolerance,
-      });
-    },
-    [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
-  );
 
   // Calculate parameter bounds for both algorithms
   const newtonParamBounds = React.useMemo(
