@@ -15,7 +15,7 @@ import { DataPoint } from '../shared-utils';
 export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
   'logistic-regression': {
     datasetFactory: (params, dataset) => {
-      const lambda = (params.lambda as number) ?? 1.0;
+      const lambda = (params.lambda as number) ?? 0.0001;
       const bias = (params.bias as number) ?? 0;
       return createLogisticRegressionProblem(lambda, bias, dataset);
     },
@@ -25,9 +25,9 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
         label: 'Regularization (λ)',
         type: 'range',
         min: 0,
-        max: 10,
-        step: 0.1,
-        default: 1.0,
+        max: 5,
+        step: 0.01,
+        default: 0.0001,
         scale: 'linear',
         description: 'L2 regularization strength'
       },
@@ -52,7 +52,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
   'separating-hyperplane': {
     datasetFactory: (params, dataset) => {
       const variant = (params.variant as 'soft-margin' | 'perceptron' | 'squared-hinge') ?? 'soft-margin';
-      const lambda = (params.lambda as number) ?? 1.0;
+      const lambda = (params.lambda as number) ?? 0.0001;
       const bias = (params.bias as number) ?? 0;
       return createSeparatingHyperplaneProblem(variant, lambda, bias, dataset);
     },
@@ -74,9 +74,9 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
         label: 'Regularization (λ)',
         type: 'range',
         min: 0,
-        max: 10,
-        step: 0.1,
-        default: 1.0,
+        max: 5,
+        step: 0.01,
+        default: 0.0001,
         scale: 'linear',
         description: 'L2 regularization strength'
       },

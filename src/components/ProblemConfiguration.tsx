@@ -285,7 +285,7 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
                       />
                       <div className="flex justify-between text-xs text-gray-600 mt-1">
                         <span>{lambdaParam.min}</span>
-                        <span className="font-semibold">{lambda.toFixed(1)}</span>
+                        <span className="font-semibold">{lambda.toFixed(4)}</span>
                         <span>{lambdaParam.max}</span>
                       </div>
                       {lambdaParam.description && (
