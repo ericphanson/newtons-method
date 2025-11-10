@@ -28,7 +28,7 @@ export function getTerminationMessage(
           return `⚠️ SADDLE POINT DETECTED: Converged to stationary point with negative eigenvalue (${minEigenvalue.toExponential(2)}). This is NOT a local minimum! Gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
         }
       }
-      return `First-order stationary point: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)} (Check eigenvalues to confirm local minimum)`;
+      return `First-order convergence: gradient norm ${values.gradNorm.toExponential(2)} < ${values.gtol.toExponential(2)}`;
 
     case 'ftol':
       return `Converged: relative function change ${values.funcChange!.toExponential(2)} < ${values.ftol!.toExponential(2)}`;
