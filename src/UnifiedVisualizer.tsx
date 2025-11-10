@@ -18,8 +18,10 @@ import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
 import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDLineSearchIteration used in commented state, will be removed in Task 8
 import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- DiagonalPrecondIteration used in commented state, will be removed in Task 8
 import { runDiagonalPreconditioner, DiagonalPrecondIteration } from './algorithms/diagonal-preconditioner';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- AlgorithmSummary used in commented state, will be removed in Task 8
 import type { ProblemFunctions, AlgorithmSummary } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
 import { Toast } from './components/Toast';
@@ -94,10 +96,10 @@ const UnifiedVisualizer = () => {
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-4);  // gtol: matches scipy trust-ncg default
 
-  // Diagonal Preconditioner state
-  const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
-  const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
-  const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
+  // Diagonal Preconditioner state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
+  // const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
+  // const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
+  // const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
   const [diagPrecondLineSearch, setDiagPrecondLineSearch] = useState<'armijo' | 'none'>('none');
 
 
@@ -395,6 +397,39 @@ const UnifiedVisualizer = () => {
     { jumpToEnd: experimentJustLoaded }
   );
 
+  // Use custom hook for Diagonal Preconditioner algorithm
+  const diagPrecond = useAlgorithmIterations(
+    'Diagonal Preconditioner',
+    () => {
+      const problemFuncs = getCurrentProblemFunctions();
+      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
+        ? [initialW0, initialW1, 0]
+        : [initialW0, initialW1];
+      console.log('Running Diagonal Preconditioner with:', { problem: currentProblem, initialPoint, maxIter, c1: diagPrecondC1 });
+      const result = runDiagonalPreconditioner(problemFuncs, {
+        lineSearch: diagPrecondLineSearch,
+        lambda: lambda,
+        hessianDamping: diagPrecondHessianDamping,
+        maxIter,
+        c1: diagPrecondC1,
+        initialPoint,
+        termination: {
+          gtol: diagPrecondTolerance,
+          ftol: diagPrecondFtol,
+          xtol: diagPrecondXtol
+        },
+      });
+      console.log('Diagonal Preconditioner completed:', result.iterations.length, 'iterations');
+      if (result.iterations.length > 0) {
+        console.log('First iteration:', result.iterations[0]);
+        console.log('Last iteration:', result.iterations[result.iterations.length - 1]);
+      }
+      return result;
+    },
+    [currentProblem, diagPrecondLineSearch, lambda, diagPrecondHessianDamping, maxIter, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, initialW0, initialW1, getCurrentProblemFunctions],
+    { jumpToEnd: experimentJustLoaded }
+  );
+
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
     iterations: Array<{ w: number[]; wNew: number[] }>,
@@ -510,8 +545,8 @@ const UnifiedVisualizer = () => {
   );
 
   const diagPrecondParamBounds = React.useMemo(
-    () => calculateParamBounds(diagPrecondIterations, 'Diagonal Precond'),
-    [diagPrecondIterations, calculateParamBounds]
+    () => calculateParamBounds(diagPrecond.iterations, 'Diagonal Precond'),
+    [diagPrecond.iterations, calculateParamBounds]
   );
 
   // Unified bounds for AlgorithmConfiguration (basin picker)
@@ -671,7 +706,7 @@ const UnifiedVisualizer = () => {
     setInitialW1(cfg.initialW1);
     gdFixed.setCurrentIter(0);
     gdLS.setCurrentIter(0);
-    setDiagPrecondCurrentIter(0);
+    diagPrecond.setCurrentIter(0);
     newton.setCurrentIter(0);
     lbfgs.setCurrentIter(0);
     setCustomPoints([]);
@@ -679,56 +714,6 @@ const UnifiedVisualizer = () => {
   }, []);
 
 
-
-  useEffect(() => {
-    try {
-      // Preserve current position as percentage
-      const oldPercentage = diagPrecondIterations.length > 0
-        ? diagPrecondCurrentIter / Math.max(1, diagPrecondIterations.length - 1)
-        : 0;
-
-      const problemFuncs = getCurrentProblemFunctions();
-      const initialPoint = (currentProblem === 'logistic-regression' || currentProblem === 'separating-hyperplane')
-        ? [initialW0, initialW1, 0]
-        : [initialW0, initialW1];
-      console.log('Running Diagonal Preconditioner with:', { problem: currentProblem, initialPoint, maxIter, c1: diagPrecondC1 });
-      const result = runDiagonalPreconditioner(problemFuncs, {
-        lineSearch: diagPrecondLineSearch,
-        lambda: lambda,
-        hessianDamping: diagPrecondHessianDamping,
-        maxIter,
-        c1: diagPrecondC1,
-        initialPoint,
-        termination: {
-          gtol: diagPrecondTolerance,
-          ftol: diagPrecondFtol,
-          xtol: diagPrecondXtol
-        },
-      });
-      const iterations = result.iterations;
-      console.log('Diagonal Preconditioner completed:', iterations.length, 'iterations');
-      if (iterations.length > 0) {
-        console.log('First iteration:', iterations[0]);
-        console.log('Last iteration:', iterations[iterations.length - 1]);
-      }
-      setDiagPrecondIterations(iterations);
-      setDiagPrecondSummary(result.summary);
-
-      // Restore position at same percentage
-      const newIter = iterations.length > 0
-        ? Math.min(iterations.length - 1, Math.round(oldPercentage * Math.max(0, iterations.length - 1)))
-        : 0;
-      setDiagPrecondCurrentIter(newIter);
-    } catch (error) {
-      console.error('Diagonal Preconditioner error:', error);
-      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-      setDiagPrecondIterations([]);
-    }
-    // IMPORTANT: Keep dependency array in sync with ALL parameters passed to runPre above
-  }, [currentProblem, diagPrecondLineSearch,
-        lambda,
-        diagPrecondHessianDamping,
-        maxIter, diagPrecondC1, diagPrecondTolerance, initialW0, initialW1, getCurrentProblemFunctions]);
 
   // Sync story state to localStorage
   useEffect(() => {
@@ -785,10 +770,10 @@ const UnifiedVisualizer = () => {
           gdLS.setCurrentIter(gdLS.currentIter + 1);
         }
        } else if (selectedTab === 'diagonal-precond') {
-          if (e.key === 'ArrowLeft' && diagPrecondCurrentIter > 0) {
-            setDiagPrecondCurrentIter(diagPrecondCurrentIter - 1);
-          } else if (e.key === 'ArrowRight' && diagPrecondCurrentIter < diagPrecondIterations.length - 1) {
-            setDiagPrecondCurrentIter(diagPrecondCurrentIter + 1);
+          if (e.key === 'ArrowLeft' && diagPrecond.currentIter > 0) {
+            diagPrecond.setCurrentIter(diagPrecond.currentIter - 1);
+          } else if (e.key === 'ArrowRight' && diagPrecond.currentIter < diagPrecond.iterations.length - 1) {
+            diagPrecond.setCurrentIter(diagPrecond.currentIter + 1);
           }
       } else if (selectedTab === 'newton') {
         if (e.key === 'ArrowLeft' && newton.currentIter > 0) {
@@ -808,7 +793,7 @@ const UnifiedVisualizer = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
-  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgs.currentIter, lbfgs.iterations.length, diagPrecondCurrentIter, diagPrecondIterations.length]);
+  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgs.currentIter, lbfgs.iterations.length, diagPrecond.currentIter, diagPrecond.iterations.length]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -1417,23 +1402,23 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = diagPrecondParamCanvasRef.current;
     if (!canvas || selectedTab !== 'diagonal-precond') return;
-    const iter = diagPrecondIterations[diagPrecondCurrentIter];
+    const iter = diagPrecond.iterations[diagPrecond.currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblem();
-    drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecondIterations, diagPrecondCurrentIter, problem);
+    drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecond.iterations, diagPrecond.currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [diagPrecondCurrentIter, data, diagPrecondIterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
+  }, [diagPrecond.currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblem]);
 
   // Draw Diagonal Preconditioner line search
   useEffect(() => {
     const canvas = diagPrecondLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'diagonal-precond') return;
-    const iter = diagPrecondIterations[diagPrecondCurrentIter];
+    const iter = diagPrecond.iterations[diagPrecond.currentIter];
     if (!iter || !iter.lineSearchCurve) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [diagPrecondIterations, diagPrecondCurrentIter, selectedTab]);
+  }, [diagPrecond.iterations, diagPrecond.currentIter, selectedTab]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
@@ -1456,8 +1441,7 @@ const UnifiedVisualizer = () => {
           // Reset algorithm state when problem changes
           gdFixed.setCurrentIter(0);
           gdLS.setCurrentIter(0);
-          setDiagPrecondCurrentIter(0);
-          setDiagPrecondIterations([]);
+          diagPrecond.resetIter();
           newton.setCurrentIter(0);
           lbfgs.setCurrentIter(0);
 
@@ -1726,11 +1710,11 @@ const UnifiedVisualizer = () => {
               onDiagPrecondFtolChange={setDiagPrecondFtol}
               diagPrecondXtol={diagPrecondXtol}
               onDiagPrecondXtolChange={setDiagPrecondXtol}
-              iterations={diagPrecondIterations}
-              currentIter={diagPrecondCurrentIter}
-              onIterChange={(val) => setDiagPrecondCurrentIter(val)}
-              onResetIter={() => setDiagPrecondCurrentIter(0)}
-              summary={diagPrecondSummary}
+              iterations={diagPrecond.iterations}
+              currentIter={diagPrecond.currentIter}
+              onIterChange={(val) => diagPrecond.setCurrentIter(val)}
+              onResetIter={() => diagPrecond.resetIter()}
+              summary={diagPrecond.summary}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
