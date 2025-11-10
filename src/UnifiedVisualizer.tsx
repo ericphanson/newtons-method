@@ -17,7 +17,7 @@ import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
 import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar, drawDataSpaceAxes } from './utils/contourDrawing';
-import { getProblem, resolveProblem, problemRegistryV2, requiresDataset } from './problems';
+import { getProblem, resolveProblem, problemRegistryV2, requiresDataset, getProblemParameters, getDefaultVariant } from './problems';
 import type { ExperimentPreset } from './types/experiments';
 import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
@@ -37,14 +37,30 @@ const UnifiedVisualizer = () => {
   // Shared state
   const [baseData] = useState(() => generateCrescents());
   const [customPoints, setCustomPoints] = useState<DataPoint[]>([]);
-  const [lambda, setLambda] = useState(0.0001);
-  const [bias, setBias] = useState<number>(0);
+
+  // Initialize from registry defaults
+  const getDefaultLambda = () => {
+    const params = getProblemParameters('logistic-regression');
+    const lambdaParam = params.find(p => p.key === 'lambda');
+    return (lambdaParam?.default as number) ?? 0.0001;
+  };
+
+  const getDefaultBias = () => {
+    const params = getProblemParameters('logistic-regression');
+    const biasParam = params.find(p => p.key === 'bias');
+    return (biasParam?.default as number) ?? 0;
+  };
+
+  const [lambda, setLambda] = useState(getDefaultLambda());
+  const [bias, setBias] = useState<number>(getDefaultBias());
 
   // Unified parameter state
   const [problemParameters, setProblemParameters] = useState<Record<string, number | string>>({});
 
   const [separatingHyperplaneVariant, setSeparatingHyperplaneVariant] =
-    useState<SeparatingHyperplaneVariant>('soft-margin');
+    useState<SeparatingHyperplaneVariant>(
+      getDefaultVariant('separating-hyperplane') as SeparatingHyperplaneVariant ?? 'soft-margin'
+    );
   const [addPointMode, setAddPointMode] = useState<0 | 1 | 2>(0);
   const [selectedTab, setSelectedTab] = useState<Algorithm>(() => {
     const saved = localStorage.getItem('selectedAlgorithmTab');
