@@ -1,8 +1,8 @@
 # Dataset Problems Registry Migration
 
 **Date:** 2025-11-10
-**Status:** PLANNED
-**Prerequisite:** 3D-to-2D conversion must be complete
+**Status:** READY FOR IMPLEMENTATION
+**Prerequisites:** ✅ 3D-to-2D conversion complete
 **Effort:** 1-2 days
 
 ---
@@ -41,24 +41,25 @@ These are **UI concerns**, not algorithmic or structural special cases.
 
 ---
 
-## Current State
+## Current State (Verified)
 
-**Assumes 3D-to-2D conversion is complete:**
+**3D-to-2D conversion complete:**
 - Weights are 2D: `[w0, w1]`
 - Bias is a parameter (not trained)
 - All problems have `dimensionality: 2`
 - Helper functions return `[number, number]`
 
 **Already exists:**
-- `problemRegistryV2` entries with metadata (but no factories)
-- `logisticRegressionToProblemFunctions()` - accepts bias parameter
-- `separatingHyperplaneToProblemFunctions()` - accepts bias parameter
-- Objective/gradient/hessian functions - accept bias parameter
+- `problemRegistryV2` entries with metadata
+- `logisticObjective()`, `logisticGradient()`, `logisticHessian()` - accept bias parameter
+- `softMarginObjective()`, `perceptronObjective()`, `squaredHingeObjective()` etc. - accept bias parameter
+- Explainer content for both problems
 
 **What's missing:**
 - Factory functions in registry
 - `datasetFactory` support in registry
 - Parameter arrays (lambda, bias, variant)
+- Dataset parameter in `resolveProblem()`
 
 ---
 
@@ -98,7 +99,7 @@ export interface ProblemRegistryEntry {
 }
 ```
 
-**Verification:** `npm run type-check`
+**Verification:** `npm run build` (type-check happens during build)
 
 ---
 
@@ -109,7 +110,8 @@ export interface ProblemRegistryEntry {
 Add factory function:
 
 ```typescript
-import { ProblemDefinition, DataPoint } from '../types/experiments';
+import { ProblemDefinition } from '../types/experiments';
+import { DataPoint } from '../shared-utils';
 import { logisticObjective, logisticGradient, logisticHessian } from '../utils/logisticRegression';
 import { BlockMath } from '../components/Math';
 
@@ -126,7 +128,7 @@ export function createLogisticRegressionProblem(
     name: 'Logistic Regression',
     objectiveFormula: (
       <BlockMath>
-        {String.raw`f(w) = \frac{1}{n}\sum_{i=1}^n \log(1 + e^{-y_i(w^T x_i + b)}) + \frac{\lambda}{2}\|w\|^2`}
+        {String.raw`f(w) = \frac{1}{n}\sum_{i=1}^n \log(1 + e^{-y_i(w_0 x_{i1} + w_1 x_{i2} + b)}) + \frac{\lambda}{2}(w_0^2 + w_1^2)`}
       </BlockMath>
     ),
     description: 'Binary classification with L2 regularization',
@@ -146,18 +148,19 @@ export function createLogisticRegressionProblem(
 Add factory function:
 
 ```typescript
-import { ProblemDefinition, DataPoint, SeparatingHyperplaneVariant } from '../types/experiments';
+import { ProblemDefinition, SeparatingHyperplaneVariant } from '../types/experiments';
+import { DataPoint } from '../shared-utils';
 import * as SH from '../utils/separatingHyperplane';
 import { BlockMath } from '../components/Math';
 
 function getVariantFormula(variant: SeparatingHyperplaneVariant): React.ReactNode {
   switch (variant) {
     case 'soft-margin':
-      return <BlockMath>{String.raw`f(w) = \sum_i \max(0, 1 - y_i(w^T x_i + b)) + \frac{\lambda}{2}\|w\|^2`}</BlockMath>;
+      return <BlockMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2) + \lambda \sum_i \max(0, 1 - y_i(w_0 x_{i1} + w_1 x_{i2} + b))`}</BlockMath>;
     case 'perceptron':
-      return <BlockMath>{String.raw`f(w) = \sum_i \max(0, -y_i(w^T x_i + b)) + \frac{\lambda}{2}\|w\|^2`}</BlockMath>;
+      return <BlockMath>{String.raw`f(w) = \sum_i \max(0, -y_i(w_0 x_{i1} + w_1 x_{i2} + b)) + \frac{\lambda}{2}(w_0^2 + w_1^2)`}</BlockMath>;
     case 'squared-hinge':
-      return <BlockMath>{String.raw`f(w) = \sum_i \max(0, 1 - y_i(w^T x_i + b))^2 + \frac{\lambda}{2}\|w\|^2`}</BlockMath>;
+      return <BlockMath>{String.raw`f(w) = \frac{1}{2}(w_0^2 + w_1^2) + \lambda \sum_i [\max(0, 1 - y_i(w_0 x_{i1} + w_1 x_{i2} + b))]^2`}</BlockMath>;
   }
 }
 
@@ -217,7 +220,7 @@ Add imports:
 ```typescript
 import { createLogisticRegressionProblem } from './logisticRegression';
 import { createSeparatingHyperplaneProblem } from './separatingHyperplane';
-import { DataPoint } from '../types/experiments';
+import { DataPoint } from '../shared-utils';
 ```
 
 Update registry entries:
@@ -419,7 +422,7 @@ export {
 **Verification:** Console test:
 
 ```typescript
-const testData = [{ x: 1, y: 1, label: 1, x1: 1, x2: 1 }];
+const testData = [{ x1: 1, x2: 1, y: 1 }];
 const problem = resolveProblem('logistic-regression', { lambda: 1.0, bias: 0 }, testData);
 console.assert(problem.name === 'Logistic Regression');
 ```
@@ -433,7 +436,7 @@ console.assert(problem.name === 'Logistic Regression');
 **Step 5.1:** Update imports
 
 ```typescript
-import { problemRegistryV2, resolveProblem } from './problems/registry';
+import { problemRegistryV2, resolveProblem, requiresDataset } from './problems/registry';
 ```
 
 Remove unused imports:
@@ -494,7 +497,7 @@ Add useEffect hooks to sync lambda, bias, and variant:
 ```typescript
 // Sync lambda and bias for dataset problems
 useEffect(() => {
-  if (isDatasetProblem(currentProblem)) {
+  if (requiresDataset(currentProblem)) {
     setProblemParameters(prev => ({
       ...prev,
       lambda,
@@ -599,7 +602,41 @@ For lambda slider:
 })()}
 ```
 
-For bias slider (similar pattern).
+For bias slider (similar pattern):
+
+```typescript
+{(() => {
+  const entry = problemRegistryV2[currentProblem];
+  const biasParam = entry?.parameters.find(p => p.key === 'bias');
+  if (biasParam && biasParam.type === 'range') {
+    return (
+      <div>
+        <h4 className="font-medium text-gray-700 mb-2">
+          Bias (<InlineMath>b</InlineMath>)
+        </h4>
+        <input
+          type="range"
+          min={biasParam.min}
+          max={biasParam.max}
+          step={biasParam.step}
+          value={bias}
+          onChange={(e) => onBiasChange(parseFloat(e.target.value))}
+          className="w-full"
+        />
+        <div className="flex justify-between text-xs text-gray-600 mt-1">
+          <span>{biasParam.min}</span>
+          <span className="font-semibold">{bias.toFixed(1)}</span>
+          <span>{biasParam.max}</span>
+        </div>
+        {biasParam.description && (
+          <p className="text-xs text-gray-500 mt-1">{biasParam.description}</p>
+        )}
+      </div>
+    );
+  }
+  return null;
+})()}
+```
 
 Add import:
 
@@ -608,82 +645,6 @@ import { problemRegistryV2 } from '../problems/registry';
 ```
 
 **Verification:** UI renders correctly, parameters update problems.
-
----
-
-## Testing
-
-### Manual Testing
-
-**Logistic Regression:**
-- [ ] Load page, select "Logistic Regression"
-- [ ] Formula displays from registry
-- [ ] Lambda slider works (0-10, default 1.0)
-- [ ] Bias slider works (-3 to 3, default 0)
-- [ ] Data canvas displays
-- [ ] Run GD Fixed - converges
-- [ ] Run Newton - converges
-- [ ] Decision boundary renders
-
-**Separating Hyperplane:**
-- [ ] Select "Separating Hyperplane"
-- [ ] Variant dropdown shows 3 options
-- [ ] Formula updates when variant changes
-- [ ] Lambda/bias sliders work
-- [ ] Run algorithm - converges
-- [ ] Decision boundary renders
-
-**Other Problems:**
-- [ ] All other problems load without errors
-- [ ] No console errors
-- [ ] Algorithms run successfully
-
-### Automated Testing
-
-Create `src/problems/__tests__/registry.test.ts`:
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { resolveProblem, requiresDataset } from '../registry';
-import { DataPoint } from '../../types/experiments';
-
-describe('Dataset Problems Registry', () => {
-  const mockDataset: DataPoint[] = [
-    { x: 1, y: 1, label: 1, x1: 1, x2: 1 },
-    { x: -1, y: -1, label: 0, x1: -1, x2: -1 },
-  ];
-
-  it('should resolve logistic regression with dataset', () => {
-    const problem = resolveProblem('logistic-regression', { lambda: 1.0, bias: 0 }, mockDataset);
-    expect(problem.name).toBe('Logistic Regression');
-    expect(typeof problem.objective).toBe('function');
-  });
-
-  it('should throw when dataset required but not provided', () => {
-    expect(() => resolveProblem('logistic-regression')).toThrow('requires a dataset');
-  });
-
-  it('should resolve separating hyperplane with variants', () => {
-    const variants = ['soft-margin', 'perceptron', 'squared-hinge'] as const;
-    for (const variant of variants) {
-      const problem = resolveProblem(
-        'separating-hyperplane',
-        { variant, lambda: 1.0, bias: 0 },
-        mockDataset
-      );
-      expect(problem.name).toContain(variant);
-    }
-  });
-
-  it('should identify dataset problems', () => {
-    expect(requiresDataset('logistic-regression')).toBe(true);
-    expect(requiresDataset('separating-hyperplane')).toBe(true);
-    expect(requiresDataset('quadratic')).toBe(false);
-  });
-});
-```
-
-Run: `npm run test`
 
 ---
 
@@ -698,10 +659,8 @@ Run: `npm run test`
 - ✅ Decision boundaries render correctly
 
 ### Code Quality
-- ✅ `npm run type-check` passes
-- ✅ `npm run lint` passes
-- ✅ `npm run test` passes
 - ✅ `npm run build` succeeds
+- ✅ `npm run lint` passes
 - ✅ No special-case conditionals for LR/SH (except UI: data canvas, decision boundary)
 
 ### Architecture
