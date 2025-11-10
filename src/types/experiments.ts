@@ -79,3 +79,40 @@ export interface ProblemDefinition {
   globalMinimum?: [number, number];  // Analytical global minimum (if exists)
   criticalPoint?: [number, number];  // For saddle points or local min/max
 }
+
+// Parameter metadata for auto-generating UI controls
+export interface ParameterMetadata {
+  key: string;                    // Parameter identifier (e.g., 'rotationAngle')
+  label: string;                  // Display label (e.g., 'Rotation Angle')
+  type: 'range' | 'select';       // UI control type
+  min?: number;                   // For range inputs
+  max?: number;                   // For range inputs
+  step?: number;                  // For range inputs
+  default: number | string;       // Default value
+  unit?: string;                  // Display unit (e.g., '°', '')
+  scale?: 'linear' | 'log10';     // Value scaling for slider
+  options?: Array<{value: string | number; label: string}>; // For select inputs
+  description?: string;           // Tooltip/help text
+}
+
+// Problem state with parameters
+export interface ProblemState {
+  type: ProblemType;
+  parameters: Record<string, number | string>;
+}
+
+// Registry entry with factory support
+export interface ProblemRegistryEntry {
+  // Static instance (for non-parametrized problems)
+  defaultInstance?: ProblemDefinition;
+
+  // Factory function (for parametrized problems)
+  factory?: (parameters: Record<string, number | string>) => ProblemDefinition;
+
+  // Parameter definitions (empty for non-parametrized)
+  parameters: ParameterMetadata[];
+
+  // Problem metadata
+  displayName: string;
+  category?: 'convex' | 'non-convex' | 'classification';
+}
