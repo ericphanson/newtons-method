@@ -38,3 +38,12 @@ export {
   himmelblauProblem,
   threeHumpCamelProblem
 };
+
+// Export new registry V2 (parameter-aware)
+export {
+  problemRegistryV2,
+  resolveProblem,
+  getProblemParameters,
+  getDefaultParameters,
+  isProblemParametrized
+} from './registry';
