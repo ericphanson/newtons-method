@@ -136,7 +136,6 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
           >
             <option value="logistic-regression">Logistic Regression</option>
             <option value="quadratic">Quadratic Bowl</option>
-            <option value="ill-conditioned-quadratic">Ill-Conditioned Quadratic</option>
             <option value="rosenbrock">Rosenbrock Function</option>
             <option value="non-convex-saddle">Saddle Point</option>
             <option value="himmelblau">Himmelblau's Function</option>

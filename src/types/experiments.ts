@@ -3,7 +3,6 @@ import type { DataPoint } from '../shared-utils';
 export type ProblemType =
   | 'logistic-regression'
   | 'quadratic'
-  | 'ill-conditioned-quadratic'
   | 'rosenbrock'
   | 'non-convex-saddle'
   | 'separating-hyperplane'

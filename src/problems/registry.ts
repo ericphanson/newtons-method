@@ -1,5 +1,5 @@
 import { ProblemRegistryEntry, ProblemDefinition, ParameterMetadata } from '../types/experiments';
-import { createRotatedQuadratic, createIllConditionedQuadratic, quadraticExplainer, illConditionedExplainer } from './quadratic';
+import { createRotatedQuadratic, quadraticExplainer } from './quadratic';
 import { createRosenbrockProblem, rosenbrockExplainer } from './rosenbrock';
 import { saddleProblem, saddleExplainer, saddleKeyInsights } from './saddle';
 import { himmelblauProblem, himmelblauExplainer } from './himmelblau';
@@ -140,27 +140,6 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
     explainerContent: quadraticExplainer,
   },
 
-  'ill-conditioned-quadratic': {
-    factory: (params) => createIllConditionedQuadratic((params.conditionNumber as number) || 100),
-    parameters: [
-      {
-        key: 'conditionNumber',
-        label: 'Condition Number',
-        type: 'range',
-        min: 1,
-        max: 500,
-        step: 1,
-        default: 100,
-        unit: '',
-        scale: 'linear',
-        description: 'Higher κ creates more elongated ellipses (1 = circle, 500 = extreme elongation)'
-      }
-    ],
-    displayName: 'Ill-Conditioned Quadratic',
-    category: 'convex',
-    explainerContent: illConditionedExplainer,
-  },
-
   'rosenbrock': {
     factory: (params) => createRosenbrockProblem((params.rosenbrockB as number) || 100),
     parameters: [
@@ -217,7 +196,6 @@ export const PROBLEM_ORDER = [
   'logistic-regression',
   'separating-hyperplane',
   'quadratic',
-  'ill-conditioned-quadratic',
   'rosenbrock',
   'non-convex-saddle',
   'himmelblau',
@@ -231,12 +209,12 @@ export const PROBLEM_ORDER = [
  * all scattered if-else chains that previously handled parametrized problems.
  *
  * @example
- * // Rotated quadratic at 45°
- * const problem = resolveProblem('quadratic', { rotationAngle: 45 });
+ * // Rotated quadratic at 45° with κ=5
+ * const problem = resolveProblem('quadratic', { rotationAngle: 45, kappa: 5 });
  *
  * @example
- * // Ill-conditioned with κ=250
- * const problem = resolveProblem('ill-conditioned-quadratic', { conditionNumber: 250 });
+ * // Axis-aligned quadratic with high condition number
+ * const problem = resolveProblem('quadratic', { rotationAngle: 0, kappa: 250 });
  *
  * @example
  * // Rosenbrock with custom steepness

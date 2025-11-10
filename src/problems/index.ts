@@ -1,5 +1,5 @@
 import { ProblemDefinition } from '../types/experiments';
-import { quadraticProblem, createRotatedQuadratic, illConditionedQuadratic, createIllConditionedQuadratic } from './quadratic.tsx';
+import { quadraticProblem, createRotatedQuadratic } from './quadratic.tsx';
 import { rosenbrockProblem, createRosenbrockProblem } from './rosenbrock.tsx';
 import { saddleProblem } from './saddle.tsx';
 import { himmelblauProblem } from './himmelblau.tsx';
@@ -11,7 +11,6 @@ import { threeHumpCamelProblem } from './threeHumpCamel.tsx';
  */
 export const problemRegistry: Record<string, ProblemDefinition> = {
   'quadratic': quadraticProblem,
-  'ill-conditioned-quadratic': illConditionedQuadratic,
   'rosenbrock': rosenbrockProblem,
   'non-convex-saddle': saddleProblem,
   'himmelblau': himmelblauProblem,
@@ -30,8 +29,6 @@ export function getProblem(type: string): ProblemDefinition | undefined {
 export {
   quadraticProblem,
   createRotatedQuadratic,
-  illConditionedQuadratic,
-  createIllConditionedQuadratic,
   rosenbrockProblem,
   createRosenbrockProblem,
   saddleProblem,

@@ -28,10 +28,8 @@ const DEFAULT_CONFIG: ProblemDefaults = {
  * Key insights:
  * - Rosenbrock: steep gradients (coefficients 200, 400) need tiny steps
  *   Starting point [-0.5, 1.5] chosen to show interesting paths (Newton: ~18 iters, L-BFGS: ~36 iters)
- * - Ill-conditioned: elongated ellipse needs small steps to avoid oscillation
- *   Harder starting point [-2, 2] shows the conditioning challenges
- * - Quadratic: so well-conditioned that 2nd-order methods converge in ~2 iterations even from far away!
- *   This demonstrates their efficiency on convex problems
+ * - Quadratic: well-conditioned by default, 2nd-order methods converge in ~2 iterations
+ *   With high kappa (condition number), becomes ill-conditioned showing convergence challenges
  * - Saddle: unbounded below, goes to -∞ (educational, not solvable)
  */
 export function getProblemDefaults(problem: string): ProblemDefaults {
@@ -42,14 +40,6 @@ export function getProblemDefaults(problem: string): ProblemDefaults {
         gdFixedAlpha: 0.001,  // Very small due to steep gradients
         maxIter: 50,          // Standard default
         initialPoint: [-0.5, 1.5]  // Harder starting point: all algos take >3 iterations
-      };
-
-    case 'ill-conditioned-quadratic':
-      return {
-        ...DEFAULT_CONFIG,
-        gdFixedAlpha: 0.01,    // Small to avoid oscillation
-        maxIter: 50,          // Standard default
-        initialPoint: [-2, 2]  // Challenging point for ill-conditioned problem
       };
 
     case 'non-convex-saddle':
@@ -103,8 +93,6 @@ export function getProblemNote(problem: string): string {
   switch (problem) {
     case 'rosenbrock':
       return 'Steep gradients - GD needs very small α (try 0.001)';
-    case 'ill-conditioned-quadratic':
-      return 'Elongated valley - GD needs small α to avoid zigzagging';
     case 'non-convex-saddle':
       return 'Unbounded below - gradient methods diverge to -∞';
     case 'himmelblau':
