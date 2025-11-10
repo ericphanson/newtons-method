@@ -10,19 +10,13 @@ import {
   logisticGradient,
   logisticHessian
 } from './utils/logisticRegression';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- NewtonIteration used in commented state, will be removed in Task 8
-import { runNewton, NewtonIteration } from './algorithms/newton';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- LBFGSIteration used in commented state, will be removed in Task 8
-import { runLBFGS, LBFGSIteration } from './algorithms/lbfgs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDIteration used in commented state, will be removed in Task 8
-import { runGradientDescent, GDIteration } from './algorithms/gradient-descent';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- GDLineSearchIteration used in commented state, will be removed in Task 8
-import { runGradientDescentLineSearch, GDLineSearchIteration } from './algorithms/gradient-descent-linesearch';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- DiagonalPrecondIteration used in commented state, will be removed in Task 8
-import { runDiagonalPreconditioner, DiagonalPrecondIteration } from './algorithms/diagonal-preconditioner';
+import { runNewton } from './algorithms/newton';
+import { runLBFGS } from './algorithms/lbfgs';
+import { runGradientDescent } from './algorithms/gradient-descent';
+import { runGradientDescentLineSearch } from './algorithms/gradient-descent-linesearch';
+import { runDiagonalPreconditioner } from './algorithms/diagonal-preconditioner';
 import { problemToProblemFunctions, logisticRegressionToProblemFunctions, separatingHyperplaneToProblemFunctions } from './utils/problemAdapter';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- AlgorithmSummary used in commented state, will be removed in Task 8
-import type { ProblemFunctions, AlgorithmSummary } from './algorithms/types';
+import type { ProblemFunctions } from './algorithms/types';
 import { SeparatingHyperplaneVariant } from './types/experiments';
 import { Toast } from './components/Toast';
 import { ProblemConfiguration } from './components/ProblemConfiguration';
@@ -62,24 +56,15 @@ const UnifiedVisualizer = () => {
     return 'algorithms';
   });
 
-  // GD Fixed step state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
-  // const [gdFixed.iterations, setGdFixedIterations] = useState<GDIteration[]>([]);
-  // const [gdFixed.summary, setGdFixedSummary] = useState<AlgorithmSummary | null>(null);
-  // const [gdFixed.currentIter, gdFixed.setCurrentIter] = useState(0);
+  // GD Fixed hyperparameters
   const [gdFixedAlpha, setGdFixedAlpha] = useState(0.1);
   const [gdFixedTolerance, setGdFixedTolerance] = useState(1e-6);
 
-  // GD Line search state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
-  // const [gdLSIterations, setGdLSIterations] = useState<GDLineSearchIteration[]>([]);
-  // const [gdLSSummary, setGdLSSummary] = useState<AlgorithmSummary | null>(null);
-  // const [gdLSCurrentIter, setGdLSCurrentIter] = useState(0);
+  // GD Line Search hyperparameters
   const [gdLSC1, setGdLSC1] = useState(0.0001);
   const [gdLSTolerance, setGdLSTolerance] = useState(1e-6);
 
-  // Newton state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
-  // const [newtonIterations, setNewtonIterations] = useState<NewtonIteration[]>([]);
-  // const [newtonSummary, setNewtonSummary] = useState<AlgorithmSummary | null>(null);
-  // const [newtonCurrentIter, setNewtonCurrentIter] = useState(0);
+  // Newton hyperparameters
   const [newtonC1, setNewtonC1] = useState(0.0001);
   const [newtonLineSearch, setNewtonLineSearch] = useState<'armijo' | 'none'>('none');
   const [newtonHessianDamping, setNewtonHessianDamping] = useState(0);
@@ -87,19 +72,13 @@ const UnifiedVisualizer = () => {
   const [newtonFtol, setNewtonFtol] = useState(2.22e-9);        // ftol: matches scipy L-BFGS-B default
   const [newtonXtol, setNewtonXtol] = useState(1e-5);           // xtol: matches scipy Newton-CG default
 
-  // L-BFGS state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
-  // const [lbfgsIterations, setLbfgsIterations] = useState<LBFGSIteration[]>([]);
-  // const [lbfgsSummary, setLbfgsSummary] = useState<AlgorithmSummary | null>(null);
-  // const [lbfgsCurrentIter, setLbfgsCurrentIter] = useState(0);
+  // L-BFGS hyperparameters
   const [lbfgsC1, setLbfgsC1] = useState(0.0001);
   const [lbfgsM, setLbfgsM] = useState(5);
   const [lbfgsHessianDamping, setLbfgsHessianDamping] = useState(0);
   const [lbfgsTolerance, setLbfgsTolerance] = useState(1e-4);  // gtol: matches scipy trust-ncg default
 
-  // Diagonal Preconditioner state - iterations/currentIter/summary now managed by useAlgorithmIterations hook
-  // const [diagPrecondIterations, setDiagPrecondIterations] = useState<DiagonalPrecondIteration[]>([]);
-  // const [diagPrecondSummary, setDiagPrecondSummary] = useState<AlgorithmSummary | null>(null);
-  // const [diagPrecondCurrentIter, setDiagPrecondCurrentIter] = useState(0);
+  // Diagonal Preconditioner hyperparameters
   const [diagPrecondLineSearch, setDiagPrecondLineSearch] = useState<'armijo' | 'none'>('none');
 
 
