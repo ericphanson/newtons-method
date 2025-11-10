@@ -304,7 +304,8 @@ export function AlgorithmExplainer() {
       >
         <div className="space-y-3 text-gray-800">
           <p>
-            <strong>Type:</strong> Second-order method (uses gradient and Hessian)
+            <strong>Type:</strong> Second-order method (uses{' '}
+            <GlossaryTooltip termKey="hessian" /> matrix)
           </p>
 
           <div>
