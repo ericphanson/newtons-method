@@ -200,6 +200,19 @@ export const glossary: Record<string, GlossaryEntry> = {
       </>
     ),
   },
+
+  'condition-number': {
+    term: 'condition number',
+    definition: (
+      <>
+        <strong>Condition number:</strong> For positive definite Hessian, the ratio of largest
+        to smallest eigenvalue: κ = λₘₐₓ/λₘᵢₙ. Equivalently, κ = L/μ where L is the Lipschitz
+        constant and μ is the strong convexity parameter. Measures how "stretched" the problem
+        is. κ ≈ 1 means well-conditioned (easy); κ ≫ 1 means ill-conditioned (difficult for
+        gradient descent).
+      </>
+    ),
+  },
 } as const;
 
 export type GlossaryTermKey = keyof typeof glossary;
