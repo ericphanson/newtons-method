@@ -1549,6 +1549,18 @@ const UnifiedVisualizer = () => {
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
         <div className="flex border-b border-gray-200">
+          {/* Stories Tab - FIRST position */}
+          <button
+            onClick={() => setSelectedTab('stories')}
+            className={`flex-1 px-4 py-4 font-semibold text-sm ${
+              selectedTab === 'stories'
+                ? 'text-pink-700 border-b-2 border-pink-600 bg-pink-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            Stories
+          </button>
+          {/* Algorithms Tab */}
           <button
             onClick={() => setSelectedTab('algorithms')}
             className={`flex-1 px-4 py-4 font-semibold text-sm ${
