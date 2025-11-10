@@ -80,9 +80,7 @@ export const runLBFGS = (
   void lambda;
 
   // Initialize weights based on dimensionality
-  let w = initialPoint || (problem.dimensionality === 3
-    ? [0.1, 0.1, 0.0]
-    : [0.1, 0.1]);
+  let w = initialPoint || [0.1, 0.1];
 
   const memory: MemoryPair[] = [];
 

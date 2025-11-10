@@ -80,7 +80,7 @@ export const runDiagonalPreconditioner = (
   let previousLoss: number | null = null;
   let previousW: number[] | null = null;
   let terminationReason: ConvergenceCriterion | null = null;
-  let w = initialPoint || (problem.dimensionality === 3 ? [0.1, 0.1, 0.0] : [0.1, 0.1]);
+  let w = initialPoint || [0.1, 0.1];
 
   for (let iter = 0; iter < maxIter; iter++) {
     const loss = problem.objective(w);
@@ -105,9 +105,7 @@ export const runDiagonalPreconditioner = (
 
     // Compute Hessian and extract diagonal
     const H = problem.hessian(w);
-    const hessianDiagonal = problem.dimensionality === 3
-      ? [H[0][0], H[1][1], H[2][2]]
-      : [H[0][0], H[1][1]];
+    const hessianDiagonal = [H[0][0], H[1][1]];
 
     // Build diagonal preconditioner D = diag(1/(H_ii + ε))
     // Add hessianDamping for numerical stability
