@@ -19,7 +19,7 @@ export const logisticRegressionExplainer = (
       <div>
         <p className="font-semibold">Objective Function:</p>
         <BlockMath>
-          {String.raw`f(w) = \frac{1}{n}\sum_{i=1}^n \log(1 + e^{-y_i(w^T x_i)}) + \frac{\lambda}{2}\|w\|^2`}
+          {String.raw`f(w) = \frac{1}{n}\sum_{i=1}^n \log(1 + e^{-y_i(w_0 x_{i1} + w_1 x_{i2} + b)}) + \frac{\lambda}{2}(w_0^2 + w_1^2)`}
         </BlockMath>
       </div>
 
