@@ -1821,11 +1821,16 @@ const UnifiedVisualizer = () => {
         const story = getStory(currentStoryId);
         if (!story) return null;
 
+        const step = story.steps[currentStoryStep];
+        const experiment = getExperimentById(step.experimentId);
+        if (!experiment) return null;
+
         return (
           <>
             <StoryBanner
               story={story}
               currentStepIndex={currentStoryStep}
+              currentExperiment={experiment}
               onPrevious={() => setCurrentStoryStep(Math.max(0, currentStoryStep - 1))}
               onNext={() => setCurrentStoryStep(Math.min(story.steps.length - 1, currentStoryStep + 1))}
               onExit={() => {
