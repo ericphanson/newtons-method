@@ -47,6 +47,9 @@ export {
   getProblemParameters,
   getDefaultParameters,
   isProblemParametrized,
+  requiresDataset,
+  getProblemVariants,
+  getDefaultVariant,
   getProblemKeyInsights,
   getProblemExplainerContent
 } from './registry';

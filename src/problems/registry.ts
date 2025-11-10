@@ -6,9 +6,7 @@ import { himmelblauProblem, himmelblauExplainer } from './himmelblau';
 import { threeHumpCamelProblem, threeHumpCamelExplainer } from './threeHumpCamel';
 import { createLogisticRegressionProblem, logisticRegressionExplainer } from './logisticRegression';
 import { createSeparatingHyperplaneProblem, separatingHyperplaneExplainer } from './separatingHyperplane';
-// DataPoint is used in type annotations for datasetFactory
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { DataPoint } from '../shared-utils';
+import { DataPoint } from '../shared-utils';
 
 /**
  * Parameter-aware problem registry
@@ -107,7 +105,10 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
   },
 
   'quadratic': {
-    factory: (params) => createRotatedQuadratic((params.rotationAngle as number) || 0),
+    factory: (params) => createRotatedQuadratic(
+      (params.rotationAngle as number) || 0,
+      (params.kappa as number) || 5
+    ),
     parameters: [
       {
         key: 'rotationAngle',
@@ -120,6 +121,18 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
         unit: '°',
         scale: 'linear',
         description: 'Rotation of the ellipse axes (0° = aligned, 45° = maximum misalignment)'
+      },
+      {
+        key: 'kappa',
+        label: 'Condition Number',
+        type: 'range',
+        min: 1,
+        max: 100,
+        step: 1,
+        default: 5,
+        unit: '',
+        scale: 'linear',
+        description: 'Controls ellipse elongation (1 = circle, higher = more elongated)'
       }
     ],
     displayName: 'Rotated Quadratic',
@@ -234,14 +247,21 @@ export const PROBLEM_ORDER = [
  * const problem = resolveProblem('himmelblau');
  * const problem2 = resolveProblem('non-convex-saddle', {});
  *
- * @param problemType - Problem type identifier (e.g., 'quadratic', 'rosenbrock')
+ * @example
+ * // Dataset-based problem (logistic regression)
+ * const testData = [{ x1: 1, x2: 1, y: 1 }];
+ * const problem = resolveProblem('logistic-regression', { lambda: 1.0, bias: 0 }, testData);
+ *
+ * @param problemType - Problem type identifier (e.g., 'quadratic', 'rosenbrock', 'logistic-regression')
  * @param parameters - Parameter values as key-value pairs (defaults to empty object)
+ * @param dataset - Optional dataset for dataset-based problems (e.g., logistic regression, separating hyperplane)
  * @returns Resolved problem definition with parameter values applied
- * @throws Error if problem not found in registry or if registry entry is incomplete
+ * @throws Error if problem not found in registry, if registry entry is incomplete, or if dataset required but not provided
  */
 export function resolveProblem(
   problemType: string,
-  parameters: Record<string, number | string> = {}
+  parameters: Record<string, number | string> = {},
+  dataset?: DataPoint[]
 ): ProblemDefinition {
   const entry = problemRegistryV2[problemType];
 
@@ -249,10 +269,24 @@ export function resolveProblem(
     throw new Error(`Problem not found in registry: ${problemType}`);
   }
 
-  // Use factory if available, otherwise return static instance
+  // Dataset-based problems
+  if (entry.requiresDataset) {
+    if (!dataset || dataset.length === 0) {
+      throw new Error(`Problem '${problemType}' requires a dataset`);
+    }
+    if (!entry.datasetFactory) {
+      throw new Error(`Problem '${problemType}' missing datasetFactory`);
+    }
+    return entry.datasetFactory(parameters, dataset);
+  }
+
+  // Regular parametrized problems
   if (entry.factory) {
     return entry.factory(parameters);
-  } else if (entry.defaultInstance) {
+  }
+
+  // Static problems
+  if (entry.defaultInstance) {
     return entry.defaultInstance;
   }
 
@@ -300,4 +334,28 @@ export function getProblemKeyInsights(problemType: string): React.ReactNode | un
  */
 export function getProblemExplainerContent(problemType: string): ProblemRegistryEntry['explainerContent'] | undefined {
   return problemRegistryV2[problemType]?.explainerContent;
+}
+
+/**
+ * Check if a problem requires a dataset
+ */
+export function requiresDataset(problemType: string): boolean {
+  const entry = problemRegistryV2[problemType];
+  return !!entry?.requiresDataset;
+}
+
+/**
+ * Get problem variants (if any)
+ */
+export function getProblemVariants(problemType: string): Array<{ id: string; displayName: string; description?: string }> {
+  const entry = problemRegistryV2[problemType];
+  return entry?.variants || [];
+}
+
+/**
+ * Get default variant for a problem
+ */
+export function getDefaultVariant(problemType: string): string | undefined {
+  const entry = problemRegistryV2[problemType];
+  return entry?.defaultVariant;
 }
