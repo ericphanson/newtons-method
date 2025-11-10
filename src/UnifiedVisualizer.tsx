@@ -1625,6 +1625,14 @@ const UnifiedVisualizer = () => {
         </div>
 
         <div className="p-6">
+          {selectedTab === 'stories' && (
+            <StoriesPage
+              onStartStory={(storyId) => {
+                setCurrentStoryId(storyId);
+                setCurrentStoryStep(0);
+              }}
+            />
+          )}
           {selectedTab === 'algorithms' && (
             <AlgorithmExplainer />
           )}
