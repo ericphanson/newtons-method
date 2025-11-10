@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, DependencyList } from 'react';
 import type { AlgorithmSummary } from '../algorithms/types';
 
 // Options for controlling hook behavior
@@ -20,13 +20,14 @@ export interface AlgorithmRunResult<TIteration> {
  * @param runAlgorithm - Function that executes the algorithm and returns iterations + summary
  * @param dependencies - Array of values that trigger algorithm re-run when changed
  * @param options - Control flags (e.g., jumpToEnd)
+ * @returns Object containing iterations array, current iteration index, setters, and summary
  *
  * TIteration must have w and wNew fields because visualization code needs these for drawing trajectories
  */
 export function useAlgorithmIterations<TIteration extends { w: number[]; wNew: number[] }>(
   algorithmName: string,
   runAlgorithm: () => AlgorithmRunResult<TIteration>,
-  dependencies: any[],
+  dependencies: DependencyList,
   options?: UseAlgorithmIterationsOptions
 ) {
   const [iterations, setIterations] = useState<TIteration[]>([]);
@@ -60,6 +61,7 @@ export function useAlgorithmIterations<TIteration extends { w: number[]; wNew: n
       }
       setIterations([]);
       setSummary(null);
+      setCurrentIter(0);
     }
     // We disable exhaustive-deps because we deliberately spread the dependencies array parameter.
     // This is safe because the caller provides the full dependency list.
