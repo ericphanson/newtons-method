@@ -1,22 +1,13 @@
 import React from 'react';
-import { problemRegistryV2 } from '../problems/registry';
+import { problemRegistryV2, PROBLEM_ORDER } from '../problems/registry';
 
 /**
  * Educational component explaining all available optimization problems
  * Now renders content from the problem registry
  */
 export function ProblemExplainer() {
-  // Get all problems that have explainer content, ordered by type
-  const problemsWithExplainers = [
-    'logistic-regression',
-    'separating-hyperplane',
-    'quadratic',
-    'ill-conditioned-quadratic',
-    'rosenbrock',
-    'non-convex-saddle',
-    'himmelblau',
-    'three-hump-camel',
-  ]
+  // Get all problems that have explainer content, using canonical ordering from registry
+  const problemsWithExplainers = PROBLEM_ORDER
     .map((key) => ({ key, entry: problemRegistryV2[key] }))
     .filter(({ entry }) => entry?.explainerContent);
 
@@ -29,20 +20,11 @@ export function ProblemExplainer() {
       </p>
 
       {/* Render all problem explainers from registry */}
-      {problemsWithExplainers.map(({ key, entry }) => {
-        const content = entry.explainerContent!;
-        // Handle both ReactNode and structured format
-        const isReactNode = React.isValidElement(content) ||
-                           typeof content === 'string' ||
-                           typeof content === 'number' ||
-                           content === null;
-
-        return (
-          <React.Fragment key={key}>
-            {isReactNode ? content : (content as { title: string; content: React.ReactNode }).content}
-          </React.Fragment>
-        );
-      })}
+      {problemsWithExplainers.map(({ key, entry }) => (
+        <React.Fragment key={key}>
+          {entry.explainerContent}
+        </React.Fragment>
+      ))}
 
       {/* How to Use section - kept as-is */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">

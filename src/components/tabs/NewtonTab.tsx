@@ -8,6 +8,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
+import { Pseudocode, Var } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -230,17 +231,41 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-blue-800 mb-2">The Algorithm</h3>
-            <ol className="list-decimal ml-6 space-y-1">
-              <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
-              <li>Compute Hessian <InlineMath>H(w)</InlineMath> (matrix of all second derivatives)</li>
-              <li>Add damping: <InlineMath>{'H_d = H + \\lambda_{\\text{damp}} \\cdot I'}</InlineMath> where <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath> = Hessian damping parameter</li>
-              <li>Solve <InlineMath>H_d p = -\nabla f</InlineMath> for search direction <InlineMath>p</InlineMath></li>
-              <li>Line search for step size <InlineMath>\alpha</InlineMath></li>
-              <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
-            </ol>
-          </div>
+          <Pseudocode
+            color="blue"
+            inputs={[
+              {
+                id: "w",
+                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
+                description: "current parameter vector"
+              },
+              {
+                id: "f",
+                display: <InlineMath>f</InlineMath>,
+                description: "objective function to minimize"
+              },
+              {
+                id: "lambda_damp",
+                display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                description: "Hessian damping parameter"
+              }
+            ]}
+            outputs={[
+              {
+                id: "w_new",
+                display: <InlineMath>w'</InlineMath>,
+                description: "updated parameter vector"
+              }
+            ]}
+            steps={[
+              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>Compute Hessian <Var id="H"><InlineMath>H(<Var id="w">w</Var>)</InlineMath></Var> (matrix of all second derivatives)</>,
+              <>Add damping: <Var id="H_d"><InlineMath>{'H_d'}</InlineMath></Var> = <Var id="H"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I"><InlineMath>I</InlineMath></Var></>,
+              <>Solve <Var id="H_d"><InlineMath>H_d</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f</InlineMath></Var> for search direction <Var id="p"><InlineMath>p</InlineMath></Var></>,
+              <>Line search for step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var></>,
+              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>
+            ]}
+          />
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Key Formula</h3>

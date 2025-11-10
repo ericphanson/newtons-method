@@ -7,6 +7,7 @@ import { InlineMath, BlockMath } from '../Math';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
+import { Pseudocode, Var } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { DiagonalPrecondIteration } from '../../algorithms/diagonal-preconditioner';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -226,20 +227,44 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               </p>
             </div>
 
-            <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">The Algorithm</h3>
-              <ol className="list-decimal ml-6 space-y-1">
-                <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
-                <li>Compute Hessian <InlineMath>H(w)</InlineMath> (matrix of second derivatives)</li>
-                <li>Extract diagonal: <InlineMath>{'d_i = H_{ii}'}</InlineMath> for each coordinate</li>
-                <li>
+            <Pseudocode
+              color="teal"
+              inputs={[
+                {
+                  id: "w",
+                  display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
+                  description: "current parameter vector"
+                },
+                {
+                  id: "f",
+                  display: <InlineMath>f</InlineMath>,
+                  description: "objective function to minimize"
+                },
+                {
+                  id: "lambda_damp",
+                  display: <InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath>,
+                  description: "Hessian damping parameter"
+                }
+              ]}
+              outputs={[
+                {
+                  id: "w_new",
+                  display: <InlineMath>w'</InlineMath>,
+                  description: "updated parameter vector"
+                }
+              ]}
+              steps={[
+                <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+                <>Compute Hessian <Var id="H"><InlineMath>H(<Var id="w">w</Var>)</InlineMath></Var> (matrix of second derivatives)</>,
+                <>Extract diagonal: <Var id="d_i"><InlineMath>{'d_i'}</InlineMath></Var> = <Var id="H"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate</>,
+                <>
                   Build diagonal preconditioner:{' '}
-                  <InlineMath>{'D = \\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath>
-                </li>
-                <li>Compute preconditioned direction: <InlineMath>{'p = -D \\cdot \\nabla f'}</InlineMath></li>
-                <li>Take step: <InlineMath>{'w \\leftarrow w + \\alpha p'}</InlineMath> (α=1 or from line search)</li>
-              </ol>
-            </div>
+                  <Var id="D"><InlineMath>D</InlineMath></Var> = <InlineMath>{'\\text{diag}(1/(H_{00}+'}</InlineMath><Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var><InlineMath>{'), 1/(H_{11}+'}</InlineMath><Var id="lambda_damp"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var><InlineMath>{'), ...)'}</InlineMath>
+                </>,
+                <>Compute preconditioned direction: <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="D"><InlineMath>D</InlineMath></Var> · <Var id="grad"><InlineMath>\nabla f</InlineMath></Var></>,
+                <>Take step: <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var> (<Var id="alpha"><InlineMath>\alpha</InlineMath></Var>=1 or from line search)</>
+              ]}
+            />
 
             <div>
               <h3 className="text-lg font-bold text-teal-800 mb-2">Key Formula</h3>

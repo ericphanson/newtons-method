@@ -119,6 +119,21 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
 };
 
 /**
+ * Canonical ordering of problems for UI display
+ * Single source of truth for problem ordering in ProblemExplainer and other components
+ */
+export const PROBLEM_ORDER = [
+  'logistic-regression',
+  'separating-hyperplane',
+  'quadratic',
+  'ill-conditioned-quadratic',
+  'rosenbrock',
+  'non-convex-saddle',
+  'himmelblau',
+  'three-hump-camel',
+] as const;
+
+/**
  * Resolve a problem with given parameters
  *
  * This is the central function for problem resolution. It replaces

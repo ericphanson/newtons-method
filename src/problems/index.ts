@@ -42,6 +42,7 @@ export {
 // Export new registry V2 (parameter-aware)
 export {
   problemRegistryV2,
+  PROBLEM_ORDER,
   resolveProblem,
   getProblemParameters,
   getDefaultParameters,

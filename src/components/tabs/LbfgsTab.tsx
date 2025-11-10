@@ -9,6 +9,7 @@ import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { fmt, fmtVec } from '../../shared-utils';
+import { Pseudocode, Var } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { LBFGSIteration } from '../../algorithms/lbfgs';
 import type { ExperimentPreset } from '../../types/experiments';

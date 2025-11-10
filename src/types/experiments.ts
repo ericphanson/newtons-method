@@ -124,10 +124,6 @@ export interface ProblemRegistryEntry {
   keyInsights?: React.ReactNode;
 
   // Educational content for ProblemExplainer modal
-  explainerContent?: {
-    title: string;
-    defaultExpanded?: boolean;
-    storageKey: string;  // For localStorage persistence
-    content: React.ReactNode;
-  } | React.ReactNode;
+  // Should be a CollapsibleSection component with title, storageKey, and content
+  explainerContent?: React.ReactNode;
 }

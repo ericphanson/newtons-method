@@ -8,6 +8,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { getProblem } from '../../problems';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
+import { Pseudocode, Var } from '../Pseudocode';
 import type { ProblemFunctions, AlgorithmSummary } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -200,19 +201,38 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             </p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">The Algorithm</h3>
-            <ol className="list-decimal ml-6 space-y-1">
-              <li>Compute gradient <InlineMath>\nabla f(w)</InlineMath></li>
-              <li>Set search direction <InlineMath>p = -\nabla f(w)</InlineMath></li>
-              <li>
-                <strong>Line search:</strong> find step size <InlineMath>\alpha</InlineMath> that
+          <Pseudocode
+            color="teal"
+            inputs={[
+              {
+                id: "w",
+                display: <InlineMath>w \in \mathbb{'R'}^d</InlineMath>,
+                description: "current parameter vector"
+              },
+              {
+                id: "f",
+                display: <InlineMath>f</InlineMath>,
+                description: "objective function to minimize"
+              }
+            ]}
+            outputs={[
+              {
+                id: "w_new",
+                display: <InlineMath>w'</InlineMath>,
+                description: "updated parameter vector"
+              }
+            ]}
+            steps={[
+              <>Compute gradient <Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>Set search direction <Var id="p"><InlineMath>p</InlineMath></Var> = −<Var id="grad"><InlineMath>\nabla f(<Var id="w">w</Var>)</InlineMath></Var></>,
+              <>
+                <strong>Line search:</strong> find step size <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> that
                 decreases loss sufficiently
-              </li>
-              <li>Update <InlineMath>w \leftarrow w + \alpha p</InlineMath></li>
-              <li>Repeat until convergence</li>
-            </ol>
-          </div>
+              </>,
+              <>Update <Var id="w"><InlineMath>w</InlineMath></Var> ← <Var id="w"><InlineMath>w</InlineMath></Var> + <Var id="alpha"><InlineMath>\alpha</InlineMath></Var> <Var id="p"><InlineMath>p</InlineMath></Var></>,
+              <>Repeat until convergence</>
+            ]}
+          />
 
           <div>
             <h3 className="text-lg font-bold text-teal-800 mb-2">Key Advantage</h3>

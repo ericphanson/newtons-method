@@ -1,6 +1,7 @@
 import { ProblemDefinition } from '../types/experiments';
 import { InlineMath, BlockMath } from '../components/Math';
 import { GlossaryTooltip } from '../components/GlossaryTooltip';
+import { CollapsibleSection } from '../components/CollapsibleSection';
 
 // Simple quadratic bowl: f(w) = w0^2 + w1^2
 // Well-conditioned problem with circular level sets
@@ -159,11 +160,12 @@ export function createIllConditionedQuadratic(conditionNumber: number = 100): Pr
 }
 
 // Educational content for rotated ellipse problem
-export const quadraticExplainer = {
-  title: 'Rotated Ellipse (Rotation Invariance)',
-  defaultExpanded: false,
-  storageKey: 'problem-explainer-quadratic',
-  content: (
+export const quadraticExplainer = (
+  <CollapsibleSection
+    title="Rotated Ellipse (Rotation Invariance)"
+    defaultExpanded={false}
+    storageKey="problem-explainer-quadratic"
+  >
     <div className="space-y-3 text-gray-800">
       <p>
         <strong>Type:</strong> Strongly Convex
@@ -222,15 +224,16 @@ export const quadraticExplainer = {
         </ul>
       </div>
     </div>
-  ),
-};
+  </CollapsibleSection>
+);
 
 // Educational content for ill-conditioned quadratic problem
-export const illConditionedExplainer = {
-  title: 'Ill-Conditioned Quadratic (High κ)',
-  defaultExpanded: false,
-  storageKey: 'problem-explainer-illcond',
-  content: (
+export const illConditionedExplainer = (
+  <CollapsibleSection
+    title="Ill-Conditioned Quadratic (High κ)"
+    defaultExpanded={false}
+    storageKey="problem-explainer-illcond"
+  >
     <div className="space-y-3 text-gray-800">
       <p>
         <strong>Type:</strong> Strongly Convex (but ill-conditioned)
@@ -302,5 +305,5 @@ export const illConditionedExplainer = {
         </p>
       </div>
     </div>
-  ),
-};
+  </CollapsibleSection>
+);
