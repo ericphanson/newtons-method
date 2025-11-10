@@ -24,6 +24,7 @@ import { AlgorithmExplainer } from './components/AlgorithmExplainer';
 import { drawHeatmap, drawContours, drawOptimumMarkers, drawAxes, drawColorbar } from './utils/contourDrawing';
 import { getProblem, createRotatedQuadratic, createIllConditionedQuadratic, createRosenbrockProblem } from './problems';
 import type { ExperimentPreset } from './types/experiments';
+import { getAlgorithmDisplayName } from './utils/algorithmNames';
 import { GdFixedTab } from './components/tabs/GdFixedTab';
 import { GdLineSearchTab } from './components/tabs/GdLineSearchTab';
 import { NewtonTab } from './components/tabs/NewtonTab';
@@ -682,6 +683,130 @@ const UnifiedVisualizer = () => {
   const diagPrecondParamCanvasRef = useRef<HTMLCanvasElement>(null);
   const diagPrecondLineSearchCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  /**
+   * Get list of hyperparameter changes for current algorithm
+   * @param experiment - Experiment being loaded
+   * @param currentAlgo - Currently selected algorithm tab
+   * @param currentState - Current hyperparameter state values
+   * @returns Array of change descriptions (e.g., ["α: 0.1→0.01"])
+   */
+  function getHyperparameterChanges(
+    experiment: ExperimentPreset,
+    currentAlgo: string,
+    currentState: {
+      gdFixedAlpha: number;
+      gdLSC1: number;
+      newtonHessianDamping: number;
+      newtonLineSearch: 'armijo' | 'none';
+      newtonC1: number;
+      lbfgsM: number;
+      lbfgsHessianDamping: number;
+      lbfgsC1: number;
+      diagPrecondHessianDamping: number;
+      diagPrecondLineSearch: 'armijo' | 'none';
+      diagPrecondC1: number;
+      maxIter: number;
+    }
+  ): string[] {
+    const changes: string[] = [];
+    const hyper = experiment.hyperparameters;
+
+    switch (currentAlgo) {
+      case 'gd-fixed':
+        if (hyper.alpha !== undefined && hyper.alpha !== currentState.gdFixedAlpha) {
+          changes.push(`α: ${currentState.gdFixedAlpha}→${hyper.alpha}`);
+        }
+        break;
+
+      case 'gd-linesearch':
+        if (hyper.c1 !== undefined && hyper.c1 !== currentState.gdLSC1) {
+          changes.push(`c1: ${currentState.gdLSC1}→${hyper.c1}`);
+        }
+        break;
+
+      case 'newton':
+        if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.newtonHessianDamping) {
+          changes.push(`damping: ${currentState.newtonHessianDamping}→${hyper.hessianDamping}`);
+        }
+        if (hyper.lineSearch !== undefined && hyper.lineSearch !== currentState.newtonLineSearch) {
+          changes.push(`line search: ${currentState.newtonLineSearch}→${hyper.lineSearch}`);
+        }
+        if (hyper.c1 !== undefined && hyper.c1 !== currentState.newtonC1) {
+          changes.push(`c1: ${currentState.newtonC1}→${hyper.c1}`);
+        }
+        break;
+
+      case 'lbfgs':
+        if (hyper.m !== undefined && hyper.m !== currentState.lbfgsM) {
+          changes.push(`m: ${currentState.lbfgsM}→${hyper.m}`);
+        }
+        if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.lbfgsHessianDamping) {
+          changes.push(`damping: ${currentState.lbfgsHessianDamping}→${hyper.hessianDamping}`);
+        }
+        if (hyper.c1 !== undefined && hyper.c1 !== currentState.lbfgsC1) {
+          changes.push(`c1: ${currentState.lbfgsC1}→${hyper.c1}`);
+        }
+        break;
+
+      case 'diagonal-precond':
+        if (hyper.hessianDamping !== undefined && hyper.hessianDamping !== currentState.diagPrecondHessianDamping) {
+          changes.push(`damping: ${currentState.diagPrecondHessianDamping}→${hyper.hessianDamping}`);
+        }
+        if (hyper.lineSearch !== undefined && hyper.lineSearch !== currentState.diagPrecondLineSearch) {
+          changes.push(`line search: ${currentState.diagPrecondLineSearch}→${hyper.lineSearch}`);
+        }
+        if (hyper.c1 !== undefined && hyper.c1 !== currentState.diagPrecondC1) {
+          changes.push(`c1: ${currentState.diagPrecondC1}→${hyper.c1}`);
+        }
+        break;
+    }
+
+    // Check maxIter (common to all algorithms)
+    if (hyper.maxIter !== undefined && hyper.maxIter !== currentState.maxIter) {
+      changes.push(`maxIter: ${currentState.maxIter}→${hyper.maxIter}`);
+    }
+
+    return changes;
+  }
+
+  /**
+   * Get list of problem-specific configuration changes
+   * @param experiment - Experiment being loaded
+   * @param currentProblem - Currently selected problem
+   * @param currentConfig - Current problem configuration
+   * @returns Array of change descriptions (e.g., ["rotation: 0°→45°"])
+   */
+  function getProblemConfigChanges(
+    experiment: ExperimentPreset,
+    currentProblem: string,
+    currentConfig: {
+      rotationAngle?: number;
+      separatingHyperplaneVariant?: string;
+    }
+  ): string[] {
+    const changes: string[] = [];
+
+    // Only check config if we're staying on the same problem
+    if (experiment.problem !== currentProblem) {
+      return changes;
+    }
+
+    // Rotation angle (for rotated quadratics)
+    if (experiment.rotationAngle !== undefined &&
+        experiment.rotationAngle !== currentConfig.rotationAngle) {
+      const current = currentConfig.rotationAngle ?? 0;
+      changes.push(`rotation: ${current}°→${experiment.rotationAngle}°`);
+    }
+
+    // Separating hyperplane variant
+    if (experiment.separatingHyperplaneVariant !== undefined &&
+        experiment.separatingHyperplaneVariant !== currentConfig.separatingHyperplaneVariant) {
+      const current = currentConfig.separatingHyperplaneVariant ?? 'none';
+      changes.push(`variant: ${current}→${experiment.separatingHyperplaneVariant}`);
+    }
+
+    return changes;
+  }
 
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset) => {
