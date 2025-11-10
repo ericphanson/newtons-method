@@ -171,7 +171,7 @@ export const quadraticExplainer = (
       </p>
 
       <p>
-        <strong>Parameters:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°), <InlineMath>\kappa</InlineMath> (condition number, 1 to 100)
+        <strong>Parameters:</strong> <InlineMath>\theta</InlineMath> (rotation angle, 0° to 90°), <InlineMath>\kappa</InlineMath> (condition number, 1 to 500)
       </p>
 
       <div>

@@ -7,7 +7,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'Well-chosen α leads to smooth convergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 0 },
+    problemParameters: { kappa: 5, rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.1,
       lambda: 0,
@@ -25,7 +25,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'α=2.5 exceeds stability limit and causes divergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 0 },
+    problemParameters: { kappa: 5, rotationAngle: 0 },
     hyperparameters: {
       alpha: 2.5,
       lambda: 0,
@@ -43,7 +43,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     description: 'α=0.001 leads to extremely slow convergence',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 0 },
+    problemParameters: { kappa: 5, rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.001,
       lambda: 0,
@@ -60,8 +60,8 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     name: 'Struggle: Ill-Conditioned Problem',
     description: 'Elongated ellipse causes zig-zagging',
     algorithm: 'gd-fixed',
-    problem: 'ill-conditioned-quadratic',
-    problemParameters: { conditionNumber: 100 },
+    problem: 'quadratic',
+    problemParameters: { kappa: 100, rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.01,
       lambda: 0,
@@ -78,8 +78,8 @@ export const gdFixedExperiments: ExperimentPreset[] = [
     name: 'Demo: How Condition Number Affects GD',
     description: 'Vary κ to see how elongation causes zig-zagging',
     algorithm: 'gd-fixed',
-    problem: 'ill-conditioned-quadratic',
-    problemParameters: { conditionNumber: 250 },
+    problem: 'quadratic',
+    problemParameters: { kappa: 250, rotationAngle: 0 },
     hyperparameters: {
       alpha: 0.01,
       lambda: 0,

@@ -7,7 +7,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Watch quadratic convergence in 1-2 iterations on a simple bowl',
     algorithm: 'newton',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 0 },
+    problemParameters: { kappa: 5, rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.1,
@@ -59,8 +59,8 @@ export const newtonExperiments: ExperimentPreset[] = [
     name: 'Compare: Newton vs GD on Ill-Conditioned',
     description: 'Elongated ellipse where GD zig-zags but Newton excels',
     algorithm: 'newton',
-    problem: 'ill-conditioned-quadratic',
-    problemParameters: { conditionNumber: 100 },
+    problem: 'quadratic',
+    problemParameters: { kappa: 100, rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,
@@ -80,7 +80,7 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Rotated ellipse - valley runs diagonally, no per-coordinate step sizes can align with it',
     algorithm: 'newton',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 45 },
+    problemParameters: { kappa: 5, rotationAngle: 45 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

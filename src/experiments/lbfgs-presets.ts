@@ -7,7 +7,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     description: 'Fast Newton-like convergence without computing Hessian',
     algorithm: 'lbfgs',
     problem: 'quadratic',
-    problemParameters: { rotationAngle: 0 },
+    problemParameters: { kappa: 5, rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.1,
@@ -25,8 +25,8 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     name: 'Memory Matters: M=3 vs M=10',
     description: 'Compare different memory sizes on same problem',
     algorithm: 'lbfgs',
-    problem: 'ill-conditioned-quadratic',
-    problemParameters: { conditionNumber: 100 },
+    problem: 'quadratic',
+    problemParameters: { kappa: 100, rotationAngle: 0 },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0,

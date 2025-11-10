@@ -127,7 +127,7 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
         label: 'Condition Number',
         type: 'range',
         min: 1,
-        max: 100,
+        max: 500,
         step: 1,
         default: 5,
         unit: '',
