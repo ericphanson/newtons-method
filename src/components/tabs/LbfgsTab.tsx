@@ -734,13 +734,13 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <p className="text-sm text-blue-800 mb-2">
                 <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var>:<br/>
                 <span className="ml-4 inline-block my-1">
-                  <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
+                  <InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + H \cdot s`}</InlineMath>
                 </span><br/>
-                where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
+                where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> is the parameter change (where we stepped).
               </p>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>2. Rearranging:</strong> Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change). Then:<br/>
+                <strong>2. Rearranging:</strong> Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(w_{\text{new}}) - \nabla f(w_{\text{old}})`}</InlineMath> (gradient change, how the slope changed). Then:<br/>
                 <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`\varY = \varH \cdot \varS`}</InlineMath></span><br/>
                 <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`\varH^{-1} \cdot \varY = \varS`}</InlineMath></span> (the <strong>secant equation</strong>)
               </p>
@@ -1170,6 +1170,9 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
             <p className="mb-2"><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
+            <p className="text-sm mb-2">
+              Let <InlineMath>e_k = \|w_k - w^*\|</InlineMath> be the error at iteration <InlineMath>k</InlineMath> (distance from optimal parameters <InlineMath>\varWStar</InlineMath>). L-BFGS exhibits superlinear convergence:
+            </p>
             <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
               <li>Faster than linear convergence (gradient descent) but slower than quadratic (Newton's method)</li>

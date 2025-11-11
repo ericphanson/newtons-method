@@ -98,6 +98,46 @@ If a feature is:
 
 **Always use KaTeX** for mathematical symbols, even for simple parameters.
 
+**Always define notation before using it** in formulas. Never assume the reader knows what a variable represents, even if it seems obvious.
+
+**Examples of undefined notation to avoid:**
+
+❌ **Wrong - using e_k without definition**:
+```tsx
+<p>L-BFGS exhibits superlinear convergence:</p>
+<BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
+```
+
+✅ **Correct - define e_k first**:
+```tsx
+<p>
+  Let <InlineMath>e_k = \|w_k - w^*\|</InlineMath> be the error at iteration k
+  (distance from optimal parameters). L-BFGS exhibits superlinear convergence:
+</p>
+<BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
+```
+
+❌ **Wrong - inconsistent notation (x vs w)**:
+```tsx
+<p>The gradient relates to the Hessian via:</p>
+<InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
+<!-- Uses x here but w everywhere else in the document -->
+```
+
+✅ **Correct - consistent notation throughout**:
+```tsx
+<p>The gradient relates to the Hessian via:</p>
+<InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + H \cdot s`}</InlineMath>
+<p>where s = w_new - w_old is the parameter change.</p>
+<!-- Uses w consistently, and defines s -->
+```
+
+**General guidelines:**
+- Define all variables the first time they appear in a formula
+- Use consistent notation throughout the entire tab (don't switch between x and w for parameters)
+- When introducing a formula with subscripts (e.g., B_k), explain what the subscript means
+- Even "obvious" notation like i, j, k should be introduced as iteration indices if used in summations
+
 ✅ **Correct**:
 ```tsx
 <InlineMath>M</InlineMath> recent gradient changes
