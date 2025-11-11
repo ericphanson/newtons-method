@@ -1,7 +1,6 @@
 import React from 'react';
 import { CollapsibleSection } from '../CollapsibleSection';
 import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
-import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { GlossaryTooltip } from '../GlossaryTooltip';
@@ -117,17 +116,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
         />
       </CollapsibleSection>
 
-      {/* 2. Playback Section */}
-      {iterations.length > 0 && (
-        <IterationPlayback
-          currentIter={currentIter}
-          totalIters={iterations.length}
-          onIterChange={onIterChange}
-          onReset={onResetIter}
-        />
-      )}
-
-      {/* 3. Side-by-Side: Canvas + Metrics */}
+      {/* 2. Side-by-Side: Canvas + Metrics */}
       <div className="flex gap-4 mb-6" data-scroll-target="canvas">
         {/* Left: Parameter Space Visualization */}
         <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
@@ -213,78 +202,47 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <p><strong>What it is:</strong> Instead of storing the full Hessian H (n×n matrix), we store only M={lbfgsM} recent (s, y) pairs.</p>
           <p><strong>s</strong> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
           <p><strong>y</strong> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
-          <p><strong>Why it works:</strong> These pairs implicitly capture curvature: "when we moved in direction s, the gradient changed by y". This is enough to approximate H⁻¹!</p>
+          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{`s^T y > 0`}</InlineMath> (positive curvature). This ensures the approximate Hessian B stays positive definite, guaranteeing descent directions even in non-convex regions where the true Hessian H may have negative eigenvalues.</p>
         </div>
 
-        {/* Current Curvature Pair (what happened this iteration) */}
-        {currentIter > 0 && iterations[currentIter]?.curvaturePair && (
-          <div className="bg-amber-200 border-2 border-amber-400 rounded-lg p-4 mb-4">
-            <h3 className="text-lg font-bold text-amber-900 mb-3">Current Curvature Pair (Iteration {currentIter})</h3>
-            <div className="bg-white rounded-lg p-4 space-y-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold text-gray-700">s (parameter change):</p>
-                  <p className="font-mono text-sm">{fmtVec(iterations[currentIter].curvaturePair.s)}</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-700">y (gradient change):</p>
-                  <p className="font-mono text-sm">{fmtVec(iterations[currentIter].curvaturePair.y)}</p>
-                </div>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-700">sᵀy:</p>
-                <p className="font-mono text-sm">{fmt(iterations[currentIter].curvaturePair.sTy)}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-700">Status:</p>
-                {iterations[currentIter].curvaturePair.accepted ? (
-                  <p className="text-green-700 font-bold">✓ Accepted</p>
-                ) : (
-                  <p className="text-red-700 font-bold">✗ Rejected</p>
-                )}
-              </div>
-              {iterations[currentIter].curvaturePair.reason && (
-                <div>
-                  <p className="font-semibold text-gray-700">Reason:</p>
-                  <p className="text-sm text-gray-800">{iterations[currentIter].curvaturePair.reason}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Memory table */}
-        {iterations[currentIter]?.memory.length > 0 ? (
+        {iterations[currentIter]?.allCurvaturePairs.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
               <thead className="bg-amber-200">
                 <tr>
-                  <th className="px-4 py-2 text-left">Status</th>
                   <th className="px-4 py-2 text-left">Pair</th>
                   <th className="px-4 py-2 text-left">s (parameter change)</th>
                   <th className="px-4 py-2 text-left">y (gradient change)</th>
                   <th className="px-4 py-2 text-left">sᵀy</th>
-                  <th className="px-4 py-2 text-left">ρ = 1/(sᵀy)</th>
+                  <th className="px-4 py-2 text-left bg-amber-300">sᵀy {'>'} 0?</th>
                 </tr>
               </thead>
               <tbody>
-                {iterations[currentIter].memory.map((mem, idx) => (
-                  <tr key={idx} className="border-t border-amber-200">
-                    <td className="px-4 py-2 text-green-700 font-bold">✓ Accepted</td>
-                    <td className="px-4 py-2 font-mono">{idx + 1}</td>
-                    <td className="px-4 py-2 font-mono">{fmtVec(mem.s)}</td>
-                    <td className="px-4 py-2 font-mono">{fmtVec(mem.y)}</td>
-                    <td className="px-4 py-2 font-mono">{fmt(1 / mem.rho)}</td>
-                    <td className="px-4 py-2 font-mono">{fmt(mem.rho)}</td>
-                  </tr>
-                ))}
+                {iterations[currentIter].allCurvaturePairs.map((pair, idx) => {
+                  return (
+                    <tr key={idx} className={`border-t ${pair.accepted ? 'border-amber-200' : 'border-red-200 bg-red-50'}`}>
+                      <td className="px-4 py-2 font-mono">{idx + 1}</td>
+                      <td className="px-4 py-2 font-mono">{fmtVec(pair.s)}</td>
+                      <td className="px-4 py-2 font-mono">{fmtVec(pair.y)}</td>
+                      <td className="px-4 py-2 font-mono">{fmt(pair.sTy)}</td>
+                      <td className="px-4 py-2">
+                        {pair.accepted ? (
+                          <span className="text-green-700 font-bold">✓ Accepted</span>
+                        ) : (
+                          <span className="text-red-700 font-bold">✗ Rejected</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
           <div className="bg-amber-50 rounded-lg p-6 text-center">
-            <p className="text-amber-800 font-semibold">No memory pairs yet (Iteration 0)</p>
-            <p className="text-sm text-amber-700 mt-2">Memory will be populated starting from iteration 1. First iteration uses steepest descent direction.</p>
+            <p className="text-amber-800 font-semibold">No curvature pairs yet (Iteration 0)</p>
+            <p className="text-sm text-amber-700 mt-2">Curvature pairs will be computed starting from iteration 1. First iteration uses steepest descent direction.</p>
           </div>
         )}
       </div>

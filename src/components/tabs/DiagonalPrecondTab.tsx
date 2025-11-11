@@ -1,7 +1,6 @@
 import React from 'react';
 import { CollapsibleSection } from '../CollapsibleSection';
 import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
-import { IterationPlayback } from '../IterationPlayback';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
@@ -117,17 +116,8 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             bounds={bounds}
           />
         </CollapsibleSection>
-        {/* 2. Playback Section */}
-        {(
-          <IterationPlayback
-            currentIter={currentIter}
-            totalIters={iterations.length}
-            onIterChange={onIterChange}
-            onReset={onResetIter}
-          />
-        )}
 
-        {/* 3. Side-by-Side: Canvas + Metrics */}
+        {/* 2. Side-by-Side: Canvas + Metrics */}
         <div className="flex gap-4 mb-6" data-scroll-target="canvas">
           {/* Left: Parameter Space Visualization */}
           <div className="flex-1 bg-white rounded-lg shadow-md p-4" id="parameter-space">
