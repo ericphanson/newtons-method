@@ -54,7 +54,6 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   iterations,
   currentIter,
   onIterChange,
-  onResetIter,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,

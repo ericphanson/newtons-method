@@ -52,7 +52,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
   iterations,
   currentIter,
   onIterChange,
-  onResetIter,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,

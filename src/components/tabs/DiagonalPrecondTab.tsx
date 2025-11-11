@@ -68,7 +68,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
   iterations,
   currentIter,
   onIterChange,
-  onResetIter,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,

@@ -73,7 +73,6 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   iterations,
   currentIter,
   onIterChange,
-  onResetIter,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
