@@ -7,7 +7,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { fmt, fmtVec } from '../../shared-utils';
+import { fmt, fmtVec, norm } from '../../shared-utils';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions } from '../../algorithms/types';
@@ -65,7 +65,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   iterations,
   currentIter,
   onIterChange,
-  onResetIter,
   problemFuncs,
   problem: problemDefinition,
   currentProblem,
@@ -388,88 +387,44 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
         {iterations[currentIter]?.twoLoopData ? (
           <>
-            <h3 className="text-xl font-bold text-indigo-800 mb-3">First Loop (Backward Pass)</h3>
-            <p className="text-gray-800 mb-3">
-              <strong>What we're doing:</strong> Transform the gradient ∇f into a vector q that "forgets" the direct effect of our stored pairs.
-              Start with q = ∇f, then for each pair (newest to oldest), compute how much that pair contributes (αᵢ = ρᵢ(sᵢᵀq)) and subtract its gradient effect: q ← q - αᵢyᵢ.
-            </p>
-            <p className="text-gray-700 text-sm mb-3">
-              <strong>Why backward?</strong> We process pairs from newest to oldest because recent pairs capture the most relevant local curvature.
-              The algorithm builds up α values that we'll use in the second loop.
-            </p>
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
-                <thead className="bg-indigo-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left">i</th>
-                    <th className="px-4 py-2 text-left">ρᵢ</th>
-                    <th className="px-4 py-2 text-left">sᵢᵀq</th>
-                    <th className="px-4 py-2 text-left bg-yellow-100">αᵢ = ρᵢ(sᵢᵀq)</th>
-                    <th className="px-4 py-2 text-left">q after update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {iterations[currentIter].twoLoopData!.firstLoop.map((row, idx) => (
-                    <tr key={idx} className="border-t border-indigo-200">
-                      <td className="px-4 py-2 font-mono">{row.i}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.rho)}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.sTq)}</td>
-                      <td className="px-4 py-2 font-mono bg-yellow-50">{fmt(row.alpha)}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(row.q)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <h3 className="text-xl font-bold text-indigo-800 mb-3">The Two-Loop Algorithm</h3>
 
-            <div className="bg-indigo-200 rounded p-4 mb-6">
-              <h3 className="text-lg font-bold text-indigo-900 mb-2">Initial Hessian Scaling</h3>
-              <p className="font-mono">γ = (sₘᵀyₘ)/(yₘᵀyₘ) = {fmt(iterations[currentIter].twoLoopData!.gamma)}</p>
-              <p className="mt-2">
-                <strong>r = γq.</strong> This scales q by typical curvature estimated from the most recent memory pair.
-                Think of γ as a "base learning rate" that captures the overall scale of the problem. Then r = γq gives us H₀⁻¹∇f where H₀ = (1/γ)I is our initial Hessian approximation.
-              </p>
-            </div>
-
-            <h3 className="text-xl font-bold text-indigo-800 mb-3">Second Loop (Forward Pass)</h3>
-            <p className="text-gray-800 mb-3">
-              <strong>What we're doing:</strong> Refine r by adding back corrections from our memory pairs (oldest to newest).
-              For each pair, compute β = ρᵢ(yᵢᵀr) (how much that pair affects our current direction), then add a correction term (αᵢ - β)sᵢ.
-            </p>
-            <p className="text-gray-700 text-sm mb-3">
-              <strong>Why forward?</strong> We build up the solution from the base H₀⁻¹ by progressively applying corrections from older to newer pairs.
-              Each correction adjusts our direction to account for curvature captured by that pair. The final r ≈ H⁻¹∇f is our quasi-Newton direction!
-            </p>
-            <div className="overflow-x-auto mb-4">
-              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
-                <thead className="bg-indigo-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left">i</th>
-                    <th className="px-4 py-2 text-left">yᵢᵀr</th>
-                    <th className="px-4 py-2 text-left">β = ρᵢ(yᵢᵀr)</th>
-                    <th className="px-4 py-2 text-left bg-green-100">αᵢ - β</th>
-                    <th className="px-4 py-2 text-left">r after update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {iterations[currentIter].twoLoopData!.secondLoop.map((row, idx) => (
-                    <tr key={idx} className="border-t border-indigo-200">
-                      <td className="px-4 py-2 font-mono">{row.i}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.yTr)}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.beta)}</td>
-                      <td className="px-4 py-2 font-mono bg-green-50">{fmt(row.correction)}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(row.r)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="bg-indigo-200 rounded p-4">
-              <h3 className="text-lg font-bold text-indigo-900 mb-2">Final Direction</h3>
-              <p><strong>p = -r = {fmtVec(iterations[currentIter].direction)}</strong></p>
-              <p className="text-sm mt-2">This is our Newton-like direction that accounts for curvature!</p>
-            </div>
+            <Pseudocode
+              color="indigo"
+              inputs={[
+                {
+                  id: "grad_f",
+                  display: <InlineMath>{`\\nabla f \\in \\mathbb{R}^d`}</InlineMath>,
+                  description: "current gradient vector"
+                },
+                {
+                  id: "memory",
+                  display: <InlineMath>{String.raw`[(s_1,y_1), \ldots, (s_M,y_M)]`}</InlineMath>,
+                  description: "M most recent accepted curvature pairs"
+                }
+              ]}
+              outputs={[
+                {
+                  id: "direction",
+                  display: <InlineMath>{String.raw`-B_M^{-1} \nabla f`}</InlineMath>,
+                  description: "quasi-Newton search direction"
+                }
+              ]}
+              steps={[
+                <>Initialize working vector <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="grad_f" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity>O(1)</Complexity></>,
+                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory):</>,
+                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>s_i^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>y_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(s_M^T y_M) / (y_M^T y_M)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
+                <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
+                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`1, 2, \ldots, M`}</InlineMath> (forward through memory):</>,
+                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>y_i^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                <><span className="ml-4">Update <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> + (<Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> - <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var>) <InlineMath>s_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                <><strong>return</strong> search direction -<Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> (negated for descent) <Complexity>O(1)</Complexity></>
+              ]}
+            />
           </>
         ) : (
           <div className="bg-indigo-50 rounded-lg p-6 text-center">
