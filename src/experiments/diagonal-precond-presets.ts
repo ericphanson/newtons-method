@@ -40,7 +40,7 @@ export const diagonalPrecondExperiments: ExperimentPreset[] = [
   {
     id: 'diag-precond-circular',
     name: 'Demo: No Rotation Dependence on Circular Bowl',
-    description: 'Circular problem (κ=1) has no preferred direction',
+    description: 'Circular problem (Q=1) has no preferred direction',
     algorithm: 'diagonal-precond',
     problem: 'quadratic',
     problemParameters: { kappa: 1, rotationAngle: 0 },

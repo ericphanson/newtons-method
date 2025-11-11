@@ -51,7 +51,7 @@ export const ParameterControls: React.FC<ParameterControlsProps> = ({
                     />
                     <span className="text-sm text-gray-600">
                       {param.key === 'rotationAngle' && <InlineMath>\theta</InlineMath>}
-                      {param.key === 'conditionNumber' && <InlineMath>\kappa</InlineMath>}
+                      {param.key === 'conditionNumber' && <InlineMath>Q</InlineMath>}
                       {param.key === 'rosenbrockB' && <InlineMath>b</InlineMath>}
                       {' = '}
                       {typeof value === 'number'

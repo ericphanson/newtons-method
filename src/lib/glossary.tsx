@@ -194,7 +194,7 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'ill-conditioned',
     definition: (
       <>
-        <strong>Ill-conditioned problem:</strong> Has a large condition number (<InlineMath>{String.raw`\kappa \gg 1`}</InlineMath>),
+        <strong>Ill-conditioned problem:</strong> Has a large condition number (<InlineMath>{String.raw`Q \gg 1`}</InlineMath>),
         meaning the Hessian has very different curvatures in different directions. This
         causes gradient descent to zig-zag slowly, while Newton's method adapts to the
         varying curvatures and converges much faster.
@@ -207,9 +207,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Condition number:</strong> For positive definite Hessian, the ratio of largest
-        to smallest eigenvalue: <InlineMath>{String.raw`\kappa = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>. Equivalently, <InlineMath>{String.raw`\kappa = L/\mu`}</InlineMath> where <InlineMath>L</InlineMath> is the Lipschitz
+        to smallest eigenvalue: <InlineMath>{String.raw`Q = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>. Equivalently, <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> where <InlineMath>L</InlineMath> is the Lipschitz
         constant and <InlineMath>\mu</InlineMath> is the strong convexity parameter. Measures how "stretched" the problem
-        is. <InlineMath>{String.raw`\kappa \approx 1`}</InlineMath> means well-conditioned (easy); <InlineMath>{String.raw`\kappa \gg 1`}</InlineMath> means ill-conditioned (difficult for
+        is. <InlineMath>{String.raw`Q \approx 1`}</InlineMath> means well-conditioned (easy); <InlineMath>{String.raw`Q \gg 1`}</InlineMath> means ill-conditioned (difficult for
         gradient descent).
       </>
     ),

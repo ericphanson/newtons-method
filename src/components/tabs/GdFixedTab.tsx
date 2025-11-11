@@ -169,7 +169,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
       <CollapsibleSection
         title="Quick Start"
-        defaultExpanded={false}
+        defaultExpanded={true}
         storageKey="gd-fixed-quick-start"
         id="quick-start"
       >
@@ -275,6 +275,83 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
       </CollapsibleSection>
 
       <CollapsibleSection
+        title="How It Works"
+        defaultExpanded={false}
+        storageKey="gd-fixed-how-it-works"
+        id="how-it-works"
+      >
+        <div className="space-y-4 text-gray-800">
+          <div>
+            <h3 className="text-lg font-bold text-blue-800 mb-2">The Update Rule</h3>
+            <p className="mb-2">
+              Let <InlineMath>{String.raw`k`}</InlineMath> be the iteration index. At each step, gradient descent updates the parameters:
+            </p>
+            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
+            <p className="text-sm mt-2">
+              where <InlineMath>{String.raw`\varAlpha > 0`}</InlineMath> is the <strong>step size</strong> (also called learning rate).
+            </p>
+          </div>
+
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-2">💡 Intuition: Following the Slope Downhill</p>
+            <p className="text-sm text-blue-800">
+              The gradient <InlineMath>{String.raw`\nabla f(\varW_k)`}</InlineMath> points in the direction of steepest increase.
+              By subtracting <InlineMath>{String.raw`\varAlpha \nabla f(\varW_k)`}</InlineMath>, we take a step in the
+              direction of steepest <strong>decrease</strong>. It's like walking downhill on a mountain: at each location,
+              you look around to find the steepest downward slope and step in that direction.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-blue-800 mb-2">Why This Decreases the Loss</h3>
+            <p className="mb-2">
+              By Taylor expansion around <InlineMath>{String.raw`\varW_k`}</InlineMath>:
+            </p>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) + \nabla f(\varW_k)^T (\varW_{k+1} - \varW_k)`}</BlockMath>
+            <p className="text-sm mt-2">
+              Substituting the update rule <InlineMath>{String.raw`\varW_{k+1} - \varW_k = -\varAlpha \nabla f(\varW_k)`}</InlineMath>:
+            </p>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2`}</BlockMath>
+            <p className="text-sm mt-2">
+              Since <InlineMath>{String.raw`\|\nabla f(\varW_k)\|^2 \geq 0`}</InlineMath>, the loss decreases
+              (for small enough <InlineMath>{String.raw`\varAlpha`}</InlineMath>). The amount of decrease is proportional
+              to both the step size <InlineMath>{String.raw`\varAlpha`}</InlineMath> and the squared gradient norm.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-blue-800 mb-2">Step-by-Step Walkthrough</h3>
+            <ol className="list-decimal ml-6 space-y-2 text-sm">
+              <li>
+                <strong>Initialize:</strong> Start at some initial point <InlineMath>{String.raw`\varWZero`}</InlineMath> in parameter space
+              </li>
+              <li>
+                <strong>Compute gradient:</strong> Evaluate <InlineMath>{String.raw`\nabla f(\varW_k)`}</InlineMath> at the current location.
+                This tells you which direction is uphill.
+              </li>
+              <li>
+                <strong>Take a step downhill:</strong> Move in the direction <InlineMath>{String.raw`-\nabla f(\varW_k)`}</InlineMath> (negative gradient)
+                by an amount controlled by <InlineMath>{String.raw`\varAlpha`}</InlineMath>
+              </li>
+              <li>
+                <strong>Check convergence:</strong> If the gradient is near zero (you're at a flat spot), stop. Otherwise, repeat from step 2.
+              </li>
+            </ol>
+          </div>
+
+          <div className="bg-indigo-100 rounded p-4 mt-4">
+            <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
+            <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+              <li>Gradient descent is a <strong>local</strong> method: it only uses information at the current point</li>
+              <li>The gradient tells you the direction, but not how far to go (that's the step size problem)</li>
+              <li>Each step is guaranteed to decrease the loss (for <InlineMath>L</InlineMath>-smooth functions with small enough <InlineMath>{String.raw`\varAlpha`}</InlineMath>)</li>
+              <li>Convergence to a global minimum requires <GlossaryTooltip termKey="convex" /> functions</li>
+            </ul>
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
         title="When Things Go Wrong"
         defaultExpanded={false}
         storageKey="gd-fixed-when-wrong"
@@ -297,7 +374,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <div>
                 <p className="font-semibold">❌ "Gradient descent always converges"</p>
                 <p className="text-sm ml-6">
-                  ✓ Requires <GlossaryTooltip termKey="smooth" /> function + step size 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/L for convergence<br />
+                  ✓ Requires <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> function + step size 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/L for convergence<br />
                   ✓ Even then, only converges to *stationary point* (may be local minimum, not global)<br />
                   ✓ Can diverge if <InlineMath>{String.raw`\varAlpha`}</InlineMath> too large<br />
                   ✓ Can get stuck in local minima on non-<GlossaryTooltip termKey="convex" /> functions
@@ -320,7 +397,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
-                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ), where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
+                (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ))<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
@@ -331,24 +408,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-yellow-800 mb-2">
-              Choosing Step Size <InlineMath>{String.raw`\varAlpha`}</InlineMath>
-            </h3>
-            <div className="space-y-2 text-sm">
-              <p>
-                <strong>Theoretical guideline:</strong> For <GlossaryTooltip termKey="smooth" /> functions
-                with <GlossaryTooltip termKey="lipschitz-continuous" /> gradient:
-              </p>
-              <BlockMath>{String.raw`0 < \varAlpha < \frac{2}{L}`}</BlockMath>
-              <p>
-                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
-              </p>
-              <p className="mt-2">
-                <strong>Better approach:</strong> Use line search (next tab) to avoid manual tuning.
-              </p>
-            </div>
-          </div>
         </div>
       </CollapsibleSection>
 
@@ -359,159 +418,138 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
         id="mathematical-derivations"
       >
         <div className="space-y-4 text-gray-800">
-          <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Gradient Descent Update Rule</h3>
-            <p>
-              Let <InlineMath>{String.raw`k`}</InlineMath> be the iteration index. The basic update is:
-            </p>
-            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
-            <p className="text-sm mt-2">
-              where <InlineMath>{String.raw`\varAlpha > 0`}</InlineMath> is the step size.
-            </p>
-          </div>
+          <p className="text-sm italic">
+            For intuitive explanations, see the <strong>"How It Works"</strong> section above. This section provides rigorous mathematical proofs and convergence guarantees.
+          </p>
 
           <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Why This Works</h3>
-            <p>
-              By Taylor expansion around <InlineMath>{String.raw`\varW_k`}</InlineMath>:
-            </p>
-            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) + \nabla f(\varW_k)^T (\varW_{k+1} - \varW_k)`}</BlockMath>
-            <p className="text-sm mt-2">
-              Substituting the update rule <InlineMath>{String.raw`\varW_{k+1} - \varW_k = -\varAlpha \nabla f(\varW_k)`}</InlineMath>:
-            </p>
-            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2`}</BlockMath>
-            <p className="text-sm mt-2">
-              Since <InlineMath>{String.raw`\|\nabla f(\varW_k)\|^2 \geq 0`}</InlineMath>, the loss decreases
-              (for small enough <InlineMath>{String.raw`\varAlpha`}</InlineMath>).
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
-            <p>
-              <strong>For strongly convex functions:</strong>
-            </p>
-            <p className="text-sm mt-2">
-              Let <InlineMath>{String.raw`\varW^*`}</InlineMath> denote the optimal parameters,
-              <InlineMath>{String.raw`\mu > 0`}</InlineMath> the strong convexity parameter, and
-              <InlineMath>{String.raw`L`}</InlineMath> the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>. With
-              optimal step size <InlineMath>{String.raw`\varAlpha = 2/(L+\mu)`}</InlineMath>:
-            </p>
-            <BlockMath>{String.raw`\|\varW_k - \varW^*\|^2 \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|^2`}</BlockMath>
-            <p className="text-sm mt-2">
-              <strong>Linear convergence:</strong> Squared error decreases by constant factor each iteration.
-              The rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>, which can be
-              rewritten as <InlineMath>{String.raw`\left(\frac{Q-1}{Q+1}\right)^k`}</InlineMath>.<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Step Size Selection</h3>
-            <p><strong>Sufficient condition for decrease:</strong></p>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
             <p className="text-sm mb-2">
-              For <GlossaryTooltip termKey="smooth" /> functions with Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath>:
+              <strong>Theorem:</strong> For <InlineMath>L</InlineMath>-smooth functions (where the gradient is <InlineMath>L</InlineMath>-Lipschitz continuous),
+              the gradient descent update satisfies:
             </p>
-            <BlockMath>{String.raw`\varAlpha < \frac{2}{L}`}</BlockMath>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \leq f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2 + \frac{L\varAlpha^2}{2}\|\nabla f(\varW_k)\|^2`}</BlockMath>
             <p className="text-sm mt-2">
-              guarantees that each step decreases the function value.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
+              <strong>Proof sketch:</strong> By <InlineMath>L</InlineMath>-smoothness, we have the quadratic upper bound:<Citation citationKey="gd-descent-lemma-quadratic-upper-bound-nesterov-2018" />
             </p>
+            <BlockMath>{String.raw`f(\varW') \leq f(\varW) + \nabla f(\varW)^T(\varW' - \varW) + \frac{L}{2}\|\varW' - \varW\|^2`}</BlockMath>
             <p className="text-sm mt-2">
-              The Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath> satisfies:
+              Substituting <InlineMath>{String.raw`\varW' = \varW_k - \varAlpha \nabla f(\varW_k)`}</InlineMath> and <InlineMath>{String.raw`\varW = \varW_k`}</InlineMath>:
+            </p>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \leq f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2 + \frac{L\varAlpha^2}{2}\|\nabla f(\varW_k)\|^2`}</BlockMath>
+            <p className="text-sm mt-2">
+              Rearranging: <InlineMath>{String.raw`f(\varW_{k+1}) \leq f(\varW_k) - \varAlpha(1 - \frac{L\varAlpha}{2})\|\nabla f(\varW_k)\|^2`}</InlineMath>.
+              For descent, we need <InlineMath>{String.raw`1 - \frac{L\varAlpha}{2} > 0`}</InlineMath>, which gives <InlineMath>{String.raw`\varAlpha < \frac{2}{L}`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
+            </p>
+          </div>
+
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-2">💡 Understanding L-Smoothness</p>
+            <p className="text-sm text-blue-800 mb-2">
+              A function is <InlineMath>L</InlineMath>-smooth if its gradient is <InlineMath>L</InlineMath>-Lipschitz continuous:
             </p>
             <BlockMath>{String.raw`\|\nabla f(\varW) - \nabla f(\varW')\| \leq L\|\varW - \varW'\|`}</BlockMath>
-            <p className="text-sm mt-2">
-              for all <InlineMath>{String.raw`\varW, \varW' \in \mathbb{R}^d`}</InlineMath>.
+            <p className="text-sm text-blue-800 mt-2">
+              Intuitively, <InlineMath>L</InlineMath> bounds how quickly the gradient can change. Smaller <InlineMath>L</InlineMath> means
+              the function is "nicer" (less curved), allowing larger step sizes.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Example: Logistic Regression</h3>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">Optimal Step Size</h3>
             <p className="text-sm mb-2">
-              Let <InlineMath>{String.raw`N`}</InlineMath> be the number of training examples,
-              <InlineMath>{String.raw`x_i \in \mathbb{R}^d`}</InlineMath> the features,
-              <InlineMath>{String.raw`y_i \in \{0,1\}`}</InlineMath> the labels,
-              <InlineMath>{String.raw`\sigma(z) = 1/(1+e^{-z})`}</InlineMath> the sigmoid function, and
-              <InlineMath>{String.raw`\lambda \geq 0`}</InlineMath> the regularization parameter.
+              From the descent lemma, the decrease is:
             </p>
-            <p className="text-sm mt-1"><strong>Loss function:</strong></p>
-            <BlockMath>{String.raw`f(\varW) = -\frac{1}{N} \sum_{i=1}^{N} \left[y_i \log(\sigma(\varW^T x_i)) + (1-y_i) \log(1-\sigma(\varW^T x_i))\right] + \frac{\lambda}{2}\|\varW\|^2`}</BlockMath>
-            <p className="text-sm mt-2"><strong>Gradient:</strong></p>
-            <BlockMath>{String.raw`\nabla f(\varW) = \frac{1}{N} \sum_{i=1}^{N} (\sigma(\varW^T x_i) - y_i) x_i + \lambda \varW`}</BlockMath>
-          </div>
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Advanced Topics"
-        defaultExpanded={false}
-        storageKey="gd-fixed-advanced"
-        id="advanced-topics"
-      >
-        <div className="space-y-4 text-gray-800">
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Momentum Methods</h3>
-            <p className="text-sm mb-2">
-              Let <InlineMath>{String.raw`v_k \in \mathbb{R}^d`}</InlineMath> be the velocity vector
-              and <InlineMath>{String.raw`\beta \in [0,1)`}</InlineMath> the momentum coefficient.
-              Add momentum to accelerate convergence:
-            </p>
-            <BlockMath>{String.raw`v_{k+1} = \beta v_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
-            <BlockMath>{String.raw`\varW_{k+1} = \varW_k + v_{k+1}`}</BlockMath>
+            <BlockMath>{String.raw`f(\varW_k) - f(\varW_{k+1}) \geq \varAlpha\left(1 - \frac{L\varAlpha}{2}\right)\|\nabla f(\varW_k)\|^2`}</BlockMath>
             <p className="text-sm mt-2">
-              Momentum accumulates velocity in consistent directions, damping oscillations.
+              To maximize the per-step decrease, take the derivative with respect to <InlineMath>{String.raw`\varAlpha`}</InlineMath> and set to zero:
             </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Nesterov Acceleration</h3>
-            <p className="text-sm mb-2">
-              "Look ahead" before computing gradient:
-            </p>
-            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k + \beta v_k) + \beta v_k`}</BlockMath>
+            <BlockMath>{String.raw`\frac{d}{d\varAlpha}\left[\varAlpha\left(1 - \frac{L\varAlpha}{2}\right)\right] = 1 - L\varAlpha = 0 \quad \Rightarrow \quad \varAlpha^* = \frac{1}{L}`}</BlockMath>
             <p className="text-sm mt-2">
-              Provably optimal convergence rate for{' '}
-              <GlossaryTooltip termKey="smooth" />{' '}
-              <GlossaryTooltip termKey="convex" /> functions.<Citation citationKey="nesterov-accelerated-optimal-rate-nesterov-2018" />
+              <strong>Optimal fixed step size:</strong> <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath> maximizes guaranteed decrease per step.<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Adaptive Methods Preview</h3>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Guarantees</h3>
+            <p className="text-sm mb-3">
+              Let <InlineMath>{String.raw`\varW^*`}</InlineMath> denote a global minimizer of <InlineMath>{String.raw`f`}</InlineMath> and
+              <InlineMath>{String.raw`f^* = f(\varW^*)`}</InlineMath> the optimal function value.
+              For <InlineMath>\mu</InlineMath>-strongly convex functions, the minimizer exists and is unique.
+              For convex functions, a minimizer exists (possibly non-unique).
+            </p>
+
+            <div className="mt-3">
+              <p className="font-semibold text-sm mb-2">1. Strongly Convex Functions</p>
+              <p className="text-sm mb-2">
+                For <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions (which have a unique global minimizer) with optimal step size <InlineMath>{String.raw`\varAlpha = \frac{2}{L+\mu}`}</InlineMath>:
+              </p>
+              <BlockMath>{String.raw`\|\varW_k - \varW^*\|^2 \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|^2`}</BlockMath>
+              <p className="text-sm mt-2">
+                <strong>Linear convergence:</strong> Error decreases by constant factor <InlineMath>{String.raw`\rho = \frac{L-\mu}{L+\mu} < 1`}</InlineMath> each iteration.
+                The condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> determines the rate: <InlineMath>{String.raw`\rho = \frac{Q-1}{Q+1}`}</InlineMath>.
+                Smaller <InlineMath>Q</InlineMath> (well-conditioned) → faster convergence.<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
+              </p>
+            </div>
+
+            <div className="mt-3">
+              <p className="font-semibold text-sm mb-2">2. Convex Functions</p>
+              <p className="text-sm mb-2">
+                For convex, <InlineMath>L</InlineMath>-smooth functions with <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath>:
+              </p>
+              <BlockMath>{String.raw`f(\varW_k) - f(\varW^*) \leq \frac{L\|\varWZero - \varW^*\|^2}{2(k+1)}`}</BlockMath>
+              <p className="text-sm mt-2">
+                <strong>Sublinear convergence:</strong> Function value gap decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath>.
+                Slower than strongly convex case, but still guarantees progress.<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
+              </p>
+            </div>
+
+            <div className="mt-3">
+              <p className="font-semibold text-sm mb-2">3. Non-Convex Functions</p>
+              <p className="text-sm mb-2">
+                For <InlineMath>L</InlineMath>-smooth (possibly non-convex) functions with a global minimizer <InlineMath>{String.raw`f^*`}</InlineMath> and step size <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath>:
+              </p>
+              <BlockMath>{String.raw`\min_{0 \leq j \leq k-1} \|\nabla f(\varW_j)\|^2 \leq \frac{2L(f(\varWZero) - f^*)}{k}`}</BlockMath>
+              <p className="text-sm mt-2">
+                <strong>Convergence to stationary points:</strong> Gradient norm decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath>.
+                No guarantee of global minimum (may get stuck in local minima or saddle points).
+              </p>
+              <p className="text-sm mt-2 italic">
+                <strong>Proof:</strong> This follows from the descent lemma by telescoping. Summing the descent inequality from <InlineMath>{String.raw`k=0`}</InlineMath> to <InlineMath>{String.raw`K-1`}</InlineMath> gives
+                <InlineMath>{String.raw`\sum_{k=0}^{K-1} \frac{1}{2L}\|\nabla f(\varW_k)\|^2 \leq f(\varWZero) - f(\varW_K) \leq f(\varWZero) - f^*`}</InlineMath>.
+                By the pigeonhole principle, the minimum gradient norm satisfies the bound above.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">The Role of Condition Number</h3>
+            <p className="text-sm mb-2">
+              For strongly convex problems, the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> determines convergence speed:
+            </p>
             <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li>
-                <strong>AdaGrad:</strong> Adapts step size per parameter based on
-                historical gradients
-              </li>
-              <li>
-                <strong>RMSprop:</strong> Uses moving average of squared gradients
-              </li>
-              <li>
-                <strong>Adam:</strong> Combines momentum and adaptive step sizes
-                (most popular in deep learning)
-              </li>
+              <li><InlineMath>{String.raw`Q = 1`}</InlineMath> (perfectly conditioned): Convergence in one step on quadratics</li>
+              <li><InlineMath>{String.raw`Q \ll 1`}</InlineMath> (well-conditioned): Fast linear convergence</li>
+              <li><InlineMath>{String.raw`Q \gg 1`}</InlineMath> (ill-conditioned): Slow convergence, requires many iterations</li>
             </ul>
-            <p className="text-sm mt-2">
-              These methods automatically tune step sizes, reducing manual tuning burden.
+            <p className="text-sm mt-3">
+              The convergence factor <InlineMath>{String.raw`\frac{Q-1}{Q+1} \approx 1 - \frac{2}{Q}`}</InlineMath> for large <InlineMath>Q</InlineMath>,
+              meaning error decreases by roughly <InlineMath>{String.raw`\frac{2}{Q}`}</InlineMath> per iteration.
+              Poor conditioning (<InlineMath>{String.raw`Q = 1000`}</InlineMath>) requires ~500 iterations to reduce error by factor of <InlineMath>e</InlineMath>.
             </p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
-            <p className="text-sm mb-2">
-              Let <InlineMath>{String.raw`d`}</InlineMath> be the dimension of the parameter space.
-            </p>
-            <ul className="list-disc ml-6 space-y-1">
-              <li>
-                <strong>Per iteration:</strong> <InlineMath>{String.raw`O(d)`}</InlineMath> for the parameter update,
-                plus problem-dependent cost of computing <InlineMath>{String.raw`\varGrad`}</InlineMath>
-              </li>
-              <li><strong>Memory:</strong> <InlineMath>{String.raw`O(d)`}</InlineMath> to store parameters</li>
-              <li><strong>Total cost:</strong> depends on number of iterations to converge</li>
+          <div className="bg-indigo-100 rounded p-4 mt-4">
+            <p className="font-bold text-indigo-900 mb-2">Summary</p>
+            <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+              <li><InlineMath>L</InlineMath>-smoothness enables step size <InlineMath>{String.raw`\varAlpha < \frac{2}{L}`}</InlineMath> with guaranteed descent</li>
+              <li>Optimal fixed step size: <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath> (or <InlineMath>{String.raw`\frac{2}{L+\mu}`}</InlineMath> for strongly convex)</li>
+              <li>Strongly convex → linear convergence at rate <InlineMath>{String.raw`\frac{Q-1}{Q+1}`}</InlineMath></li>
+              <li>Convex → sublinear <InlineMath>{String.raw`O(1/k)`}</InlineMath> convergence in function value</li>
+              <li>Non-convex → gradient norm converges, but no global minimum guarantee</li>
             </ul>
-            <p className="text-sm mt-2 italic">
-              Simple and cheap per iteration, but may require many iterations.
-            </p>
           </div>
+
         </div>
       </CollapsibleSection>
 

@@ -29,7 +29,7 @@ const DEFAULT_CONFIG: ProblemDefaults = {
  * - Rosenbrock: steep gradients (coefficients 200, 400) need tiny steps
  *   Starting point [-0.5, 1.5] chosen to show interesting paths (Newton: ~18 iters, L-BFGS: ~36 iters)
  * - Quadratic: well-conditioned by default, 2nd-order methods converge in ~2 iterations
- *   With high kappa (condition number), becomes ill-conditioned showing convergence challenges
+ *   With high Q (condition number), becomes ill-conditioned showing convergence challenges
  * - Saddle: unbounded below, goes to -∞ (educational, not solvable)
  */
 export function getProblemDefaults(problem: string): ProblemDefaults {

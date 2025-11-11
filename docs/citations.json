@@ -128,6 +128,42 @@
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Theorem 2.1.14 on page 81 which states the gradient method convergence for smooth convex functions with step size bound $0 < h \\leq 2/L$. The theorem explicitly states convergence, and the descent property is implied by the proof which uses the fundamental inequality for L-smooth functions (Lemma 1.2.3 on page 23). Pages 59-60 provide context on Chapter 2 (Smooth Convex Optimization) structure. Page 62 contains Definition 2.1.2 for convex functions. Pages 80-81 contain Section 2.1.5 'The Gradient Method' where Theorem 2.1.14 appears. The step size condition $h \\leq 2/L$ (allowing equality) is explicitly stated in the theorem, which is a refinement from the 2004 edition's strict inequality $h < 2/L$.",
       "usedIn": ["GdFixedTab"]
+    },
+    "gd-descent-lemma-quadratic-upper-bound-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "23",
+      "lemma": "Lemma 1.2.3",
+      "claim": "The quadratic upper bound for L-smooth functions: any function with Lipschitz continuous gradient can be upper-bounded by a quadratic approximation",
+      "quote": "Let $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Then, for any $x, y$ from $\\mathbb{R}^n$, we have $|f(y) - f(x) - \\langle \\nabla f(x), y - x \\rangle| \\leq \\frac{L}{2} \\|y - x\\|^2$. Geometrically, we have the following picture. Consider a function $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Let us fix a point $x_0 \\in \\mathbb{R}^n$, and define two quadratic functions $\\phi_1(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle - \\frac{L}{2} \\|x - x_0\\|^2$, $\\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2} \\|x - x_0\\|^2$. Then the graph of the function $f$ lies between the graphs of $\\phi_1$ and $\\phi_2$: $\\phi_1(x) \\leq f(x) \\leq \\phi_2(x)$, $\\forall x \\in \\mathbb{R}^n$.",
+      "notes": "Internal: This is the fundamental descent lemma for L-smooth functions. The upper bound $f(y) \\leq f(x) + \\langle \\nabla f(x), y - x \\rangle + \\frac{L}{2}\\|y - x\\|^2$ is crucial for proving convergence of gradient descent. It shows that the function is upper-bounded by its first-order Taylor approximation plus a quadratic term. This result appears in Section 1.2.2 (Classes of Differentiable Functions) and is used throughout Chapter 2 for analyzing first-order methods. The book page number is 25, but the PDF page is 45.",
+      "readerNotes": "The notation $C_L^{1,1}(\\mathbb{R}^n)$ denotes the class of functions with Lipschitz continuous gradient with constant $L$ (see page 24). This lemma is fundamental for analyzing gradient descent: it shows that any L-smooth function can be upper-bounded by a quadratic function. The upper bound $\\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2}\\|x - x_0\\|^2$ is the quadratic upper bound used to prove that gradient descent decreases the function value at each iteration. When we take a gradient step $y = x - \\alpha \\nabla f(x)$, this bound guarantees descent when $\\alpha \\leq 2/L$.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0044.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0045.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0046.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Lemma 1.2.3 on pages 45-46 (book page 25-26). The lemma provides both a bound on the error of the linear approximation and the geometric interpretation showing the quadratic upper bound. The quote is extracted from visual verification of the PDF pages. Page 44 provides the definition of the function class $C_L^{1,1}(\\mathbb{R}^n)$ (functions with Lipschitz continuous gradient). The upper bound inequality $f(y) \\leq f(x) + \\langle \\nabla f(x), y - x \\rangle + \\frac{L}{2}\\|y - x\\|^2$ follows directly from the lemma by rearranging the absolute value inequality.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "condition-number-definition-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "95-97",
+      "theorem": "Definition following Theorem 2.1.12, and Theorem 2.1.11",
+      "claim": "The condition number $Q = L/\\mu$ for strongly convex smooth functions is equivalent to the ratio of largest to smallest Hessian eigenvalues $\\lambda_{\\text{max}}/\\lambda_{\\text{min}}$",
+      "quote": "One of the most important functional classes is $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ (recall that the corresponding norm is standard Euclidean). This class is described by the following inequalities: $\\langle \\nabla f(x) - \\nabla f(y), x - y \\rangle \\geq \\mu \\| x - y \\|^2$, $\\| \\nabla f(x) - \\nabla f(y) \\| \\leq L \\| x - y \\|$. The value $Q_f = L/\\mu \\geq 1$ is called the condition number of the function $f$.",
+      "notes": "Internal: This citation documents the equivalence between the two definitions of condition number that appear in the codebase: (1) Q = L/μ based on function properties, and (2) κ = λ_max/λ_min based on Hessian eigenvalues. Theorem 2.1.11 on pages 95-96 establishes the connection: for twice continuously differentiable functions, f ∈ S^{1,1}_{μ,L} if and only if μI ⪯ ∇²f(x) ⪯ LI for all x, which means the Hessian eigenvalues satisfy μ ≤ λ_i ≤ L, making λ_min = μ and λ_max = L (for quadratic functions or locally near minima). The glossary entry for condition-number mentions both definitions and states they are equivalent.",
+      "readerNotes": "For smooth strongly convex functions (class $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$), the condition number can be defined two equivalent ways: (1) $Q = L/\\mu$ where $L$ is the Lipschitz constant of the gradient and $\\mu$ is the strong convexity parameter, or (2) $\\kappa = \\lambda_{\\text{max}}/\\lambda_{\\text{min}}$ where these are the largest and smallest eigenvalues of the Hessian. These are equivalent because Theorem 2.1.11 (pages 95-96) shows that $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ if and only if $\\mu I \\preceq \\nabla^2 f(x) \\preceq L I$ for all $x$, meaning all Hessian eigenvalues satisfy $\\mu \\leq \\lambda_i \\leq L$. For quadratic functions $f(x) = \\frac{1}{2}x^T A x$, the Hessian is constant ($\\nabla^2 f = A$), so $\\mu = \\lambda_{\\text{min}}(A)$ and $L = \\lambda_{\\text{max}}(A)$ exactly. For general strongly convex functions, these bounds hold throughout the domain, establishing the equivalence.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0095.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0096.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0097.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified the definition of condition number Q_f = L/μ on page 97 (following Theorem 2.1.12). Verified Theorem 2.1.11 on pages 95-96 which establishes the second-order characterization showing f ∈ S^{2}_{μ,L}(Q, ‖·‖) if and only if ∇²f(x)h, h ≥ μ‖h‖² for all x ∈ intQ and h ∈ R^n. In the Euclidean norm case, this is equivalent to the matrix inequality ∇²f(x) ⪰ μI (equation 2.1.28 on page 96). Combined with inequality (2.1.31) which gives ‖∇f(x) - ∇f(y)‖ ≤ L‖x - y‖ (implying ∇²f(x) ⪯ LI), this establishes that μ and L bound the Hessian eigenvalues, making Q_f = L/μ equivalent to λ_max/λ_min for the Hessian.",
+      "usedIn": ["glossary"]
     }
   }
 }

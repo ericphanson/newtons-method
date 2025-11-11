@@ -76,7 +76,7 @@ export const gdFixedExperiments: ExperimentPreset[] = [
   {
     id: 'gd-fixed-condition-number-demo',
     name: 'Demo: How Condition Number Affects GD',
-    description: 'Vary κ to see how elongation causes zig-zagging',
+    description: 'Vary Q to see how elongation causes zig-zagging',
     algorithm: 'gd-fixed',
     problem: 'quadratic',
     problemParameters: { kappa: 250, rotationAngle: 0 },
@@ -86,10 +86,10 @@ export const gdFixedExperiments: ExperimentPreset[] = [
       maxIter: 50,
     },
     initialPoint: [0.3, 2.5],
-    expectation: 'Observe: Higher κ = more zig-zagging. Try reducing κ to 10!',
+    expectation: 'Observe: Higher Q = more zig-zagging. Try reducing Q to 10!',
     ui: {
       tone: 'teal',
-      details: 'Condition number κ controls how elongated the ellipse is. κ=1 is a circle, κ=500 is extremely elongated.',
+      details: 'Condition number Q controls how elongated the ellipse is. Q=1 is a circle, Q=500 is extremely elongated.',
     },
   },
 ];

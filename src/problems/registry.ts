@@ -16,7 +16,7 @@ import { DataPoint } from '../shared-utils';
  *
  * Historical note: The old system had a mathematical inconsistency where
  * quadraticProblem used f(w) = w₀² + w₁² while createRotatedQuadratic
- * used f(w) = ½(κw₀² + w₁²). The unified system corrects this.
+ * used f(w) = ½(Qw₀² + w₁²). The unified system corrects this.
  *
  * Migration completed: 2025-11-11
  */
@@ -228,7 +228,7 @@ export const PROBLEM_ORDER = [
  * all scattered if-else chains that previously handled parametrized problems.
  *
  * @example
- * // Rotated quadratic at 45° with κ=5
+ * // Rotated quadratic at 45° with Q=5
  * const problem = resolveProblem('quadratic', { rotationAngle: 45, kappa: 5 });
  *
  * @example

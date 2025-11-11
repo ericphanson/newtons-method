@@ -307,7 +307,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
             <span>λ₂: {fmt(eigenvalues[eigenvalues.length - 1])}</span>
           </div>
           {conditionNumber && (
-            <div className="text-xs text-gray-700 mt-0.5">κ = {conditionNumber.toFixed(3)}</div>
+            <div className="text-xs text-gray-700 mt-0.5">Q = {conditionNumber.toFixed(3)}</div>
           )}
           {hessianCanvasRef && (
             <div className="mt-1">

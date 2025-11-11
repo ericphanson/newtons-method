@@ -231,6 +231,36 @@ If a feature is:
 
 **Always define notation before using it** in formulas. Never assume the reader knows what a variable represents, even if it seems obvious.
 
+**Use parameter-prefixed terminology** when referring to mathematical properties with constants:
+
+✅ **Correct - Parameter prefix**:
+- "L-Lipschitz continuous gradient" (not "Lipschitz continuous gradient with constant L")
+- "μ-strongly convex" (not "strongly convex with parameter μ")
+- "L-smooth" (not "smooth with Lipschitz constant L")
+
+❌ **Avoid - Verbose separated phrasing**:
+- "Lipschitz continuous gradient with constant L"
+- "strongly convex with parameter μ"
+- "smooth function where the gradient has Lipschitz constant L"
+
+**Rationale**: This follows standard mathematical convention and is more concise. It clearly binds the parameter to the property while reducing wordiness.
+
+**Rendering with KaTeX**: Always wrap the mathematical parameter in `<InlineMath>` tags for proper mathematical typography:
+
+✅ **Correct - KaTeX rendering for parameters**:
+```tsx
+<p>For <InlineMath>L</InlineMath>-smooth functions...</p>
+<p>Functions that are <InlineMath>\mu</InlineMath>-strongly convex...</p>
+<p>The gradient is <InlineMath>L</InlineMath>-Lipschitz continuous...</p>
+```
+
+❌ **Avoid - Plain text parameters**:
+```tsx
+<p>For L-smooth functions...</p>
+<p>Functions that are μ-strongly convex...</p>
+<p>The gradient is L-Lipschitz continuous...</p>
+```
+
 **Examples of undefined notation to avoid:**
 
 ❌ **Wrong - using e_k without definition**:

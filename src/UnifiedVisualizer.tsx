@@ -836,7 +836,7 @@ const UnifiedVisualizer = () => {
       if (experiment.problemParameters.conditionNumber !== undefined &&
         experiment.problemParameters.conditionNumber !== currentParams.conditionNumber) {
         const current = currentParams.conditionNumber ?? 100;
-        changes.push(`κ: ${current}→${experiment.problemParameters.conditionNumber}`);
+        changes.push(`Q: ${current}→${experiment.problemParameters.conditionNumber}`);
       }
 
       // Rosenbrock b

@@ -735,13 +735,13 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               the largest and smallest eigenvalues.
             </p>
             <p className="mt-2">
-              <GlossaryTooltip termKey="condition-number" />: <InlineMath>{String.raw`\kappa = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>
+              <GlossaryTooltip termKey="condition-number" />: <InlineMath>{String.raw`Q = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>
             </p>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (<GlossaryTooltip termKey="ill-conditioned" />)</li>
+              <li>Large <InlineMath>Q</InlineMath> → elongated level sets (<GlossaryTooltip termKey="ill-conditioned" />)</li>
               <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>\varHInv</InlineMath> automatically provides direction-specific step sizes</li>
               <li>GD's single <InlineMath>\varAlpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
-              <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
+              <li>But numerical stability suffers with very large <InlineMath>Q</InlineMath></li>
             </ul>
           </div>
 

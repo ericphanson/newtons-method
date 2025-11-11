@@ -164,7 +164,7 @@ export const runNewton = (
     const gradNorm = norm(grad);
     const eigenvalues = computeEigenvalues2x2(hessian);
 
-    // Compute condition number κ(H) = |λ_max| / |λ_min|
+    // Compute condition number Q(H) = |λ_max| / |λ_min|
     // For singular/near-singular matrices, set explicitly to Infinity
     const minEigenAbs = Math.abs(eigenvalues[eigenvalues.length - 1]);
     const conditionNumber = minEigenAbs < 1e-15

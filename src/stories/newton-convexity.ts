@@ -23,7 +23,7 @@ export const newtonConvexity: Story = {
     },
     {
       experimentId: 'newton-compare-ill-conditioned',
-      narrative: 'Eigenvalues: λ₁≈100, λ₂≈1 - still both positive! The condition number κ(H)=100 slows convergence to ~5 iterations, but strong convexity preserves the guarantee. Newton still walks straight down the valley.',
+      narrative: 'Eigenvalues: λ₁≈100, λ₂≈1 - still both positive! The condition number Q(H)=100 slows convergence to ~5 iterations, but strong convexity preserves the guarantee. Newton still walks straight down the valley.',
       scrollTo: 'metrics'
     },
     {

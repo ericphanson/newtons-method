@@ -124,7 +124,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
       lambdaMinApprox.push(Math.min(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2));
       lambdaMaxApprox.push(Math.max(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2));
 
-      // Condition number κ = λ_max / λ_min
+      // Condition number Q = λ_max / λ_min
       const lambdaMax = Math.max(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2);
       const lambdaMin = Math.min(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2);
       if (lambdaMin > 1e-12) {
