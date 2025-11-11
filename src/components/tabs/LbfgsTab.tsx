@@ -7,7 +7,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { fmt, fmtVec, norm } from '../../shared-utils';
+import { fmt, fmtVec } from '../../shared-utils';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions } from '../../algorithms/types';
@@ -441,8 +441,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
         storageKey="lbfgs-hessian-comparison"
         id="approximate-hessian"
       >
-        <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg p-6" data-scroll-target="approximate-hessian">
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
             <p className="font-bold text-yellow-900">Note: L-BFGS never computes this matrix!</p>
             <p className="text-sm text-yellow-800 mt-1">
               We reconstruct the approximate Hessian here in 2D just to show approximation quality.
@@ -530,7 +529,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </p>
             </div>
           )}
-        </div>
       </CollapsibleSection>
 
       {/* L-BFGS - Quick Start */}
