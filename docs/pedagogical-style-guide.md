@@ -397,17 +397,24 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 <!-- Verbose! Use \varM macro instead -->
 ```
 
-**Use `<Var>` wrapper for composite expressions:**
+**Use `<Var>` wrapper for composite RESULTS (not definitions):**
 ```tsx
 ✅ <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var>
-<!-- Composite expression with custom ID "p" for search direction -->
+<!-- Composite RESULT treated as one semantic unit (search direction) -->
 
-✅ <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var>
-<!-- Custom expression not in variable registry -->
+✅ <Var id="grad_f"><InlineMath>\nabla f \in \mathbb{R}^d</InlineMath></Var>
+<!-- When you want the entire expression (including dimension) as ONE hover target -->
 
-❌ <InlineMath>\varH^{{-1}}\varGrad</InlineMath>
-<!-- If you want H⁻¹∇f to be ONE interactive element, use <Var> wrapper instead -->
+❌ <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var>
+<!-- WRONG: This is showing HOW s is computed (definition), not a result! -->
+
+✅ <InlineMath>\varS = x_{\text{new}} - x_{\text{old}}</InlineMath>
+<!-- CORRECT: Use macro for s, keep definition separate -->
 ```
+
+**Key distinction:**
+- **Result** (use `<Var>`): H⁻¹∇f as "search direction" - a meaningful compound we reference as ONE thing
+- **Definition** (use macros): s = x_new - x_old - we're showing HOW to compute s, not referring to a compound result
 
 ## Content Organization Patterns
 
@@ -501,6 +508,106 @@ Final structure after reorganization:
    - Advantages Over Newton (unique strengths)
 ```
 
+## Additional Components
+
+### Complexity Annotations
+
+Use the `<Complexity>` component to annotate algorithmic complexity in pseudocode:
+
+```tsx
+<span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+```
+
+**Guidelines:**
+- Include `explanation` prop for hover tooltips explaining what contributes to the complexity
+- Use clear, concise notation: `O(d)`, `O(Md)`, `O(d³)`
+- For problem-dependent operations (gradient, function evaluations), use counts: `1 ∇f eval`, `≈1-4 f evals`
+- Always include for every step in pseudocode to help readers understand computational cost
+
+**Common patterns:**
+- `<Complexity>O(1)</Complexity>` - Constant time (assignments, conditionals)
+- `<Complexity explanation="Vector addition">O(d)</Complexity>` - Linear in dimension
+- `<Complexity explanation="Inner product + division">O(d)</Complexity>` - Multiple O(d) operations
+- `<Complexity explanation="M pairs × d">O(Md)</Complexity>` - Loop over memory pairs
+- `<Complexity explanation="Matrix-vector product">O(d²)</Complexity>` - Quadratic operations
+
+### Glossary Tooltips
+
+**For all glossary-related guidelines, see the authoritative style guide in [`src/lib/glossary.tsx`](../src/lib/glossary.tsx) (lines 10-78).**
+
+The glossary file contains comprehensive documentation on:
+- When to add terms to the glossary registry vs. when NOT to add
+- When to use `<GlossaryTooltip>` vs. plain text
+- Balancing help without overwhelming with visual noise
+- Detailed example patterns for different contexts
+
+**Quick reference:**
+```tsx
+// First occurrence in a section - use tooltip
+<p><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
+
+// Later mentions in same section - use plain text
+<p>The superlinear convergence rate depends on memory size M.</p>
+```
+
+**The glossary guide takes precedence for all tooltip-related decisions.**
+
+### Callout Color Taxonomy
+
+**Complete color guide for semantic callouts:**
+
+**Amber** (⚠️) - Warnings, cautions, important limitations:
+```tsx
+<div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-3">
+  <p className="font-semibold text-amber-900 mb-2">⚠️ Important Limitation</p>
+  <p className="text-sm text-amber-800">{/* Content */}</p>
+</div>
+```
+
+**Blue** (💡) - Key insights, intuition, "why this works":
+```tsx
+<div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+  <p className="font-semibold text-blue-900 mb-3">💡 Why (s, y) pairs capture curvature:</p>
+  <p className="text-sm text-blue-800">{/* Content */}</p>
+</div>
+```
+
+**Green** (✅) - Success patterns, advantages, robustness features:
+```tsx
+<div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
+  <p className="text-sm text-green-900 font-semibold mb-1">✅ Advantage over Newton</p>
+  <p className="text-sm text-green-800">{/* Content */}</p>
+</div>
+```
+
+**Purple/Indigo** - Mathematical details, proofs, derivations:
+```tsx
+<div className="bg-indigo-100 rounded p-4">
+  <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
+  <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+    {/* Content */}
+  </ul>
+</div>
+```
+
+**Red** - Errors, failures, what NOT to do (use sparingly):
+```tsx
+<div className="bg-red-50 border-l-4 border-red-500 p-4 my-3">
+  <p className="font-semibold text-red-900 mb-2">❌ Common Mistake</p>
+  <p className="text-sm text-red-800">{/* Content */}</p>
+</div>
+```
+
+**Gray** - Implementation details, parameter effects, neutral information:
+```tsx
+<div className="bg-gray-100 rounded p-3 mt-3">
+  <p className="font-bold text-sm mb-2">Effect of λ<sub>damp</sub>:</p>
+  <ul className="text-sm list-disc ml-6 space-y-1">{/* Content */}</ul>
+</div>
+```
+
+**Nested callouts:** Use border color + lighter background for nested emphasis (e.g., blue-100 inside blue-50)
+
 ## Metrics
 
 Good reorganization should achieve:
@@ -510,13 +617,61 @@ Good reorganization should achieve:
 - **No unsupported heuristics** (specific M values, d thresholds, etc.)
 - **Clear progressive disclosure** (quick → complete → deep with appropriate defaultExpanded states)
 
-## When in Doubt
+## When in Doubt: The Demonstrability Principle
 
-Ask:
-1. **Can we demonstrate this on our 2D problems?** (Rosenbrock, Beale, Himmelblau)
-2. **Can we prove this mathematically?** (theory, complexity, algorithm correctness)
-3. **Is this featured in our stories?** (if yes, make it prominent)
-4. **Would a beginner be overwhelmed?** (if yes, move to collapsed section)
-5. **Are we repeating ourselves?** (if yes, consolidate or cross-reference)
+Before adding any content, ask these questions:
 
-If you can't answer yes to #1 or #2, consider removing the content or making it more general/theoretical.
+### 1. Can we demonstrate this on our 2D problems?
+
+**What counts as "demonstrated":**
+- ✅ **Behavior is observable** in the visualizer across multiple test problems (e.g., Rosenbrock, Himmelblau, Beale)
+- ✅ **Quantitative verification** via plots, metrics, or memory tables (e.g., eigenvalue evolution shows approximation quality)
+- ✅ **User can reproduce** by following "Try This" experiments (e.g., "Run L-BFGS with M=3 vs M=10 on Rosenbrock")
+- ❌ **Theoretical property** that we can't actually show in 2D (e.g., "works well in 1000+ dimensions")
+- ❌ **Specific numerical claims** without verification (e.g., "M=5 is optimal for most problems")
+
+**Examples:**
+- ✅ "L-BFGS is more robust than Newton on Himmelblau (avoids saddle points)" - DEMONSTRABLE via comparison
+- ✅ "Curvature filtering: memory table shows rejected pairs where s^T y ≤ 0" - DEMONSTRABLE via live data
+- ❌ "L-BFGS typically converges in 50-100 iterations on real problems" - NOT demonstrable (depends on problem)
+- ❌ "Use M=10 for problems with d > 1000" - NOT demonstrable in our 2D visualizer
+
+### 2. Can we prove this mathematically?
+
+**What counts as "provable":**
+- ✅ **Theoretical results** with citations (e.g., "superlinear convergence under strong convexity")
+- ✅ **Complexity analysis** we can derive (e.g., "O(Md) per iteration")
+- ✅ **Algorithmic correctness** we can verify (e.g., BFGS update satisfies secant equation)
+- ❌ **Empirical observations** without theory (e.g., "usually converges faster than...")
+- ❌ **Heuristic guidelines** without justification (e.g., "use larger M for harder problems")
+
+**If YES to #1 or #2:** Include the content prominently
+**If NO to both:** Consider removing or marking as "empirical observation" with appropriate caveats
+
+### 3. Is this featured in our stories?
+
+If a concept appears in `src/stories/*.ts` (curated examples), make it prominent with:
+- Callout boxes in the relevant sections
+- Cross-references to experiments that demonstrate it
+- Visual emphasis (colored borders, icons)
+
+### 4. Would a beginner be overwhelmed?
+
+**Move to collapsed sections if:**
+- Mathematical proofs or derivations (→ "Mathematical Details")
+- Implementation specifics (→ "Advanced Topics")
+- Edge cases or failure modes (→ "When Things Go Wrong")
+
+**Keep visible if:**
+- Core algorithm understanding (→ "How It Works")
+- Practical guidance (→ "Quick Start", "Try This")
+- Key intuitions (→ prominent callouts)
+
+### 5. Are we repeating ourselves?
+
+**One Good Explanation Per Concept:**
+- Quick mention in "Quick Start" (1-2 sentences)
+- Deep explanation in "How It Works" (full section)
+- Cross-reference from other sections instead of repeating
+
+**Example:** Hessian damping should be explained ONCE in "How It Works", not repeated in "Quick Start", pseudocode comments, AND "Mathematical Details".

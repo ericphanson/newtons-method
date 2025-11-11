@@ -287,7 +287,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <p><strong>What it is:</strong> Instead of storing the full Hessian <InlineMath>\varH</InlineMath> (n×n matrix), we store only <InlineMath>\varM</InlineMath>={lbfgsM} recent (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs.</p>
           <p><InlineMath>\varS</InlineMath> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
           <p><InlineMath>\varY</InlineMath> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
-          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{String.raw`\varS^T \varY > 0`}</InlineMath> (positive curvature). This ensures the approximate Hessian <InlineMath>\varB</InlineMath> stays positive definite, guaranteeing descent directions even in non-convex regions where the true Hessian <InlineMath>\varH</InlineMath> may have negative eigenvalues.</p>
+          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{String.raw`\varS^T \varY > 0`}</InlineMath> (positive curvature). This helps maintain positive definiteness of the approximate Hessian <InlineMath>\varB</InlineMath>, promoting descent directions even in non-convex regions where the true Hessian <InlineMath>\varH</InlineMath> may have negative eigenvalues.</p>
         </div>
 
         {/* Memory table */}
@@ -699,9 +699,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> from history <Complexity explanation="M pairs × d, vector ops only">O(Md)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <InlineMath>\varBZero</InlineMath> + <InlineMath>\varLambdaDamp</InlineMath> · <InlineMath>\varI</InlineMath> with damping)</span>
-                </>,
-                <>
                   <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
                 </>,
                 <>
@@ -732,9 +729,9 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <p className="font-semibold text-blue-900 mb-3">Why (s, y) pairs capture curvature:</p>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var>:<br/>
+                <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian <InlineMath>\varH</InlineMath>:<br/>
                 <span className="ml-4 inline-block my-1">
-                  <InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + H \cdot s`}</InlineMath>
+                  <InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + \varH \cdot \varS`}</InlineMath>
                 </span><br/>
                 where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> is the parameter change (where we stepped).
               </p>
@@ -757,10 +754,10 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   <strong>Key difference from Newton:</strong> L-BFGS <strong>only accepts pairs where s<sup>T</sup>y &gt; 0</strong> (positive curvature). Pairs with s<sup>T</sup>y ≤ 0 are rejected and never stored in memory.
                 </p>
                 <p className="text-xs text-amber-800 mb-2">
-                  <strong>Why this matters:</strong> Near saddle points or in non-convex regions, the true Hessian H may have negative eigenvalues. Newton's method uses this negative curvature and can converge to saddle points or maxima. By filtering out negative curvature, L-BFGS's approximate Hessian B stays positive definite, ensuring valid descent directions.
+                  <strong>Why this matters:</strong> Near saddle points or in non-convex regions, the true Hessian H may have negative eigenvalues. Newton's method uses this negative curvature and can converge to saddle points or maxima. By filtering out negative curvature, L-BFGS helps keep its approximate Hessian B positive definite, promoting valid descent directions.
                 </p>
                 <p className="text-xs text-amber-800">
-                  <strong>Result:</strong> L-BFGS is more robust than Newton on non-convex problems like Himmelblau's function, where it successfully avoids saddle points that trap Newton. This selective memory trades perfect Hessian approximation for guaranteed positive definiteness.
+                  <strong>Result:</strong> L-BFGS is more robust than Newton on non-convex problems like Himmelblau's function, where it successfully avoids saddle points that trap Newton. This selective memory trades perfect Hessian approximation for better robustness through curvature filtering.
                 </p>
               </div>
 
@@ -771,7 +768,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 <BlockMath>{String.raw`\varB_{k+1} = (\varI - \varRho_k \varS_k \varY_k^T) \varBK (\varI - \varRho_k \varY_k \varS_k^T) + \varRho_k \varS_k \varS_k^T`}</BlockMath>
               </div>
               <p className="text-sm text-blue-800">
-                where <InlineMath>{String.raw`\varRho_k = 1/(\varS_k^T \varY_k)`}</InlineMath>.
+                where <InlineMath>\varRho_k</InlineMath> is a scaling factor equal to <InlineMath>{String.raw`1/(\varS_k^T \varY_k)`}</InlineMath> (the reciprocal of the curvature).
               </p>
 
               <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
@@ -884,12 +881,12 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   ]}
                   steps={[
                     <>Initialize working vector <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="grad_f" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity>O(1)</Complexity></>,
-                    <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory):</>,
+                    <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory, where <InlineMath>i</InlineMath> indexes memory pairs, not iterations):</>,
                     <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (\varSI^T \varYI)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
                     <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>\varSI^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
                     <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>\varYI</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
-                    <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(\varSM^T \varYM) / (\varYM^T \varYM)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
-                    <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
+                    <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(\varSM^T \varYM) / (\varYM^T \varYM)`}</InlineMath> (estimates optimal scaling for initial Hessian <InlineMath>\varBZero</InlineMath>) <Complexity explanation="Two inner products">O(d)</Complexity></>,
+                    <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> (applies <InlineMath>{String.raw`\varBZero^{-1} = \varGamma \varI`}</InlineMath>, a scaled identity matrix) <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
                     <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`1, 2, \ldots, M`}</InlineMath> (forward through memory):</>,
                     <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (\varSI^T \varYI)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
                     <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>\varYI^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
@@ -1171,7 +1168,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
             <p className="mb-2"><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
             <p className="text-sm mb-2">
-              Let <InlineMath>e_k = \|w_k - w^*\|</InlineMath> be the error at iteration <InlineMath>k</InlineMath> (distance from optimal parameters <InlineMath>\varWStar</InlineMath>). L-BFGS exhibits superlinear convergence:
+              Let <InlineMath>\varWStar</InlineMath> denote the optimal parameters that minimize the objective function. Define the error at iteration <InlineMath>k</InlineMath> as <InlineMath>e_k = \|w_k - w^*\|</InlineMath> (distance from optimal parameters). L-BFGS exhibits superlinear convergence:
             </p>
             <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
