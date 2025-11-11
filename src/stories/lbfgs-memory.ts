@@ -24,17 +24,17 @@ export const lbfgsMemory: Story = {
     {
       experimentId: 'lbfgs-rosenbrock',
       narrative: 'Scroll to the Curvature Pair Memory table. Notice the "sᵀy > 0?" column - this is L-BFGS\'s gatekeeping criterion. Only pairs with positive curvature (sᵀy > 0) are accepted into memory. Why? Because negative curvature indicates non-convex regions where Newton-like steps would fail.',
-      scrollTo: 'metrics'
+      scrollTo: 'lbfgs-memory'
     },
     {
       experimentId: 'lbfgs-rosenbrock',
       narrative: 'The table shows both accepted (✓) and rejected (✗) pairs in gray. Active memory only keeps the last M=5 accepted pairs (highlighted in amber). This selective memory ensures L-BFGS\'s approximation remains positive definite even in non-convex regions.',
-      scrollTo: 'metrics'
+      scrollTo: 'lbfgs-memory'
     },
     {
       experimentId: 'lbfgs-rosenbrock',
       narrative: 'The Two-Loop Recursion shows how L-BFGS uses memory. It starts with a simple scaled identity H₀ = (1/γ)I, then each memory pair adds a rank-2 correction. The first loop modifies the gradient backward through memory, the second loop applies corrections forward.',
-      scrollTo: 'metrics'
+      scrollTo: 'two-loop-recursion'
     },
     {
       experimentId: 'lbfgs-success-quadratic',

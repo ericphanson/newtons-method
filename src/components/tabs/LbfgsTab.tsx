@@ -264,176 +264,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
         )}
       </div>
 
-      {/* Two-Loop Recursion */}
-      <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="two-loop-recursion">
-        <h2 className="text-2xl font-bold text-indigo-900 mb-4">Two-Loop Recursion Details</h2>
-        <div className="space-y-3 text-gray-800 mb-4">
-          <p><strong>The challenge:</strong> We have M={lbfgsM} memory pairs (s, y) showing how parameters and gradients changed. How can we get an inverse Hessian approximation H⁻¹ from this?</p>
-
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
-            <p className="font-semibold text-blue-900 mb-3">Building intuition from Taylor expansion:</p>
-
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian:<br/>
-              <span className="ml-4 inline-block my-1">
-                <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
-              </span><br/>
-              where <InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
-            </p>
-
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>2. Rearranging:</strong> Define <InlineMath>{String.raw`y = \nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change). Then:<br/>
-              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`y = H \cdot s`}</InlineMath></span><br/>
-              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`H^{-1} \cdot y = s`}</InlineMath></span> (the <strong>secant equation</strong>)
-            </p>
-
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>3. Why we want this:</strong> If our approximate inverse Hessian <InlineMath>{String.raw`B^{-1}`}</InlineMath> satisfies <InlineMath>{String.raw`B^{-1} \cdot y = s`}</InlineMath> for all our observed <InlineMath>(s, y)</InlineMath> pairs, then <InlineMath>{String.raw`B^{-1}`}</InlineMath> plays the same role as <InlineMath>{String.raw`H^{-1}`}</InlineMath> in the Taylor expansion. It correctly relates parameter changes to gradient changes!
-            </p>
-
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>4. Iterative updates:</strong> Given a new pair <InlineMath>(s_k, y_k)</InlineMath>, how do we update our approximate Hessian <InlineMath>B_k</InlineMath> to satisfy the new secant equation? The BFGS update is:
-            </p>
-            <div className="ml-4 my-2">
-              <BlockMath>{String.raw`B_{k+1} = (I - \rho_k s_k y_k^T) B_k (I - \rho_k y_k s_k^T) + \rho_k s_k s_k^T`}</BlockMath>
-            </div>
-            <p className="text-sm text-blue-800">
-              where <InlineMath>{String.raw`\rho_k = 1/(s_k^T y_k)`}</InlineMath>.
-            </p>
-
-            <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
-              <p className="text-sm text-blue-900 font-semibold mb-2">
-                Verification: Does <InlineMath>{String.raw`B_{k+1} y_k = s_k`}</InlineMath>?
-              </p>
-              <p className="text-xs text-blue-800 mb-2">
-                Multiply the BFGS formula by <InlineMath>y_k</InlineMath>:
-              </p>
-              <div className="ml-2 my-2">
-                <BlockMath>{String.raw`B_{k+1} y_k = \left[(I - \rho s y^T) B_k (I - \rho y s^T) + \rho s s^T\right] y_k`}</BlockMath>
-              </div>
-              <p className="text-xs text-blue-800 mb-2">
-                <strong>Key step:</strong> What is <InlineMath>(I - \rho y s^T) y_k</InlineMath>?
-              </p>
-              <div className="ml-2 my-2">
-                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - \rho y (s^T y_k) = y_k - \rho (s^T y) y_k`}</BlockMath>
-              </div>
-              <p className="text-xs text-blue-800 mb-2">
-                Since <InlineMath>{String.raw`\rho = 1/(s^T y)`}</InlineMath>, we have <InlineMath>{String.raw`\rho(s^T y) = 1`}</InlineMath>, so:
-              </p>
-              <div className="ml-2 my-2">
-                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - y_k = \mathbf{0}`}</BlockMath>
-              </div>
-              <p className="text-xs text-blue-800 mb-2">
-                Therefore the entire <InlineMath>B_k</InlineMath> term vanishes! We're left with:
-              </p>
-              <div className="ml-2 my-2">
-                <BlockMath>{String.raw`B_{k+1} y_k = (I - \rho s y^T) B_k \cdot \mathbf{0} + \rho s s^T y_k = \rho (s^T y) s = s_k \,\checkmark`}</BlockMath>
-              </div>
-              <p className="text-xs text-blue-800 mt-2">
-                <strong>The magic:</strong> The formula is specifically designed so <InlineMath>B_k</InlineMath> drops out completely when multiplied by <InlineMath>y_k</InlineMath>, leaving only the new curvature information <InlineMath>s_k</InlineMath>.
-              </p>
-            </div>
-
-            <p className="text-sm text-blue-800 mt-2">
-              <strong>5. Why rank-2?</strong> This update can be decomposed into two rank-1 operations:<br/>
-              • <strong>Rank-1 removal:</strong> Subtract out the "old guess" about curvature (term with <InlineMath>B_k y</InlineMath>)<br/>
-              • <strong>Rank-1 addition:</strong> Add the "new observation" about curvature (term with <InlineMath>s_k s_k^T</InlineMath>)<br/>
-              <br/>
-              We need both because we have one vector constraint (the secant equation) but must maintain symmetry (<InlineMath>B = B^T</InlineMath>). A single rank-1 update can't do both. The rank-2 update is the minimal symmetric modification that satisfies the secant equation while preserving positive definiteness.
-            </p>
-
-            <p className="text-sm text-blue-800 mt-2 font-semibold">
-              L-BFGS applies M of these updates sequentially starting from <InlineMath>B_0 = (1/\gamma)I</InlineMath>, but <strong>never forms the matrix</strong> - the two-loop recursion below implicitly applies all M updates to compute <InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath>!
-            </p>
-          </div>
-
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
-            <p className="font-semibold text-green-900 mb-3">How the two-loop recursion implements the updates:</p>
-
-            <p className="text-sm text-green-800 mb-2">
-              <strong>The challenge:</strong> We've applied M BFGS updates to get <InlineMath>{String.raw`B_0 \to B_1 \to \cdots \to B_M`}</InlineMath>. Now we need <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath>, but forming <InlineMath>B_M</InlineMath> or <InlineMath>{String.raw`B_M^{-1}`}</InlineMath> explicitly would cost O(n²) space!
-            </p>
-
-            <p className="text-sm text-green-800 mb-2">
-              <strong>Key observation:</strong> Each BFGS update has a special structure. The inverse of the update can be written as:
-            </p>
-            <div className="ml-4 my-2">
-              <BlockMath>{String.raw`B_{k+1}^{-1} = \text{(apply inverse of rank-2 update)} \circ B_k^{-1}`}</BlockMath>
-            </div>
-
-            <p className="text-sm text-green-800 mb-2">
-              So computing <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> is like peeling an onion:
-            </p>
-            <div className="ml-4 my-2 text-sm text-green-800">
-              <BlockMath>{String.raw`B_M^{-1} \nabla f = (\text{undo update M}) \circ (\text{undo update M-1}) \circ \cdots \circ (\text{undo update 1}) \circ B_0^{-1} \nabla f`}</BlockMath>
-            </div>
-
-            <p className="text-sm text-green-800 mt-3">
-              <strong>The two-loop algorithm does exactly this:</strong>
-            </p>
-            <ul className="text-sm text-green-800 ml-6 list-disc space-y-1">
-              <li><strong>First loop (backward):</strong> Undo updates M, M-1, ..., 1 in reverse order, transforming <InlineMath>{String.raw`\nabla f \to q`}</InlineMath></li>
-              <li><strong>Middle step:</strong> Apply <InlineMath>{String.raw`B_0^{-1} = \gamma I`}</InlineMath> to get <InlineMath>r = \gamma q</InlineMath></li>
-              <li><strong>Second loop (forward):</strong> Re-apply updates 1, 2, ..., M but on the transformed vector, adjusting <InlineMath>r</InlineMath> to get <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath></li>
-            </ul>
-
-            <p className="text-sm text-green-800 mt-3 font-semibold">
-              Result: We compute <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> using only the stored vectors (s, y), never forming any matrix!
-            </p>
-          </div>
-
-          <p><strong>Efficiency:</strong> O(m·n) = O({lbfgsM}·3) = {lbfgsM * 3} operations vs O(n³) = O(27) for full Hessian inversion!</p>
-        </div>
-
-        {iterations[currentIter]?.twoLoopData ? (
-          <>
-            <h3 className="text-xl font-bold text-indigo-800 mb-3">The Two-Loop Algorithm</h3>
-
-            <Pseudocode
-              color="indigo"
-              inputs={[
-                {
-                  id: "grad_f",
-                  display: <InlineMath>{`\\nabla f \\in \\mathbb{R}^d`}</InlineMath>,
-                  description: "current gradient vector"
-                },
-                {
-                  id: "memory",
-                  display: <InlineMath>{String.raw`[(s_1,y_1), \ldots, (s_M,y_M)]`}</InlineMath>,
-                  description: "M most recent accepted curvature pairs"
-                }
-              ]}
-              outputs={[
-                {
-                  id: "direction",
-                  display: <InlineMath>{String.raw`-B_M^{-1} \nabla f`}</InlineMath>,
-                  description: "quasi-Newton search direction"
-                }
-              ]}
-              steps={[
-                <>Initialize working vector <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="grad_f" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity>O(1)</Complexity></>,
-                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory):</>,
-                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
-                <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>s_i^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
-                <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>y_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
-                <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(s_M^T y_M) / (y_M^T y_M)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
-                <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
-                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`1, 2, \ldots, M`}</InlineMath> (forward through memory):</>,
-                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
-                <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>y_i^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
-                <><span className="ml-4">Update <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> + (<Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> - <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var>) <InlineMath>s_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
-                <><strong>return</strong> search direction -<Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> (negated for descent) <Complexity>O(1)</Complexity></>
-              ]}
-            />
-          </>
-        ) : (
-          <div className="bg-indigo-50 rounded-lg p-6 text-center">
-            <p className="text-indigo-800 font-semibold">Two-loop recursion not used yet (Iteration 0)</p>
-            <p className="text-sm text-indigo-700 mt-2">Starting from iteration 1, this section will show the two-loop algorithm that computes the search direction using stored memory pairs.</p>
-          </div>
-        )}
-      </div>
-
       {/* Approximate Hessian Comparison */}
       <CollapsibleSection
         title="Approximate Hessian Comparison (2D Visualization)"
@@ -455,70 +285,85 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <div className="grid grid-cols-2 gap-6">
                 {/* True Hessian */}
                 {iterations[currentIter].hessianComparison.trueHessian && (
-                  <div className="bg-white rounded-lg p-4 shadow">
-                    <h3 className="text-lg font-bold text-purple-900 mb-3">True Hessian H</h3>
-                    <div className="space-y-2">
-                      <div>
-                        <p className="font-semibold text-gray-700">Matrix:</p>
-                        <div className="font-mono text-sm">
-                          {iterations[currentIter].hessianComparison.trueHessian.map((row, i) => (
-                            <div key={i}>
-                              [{row.map(val => fmt(val)).join(', ')}]
+                  (() => {
+                    const matrixStr = iterations[currentIter].hessianComparison.trueHessian!.map(row =>
+                      row.map(val => val.toFixed(2)).join(' & ')
+                    ).join(' \\\\\\\\ ');
+                    const lambda1 = fmt(iterations[currentIter].hessianComparison.trueEigenvalues?.lambda1 ?? 0);
+                    const lambda2 = fmt(iterations[currentIter].hessianComparison.trueEigenvalues?.lambda2 ?? 0);
+                    return (
+                      <div className="bg-white rounded-lg p-4 shadow">
+                        <h3 className="text-lg font-bold text-purple-900 mb-3">True Hessian H</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="font-semibold text-gray-700">Matrix:</p>
+                            <BlockMath>{String.raw`\begin{pmatrix} ` + matrixStr + String.raw` \end{pmatrix}`}</BlockMath>
+                          </div>
+                          {iterations[currentIter].hessianComparison.trueEigenvalues && (
+                            <div>
+                              <p className="font-semibold text-gray-700">Eigenvalues:</p>
+                              <p className="text-sm">
+                                <InlineMath>{String.raw`\lambda_1 = ` + lambda1}</InlineMath>,{' '}
+                                <InlineMath>{String.raw`\lambda_2 = ` + lambda2}</InlineMath>
+                              </p>
                             </div>
-                          ))}
+                          )}
                         </div>
                       </div>
-                      {iterations[currentIter].hessianComparison.trueEigenvalues && (
-                        <div>
-                          <p className="font-semibold text-gray-700">Eigenvalues:</p>
-                          <p className="font-mono text-sm">
-                            λ₁ = {fmt(iterations[currentIter].hessianComparison.trueEigenvalues.lambda1)},
-                            λ₂ = {fmt(iterations[currentIter].hessianComparison.trueEigenvalues.lambda2)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    );
+                  })()
                 )}
 
                 {/* Approximate Hessian */}
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <h3 className="text-lg font-bold text-purple-900 mb-3">Approximate Hessian B</h3>
-                  <div className="space-y-2">
-                    <div>
-                      <p className="font-semibold text-gray-700">Matrix:</p>
-                      <div className="font-mono text-sm">
-                        {iterations[currentIter].hessianComparison.approximateHessian.map((row, i) => (
-                          <div key={i}>
-                            [{row.map(val => fmt(val)).join(', ')}]
+                {(() => {
+                  const matrixStr = iterations[currentIter].hessianComparison.approximateHessian.map(row =>
+                    row.map(val => val.toFixed(2)).join(' & ')
+                  ).join(' \\\\\\\\ ');
+                  const lambda1 = fmt(iterations[currentIter].hessianComparison.approximateEigenvalues?.lambda1 ?? 0);
+                  const lambda2 = fmt(iterations[currentIter].hessianComparison.approximateEigenvalues?.lambda2 ?? 0);
+                  return (
+                    <div className="bg-white rounded-lg p-4 shadow">
+                      <h3 className="text-lg font-bold text-purple-900 mb-3">Approximate Hessian B</h3>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="font-semibold text-gray-700">Matrix:</p>
+                          <BlockMath>{String.raw`\begin{pmatrix} ` + matrixStr + String.raw` \end{pmatrix}`}</BlockMath>
+                        </div>
+                        {iterations[currentIter].hessianComparison.approximateEigenvalues && (
+                          <div>
+                            <p className="font-semibold text-gray-700">Eigenvalues:</p>
+                            <p className="text-sm">
+                              <InlineMath>{String.raw`\lambda_1 = ` + lambda1}</InlineMath>,{' '}
+                              <InlineMath>{String.raw`\lambda_2 = ` + lambda2}</InlineMath>
+                            </p>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
-                    {iterations[currentIter].hessianComparison.approximateEigenvalues && (
-                      <div>
-                        <p className="font-semibold text-gray-700">Eigenvalues:</p>
-                        <p className="font-mono text-sm">
-                          λ₁ = {fmt(iterations[currentIter].hessianComparison.approximateEigenvalues.lambda1)},
-                          λ₂ = {fmt(iterations[currentIter].hessianComparison.approximateEigenvalues.lambda2)}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Error metric */}
-              {iterations[currentIter].hessianComparison.frobeniusError !== null && iterations[currentIter].hessianComparison.frobeniusError !== undefined && (
-                <div className="bg-purple-200 rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-purple-900 mb-2">Approximation Quality</h3>
-                  <p className="font-mono">
-                    Frobenius Error ||H - B||<sub>F</sub> = {fmt(iterations[currentIter].hessianComparison.frobeniusError!)}
-                  </p>
-                  <p className="text-sm text-gray-700 mt-2">
-                    Lower is better. As L-BFGS builds memory, the approximation typically improves.
-                  </p>
-                </div>
+              {iterations[currentIter].hessianComparison.frobeniusError !== null && iterations[currentIter].hessianComparison.frobeniusError !== undefined && iterations[currentIter].hessianComparison.trueHessian && (
+                (() => {
+                  const trueHessian = iterations[currentIter].hessianComparison.trueHessian!;
+                  const frobeniusNormH = Math.sqrt(trueHessian.reduce((sum, row) =>
+                    sum + row.reduce((rowSum, val) => rowSum + val * val, 0), 0));
+                  const relativeError = (iterations[currentIter].hessianComparison.frobeniusError! / frobeniusNormH) * 100;
+                  const errorStr = relativeError.toFixed(1);
+                  return (
+                    <div className="bg-purple-200 rounded-lg p-4">
+                      <h3 className="text-lg font-bold text-purple-900 mb-2">Approximation Quality</h3>
+                      <p>
+                        Relative Error: <InlineMath>{String.raw`\frac{\|H - B\|_F}{\|H\|_F} = ` + errorStr + String.raw`\%`}</InlineMath>
+                      </p>
+                      <p className="text-sm text-gray-700 mt-2">
+                        Lower is better. As L-BFGS builds memory, the approximation typically improves.
+                      </p>
+                    </div>
+                  );
+                })()
               )}
             </div>
           ) : (
@@ -878,6 +723,176 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           </div>
         </div>
       </CollapsibleSection>
+
+      {/* Two-Loop Recursion */}
+      <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="two-loop-recursion">
+        <h2 className="text-2xl font-bold text-indigo-900 mb-4">Two-Loop Recursion Details</h2>
+        <div className="space-y-3 text-gray-800 mb-4">
+          <p><strong>The challenge:</strong> We have M={lbfgsM} memory pairs (s, y) showing how parameters and gradients changed. How can we get an inverse Hessian approximation H⁻¹ from this?</p>
+
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-3">Building intuition from Taylor expansion:</p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian:<br/>
+              <span className="ml-4 inline-block my-1">
+                <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
+              </span><br/>
+              where <InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>2. Rearranging:</strong> Define <InlineMath>{String.raw`y = \nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change). Then:<br/>
+              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`y = H \cdot s`}</InlineMath></span><br/>
+              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`H^{-1} \cdot y = s`}</InlineMath></span> (the <strong>secant equation</strong>)
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>3. Why we want this:</strong> If our approximate inverse Hessian <InlineMath>{String.raw`B^{-1}`}</InlineMath> satisfies <InlineMath>{String.raw`B^{-1} \cdot y = s`}</InlineMath> for all our observed <InlineMath>(s, y)</InlineMath> pairs, then <InlineMath>{String.raw`B^{-1}`}</InlineMath> plays the same role as <InlineMath>{String.raw`H^{-1}`}</InlineMath> in the Taylor expansion. It correctly relates parameter changes to gradient changes!
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>4. Iterative updates:</strong> Given a new pair <InlineMath>(s_k, y_k)</InlineMath>, how do we update our approximate Hessian <InlineMath>B_k</InlineMath> to satisfy the new secant equation? The BFGS update is:
+            </p>
+            <div className="ml-4 my-2">
+              <BlockMath>{String.raw`B_{k+1} = (I - \rho_k s_k y_k^T) B_k (I - \rho_k y_k s_k^T) + \rho_k s_k s_k^T`}</BlockMath>
+            </div>
+            <p className="text-sm text-blue-800">
+              where <InlineMath>{String.raw`\rho_k = 1/(s_k^T y_k)`}</InlineMath>.
+            </p>
+
+            <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
+              <p className="text-sm text-blue-900 font-semibold mb-2">
+                Verification: Does <InlineMath>{String.raw`B_{k+1} y_k = s_k`}</InlineMath>?
+              </p>
+              <p className="text-xs text-blue-800 mb-2">
+                Multiply the BFGS formula by <InlineMath>y_k</InlineMath>:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`B_{k+1} y_k = \left[(I - \rho s y^T) B_k (I - \rho y s^T) + \rho s s^T\right] y_k`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                <strong>Key step:</strong> What is <InlineMath>(I - \rho y s^T) y_k</InlineMath>?
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - \rho y (s^T y_k) = y_k - \rho (s^T y) y_k`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                Since <InlineMath>{String.raw`\rho = 1/(s^T y)`}</InlineMath>, we have <InlineMath>{String.raw`\rho(s^T y) = 1`}</InlineMath>, so:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - y_k = \mathbf{0}`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                Therefore the entire <InlineMath>B_k</InlineMath> term vanishes! We're left with:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`B_{k+1} y_k = (I - \rho s y^T) B_k \cdot \mathbf{0} + \rho s s^T y_k = \rho (s^T y) s = s_k \,\checkmark`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mt-2">
+                <strong>The magic:</strong> The formula is specifically designed so <InlineMath>B_k</InlineMath> drops out completely when multiplied by <InlineMath>y_k</InlineMath>, leaving only the new curvature information <InlineMath>s_k</InlineMath>.
+              </p>
+            </div>
+
+            <p className="text-sm text-blue-800 mt-2">
+              <strong>5. Why rank-2?</strong> This update can be decomposed into two rank-1 operations:<br/>
+              • <strong>Rank-1 removal:</strong> Subtract out the "old guess" about curvature (term with <InlineMath>B_k y</InlineMath>)<br/>
+              • <strong>Rank-1 addition:</strong> Add the "new observation" about curvature (term with <InlineMath>s_k s_k^T</InlineMath>)<br/>
+              <br/>
+              We need both because we have one vector constraint (the secant equation) but must maintain symmetry (<InlineMath>B = B^T</InlineMath>). A single rank-1 update can't do both. The rank-2 update is the minimal symmetric modification that satisfies the secant equation while preserving positive definiteness.
+            </p>
+
+            <p className="text-sm text-blue-800 mt-2 font-semibold">
+              L-BFGS applies M of these updates sequentially starting from <InlineMath>B_0 = (1/\gamma)I</InlineMath>, but <strong>never forms the matrix</strong> - the two-loop recursion below implicitly applies all M updates to compute <InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath>!
+            </p>
+          </div>
+
+          <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
+            <p className="font-semibold text-green-900 mb-3">How the two-loop recursion implements the updates:</p>
+
+            <p className="text-sm text-green-800 mb-2">
+              <strong>The challenge:</strong> We've applied M BFGS updates to get <InlineMath>{String.raw`B_0 \to B_1 \to \cdots \to B_M`}</InlineMath>. Now we need <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath>, but forming <InlineMath>B_M</InlineMath> or <InlineMath>{String.raw`B_M^{-1}`}</InlineMath> explicitly would cost O(n²) space!
+            </p>
+
+            <p className="text-sm text-green-800 mb-2">
+              <strong>Key observation:</strong> Each BFGS update has a special structure. The inverse of the update can be written as:
+            </p>
+            <div className="ml-4 my-2">
+              <BlockMath>{String.raw`B_{k+1}^{-1} = \text{(apply inverse of rank-2 update)} \circ B_k^{-1}`}</BlockMath>
+            </div>
+
+            <p className="text-sm text-green-800 mb-2">
+              So computing <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> is like peeling an onion:
+            </p>
+            <div className="ml-4 my-2 text-sm text-green-800">
+              <BlockMath>{String.raw`B_M^{-1} \nabla f = (\text{undo update M}) \circ (\text{undo update M-1}) \circ \cdots \circ (\text{undo update 1}) \circ B_0^{-1} \nabla f`}</BlockMath>
+            </div>
+
+            <p className="text-sm text-green-800 mt-3">
+              <strong>The two-loop algorithm does exactly this:</strong>
+            </p>
+            <ul className="text-sm text-green-800 ml-6 list-disc space-y-1">
+              <li><strong>First loop (backward):</strong> Undo updates M, M-1, ..., 1 in reverse order, transforming <InlineMath>{String.raw`\nabla f \to q`}</InlineMath></li>
+              <li><strong>Middle step:</strong> Apply <InlineMath>{String.raw`B_0^{-1} = \gamma I`}</InlineMath> to get <InlineMath>r = \gamma q</InlineMath></li>
+              <li><strong>Second loop (forward):</strong> Re-apply updates 1, 2, ..., M but on the transformed vector, adjusting <InlineMath>r</InlineMath> to get <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath></li>
+            </ul>
+
+            <p className="text-sm text-green-800 mt-3 font-semibold">
+              Result: We compute <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> using only the stored vectors (s, y), never forming any matrix!
+            </p>
+          </div>
+
+          <p><strong>Efficiency:</strong> O(m·n) = O({lbfgsM}·3) = {lbfgsM * 3} operations vs O(n³) = O(27) for full Hessian inversion!</p>
+        </div>
+
+        {iterations[currentIter]?.twoLoopData ? (
+          <>
+            <h3 className="text-xl font-bold text-indigo-800 mb-3">The Two-Loop Algorithm</h3>
+
+            <Pseudocode
+              color="indigo"
+              inputs={[
+                {
+                  id: "grad_f",
+                  display: <InlineMath>{`\\nabla f \\in \\mathbb{R}^d`}</InlineMath>,
+                  description: "current gradient vector"
+                },
+                {
+                  id: "memory",
+                  display: <InlineMath>{String.raw`[(s_1,y_1), \ldots, (s_M,y_M)]`}</InlineMath>,
+                  description: "M most recent accepted curvature pairs"
+                }
+              ]}
+              outputs={[
+                {
+                  id: "direction",
+                  display: <InlineMath>{String.raw`-B_M^{-1} \nabla f`}</InlineMath>,
+                  description: "quasi-Newton search direction"
+                }
+              ]}
+              steps={[
+                <>Initialize working vector <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="grad_f" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity>O(1)</Complexity></>,
+                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory):</>,
+                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>s_i^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>y_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(s_M^T y_M) / (y_M^T y_M)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
+                <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
+                <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`1, 2, \ldots, M`}</InlineMath> (forward through memory):</>,
+                <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>y_i^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                <><span className="ml-4">Update <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> + (<Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> - <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var>) <InlineMath>s_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                <><strong>return</strong> search direction -<Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> (negated for descent) <Complexity>O(1)</Complexity></>
+              ]}
+            />
+          </>
+        ) : (
+          <div className="bg-indigo-50 rounded-lg p-6 text-center">
+            <p className="text-indigo-800 font-semibold">Two-loop recursion not used yet (Iteration 0)</p>
+            <p className="text-sm text-indigo-700 mt-2">Starting from iteration 1, this section will show the two-loop algorithm that computes the search direction using stored memory pairs.</p>
+          </div>
+        )}
+      </div>
 
       {/* L-BFGS - Mathematical Derivations */}
       <CollapsibleSection

@@ -1,6 +1,6 @@
 // src/stories/types.ts
 
-export type ScrollTarget = 'problem' | 'canvas' | 'metrics' | 'configuration' | 'basin-of-convergence' | 'approximate-hessian' | 'top';
+export type ScrollTarget = 'problem' | 'canvas' | 'metrics' | 'configuration' | 'basin-of-convergence' | 'approximate-hessian' | 'lbfgs-memory' | 'two-loop-recursion' | 'top';
 
 export interface StoryStep {
   experimentId: string;  // References existing experiment preset
