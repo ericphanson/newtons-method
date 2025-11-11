@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-interface CollapsibleSectionProps {
+interface CollapsibleSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   defaultExpanded?: boolean;
   expanded?: boolean;  // Controlled mode: external control of expansion state
@@ -25,7 +25,9 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   onExpandedChange,
   storageKey,
   id,
-  children
+  children,
+  className,
+  ...rest
 }) => {
   // Internal state for uncontrolled mode
   const [internalExpanded, setInternalExpanded] = useState(() => {
@@ -62,7 +64,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   return (
-    <div id={id} className="mb-4">
+    <div id={id} className={`mb-4${className ? ` ${className}` : ''}`} {...rest}>
       <button
         onClick={toggleExpanded}
         aria-expanded={isExpanded}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { useAlgorithmIterations } from './hooks/useAlgorithmIterations';
 import {
   DataPoint,
@@ -29,6 +30,7 @@ import { StoryBanner } from './components/StoryBanner';
 import { StoryTOC } from './components/StoryTOC';
 import { getStory } from './stories';
 import { getExperimentById } from './experiments';
+import { CompactIterationPlayback } from './components/CompactIterationPlayback';
 
 type Algorithm = 'stories' | 'algorithms' | 'gd-fixed' | 'gd-linesearch' | 'diagonal-precond' | 'newton' | 'lbfgs';
 
@@ -109,6 +111,14 @@ const UnifiedVisualizer = () => {
 
   // Refs to track pending animation frames for cleanup
   const pendingAnimationFramesRef = useRef<number[]>([]);
+
+  // Cleanup: Cancel all pending animation frames on unmount
+  useEffect(() => {
+    return () => {
+      pendingAnimationFramesRef.current.forEach(id => cancelAnimationFrame(id));
+      pendingAnimationFramesRef.current = [];
+    };
+  }, []);
 
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm, skipScroll = false) => {
@@ -1031,21 +1041,24 @@ const UnifiedVisualizer = () => {
           // Suppress toast if same experiment (unless user modified settings)
           loadExperiment(experiment, { suppressToastIfUnchanged: sameExperiment });
 
-          // Switch to the experiment's algorithm tab (skip default scroll - story controls it)
-          handleTabChange(experiment.algorithm, true);
+          // Switch to the experiment's algorithm tab using flushSync to ensure DOM is ready
+          flushSync(() => {
+            handleTabChange(experiment.algorithm, true);
+          });
 
           // Scroll to the target section if specified by story
           if (step.scrollTo) {
-            // Use setTimeout to wait for tab content to render
-            setTimeout(() => {
-              const target = document.querySelector(`[data-scroll-target="${step.scrollTo}"]`);
-              if (target) {
-                target.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'center'
-                });
-              }
-            }, 100);
+            // DOM is now guaranteed to be updated - query and scroll immediately
+            const escapedTarget = CSS.escape(step.scrollTo);
+            const target = document.querySelector(`[data-scroll-target="${escapedTarget}"]`);
+            if (target) {
+              // Respect user's motion preferences
+              const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              target.scrollIntoView({
+                behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                block: 'center'
+              });
+            }
           }
         }
       }
@@ -1862,80 +1875,91 @@ const UnifiedVisualizer = () => {
 
       {/* Algorithm Tabs */}
       <div className="bg-white rounded-lg shadow-md mb-6">
-        <div className="sticky top-0 z-40 flex border-b border-gray-200 bg-white rounded-t-lg">
-          {/* Stories Tab - FIRST position */}
-          <button
-            onClick={() => handleTabChange('stories')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'stories'
-                ? 'text-pink-700 border-b-2 border-pink-600 bg-pink-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            Stories
-          </button>
-          {/* Algorithms Tab */}
-          <button
-            onClick={() => handleTabChange('algorithms')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'algorithms'
-                ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            Algorithms
-          </button>
-          <button
-            onClick={() => handleTabChange('gd-fixed')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'gd-fixed'
-                ? 'text-green-700 border-b-2 border-green-600 bg-green-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            GD (Fixed Step)
-          </button>
-          <button
-            onClick={() => handleTabChange('gd-linesearch')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'gd-linesearch'
-                ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            GD (Line Search)
-          </button>
-          {/* Diagonal Preconditioner Tab */}
-          <button
-            onClick={() => handleTabChange('diagonal-precond')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'diagonal-precond'
-                ? 'text-teal-700 border-b-2 border-teal-600 bg-teal-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            Diagonal Precond
-          </button>
-          <button
-            onClick={() => handleTabChange('newton')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'newton'
-                ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            Newton's Method
-          </button>
-          <button
-            onClick={() => handleTabChange('lbfgs')}
-            className={`flex-1 px-4 py-4 font-semibold text-sm ${
-              selectedTab === 'lbfgs'
-                ? 'text-amber-700 border-b-2 border-amber-600 bg-amber-50'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            L-BFGS
-          </button>
+        <div className="sticky top-0 z-40 bg-white rounded-t-lg">
+          <div className="flex border-b border-gray-200">
+            {/* Stories Tab - FIRST position */}
+            <button
+              onClick={() => handleTabChange('stories')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'stories'
+                  ? 'text-pink-700 border-b-2 border-pink-600 bg-pink-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              Stories
+            </button>
+            {/* Algorithms Tab */}
+            <button
+              onClick={() => handleTabChange('algorithms')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'algorithms'
+                  ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              Algorithms
+            </button>
+            <button
+              onClick={() => handleTabChange('gd-fixed')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'gd-fixed'
+                  ? 'text-green-700 border-b-2 border-green-600 bg-green-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              GD (Fixed Step)
+            </button>
+            <button
+              onClick={() => handleTabChange('gd-linesearch')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'gd-linesearch'
+                  ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              GD (Line Search)
+            </button>
+            {/* Diagonal Preconditioner Tab */}
+            <button
+              onClick={() => handleTabChange('diagonal-precond')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'diagonal-precond'
+                  ? 'text-teal-700 border-b-2 border-teal-600 bg-teal-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              Diagonal Precond
+            </button>
+            <button
+              onClick={() => handleTabChange('newton')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'newton'
+                  ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              Newton's Method
+            </button>
+            <button
+              onClick={() => handleTabChange('lbfgs')}
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${
+                selectedTab === 'lbfgs'
+                  ? 'text-amber-700 border-b-2 border-amber-600 bg-amber-50'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              L-BFGS
+            </button>
+          </div>
+
+          {/* Compact Iteration Playback - only show for algorithm tabs with iterations */}
+          {['gd-fixed', 'gd-linesearch', 'diagonal-precond', 'newton', 'lbfgs'].includes(selectedTab) && (
+            <CompactIterationPlayback
+              currentIter={currentIter}
+              totalIters={getCurrentAlgorithmData().history.length - 1}
+              onIterChange={handleIterationChange}
+            />
+          )}
         </div>
 
         <div className="p-6">
