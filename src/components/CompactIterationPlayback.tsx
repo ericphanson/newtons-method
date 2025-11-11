@@ -26,9 +26,9 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
 
   return (
     <div className="flex items-center gap-3 px-3 py-1.5 bg-gray-50 border-t border-gray-200">
-      {/* Label with counter */}
+      {/* Label with counter - currentIter is 0-indexed (array index) but displayed as 1-indexed for users */}
       <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-        Iteration {currentIter} / {totalIters}
+        Iteration {currentIter + 1} / {totalIters}
       </span>
 
       {/* Navigation buttons grouped together */}

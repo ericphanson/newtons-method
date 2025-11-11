@@ -128,7 +128,7 @@ export const IterationMetrics: React.FC<IterationMetricsProps> = ({
 
   return (
     <div className="space-y-2 text-xs">
-      {/* Iteration Header */}
+      {/* Iteration Header - iterNum is 0-indexed (array index) but displayed as 1-indexed for users */}
       <div className="flex items-baseline justify-between">
         <div className="font-bold text-sm text-gray-900">
           Iter {iterNum + 1} / {totalIters}
