@@ -6,7 +6,7 @@ interface PseudocodeContextType {
   setHoveredVar: (id: string | null) => void;
 }
 
-const PseudocodeContext = createContext<PseudocodeContextType>({
+export const PseudocodeContext = createContext<PseudocodeContextType>({
   hoveredVar: null,
   setHoveredVar: () => {},
 });
@@ -100,8 +100,6 @@ export const Pseudocode: React.FC<PseudocodeProps> = ({
   className = '',
   color = 'blue',
 }) => {
-  const [hoveredVar, setHoveredVar] = useState<string | null>(null);
-
   const colorClasses = {
     blue: 'text-blue-800 border-blue-200',
     green: 'text-green-800 border-green-200',
@@ -112,60 +110,58 @@ export const Pseudocode: React.FC<PseudocodeProps> = ({
   };
 
   return (
-    <PseudocodeContext.Provider value={{ hoveredVar, setHoveredVar }}>
-      <div className={`pseudocode-container ${className}`}>
-        <h3 className={`text-lg font-bold ${colorClasses[color].split(' ')[0]} mb-3`}>
-          Algorithm
-        </h3>
+    <div className={`pseudocode-container ${className}`}>
+      <h3 className={`text-lg font-bold ${colorClasses[color].split(' ')[0]} mb-3`}>
+        Algorithm
+      </h3>
 
-        <div className={`border-l-4 ${colorClasses[color].split(' ')[1]} pl-4 space-y-3`}>
-          {/* Inputs section */}
-          {inputs.length > 0 && (
-            <div>
-              <div className="text-sm font-semibold text-gray-700 mb-1">Input:</div>
-              <div className="ml-4 space-y-0.5">
-                {inputs.map((input, idx) => (
-                  <div key={idx} className="text-sm">
-                    <Var id={input.id}>{input.display}</Var>
-                    {input.description && (
-                      <span className="text-gray-600"> — {input.description}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Outputs section */}
-          {outputs.length > 0 && (
-            <div>
-              <div className="text-sm font-semibold text-gray-700 mb-1">Output:</div>
-              <div className="ml-4 space-y-0.5">
-                {outputs.map((output, idx) => (
-                  <div key={idx} className="text-sm">
-                    <Var id={output.id}>{output.display}</Var>
-                    {output.description && (
-                      <span className="text-gray-600"> — {output.description}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Algorithm steps */}
+      <div className={`border-l-4 ${colorClasses[color].split(' ')[1]} pl-4 space-y-3`}>
+        {/* Inputs section */}
+        {inputs.length > 0 && (
           <div>
-            <div className="text-sm font-semibold text-gray-700 mb-1">Steps:</div>
-            <ol className="list-decimal ml-8 space-y-1.5">
-              {steps.map((step, idx) => (
-                <li key={idx} className="text-sm pl-1">
-                  {step}
-                </li>
+            <div className="text-sm font-semibold text-gray-700 mb-1">Input:</div>
+            <div className="ml-4 space-y-0.5">
+              {inputs.map((input, idx) => (
+                <div key={idx} className="text-sm">
+                  <Var id={input.id}>{input.display}</Var>
+                  {input.description && (
+                    <span className="text-gray-600"> — {input.description}</span>
+                  )}
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
+        )}
+
+        {/* Outputs section */}
+        {outputs.length > 0 && (
+          <div>
+            <div className="text-sm font-semibold text-gray-700 mb-1">Output:</div>
+            <div className="ml-4 space-y-0.5">
+              {outputs.map((output, idx) => (
+                <div key={idx} className="text-sm">
+                  <Var id={output.id}>{output.display}</Var>
+                  {output.description && (
+                    <span className="text-gray-600"> — {output.description}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Algorithm steps */}
+        <div>
+          <div className="text-sm font-semibold text-gray-700 mb-1">Steps:</div>
+          <ol className="list-decimal ml-8 space-y-1.5">
+            {steps.map((step, idx) => (
+              <li key={idx} className="text-sm pl-1">
+                {step}
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
-    </PseudocodeContext.Provider>
+    </div>
   );
 };

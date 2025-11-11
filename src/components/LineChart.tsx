@@ -8,7 +8,7 @@ interface DataSeries {
 }
 
 interface LineChartProps {
-  title: string;
+  title: React.ReactNode;
   series: DataSeries[];
   currentIndex?: number;
   xAxisLabel?: string;
@@ -16,9 +16,11 @@ interface LineChartProps {
   onPointSelect?: (index: number) => void;
   height?: number;
   forcedYTicks?: number[]; // Force specific y-axis tick values to always appear
+  transparentBackground?: boolean; // Use transparent background instead of white
+  showLegend?: boolean; // Show legend for the series
+  forceYMin?: number; // Force y-axis minimum value (e.g., 0 for non-negative data)
 }
 
-const MARGIN = { top: 20, right: 120, bottom: 40, left: 60 };
 const VIEW_WIDTH = 600;
 
 export const LineChart: React.FC<LineChartProps> = ({
@@ -30,8 +32,17 @@ export const LineChart: React.FC<LineChartProps> = ({
   onPointSelect,
   height = 300,
   forcedYTicks = [],
+  transparentBackground = false,
+  showLegend = true,
+  forceYMin,
 }) => {
   const VIEW_HEIGHT = height;
+
+  // Adjust margins based on whether legend is shown
+  const MARGIN = showLegend
+    ? { top: 20, right: 120, bottom: 40, left: 60 }
+    : { top: 15, right: 20, bottom: 30, left: 55 };
+
   const PLOT_WIDTH = VIEW_WIDTH - MARGIN.left - MARGIN.right;
   const PLOT_HEIGHT = VIEW_HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -53,12 +64,17 @@ export const LineChart: React.FC<LineChartProps> = ({
     minVal -= padding;
     maxVal += padding;
 
+    // Apply forced minimum if specified
+    if (forceYMin !== undefined) {
+      minVal = Math.max(minVal, forceYMin);
+    }
+
     if (minVal === maxVal) {
       maxVal = minVal + 1;
       minVal = minVal - 1;
     }
     return [minVal, maxVal];
-  }, [series, forcedYTicks]);
+  }, [series, forcedYTicks, forceYMin]);
 
   const valueToY = (val: number) => {
     const ratio = (val - minValue) / (maxValue - minValue || 1);
@@ -82,7 +98,7 @@ export const LineChart: React.FC<LineChartProps> = ({
 
   // Generate y-axis ticks
   const yTicks = React.useMemo(() => {
-    const numTicks = 5;
+    const numTicks = 2;
     const ticks: number[] = [];
     for (let i = 0; i <= numTicks; i++) {
       const value = minValue + (i / numTicks) * (maxValue - minValue);
@@ -117,13 +133,13 @@ export const LineChart: React.FC<LineChartProps> = ({
   }, [maxLength]);
 
   return (
-    <div className="space-y-2">
+    <div className={showLegend ? "space-y-2" : "space-y-0"}>
       <h4 className="text-sm font-semibold text-gray-800">{title}</h4>
       <svg
         width="100%"
         height={VIEW_HEIGHT}
         viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
-        className="overflow-visible border border-gray-200 rounded bg-white cursor-pointer"
+        className={`overflow-visible ${transparentBackground ? '' : 'border border-gray-200 rounded bg-white'} cursor-pointer`}
         onClick={handleClick}
       >
         {/* Y-axis */}
@@ -289,7 +305,7 @@ export const LineChart: React.FC<LineChartProps> = ({
         )}
 
         {/* Legend */}
-        {series.map((s, i) => {
+        {showLegend && series.map((s, i) => {
           const legendY = MARGIN.top + 20 + i * 20;
           const legendX = MARGIN.left + PLOT_WIDTH + 10;
           return (
