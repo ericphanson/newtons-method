@@ -6,6 +6,27 @@ This document describes the citation system for academic references in this proj
 
 The system allows accurate citations from PDF sources while respecting context window limits for AI agents.
 
+## Recommended Primary Reference
+
+**For gradient descent, convex optimization, and first-order methods, prefer Nesterov 2018** as the primary reference:
+
+- **Nesterov, Yurii. "Lectures on Convex Optimization" (2nd Edition, 2018)** - `nesterov-2018`
+  - Most comprehensive and up-to-date treatment (603 pages)
+  - Refined notation and more precise theorem statements
+  - Better typography and presentation than the 2004 edition
+  - PDF ID: `lectures_on_convex_optimization`
+
+**📖 See the [Nesterov 2018 Quick Reference Guide](citation-workflow-appendix-nesterov-2018-guide.md)** for:
+- Chapter-by-chapter organization
+- Where to find specific definitions and theorems
+- Notation guide and search strategies
+- Page number mappings
+
+**Other references:**
+- **Nocedal & Wright 2006** - For quasi-Newton methods, line search, trust regions
+- **Boyd & Vandenberghe 2004** - For constrained optimization, duality, applications
+- **Liu & Nocedal 1989** - Original L-BFGS paper
+
 ## Directory Structure
 
 ```
@@ -39,10 +60,11 @@ cat docs/references/chunk-index.json | jq 'to_entries[] | {id: .key, file: .valu
 ```
 
 **Available PDFs:**
-- `boyd_vandenberghe-2004-convex_optimization` - Boyd & Vandenberghe, Convex Optimization (730 pages)
-- `introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr` - Nesterov, Convex Programming (253 pages)
-- `liunocedal1989` - Liu & Nocedal, Limited Memory BFGS (27 pages)
+- `lectures_on_convex_optimization` - **⭐ Nesterov 2018, Lectures on Convex Optimization (603 pages)** - RECOMMENDED
 - `numericaloptimization2006` - Nocedal & Wright, Numerical Optimization (684 pages)
+- `boyd_vandenberghe-2004-convex_optimization` - Boyd & Vandenberghe, Convex Optimization (730 pages)
+- `introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr` - Nesterov 2004, Convex Programming (253 pages)
+- `liunocedal1989` - Liu & Nocedal, Limited Memory BFGS (27 pages)
 
 Each chunk file contains 10 pages of text with clear page markers. Read the chunk files to find relevant content:
 
@@ -78,32 +100,33 @@ Once you've verified the exact page and content, add the citation to `docs/citat
 ```json
 {
   "references": {
-    "nesterov-2004": {
-      "title": "Introductory Lectures on Convex Optimization: A Basic Course",
+    "nesterov-2018": {
+      "title": "Lectures on Convex Optimization",
       "authors": ["Yurii Nesterov"],
-      "year": 2004,
-      "publisher": "Kluwer Academic Publishers",
-      "file": "Introductory-Lectures-on-Convex-Programming-Yurii-Nesterov-2004.pdf"
+      "year": 2018,
+      "edition": "2nd",
+      "publisher": "Springer",
+      "file": "Lectures on Convex Optimization.pdf"
     }
   },
   "citations": {
-    "gd-strongly-convex-linear-convergence": {
-      "reference": "nesterov-2004",
-      "pages": "86-87",
+    "gd-strongly-convex-linear-convergence-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "101-102",
       "theorem": "Theorem 2.1.15",
       "claim": "Gradient descent with fixed step size achieves linear convergence...",
-      "quote": "If f ∈ S^(1,1)_μ,L(R^n) and 0 < h < 2/(L+μ), then...",
-      "notes": "Internal: Used in GdFixedTab. Compare with Theorem 2.1.14 (convex case).",
-      "readerNotes": "The notation S^(1,1)_μ,L(ℝⁿ) denotes strongly convex functions with strong convexity parameter μ > 0 and Lipschitz continuous gradient with constant L. Note: Nesterov uses 'h' for step size; here we use 'α'...",
+      "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then...",
+      "notes": "Internal: Used in GdFixedTab. This is the 2018 edition result with refined notation.",
+      "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes strongly convex functions with strong convexity parameter $\\mu > 0$ and Lipschitz continuous gradient with constant $L$ (see Definition 2.1.3 on page 94). Note: Nesterov uses $h$ for step size; here we use $\\alpha$...",
       "proofPages": [
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0087.png"
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0093.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0094.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0102.png"
       ],
       "verified": "2025-11-11",
-      "verifiedBy": "verification-agent",
-      "verificationNotes": "Independently verified: quote is word-for-word accurate, claim matches source...",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94)...",
       "usedIn": ["GdFixedTab"]
     }
   }
@@ -214,6 +237,25 @@ python3 scripts/extract-pdf-pages.py <pdf_id> <pages>
 
 ## For AI Agents
 
+### Source Selection Priority
+
+When searching for citations, follow this priority:
+
+1. **First choice: Nesterov 2018** (`lectures_on_convex_optimization`)
+   - For: Gradient descent, convex functions, strongly convex functions, first-order methods, convergence rates
+   - See the [Quick Reference Guide](citation-workflow-appendix-nesterov-2018-guide.md) for chapter organization
+
+2. **Nocedal & Wright 2006** (`numericaloptimization2006`)
+   - For: Quasi-Newton methods (BFGS, L-BFGS), line search, trust regions, conjugate gradient
+
+3. **Boyd & Vandenberghe 2004** (`boyd_vandenberghe-2004-convex_optimization`)
+   - For: Constrained optimization, duality theory, specific applications (SVM, control, etc.)
+
+4. **Original papers** (e.g., `liunocedal1989`)
+   - For: Historical context or when the original formulation is specifically needed
+
+### Citation Workflow
+
 When searching for citations:
 
 1. **Read the chunk index** to understand available sources:
@@ -290,12 +332,12 @@ If you need to check multiple related theorems or definitions, extract all pages
 
 ```bash
 # Instead of multiple extractions:
-# python3 scripts/extract-pdf-pages.py nesterov-2004 82
-# python3 scripts/extract-pdf-pages.py nesterov-2004 85
-# python3 scripts/extract-pdf-pages.py nesterov-2004 86-87
+# python3 scripts/extract-pdf-pages.py lectures_on_convex_optimization 94
+# python3 scripts/extract-pdf-pages.py lectures_on_convex_optimization 101
+# python3 scripts/extract-pdf-pages.py lectures_on_convex_optimization 102
 
 # Extract all at once:
-python3 scripts/extract-pdf-pages.py nesterov-2004 82,85-87
+python3 scripts/extract-pdf-pages.py lectures_on_convex_optimization 94,101-102
 ```
 
 ### Reusing Proof Pages

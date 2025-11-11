@@ -30,28 +30,17 @@
       "volume": "45",
       "pages": "503-528",
       "file": "LiuNocedal1989.pdf"
+    },
+    "nesterov-2018": {
+      "title": "Lectures on Convex Optimization",
+      "authors": ["Yurii Nesterov"],
+      "year": 2018,
+      "edition": "2nd",
+      "publisher": "Springer",
+      "file": "Lectures on Convex Optimization.pdf"
     }
   },
   "citations": {
-    "gd-strongly-convex-linear-convergence": {
-      "reference": "nesterov-2004",
-      "pages": "86-87",
-      "theorem": "Theorem 2.1.15",
-      "claim": "Gradient descent with fixed step size achieves linear convergence to the global minimum on strongly convex smooth functions when $0 < \\alpha < 2/(L+\\mu)$",
-      "quote": "If $f \\in S^{1,1}_{\\mu,L}(\\mathbb{R}^n)$ and $0 < h < 2/(L+\\mu)$, then the gradient method generates a sequence $\\{x_k\\}$ such that $\\|x_k - x^*\\|^2 \\leq (1 - (2h\\mu L)/(L+\\mu))^k \\|x_0 - x^*\\|^2$",
-      "notes": "Internal: Used in GdFixedTab to explain strongly convex convergence. Compare with Theorem 2.1.14 (convex case) - different step size bounds.",
-      "readerNotes": "The notation $S^{1,1}_{\\mu,L}(\\mathbb{R}^n)$ denotes strongly convex functions with strong convexity parameter $\\mu > 0$ and Lipschitz continuous gradient with constant $L$ (see Definition 2.1.1 on page 82). The condition number $Q = L/\\mu$ determines the convergence rate. With optimal step size, the convergence rate is $((Q-1)/(Q+1))^k$, which provides exponentially fast (linear) convergence. Note: Nesterov uses $h$ for step size in the theorem statement; here we use $\\alpha$. This result differs from the merely convex case (Theorem 2.1.14), which has step size bound $2/L$ instead of $2/(L+\\mu)$.",
-      "proofPages": [
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0087.png"
-      ],
-      "verified": "2025-11-11",
-      "verifiedBy": "verification-agent",
-      "verificationNotes": "Independently verified: quote is word-for-word accurate, claim matches source, usage in GdFixedTab.tsx is consistent. Added page 82 (notation definition) and page 85 (gradient method setup) to proofPages for better context. Expanded notes to clarify notation translation (h→α) and distinction from Theorem 2.1.14.",
-      "usedIn": ["GdFixedTab"]
-    },
     "gd-convex-sublinear-convergence": {
       "reference": "nesterov-2004",
       "pages": "86-87",
@@ -112,6 +101,25 @@
       "verified": "2025-11-11",
       "verifiedBy": "citation-workflow-agent",
       "verificationNotes": "Verified Theorem 2.2.2 (optimality claim), Constant Step Scheme III (2.2.11) which is the classic Nesterov acceleration, and Theorem 2.1.7 (lower complexity bound). The quote is from page 94 (Theorem 2.2.2). Visual verification confirmed the O(1/k²) rate for μ=0 and the optimality proof which shows the method matches the information-theoretic lower bound. Pages 88-93 develop the estimate sequence framework and general optimal method scheme. Pages 94-95 prove optimality by comparing upper and lower bounds. Pages 97-98 derive the simplified constant step schemes.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "gd-strongly-convex-linear-convergence-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "101-102",
+      "theorem": "Theorem 2.1.15",
+      "claim": "Gradient descent with fixed step size achieves linear convergence to the global minimum on strongly convex smooth functions when $0 < \\alpha \\leq 2/(L+\\mu)$",
+      "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then the Gradient Method generates a sequence $\\{x_k\\}$ such that $\\|x_k - x^*\\|^2 \\leq \\left(1 - \\frac{2h\\mu L}{\\mu+L}\\right)^k \\|x_0 - x^*\\|^2$",
+      "notes": "Internal: This is the updated 2nd edition (2018) version of the same result from the 2004 edition. The theorem is essentially the same but with slightly refined notation using $\\mathscr{S}_{\\mu,L}^{1,1}$ instead of $S_{\\mu,L}^{1,1}$. The step size bound is $h \\leq 2/(\\mu+L)$ (allowing equality) instead of $h < 2/(L+\\mu)$. Can be used for comparison with the 2004 edition to determine which source to recommend.",
+      "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes strongly convex functions with strong convexity parameter $\\mu > 0$ and Lipschitz continuous gradient with constant $L$ (see Definition 2.1.3 on page 94). The condition number $Q = L/\\mu$ determines the convergence rate. With optimal step size $h = 2/(L+\\mu)$, the convergence rate is $\\left(\\frac{L-\\mu}{L+\\mu}\\right)^{2k} = \\left(\\frac{Q-1}{Q+1}\\right)^{2k}$, which provides exponentially fast (linear) convergence. Note: Nesterov uses $h$ for step size in the theorem statement; here we use $\\alpha$. This result differs from the merely convex case (Theorem 2.1.14), which has step size bound $2/L$ instead of $2/(L+\\mu)$.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0093.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0094.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0102.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94) for strongly convex functions. The quote is word-for-word accurate from the PDF. The theorem appears on page 101 (starting at the bottom) and continues to page 102. The step size condition allows equality ($h \\leq 2/(\\mu+L)$) unlike the 2004 edition which used strict inequality. Pages 93-94 provide the definition and characterization of strongly convex functions including Theorem 2.1.9 which gives equivalent conditions.",
       "usedIn": ["GdFixedTab"]
     }
   }

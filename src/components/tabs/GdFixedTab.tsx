@@ -320,7 +320,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
-                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ), where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence" />
+                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ), where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence" />
@@ -401,7 +401,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <p className="text-sm mt-2">
               <strong>Linear convergence:</strong> Squared error decreases by constant factor each iteration.
               The rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>, which can be
-              rewritten as <InlineMath>{String.raw`\left(\frac{Q-1}{Q+1}\right)^k`}</InlineMath>.<Citation citationKey="gd-strongly-convex-linear-convergence" />
+              rewritten as <InlineMath>{String.raw`\left(\frac{Q-1}{Q+1}\right)^k`}</InlineMath>.<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
             </p>
           </div>
 
