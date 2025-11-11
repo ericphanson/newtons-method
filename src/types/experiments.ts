@@ -14,14 +14,6 @@ export type SeparatingHyperplaneVariant =
   | 'perceptron'
   | 'squared-hinge';
 
-// Legacy type - kept for backwards compatibility
-// New code should use DataPoint from '../shared-utils'
-export interface DataPointLegacy {
-  x: number;
-  y: number;
-  label: number;
-}
-
 export type ExperimentTone =
   | 'green'
   | 'red'
@@ -55,8 +47,7 @@ export interface ExperimentPreset {
   // Generic parameter support
   problemParameters?: Record<string, number | string>;
 
-  dataset?: DataPointLegacy[]; // Uses legacy format {x, y, label} for presets
-  separatingHyperplaneVariant?: SeparatingHyperplaneVariant; // For separating-hyperplane problem
+  dataset?: DataPoint[]; // Uses modern format {x1, x2, y}
 
   hyperparameters: {
     alpha?: number;

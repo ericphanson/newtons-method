@@ -204,9 +204,12 @@ const UnifiedVisualizer = () => {
   }, [selectedTab]);
 
   // Reset problemParameters to defaults when problem changes
+  // Skip reset during experiment loading to avoid race condition
   useEffect(() => {
-    setProblemParameters(getDefaultParameters(currentProblem));
-  }, [currentProblem]);
+    if (!experimentLoading) {
+      setProblemParameters(getDefaultParameters(currentProblem));
+    }
+  }, [currentProblem, experimentLoading]);
 
   // QUESTIONABLE SPECIAL CASE: Global minimum calculation
   // TODO: Consider if this should be generalized or removed
@@ -711,7 +714,6 @@ const UnifiedVisualizer = () => {
     currentProblem: string,
     currentConfig: {
       problemParameters?: Record<string, number | string>;
-      separatingHyperplaneVariant?: string;
     }
   ): string[] {
     const changes: string[] = [];
@@ -721,7 +723,7 @@ const UnifiedVisualizer = () => {
       return changes;
     }
 
-    // Check for parameter changes (rotation angle, condition number, etc.)
+    // Check for parameter changes (rotation angle, condition number, variant, etc.)
     if (experiment.problemParameters) {
       const currentParams = currentConfig.problemParameters || {};
 
@@ -745,13 +747,13 @@ const UnifiedVisualizer = () => {
         const current = currentParams.rosenbrockB ?? 100;
         changes.push(`b: ${current}→${experiment.problemParameters.rosenbrockB}`);
       }
-    }
 
-    // Separating hyperplane variant
-    if (experiment.separatingHyperplaneVariant !== undefined &&
-        experiment.separatingHyperplaneVariant !== currentConfig.separatingHyperplaneVariant) {
-      const current = currentConfig.separatingHyperplaneVariant ?? 'none';
-      changes.push(`variant: ${current}→${experiment.separatingHyperplaneVariant}`);
+      // Variant (for separating hyperplane)
+      if (experiment.problemParameters.variant !== undefined &&
+          experiment.problemParameters.variant !== currentParams.variant) {
+        const current = currentParams.variant ?? 'none';
+        changes.push(`variant: ${current}→${experiment.problemParameters.variant}`);
+      }
     }
 
     return changes;
@@ -805,19 +807,12 @@ const UnifiedVisualizer = () => {
       // 3. Switch problem (always set, regardless of type)
       setCurrentProblem(experiment.problem);
 
-      // Set variant if problem supports variants
-      const entry = problemRegistryV2[experiment.problem];
-      if (entry?.variants && experiment.separatingHyperplaneVariant) {
-        const variantValue = experiment.separatingHyperplaneVariant;
+      // Load problem parameters from preset (merge with existing params like lambda)
+      if (experiment.problemParameters) {
         setProblemParameters(prev => ({
           ...prev,
-          variant: variantValue
+          ...experiment.problemParameters
         }));
-      }
-
-      // Load problem parameters from preset
-      if (experiment.problemParameters) {
-        setProblemParameters(experiment.problemParameters);
       }
 
       // For non-dataset problems, ensure problem definition is available
@@ -833,13 +828,7 @@ const UnifiedVisualizer = () => {
 
       // 4. Load custom dataset if provided
       if (experiment.dataset) {
-        // Convert from experiment DataPoint format {x, y, label} to visualizer format {x1, x2, y}
-        const convertedDataset = experiment.dataset.map(point => ({
-          x1: point.x,
-          x2: point.y,
-          y: point.label,
-        }));
-        setCustomPoints(convertedDataset);
+        setCustomPoints(experiment.dataset); // Already in correct format
       }
 
       // 6. Iterations reset automatically via useEffect when state changes
@@ -894,7 +883,6 @@ const UnifiedVisualizer = () => {
         // Same problem - check if problem config changed
         const problemConfigChanges = getProblemConfigChanges(experiment, currentProblem, {
           problemParameters,
-          separatingHyperplaneVariant: experiment.separatingHyperplaneVariant,
         });
         if (problemConfigChanges.length > 0) {
           changes.push(...problemConfigChanges);

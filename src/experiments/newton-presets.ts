@@ -98,7 +98,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Perceptron with no line search or damping - full Newton step explodes loss',
     algorithm: 'newton',
     problem: 'separating-hyperplane',
-    separatingHyperplaneVariant: 'perceptron',
+    problemParameters: {
+      variant: 'perceptron',
+    },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
@@ -131,7 +133,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Line search shrinks huge Newton steps but just obscures the underlying problem',
     algorithm: 'newton',
     problem: 'separating-hyperplane',
-    separatingHyperplaneVariant: 'perceptron',
+    problemParameters: {
+      variant: 'perceptron',
+    },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
@@ -152,7 +156,9 @@ export const newtonExperiments: ExperimentPreset[] = [
     description: 'Hessian damping prevents huge steps but still fundamentally unsuited for perceptron',
     algorithm: 'newton',
     problem: 'separating-hyperplane',
-    separatingHyperplaneVariant: 'perceptron',
+    problemParameters: {
+      variant: 'perceptron',
+    },
     hyperparameters: {
       c1: 0.0001,
       lambda: 0.0001,
@@ -165,6 +171,28 @@ export const newtonExperiments: ExperimentPreset[] = [
     ui: {
       tone: 'amber',
       hidden: true,
+    },
+  },
+  {
+    id: 'newton-perceptron-singular',
+    name: 'Zero Curvature: Perceptron Without Regularization',
+    description: 'Piecewise linear loss with no regularization - Hessian is exactly zero',
+    algorithm: 'newton',
+    problem: 'separating-hyperplane',
+    problemParameters: {
+      variant: 'perceptron',
+    },
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      maxIter: 50,
+      hessianDamping: 0,
+      lineSearch: 'armijo',
+    },
+    initialPoint: [0.5, 0.5],
+    expectation: 'Observe: H = 0 (singular matrix), eigenvalues = 0. Newton falls back to gradient descent - no second-order information exists!',
+    ui: {
+      tone: 'purple',
     },
   },
 ];

@@ -27,13 +27,13 @@ export const newtonConvexity: Story = {
       scrollTo: 'metrics'
     },
     {
-      experimentId: 'newton-perceptron-damping-fix',
-      narrative: 'Now a piecewise linear loss: the perceptron. The loss itself has zero curvature (H=0), so the ONLY curvature comes from L2 regularization: H = λI where λ=0.0001. What happens when the Hessian is this uninformative?',
+      experimentId: 'newton-perceptron-singular',
+      narrative: 'Now a piecewise linear loss: the perceptron without regularization. The loss has zero curvature everywhere - no second-order information exists. What happens when H = 0?',
       scrollTo: 'problem'
     },
     {
-      experimentId: 'newton-perceptron-damping-fix',
-      narrative: 'Eigenvalues are exactly λ = 0.0001. Technically positive definite (convex!), but H⁻¹ = (1/λ)I amplifies the gradient by 10,000×! Even with line search to rescue the huge steps, Newton gains no advantage over gradient descent here.',
+      experimentId: 'newton-perceptron-singular',
+      narrative: 'The Hessian is exactly [[0, 0], [0, 0]] - a singular matrix! Eigenvalues are both zero. Newton cannot invert this, so it falls back to gradient descent. When there\'s no curvature information, Newton offers no advantage.',
       scrollTo: 'metrics'
     },
     {
@@ -43,12 +43,12 @@ export const newtonConvexity: Story = {
     },
     {
       experimentId: 'newton-failure-saddle',
-      narrative: 'Look at the eigenvalues: λ₁=2.0, λ₂=-2.0. One positive, one NEGATIVE! This indefinite Hessian is the signature of a saddle point, not a minimum. The gradient is zero, but we\'re not at the bottom.',
+      narrative: 'Look at the eigenvalues: λ₁=2.0, λ₂=-2.0. One positive, one NEGATIVE! This indefinite Hessian is the signature of a saddle point, not a minimum.',
       scrollTo: 'metrics'
     },
     {
       experimentId: 'newton-failure-saddle',
-      narrative: 'Watch Newton diverge! The negative eigenvalue λ₂=-2 means H⁻¹ flips that direction - the Newton step ascends instead of descending. Without positive definiteness, Newton has no safety net. Quasi-Newton methods solve this by approximating only positive curvature...',
+      narrative: 'Newton converges to the saddle in 2 iterations - gradient is zero, so Newton thinks it succeeded! But the negative eigenvalue proves this is NOT a minimum. Newton finds critical points (∇f=0) but can\'t tell minima from saddles without checking eigenvalue signs. Quasi-Newton methods handle this better by only approximating positive curvature...',
       scrollTo: 'canvas'
     }
   ]
