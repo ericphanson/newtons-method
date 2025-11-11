@@ -107,7 +107,6 @@ const UnifiedVisualizer = () => {
   // This ensures the ref stays true until all React effects have run
   useEffect(() => {
     if (!experimentJustLoaded && isLoadingExperimentRef.current) {
-      console.log('[CLEANUP] Clearing isLoadingExperimentRef after experiment load completed');
       isLoadingExperimentRef.current = false;
     }
   }, [experimentJustLoaded]);
@@ -218,13 +217,8 @@ const UnifiedVisualizer = () => {
   // Reset problemParameters to defaults when problem changes
   // Skip reset during experiment loading to avoid race condition
   useEffect(() => {
-    console.log('[PROBLEM RESET EFFECT] currentProblem changed to:', currentProblem);
-    console.log('[PROBLEM RESET EFFECT] isLoadingExperimentRef.current:', isLoadingExperimentRef.current);
     if (!isLoadingExperimentRef.current) {
-      console.log('[PROBLEM RESET EFFECT] Resetting parameters to defaults');
       setProblemParameters(getDefaultParameters(currentProblem));
-    } else {
-      console.log('[PROBLEM RESET EFFECT] Skipping reset (experiment loading)');
     }
   }, [currentProblem]);
 
@@ -778,8 +772,6 @@ const UnifiedVisualizer = () => {
 
   // Load experiment preset
   const loadExperiment = useCallback((experiment: ExperimentPreset, options?: { suppressToastIfUnchanged?: boolean }) => {
-    console.log('[LOAD EXPERIMENT] Starting:', experiment.id, experiment.name);
-    console.log('[LOAD EXPERIMENT] Setting isLoadingExperimentRef = true');
     setExperimentLoading(true);
     isLoadingExperimentRef.current = true;
 
@@ -825,12 +817,10 @@ const UnifiedVisualizer = () => {
       }
 
       // 3. Switch problem (always set, regardless of type)
-      console.log('[LOAD EXPERIMENT] Setting currentProblem to:', experiment.problem);
       setCurrentProblem(experiment.problem);
 
       // Load problem parameters from preset (merge with existing params like lambda)
       if (experiment.problemParameters) {
-        console.log('[LOAD EXPERIMENT] Setting problemParameters:', experiment.problemParameters);
         setProblemParameters(prev => ({
           ...prev,
           ...experiment.problemParameters
@@ -862,7 +852,6 @@ const UnifiedVisualizer = () => {
       // This uses the event loop to ensure hooks see experimentJustLoaded: true before it resets
       // Note: isLoadingExperimentRef is cleared by a separate useEffect to ensure proper timing
       setTimeout(() => {
-        console.log('[LOAD EXPERIMENT] setTimeout callback - clearing experimentJustLoaded');
         setExperimentJustLoaded(false);
       }, 0);
 
