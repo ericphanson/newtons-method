@@ -208,7 +208,7 @@ export const newtonExperiments: ExperimentPreset[] = [
       hessianDamping: 0,
       lineSearch: 'none',
     },
-    initialPoint: [0, 0],
+    initialPoint: [2.611, 0],
     expectation: 'Observe: Without eigenvalue checking, Newton converges to saddle points. Line search can get stuck (α=0). Use basin of convergence view to see 8 attractors instead of 4 true minima.',
     ui: {
       tone: 'red',

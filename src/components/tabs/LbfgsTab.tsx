@@ -10,6 +10,7 @@ import { ExperimentCardList } from '../ExperimentCardList';
 import { fmt, fmtVec } from '../../shared-utils';
 import { Pseudocode, Var, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
+import { SparklineMetric } from '../SparklineMetric';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { LBFGSIteration } from '../../algorithms/lbfgs';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -81,6 +82,85 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
     () => getExperimentsForAlgorithm('lbfgs'),
     []
   );
+
+  // Extract eigenvalue evolution history for sparklines
+  const hessianMetrics = React.useMemo(() => {
+    if (!iterations || iterations.length === 0) return null;
+
+    // Find iterations with hessian comparison data
+    const iterationsWithHessian = iterations
+      .map((iter, index) => ({ iter, originalIndex: index }))
+      .filter(({ iter }) => iter.hessianComparison);
+
+    if (iterationsWithHessian.length === 0) return null;
+
+    const lambda1True: number[] = [];
+    const lambda1Approx: number[] = [];
+    const lambda2True: number[] = [];
+    const lambda2Approx: number[] = [];
+    const lambdaMinTrue: number[] = [];
+    const lambdaMinApprox: number[] = [];
+    const conditionNumber: number[] = [];
+    const frobeniusErrorPercent: number[] = [];
+    const indices: number[] = [];
+
+    iterationsWithHessian.forEach(({ iter, originalIndex }) => {
+      const hc = iter.hessianComparison!;
+      indices.push(originalIndex);
+
+      // True eigenvalues
+      if (hc.trueEigenvalues) {
+        lambda1True.push(hc.trueEigenvalues.lambda1);
+        lambda2True.push(hc.trueEigenvalues.lambda2);
+        lambdaMinTrue.push(Math.min(hc.trueEigenvalues.lambda1, hc.trueEigenvalues.lambda2));
+      }
+
+      // Approximate eigenvalues
+      lambda1Approx.push(hc.approximateEigenvalues.lambda1);
+      lambda2Approx.push(hc.approximateEigenvalues.lambda2);
+      lambdaMinApprox.push(Math.min(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2));
+
+      // Condition number κ = λ_max / λ_min
+      const lambdaMax = Math.max(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2);
+      const lambdaMin = Math.min(hc.approximateEigenvalues.lambda1, hc.approximateEigenvalues.lambda2);
+      if (lambdaMin > 1e-12) {
+        conditionNumber.push(lambdaMax / lambdaMin);
+      } else {
+        conditionNumber.push(1e6); // Cap at large value for display
+      }
+
+      // Frobenius error as percentage
+      if (hc.frobeniusError !== null && hc.frobeniusError !== undefined && hc.trueHessian) {
+        const frobeniusNormH = Math.sqrt(hc.trueHessian.reduce((sum, row) =>
+          sum + row.reduce((rowSum, val) => rowSum + val * val, 0), 0));
+        const relativeError = (hc.frobeniusError / frobeniusNormH) * 100;
+        frobeniusErrorPercent.push(relativeError);
+      }
+    });
+
+    // Map current iteration to sparkline index
+    const sparklineIndex = indices.indexOf(currentIter);
+
+    return {
+      lambda1True,
+      lambda1Approx,
+      lambda2True,
+      lambda2Approx,
+      lambdaMinTrue,
+      lambdaMinApprox,
+      conditionNumber,
+      frobeniusErrorPercent,
+      sparklineIndex: sparklineIndex >= 0 ? sparklineIndex : 0,
+      indices, // Return indices to map clicks back to iteration numbers
+    };
+  }, [iterations, currentIter]);
+
+  // Handler to map sparkline clicks to iteration changes
+  const handleSparklineClick = React.useCallback((sparklineIdx: number) => {
+    if (hessianMetrics?.indices && sparklineIdx >= 0 && sparklineIdx < hessianMetrics.indices.length) {
+      onIterChange(hessianMetrics.indices[sparklineIdx]);
+    }
+  }, [hessianMetrics, onIterChange]);
 
   return (
     <>
@@ -279,6 +359,90 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               the full Hessian matrix. This visualization is only possible in low dimensions.
             </p>
           </div>
+
+          {/* Eigenvalue Evolution Sparklines */}
+          {hessianMetrics && iterations[currentIter]?.hessianComparison && hessianMetrics.lambda1Approx.length > 1 && (
+            <div className="space-y-4 mb-6">
+              <h3 className="text-lg font-bold text-purple-900">Eigenvalue Evolution Over Iterations</h3>
+              <p className="text-sm text-gray-600">
+                Watch how L-BFGS's approximate Hessian eigenvalues converge to the true Hessian as memory builds.
+                Click any sparkline to jump to that iteration.
+              </p>
+
+              {/* Individual Eigenvalues - 2x2 Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Lambda 1 - True */}
+                {hessianMetrics.lambda1True.length > 0 && (
+                  <SparklineMetric
+                    label={<span className="text-purple-700"><InlineMath>{"\\lambda_1 \\text{ (True H)}"}</InlineMath></span>}
+                    value={fmt(iterations[currentIter].hessianComparison?.trueEigenvalues?.lambda1 ?? 0)}
+                    data={hessianMetrics.lambda1True}
+                    currentIndex={hessianMetrics.sparklineIndex}
+                    strokeColor="#9333ea"
+                    markerColor="#9333ea"
+                    thresholds={[
+                      { value: 0, color: '#1f2937', dash: '4,4', opacity: 0.9 }
+                    ]}
+                    onPointSelect={handleSparklineClick}
+                  />
+                )}
+
+                {/* Lambda 2 - True */}
+                {hessianMetrics.lambda2True.length > 0 && (
+                  <SparklineMetric
+                    label={<span className="text-purple-700"><InlineMath>{"\\lambda_2 \\text{ (True H)}"}</InlineMath></span>}
+                    value={fmt(iterations[currentIter].hessianComparison?.trueEigenvalues?.lambda2 ?? 0)}
+                    data={hessianMetrics.lambda2True}
+                    currentIndex={hessianMetrics.sparklineIndex}
+                    strokeColor="#9333ea"
+                    markerColor="#9333ea"
+                    thresholds={[
+                      { value: 0, color: '#1f2937', dash: '4,4', opacity: 0.9 }
+                    ]}
+                    onPointSelect={handleSparklineClick}
+                  />
+                )}
+
+                {/* Lambda 1 - Approximate */}
+                <SparklineMetric
+                  label={<span className="text-amber-700"><InlineMath>{"\\lambda_1 \\text{ (Approx B)}"}</InlineMath></span>}
+                  value={fmt(iterations[currentIter].hessianComparison?.approximateEigenvalues?.lambda1 ?? 0)}
+                  data={hessianMetrics.lambda1Approx}
+                  currentIndex={hessianMetrics.sparklineIndex}
+                  strokeColor="#f59e0b"
+                  markerColor="#f59e0b"
+                  thresholds={[
+                    { value: 0, color: '#1f2937', dash: '4,4', opacity: 0.9 }
+                  ]}
+                  onPointSelect={handleSparklineClick}
+                />
+
+                {/* Lambda 2 - Approximate */}
+                <SparklineMetric
+                  label={<span className="text-amber-700"><InlineMath>{"\\lambda_2 \\text{ (Approx B)}"}</InlineMath></span>}
+                  value={fmt(iterations[currentIter].hessianComparison?.approximateEigenvalues?.lambda2 ?? 0)}
+                  data={hessianMetrics.lambda2Approx}
+                  currentIndex={hessianMetrics.sparklineIndex}
+                  strokeColor="#f59e0b"
+                  markerColor="#f59e0b"
+                  thresholds={[
+                    { value: 0, color: '#1f2937', dash: '4,4', opacity: 0.9 }
+                  ]}
+                  onPointSelect={handleSparklineClick}
+                />
+              </div>
+
+              <div className="text-xs text-gray-600 bg-gray-50 rounded p-3 mt-4">
+                <p><strong>💡 What to look for:</strong></p>
+                <ul className="list-disc ml-5 mt-1 space-y-1">
+                  <li>Approximate eigenvalues (amber) should track true eigenvalues (purple) as L-BFGS builds memory</li>
+                  <li>The gray dashed line at zero shows when eigenvalues go negative (indicating saddle regions)</li>
+                  <li>L-BFGS's approximate B keeps eigenvalues positive definite even when true H has negative eigenvalues</li>
+                  <li>If <InlineMath>{"\\lambda_2"}</InlineMath> (smallest eigenvalue) stays bounded away from zero, the damping parameter is helping numerical stability</li>
+                </ul>
+              </div>
+            </div>
+          )}
 
           {iterations[currentIter]?.hessianComparison ? (
             <div className="space-y-4">

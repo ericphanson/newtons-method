@@ -37,11 +37,10 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
         <button
           onClick={handlePrevious}
           disabled={currentIter === 0}
-          className={`p-1 rounded transition-colors ${
-            currentIter === 0
+          className={`p-1 rounded transition-colors ${currentIter === 0
               ? 'text-gray-300 cursor-not-allowed'
               : 'text-gray-700 hover:bg-gray-200'
-          }`}
+            }`}
           title="Previous iteration"
           aria-label="Previous iteration"
         >
@@ -52,11 +51,10 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
         <button
           onClick={handleNext}
           disabled={currentIter === totalIters}
-          className={`p-1 rounded transition-colors ${
-            currentIter === totalIters
+          className={`p-1 rounded transition-colors ${currentIter === totalIters
               ? 'text-gray-300 cursor-not-allowed'
               : 'text-gray-700 hover:bg-gray-200'
-          }`}
+            }`}
           title="Next iteration"
           aria-label="Next iteration"
         >

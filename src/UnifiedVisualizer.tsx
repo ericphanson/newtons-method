@@ -461,21 +461,21 @@ const UnifiedVisualizer = () => {
   // Helper to get current algorithm's data
   const getCurrentAlgorithmData = useCallback(() => {
     const history = selectedTab === 'gd-fixed' ? gdFixed.iterations :
-                   selectedTab === 'gd-linesearch' ? gdLS.iterations :
-                   selectedTab === 'newton' ? newton.iterations :
-                   selectedTab === 'lbfgs' ? lbfgs.iterations :
-                   diagPrecond.iterations;
+      selectedTab === 'gd-linesearch' ? gdLS.iterations :
+        selectedTab === 'newton' ? newton.iterations :
+          selectedTab === 'lbfgs' ? lbfgs.iterations :
+            diagPrecond.iterations;
 
     const summary = selectedTab === 'gd-fixed' ? gdFixed.summary :
-                   selectedTab === 'gd-linesearch' ? gdLS.summary :
-                   selectedTab === 'newton' ? newton.summary :
-                   selectedTab === 'lbfgs' ? lbfgs.summary :
-                   diagPrecond.summary;
+      selectedTab === 'gd-linesearch' ? gdLS.summary :
+        selectedTab === 'newton' ? newton.summary :
+          selectedTab === 'lbfgs' ? lbfgs.summary :
+            diagPrecond.summary;
 
     return { history, summary };
   }, [selectedTab, gdFixed.iterations, gdFixed.summary, gdLS.iterations, gdLS.summary,
-      newton.iterations, newton.summary, lbfgs.iterations, lbfgs.summary,
-      diagPrecond.iterations, diagPrecond.summary]);
+    newton.iterations, newton.summary, lbfgs.iterations, lbfgs.summary,
+    diagPrecond.iterations, diagPrecond.summary]);
 
   // Derive currentIter from proportion for active algorithm
   const currentIter = useMemo(() => {
@@ -502,8 +502,8 @@ const UnifiedVisualizer = () => {
 
     // Convert iteration to proportion, using exact values for edges
     const proportion = newIter === 0 ? 0 :
-                       newIter >= maxIter ? 1.0 :
-                       newIter / maxIter;
+      newIter >= maxIter ? 1.0 :
+        newIter / maxIter;
 
     // Throttle updates to max 30fps (33ms between updates)
     const now = performance.now();
@@ -827,28 +827,28 @@ const UnifiedVisualizer = () => {
 
       // Rotation angle
       if (experiment.problemParameters.rotationAngle !== undefined &&
-          experiment.problemParameters.rotationAngle !== currentParams.rotationAngle) {
+        experiment.problemParameters.rotationAngle !== currentParams.rotationAngle) {
         const current = currentParams.rotationAngle ?? 0;
         changes.push(`rotation: ${current}°→${experiment.problemParameters.rotationAngle}°`);
       }
 
       // Condition number
       if (experiment.problemParameters.conditionNumber !== undefined &&
-          experiment.problemParameters.conditionNumber !== currentParams.conditionNumber) {
+        experiment.problemParameters.conditionNumber !== currentParams.conditionNumber) {
         const current = currentParams.conditionNumber ?? 100;
         changes.push(`κ: ${current}→${experiment.problemParameters.conditionNumber}`);
       }
 
       // Rosenbrock b
       if (experiment.problemParameters.rosenbrockB !== undefined &&
-          experiment.problemParameters.rosenbrockB !== currentParams.rosenbrockB) {
+        experiment.problemParameters.rosenbrockB !== currentParams.rosenbrockB) {
         const current = currentParams.rosenbrockB ?? 100;
         changes.push(`b: ${current}→${experiment.problemParameters.rosenbrockB}`);
       }
 
       // Variant (for separating hyperplane)
       if (experiment.problemParameters.variant !== undefined &&
-          experiment.problemParameters.variant !== currentParams.variant) {
+        experiment.problemParameters.variant !== currentParams.variant) {
         const current = currentParams.variant ?? 'none';
         changes.push(`variant: ${current}→${experiment.problemParameters.variant}`);
       }
@@ -1158,7 +1158,7 @@ const UnifiedVisualizer = () => {
 
     // Check if click is within plot area
     if (x < margins.left || x > rect.width - margins.right ||
-        y < margins.top || y > rect.height - margins.bottom) {
+      y < margins.top || y > rect.height - margins.bottom) {
       return; // Click outside plot area
     }
 
@@ -1911,73 +1911,66 @@ const UnifiedVisualizer = () => {
             {/* Stories Tab - FIRST position */}
             <button
               onClick={() => handleTabChange('stories')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'stories'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'stories'
                   ? 'text-pink-700 border-b-2 border-pink-600 bg-pink-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Stories
             </button>
             {/* Algorithms Tab */}
             <button
               onClick={() => handleTabChange('algorithms')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'algorithms'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'algorithms'
                   ? 'text-indigo-700 border-b-2 border-indigo-600 bg-indigo-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Algorithms
             </button>
             <button
               onClick={() => handleTabChange('gd-fixed')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'gd-fixed'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'gd-fixed'
                   ? 'text-green-700 border-b-2 border-green-600 bg-green-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               GD (Fixed Step)
             </button>
             <button
               onClick={() => handleTabChange('gd-linesearch')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'gd-linesearch'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'gd-linesearch'
                   ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               GD (Line Search)
             </button>
             {/* Diagonal Preconditioner Tab */}
             <button
               onClick={() => handleTabChange('diagonal-precond')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'diagonal-precond'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'diagonal-precond'
                   ? 'text-teal-700 border-b-2 border-teal-600 bg-teal-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Diagonal Precond
             </button>
             <button
               onClick={() => handleTabChange('newton')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'newton'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'newton'
                   ? 'text-purple-700 border-b-2 border-purple-600 bg-purple-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               Newton's Method
             </button>
             <button
               onClick={() => handleTabChange('lbfgs')}
-              className={`flex-1 px-4 py-4 font-semibold text-sm ${
-                selectedTab === 'lbfgs'
+              className={`flex-1 px-4 py-4 font-semibold text-sm ${selectedTab === 'lbfgs'
                   ? 'text-amber-700 border-b-2 border-amber-600 bg-amber-50'
                   : 'text-gray-600 hover:bg-gray-50'
-              }`}
+                }`}
             >
               L-BFGS
             </button>
@@ -1987,7 +1980,7 @@ const UnifiedVisualizer = () => {
           {['gd-fixed', 'gd-linesearch', 'diagonal-precond', 'newton', 'lbfgs'].includes(selectedTab) && (
             <CompactIterationPlayback
               currentIter={currentIter}
-              totalIters={getCurrentAlgorithmData().history.length - 1}
+              totalIters={getCurrentAlgorithmData().history.length}
               onIterChange={handleIterationChange}
             />
           )}
@@ -2173,6 +2166,8 @@ const UnifiedVisualizer = () => {
         if (!story) return null;
 
         const step = story.steps[currentStoryStep];
+        if (!step) return null; // Guard against invalid step index
+
         const experiment = getExperimentById(step.experimentId);
         if (!experiment) return null;
 

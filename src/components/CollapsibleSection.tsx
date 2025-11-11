@@ -64,7 +64,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   return (
-    <div id={id} className={`mb-4${className ? ` ${className}` : ''}`} {...rest}>
+    <div id={id} data-scroll-target={id} className={`mb-4${className ? ` ${className}` : ''}`} {...rest}>
       <button
         onClick={toggleExpanded}
         aria-expanded={isExpanded}

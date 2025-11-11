@@ -89,7 +89,7 @@ export const lbfgsExperiments: ExperimentPreset[] = [
       m: 10,
       maxIter: 50,
     },
-    initialPoint: [0, 0],
+    initialPoint: [2.611, 0],
     expectation: 'Observe: 4 clean basins of convergence, no saddle points, converges everywhere. By approximating only positive curvature, L-BFGS avoids Newton\'s failure modes.',
     ui: {
       tone: 'green',
