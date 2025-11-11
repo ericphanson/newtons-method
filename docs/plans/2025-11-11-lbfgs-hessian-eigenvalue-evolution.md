@@ -14,7 +14,7 @@ The existing L-BFGS visualization shows a **snapshot comparison** at the current
   - 2×2 matrix with eigenvalues λ₁, λ₂
 - **Approximate Hessian B** (reconstructed via two-loop recursion)
   - 2×2 matrix with eigenvalues λ₁, λ₂
-- **Approximation Quality**
+- **Approximation Error**
   - Single Frobenius error value: `||H - B||_F / ||H||_F`
 
 **Limitation:** Users can't see how the approximation quality evolves over iterations as L-BFGS builds its memory.
@@ -172,7 +172,7 @@ const lambda1ApproxHistory = iterations.map(iter =>
 **Structure:**
 - Tab 1: "Current Snapshot" (existing 2×2 matrix view)
 - Tab 2: "Eigenvalue Evolution" (sparklines or charts)
-- Tab 3: "Approximation Quality Metrics"
+- Tab 3: "Approximation Error Metrics"
 
 **Pros:**
 - Clean separation of concerns

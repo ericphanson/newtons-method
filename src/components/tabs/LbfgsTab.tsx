@@ -518,7 +518,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   const errorStr = relativeError.toFixed(1);
                   return (
                     <div className="bg-purple-200 rounded-lg p-4">
-                      <h3 className="text-lg font-bold text-purple-900 mb-2">Approximation Quality</h3>
+                      <h3 className="text-lg font-bold text-purple-900 mb-2">Approximation Error</h3>
                       <p>
                         Relative Error: <InlineMath>{String.raw`\frac{\|H - B\|_F}{\|H\|_F} = ` + errorStr + String.raw`\%`}</InlineMath>
                       </p>
