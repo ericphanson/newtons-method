@@ -323,7 +323,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
                 (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ), where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
-                <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence" />
+                <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Non-convex:</strong> May get stuck in local minima or saddle points
@@ -342,7 +342,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               </p>
               <BlockMath>{String.raw`0 < \varAlpha < \frac{2}{L}`}</BlockMath>
               <p>
-                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition" />
+                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
               </p>
               <p className="mt-2">
                 <strong>Better approach:</strong> Use line search (next tab) to avoid manual tuning.
@@ -413,7 +413,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             </p>
             <BlockMath>{String.raw`\varAlpha < \frac{2}{L}`}</BlockMath>
             <p className="text-sm mt-2">
-              guarantees that each step decreases the function value.<Citation citationKey="gd-smooth-descent-condition" />
+              guarantees that each step decreases the function value.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
             </p>
             <p className="text-sm mt-2">
               The Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath> satisfies:
@@ -471,7 +471,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <p className="text-sm mt-2">
               Provably optimal convergence rate for{' '}
               <GlossaryTooltip termKey="smooth" />{' '}
-              <GlossaryTooltip termKey="convex" /> functions.<Citation citationKey="nesterov-accelerated-optimal-rate" />
+              <GlossaryTooltip termKey="convex" /> functions.<Citation citationKey="nesterov-accelerated-optimal-rate-nesterov-2018" />
             </p>
           </div>
 

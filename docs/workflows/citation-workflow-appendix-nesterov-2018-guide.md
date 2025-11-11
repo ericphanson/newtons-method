@@ -68,17 +68,37 @@ Focus on exploiting problem structure (constraints, smoothness, etc.).
   - Step size: 0 < h ≤ 2/L
   - Convergence guarantee with optimal step size h = 1/L
 - **Corollary 2.1.2 (p. 81):** Explicit rate with optimal step size
+  - Gives convergence constant L/(2(k+1)), cleaner than 2004 edition's 2L/(k+4)
 - **Theorem 2.1.15 (p. 101-102):** ⭐ **Gradient descent on strongly convex functions (linear rate)**
   - Step size: 0 < h ≤ 2/(μ+L)
   - Linear convergence: $(1 - \frac{2h\mu L}{\mu+L})^k$
   - Optimal rate with h = 2/(μ+L): $(\frac{L-\mu}{L+\mu})^{2k}$
 
-#### Section 2.2: Gradient Method (p. 80)
-- 2.2.1 Estimating Sequences (p. 83)
-- 2.2.2 Decreasing the Norm of the Gradient (p. 97)
-- 2.2.3 Convex Sets (p. 101)
-- 2.2.4 The Gradient Mapping (p. 112)
-- 2.2.5 Minimization over Simple Sets (p. 114)
+#### Section 2.2: Optimal Methods (p. 102-114) ⭐
+**Accelerated gradient descent with O(1/k²) rate**
+
+**2.2.1 Estimating Sequences (p. 102-109)**
+- Definition 2.2.1 (p. 103): Estimating sequences
+- Lemmas 2.2.1-2.2.4 (p. 104-109): Building blocks for optimal methods
+- General Optimal Method Scheme (2.2.7, p. 108): Framework for all accelerated methods
+
+**2.2.2 Optimal Methods (p. 109-114)**
+- **Theorem 2.2.2 (p. 110-111):** ⭐ **Optimality of accelerated gradient**
+  - Proves O(1/k²) convergence for smooth convex functions
+  - Shows the method is optimal (matches lower bound from Theorem 2.1.7)
+  - Equation (2.2.18, p. 112): Explicit O(1/k²) rate: $f(x_k) - f^* \leq \frac{8L\|x_0-x^*\|^2}{3(k+1)^2}$ for μ=0
+- **Constant Step Schemes (p. 112-114):** Simplified momentum forms
+  - Scheme I (2.2.19, p. 112): First simplification of general scheme
+  - Scheme II (2.2.20, p. 113): Eliminates γ sequence
+  - **Scheme III (2.2.22, p. 114):** ⭐ Classic momentum form with explicit coefficient
+
+**2.2.3 Decreasing the Norm of the Gradient (p. 97)**
+
+**2.2.4 Convex Sets (p. 101)**
+
+**2.2.5 The Gradient Mapping (p. 112)**
+
+**2.2.6 Minimization over Simple Sets (p. 114)**
 
 ---
 
@@ -98,6 +118,7 @@ Focus on exploiting problem structure (constraints, smoothness, etc.).
 |---------------|---------|-------|------|-----------|
 | Smooth convex ($\mathscr{F}_L^{1,1}$) | Theorem 2.1.14 | 81 | O(1/k) sublinear | 0 < h ≤ 2/L |
 | Strongly convex ($\mathscr{S}_{\mu,L}^{1,1}$) | Theorem 2.1.15 | 101-102 | Linear (geometric) | 0 < h ≤ 2/(μ+L) |
+| Smooth convex (accelerated) | Theorem 2.2.2 | 110-111 | O(1/k²) optimal | h = 1/L (see eq. 2.2.22) |
 
 ### Key Definitions
 
@@ -135,8 +156,12 @@ Focus on exploiting problem structure (constraints, smoothness, etc.).
 2. **Section 2.1.4** (p. 77) - Lower bounds for strongly convex
 
 ### Looking for accelerated methods?
-1. **Section 2.2** (p. 80+) - Gradient method with momentum
-2. **Section 2.2.1** (p. 83) - Estimating sequences framework
+1. **Section 2.2 "Optimal Methods"** (p. 102-114) - Accelerated gradient descent
+2. **Theorem 2.2.2** (p. 110-111) - Optimality proof for O(1/k²) rate
+3. **Equation (2.2.18)** (p. 112) - Explicit O(1/k²) convergence rate for smooth convex
+4. **Constant Step Scheme III (2.2.22)** (p. 114) - Classic momentum form
+5. **Estimating sequences framework** (p. 102-109) - Theoretical foundation
+6. **Scheme progression:** General (2.2.7, p. 108) → Scheme I (2.2.19, p. 112) → Scheme II (2.2.20, p. 113) → Scheme III (2.2.22, p. 114)
 
 ## Differences from 2004 Edition
 

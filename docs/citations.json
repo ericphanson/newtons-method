@@ -41,68 +41,6 @@
     }
   },
   "citations": {
-    "gd-convex-sublinear-convergence": {
-      "reference": "nesterov-2004",
-      "pages": "86-87",
-      "theorem": "Theorem 2.1.14 and Corollary 2.1.2",
-      "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \\alpha < 2/L$",
-      "quote": "Let $f \\in F_L^{1,1}(\\mathbb{R}^n)$ and $0 < h < 2/L$. Then the gradient method generates a sequence $\\{x_k\\}$, which converges... [With optimal step size] If $h = 1/L$ and $f \\in F_L^{1,1}(\\mathbb{R}^n)$, then $f(x_k) - f^* \\leq 2L\\|x_0 - x^*\\|^2/(k+4)$",
-      "notes": "Internal: Used in GdFixedTab to explain convex (non-strongly) convergence. This is the μ=0 case compared to Theorem 2.1.15.",
-      "readerNotes": "The notation $F_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$. With optimal step size $\\alpha = 1/L$, the convergence rate is $O(1/k)$, which is sublinear convergence. Note: Nesterov uses $h$ for step size in the theorem statement; here we use $\\alpha$. This is much slower than the exponentially fast convergence for strongly convex functions (Theorem 2.1.15, with step size bound $2/(L+\\mu)$) - without strong convexity, gradient descent loses the geometric convergence rate and can only guarantee polynomial convergence.",
-      "proofPages": [
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0087.png"
-      ],
-      "verified": "2025-11-11",
-      "verifiedBy": "citation-creation-agent",
-      "verificationNotes": "Verified Theorem 2.1.14 and Corollary 2.1.2. Quote extracted from visual verification of PDF pages. The O(1/k) sublinear rate directly supports the claim that convergence is 'possibly slow'. All proof pages include necessary context (notation definition, gradient method setup, theorem statements).",
-      "usedIn": ["GdFixedTab"]
-    },
-    "gd-smooth-descent-condition": {
-      "reference": "nesterov-2004",
-      "pages": "86",
-      "theorem": "Theorem 2.1.14",
-      "claim": "With step size $\\alpha < 2/L$, gradient descent guarantees that $f(w_{k+1}) < f(w_k)$ for smooth functions (Lipschitz continuous gradient with constant $L$).",
-      "quote": "Let $f \\in F_L^{1,1}(\\mathbb{R}^n)$ and $0 < h < 2/L$. Then the gradient method generates a sequence $\\{x_k\\}$, which converges",
-      "notes": "Internal: Used in GdFixedTab at line 411 to explain the sufficient condition for descent on smooth functions. This result applies to smooth functions in general, not just convex functions. The key insight is that inequality (2.1.6) from Theorem 2.1.5 provides the descent property: f(y) ≤ f(x) + ⟨f'(x), y-x⟩ + (L/2)||y-x||^2. When combined with the gradient step x_{k+1} = x_k - h*f'(x_k), this yields descent when 0 < h < 2/L.",
-      "readerNotes": "The notation $F_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (see Theorem 2.1.5 on pages 73-74). However, the descent property itself follows from inequality (2.1.6) which holds for any function with Lipschitz continuous gradient, not just convex functions. The condition $\\alpha < 2/L$ ensures that each gradient descent step decreases the function value. Note: Nesterov uses $h$ for step size; here we use $\\alpha$. This is a more general result than convergence - it guarantees monotonic decrease at each step.",
-      "proofPages": [
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0073.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0074.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png"
-      ],
-      "verified": "2025-11-11",
-      "verifiedBy": "citation-creation-agent",
-      "verificationNotes": "Verified Theorem 2.1.14 (page 86) and the underlying Theorem 2.1.5 (pages 73-74) which establishes inequality (2.1.6). The descent condition α < 2/L is explicitly stated in Theorem 2.1.14. The proof uses inequality (2.1.6) and (2.1.8) to show r_{k+1}^2 ≤ r_k^2, where r_k = ||x_k - x*||, which implies f(x_{k+1}) ≤ f(x_k). Pages 73-74 provide the characterization of F_L^{1,1}(ℝⁿ) and the key descent inequality.",
-      "usedIn": ["GdFixedTab"]
-    },
-    "nesterov-accelerated-optimal-rate": {
-      "reference": "nesterov-2004",
-      "pages": "88-98",
-      "theorem": "Theorem 2.2.2 and Constant Step Scheme III (2.2.11)",
-      "claim": "Nesterov's accelerated gradient method achieves the optimal convergence rate $O(1/k^2)$ for smooth convex functions, which is provably optimal among all first-order methods",
-      "quote": "Let us take in (2.2.6) $\\gamma_0 = L$. Then this scheme generates a sequence $\\{x_k\\}$ such that $f(x_k) - f^* \\leq \\min\\{(1-\\sqrt{\\mu/L})^k, 2/(k+1)^2\\} \\times [f(x_0) - f^* + (L/2)\\|x_0 - x^*\\|^2]$. This means that (2.2.6) is optimal for unconstrained minimization of the functions from $S_{\\mu,L}^{1,1}(\\mathbb{R}^n)$, $\\mu \\geq 0$.",
-      "notes": "Internal: Used in GdFixedTab to explain Nesterov acceleration. The scheme (2.2.6) is developed in pages 88-97, with the constant step variant (Scheme III) on page 98. Optimality is proven by comparing with Theorem 2.1.7 lower bound. For μ=0 (smooth convex), the rate is O(1/k^2), compared to gradient descent's O(1/k) rate.",
-      "readerNotes": "The notation $S_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes functions with strong convexity parameter $\\mu \\geq 0$ and Lipschitz continuous gradient with constant $L$. When $\\mu = 0$, this reduces to $F_L^{1,1}(\\mathbb{R}^n)$, the class of smooth convex functions. The $O(1/k^2)$ convergence rate is provably optimal: Theorem 2.1.7 (pages 76-79) establishes a lower bound showing that no first-order method can achieve better than $O(1/k^2)$ convergence for this function class. Nesterov's accelerated method matches this lower bound up to constant factors, proving optimality. Constant Step Scheme III (page 98, equation 2.2.11) shows the classic 'momentum' form: $x_{k+1} = y_k - (1/L)\\nabla f(y_k)$, $y_{k+1} = x_{k+1} + ((\\sqrt{L} - \\sqrt{\\mu})/(\\sqrt{L} + \\sqrt{\\mu}))(x_{k+1} - x_k)$. For smooth convex functions ($\\mu=0$), the momentum coefficient becomes $(k-1)/(k+2)$.",
-      "proofPages": [
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0076.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0079.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0088.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0089.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0090.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0094.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0095.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0097.png",
-        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0098.png"
-      ],
-      "verified": "2025-11-11",
-      "verifiedBy": "citation-workflow-agent",
-      "verificationNotes": "Verified Theorem 2.2.2 (optimality claim), Constant Step Scheme III (2.2.11) which is the classic Nesterov acceleration, and Theorem 2.1.7 (lower complexity bound). The quote is from page 94 (Theorem 2.2.2). Visual verification confirmed the O(1/k²) rate for μ=0 and the optimality proof which shows the method matches the information-theoretic lower bound. Pages 88-93 develop the estimate sequence framework and general optimal method scheme. Pages 94-95 prove optimality by comparing upper and lower bounds. Pages 97-98 derive the simplified constant step schemes.",
-      "usedIn": ["GdFixedTab"]
-    },
     "gd-strongly-convex-linear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
       "pages": "101-102",
@@ -120,6 +58,75 @@
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94) for strongly convex functions. The quote is word-for-word accurate from the PDF. The theorem appears on page 101 (starting at the bottom) and continues to page 102. The step size condition allows equality ($h \\leq 2/(\\mu+L)$) unlike the 2004 edition which used strict inequality. Pages 93-94 provide the definition and characterization of strongly convex functions including Theorem 2.1.9 which gives equivalent conditions.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "nesterov-accelerated-optimal-rate-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "102-114",
+      "theorem": "Theorem 2.2.2 and Constant Step Scheme III (2.2.22)",
+      "claim": "Nesterov's accelerated gradient method achieves the optimal convergence rate $O(1/k^2)$ for smooth convex functions, which is provably optimal among all first-order methods",
+      "quote": "Let us take in (2.2.7) $\\gamma_0 = 3L + \\mu$. Then this scheme generates a sequence $\\{x_k\\}_{k=0}^{\\infty}$ such that $f(x_k) - f^* \\leq \\frac{2(4+q_f)L\\|x_0-x^*\\|^2}{3(k+1)^2}$. This means that method (2.2.7) is optimal for solving the unconstrained minimization problem (2.2.1) with $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $\\mu \\geq 0$. If $\\mu = 0$, then this method is optimal.",
+      "notes": "Internal: Used in GdFixedTab to explain Nesterov acceleration. This is the 2018 edition version with refined calligraphic notation. The general scheme (2.2.7) is developed in pages 102-111, with the constant step variant (Scheme III, equation 2.2.22) on page 114. Optimality is proven in Theorem 2.2.2 by comparing with Theorem 2.1.7 lower bound (pages 91-92). For μ=0 (smooth convex), equation (2.2.18) on page 112 gives the explicit rate: $f(x_k) - f^* \\leq \\frac{8L\\|x_0-x^*\\|^2}{3(k+1)^2}$, which is O(1/k²) compared to gradient descent's O(1/k) rate.",
+      "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes functions with strong convexity parameter $\\mu \\geq 0$ and Lipschitz continuous gradient with constant $L$. When $\\mu = 0$, this reduces to $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, the class of smooth convex functions. The $O(1/k^2)$ convergence rate is provably optimal: Theorem 2.1.7 (pages 91-92) establishes a lower bound showing that no first-order method can achieve better than $O(1/k^2)$ convergence for this function class. Nesterov's accelerated method matches this lower bound up to constant factors, proving optimality. Constant Step Scheme III (page 114, equation 2.2.22) shows the classic momentum form: $x_{k+1} = y_k - \\frac{1}{L}\\nabla f(y_k)$, $y_{k+1} = x_{k+1} + \\frac{1-\\sqrt{q_f}}{1+\\sqrt{q_f}}(x_{k+1} - x_k)$ where $q_f = \\mu/L$. For smooth convex functions ($\\mu=0$), the method requires a different parameter choice to avoid division by zero, as shown in Constant Step Scheme II (page 113).",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0091.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0092.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0102.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0103.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0104.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0105.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0106.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0107.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0108.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0109.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0110.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0111.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0112.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0113.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0114.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 2.2.2 (pages 110-111, optimality claim), Constant Step Scheme III (2.2.22) on page 114 which is the classic Nesterov acceleration with momentum, and Theorem 2.1.7 (pages 91-92, lower complexity bound). The quote is from page 110 (Theorem 2.2.2). Visual verification confirmed the O(1/k²) rate for μ=0 (equation 2.2.18 on page 112) and the optimality proof which shows the method matches the information-theoretic lower bound. Pages 102-109 develop the estimating sequence framework (Definition 2.2.1, Lemmas 2.2.1-2.2.4) and general optimal method scheme (2.2.7). Pages 110-111 prove optimality. Pages 112-114 derive the simplified constant step schemes with explicit momentum coefficients.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "gd-convex-sublinear-convergence-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "81",
+      "theorem": "Theorem 2.1.14 and Corollary 2.1.2",
+      "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \\alpha \\leq 2/L$",
+      "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq 2/L$. Then the Gradient Method generates a sequence $\\{x_k\\}$ such that $\\|x_k - x^*\\|^2 \\leq q^k \\|x_0 - x^*\\|^2$, where $q = 1 - \\frac{h}{2}(2-hL) \\in [0,1)$. [Corollary 2.1.2] If $h = 1/L$ and $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, then $f(x_k) - f^* \\leq \\frac{L\\|x_0-x^*\\|^2}{2(k+1)}$",
+      "notes": "Internal: Used in GdFixedTab to explain convex (non-strongly) convergence. This is the 2018 edition update of the 2004 result, using calligraphic notation $\\mathscr{F}_L^{1,1}$ instead of $F_L^{1,1}$. The step size bound allows equality ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$) in the 2004 edition. This is the $\\mu=0$ case compared to Theorem 2.1.15.",
+      "readerNotes": "The notation $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (see Definition 2.1.2 on page 62). With optimal step size $\\alpha = 1/L$, the convergence rate is $O(1/k)$, which is sublinear convergence. Note: Nesterov uses $h$ for step size in the theorem statement; here we use $\\alpha$. This is much slower than the exponentially fast convergence for strongly convex functions (Theorem 2.1.15, with step size bound $2/(L+\\mu)$) - without strong convexity, gradient descent loses the geometric convergence rate and can only guarantee polynomial convergence.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0059.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0062.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0080.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0081.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 2.1.14 and Corollary 2.1.2 on page 81. The quote is extracted from visual verification of the PDF pages. The theorem provides convergence in terms of distance to optimum, while Corollary 2.1.2 provides the $O(1/k)$ sublinear rate in function values with optimal step size $h=1/L$. Page 62 provides Definition 2.1.2 for convex functions. Page 59 contains the beginning of Section 2.1.1 (Smooth Convex Functions) where the function class $\\mathscr{F}_L^{1,1}$ is introduced. Page 80 contains the beginning of Section 2.1.5 (The Gradient Method). The step size bound allows equality ($h \\leq 2/L$) which is a refinement from the 2004 edition's strict inequality.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "gd-smooth-descent-condition-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "81",
+      "theorem": "Theorem 2.1.14",
+      "claim": "With step size $\\alpha \\leq 2/L$, gradient descent guarantees that $f(w_{k+1}) < f(w_k)$ for smooth functions (Lipschitz continuous gradient with constant $L$).",
+      "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq 2/L$. Then the Gradient Method generates a sequence $\\{x_k\\}$, which converges to some optimal point $x^*$.",
+      "notes": "Internal: Used in GdFixedTab to explain the sufficient condition for descent on smooth functions. This is the 2018 edition version using calligraphic notation $\\mathscr{F}_L^{1,1}$ instead of $F_L^{1,1}$ from the 2004 edition. The step size bound allows equality ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$). The descent property follows from the fundamental inequality for smooth functions (see Lemma 1.2.3 on page 23 which shows $f(y) \\leq f(x) + \\langle \\nabla f(x), y-x \\rangle + \\frac{L}{2}\\|y-x\\|^2$ for L-smooth functions), which combined with the gradient step yields descent when $h \\leq 2/L$.",
+      "readerNotes": "The notation $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (the function class is defined in Section 2.1.1, pages 59-69; see Definition 2.1.2 on page 62 for convex functions). However, the descent property itself follows from the upper bound inequality for smooth functions (Lemma 1.2.3 on page 23), which holds for any function with Lipschitz continuous gradient, not just convex functions. The condition $\\alpha \\leq 2/L$ ensures that each gradient descent step decreases the function value. Note: Nesterov uses $h$ for step size; here we use $\\alpha$. This is a more general result than convergence - it guarantees monotonic decrease at each step. The 2018 edition uses calligraphic script $\\mathscr{F}$ for function classes instead of the regular $F$ used in the 2004 edition, and allows equality in the step size bound ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$).",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0059.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0060.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0062.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0080.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0081.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 2.1.14 on page 81 which states the gradient method convergence for smooth convex functions with step size bound $0 < h \\leq 2/L$. The theorem explicitly states convergence, and the descent property is implied by the proof which uses the fundamental inequality for L-smooth functions (Lemma 1.2.3 on page 23). Pages 59-60 provide context on Chapter 2 (Smooth Convex Optimization) structure. Page 62 contains Definition 2.1.2 for convex functions. Pages 80-81 contain Section 2.1.5 'The Gradient Method' where Theorem 2.1.14 appears. The step size condition $h \\leq 2/L$ (allowing equality) is explicitly stated in the theorem, which is a refinement from the 2004 edition's strict inequality $h < 2/L$.",
       "usedIn": ["GdFixedTab"]
     }
   }
