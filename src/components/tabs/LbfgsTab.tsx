@@ -206,6 +206,273 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
         )}
       </div>
 
+      {/* L-BFGS Memory Section */}
+      <div className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="lbfgs-memory">
+        <h2 className="text-2xl font-bold text-amber-900 mb-4">L-BFGS Memory</h2>
+        <div className="space-y-3 text-gray-800 mb-4">
+          <p><strong>What it is:</strong> Instead of storing the full Hessian H (n×n matrix), we store only M={lbfgsM} recent (s, y) pairs.</p>
+          <p><strong>s</strong> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
+          <p><strong>y</strong> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
+          <p><strong>Why it works:</strong> These pairs implicitly capture curvature: "when we moved in direction s, the gradient changed by y". This is enough to approximate H⁻¹!</p>
+        </div>
+
+        {/* Current Curvature Pair (what happened this iteration) */}
+        {currentIter > 0 && iterations[currentIter]?.curvaturePair && (
+          <div className="bg-amber-200 border-2 border-amber-400 rounded-lg p-4 mb-4">
+            <h3 className="text-lg font-bold text-amber-900 mb-3">Current Curvature Pair (Iteration {currentIter})</h3>
+            <div className="bg-white rounded-lg p-4 space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-semibold text-gray-700">s (parameter change):</p>
+                  <p className="font-mono text-sm">{fmtVec(iterations[currentIter].curvaturePair.s)}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-700">y (gradient change):</p>
+                  <p className="font-mono text-sm">{fmtVec(iterations[currentIter].curvaturePair.y)}</p>
+                </div>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700">sᵀy:</p>
+                <p className="font-mono text-sm">{fmt(iterations[currentIter].curvaturePair.sTy)}</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-700">Status:</p>
+                {iterations[currentIter].curvaturePair.accepted ? (
+                  <p className="text-green-700 font-bold">✓ Accepted</p>
+                ) : (
+                  <p className="text-red-700 font-bold">✗ Rejected</p>
+                )}
+              </div>
+              {iterations[currentIter].curvaturePair.reason && (
+                <div>
+                  <p className="font-semibold text-gray-700">Reason:</p>
+                  <p className="text-sm text-gray-800">{iterations[currentIter].curvaturePair.reason}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Memory table */}
+        {iterations[currentIter]?.memory.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
+              <thead className="bg-amber-200">
+                <tr>
+                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-left">Pair</th>
+                  <th className="px-4 py-2 text-left">s (parameter change)</th>
+                  <th className="px-4 py-2 text-left">y (gradient change)</th>
+                  <th className="px-4 py-2 text-left">sᵀy</th>
+                  <th className="px-4 py-2 text-left">ρ = 1/(sᵀy)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {iterations[currentIter].memory.map((mem, idx) => (
+                  <tr key={idx} className="border-t border-amber-200">
+                    <td className="px-4 py-2 text-green-700 font-bold">✓ Accepted</td>
+                    <td className="px-4 py-2 font-mono">{idx + 1}</td>
+                    <td className="px-4 py-2 font-mono">{fmtVec(mem.s)}</td>
+                    <td className="px-4 py-2 font-mono">{fmtVec(mem.y)}</td>
+                    <td className="px-4 py-2 font-mono">{fmt(1 / mem.rho)}</td>
+                    <td className="px-4 py-2 font-mono">{fmt(mem.rho)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-amber-50 rounded-lg p-6 text-center">
+            <p className="text-amber-800 font-semibold">No memory pairs yet (Iteration 0)</p>
+            <p className="text-sm text-amber-700 mt-2">Memory will be populated starting from iteration 1. First iteration uses steepest descent direction.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Two-Loop Recursion */}
+      <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="two-loop-recursion">
+        <h2 className="text-2xl font-bold text-indigo-900 mb-4">Two-Loop Recursion Details</h2>
+        <div className="space-y-3 text-gray-800 mb-4">
+          <p><strong>Goal:</strong> Compute p ≈ -H⁻¹∇f using only the stored (s, y) pairs.</p>
+          <p><strong>Intuition:</strong> Transform the gradient by "undoing" the effect of past updates (first loop), scale by typical curvature, then "redo" them with corrections (second loop).</p>
+          <p><strong>Efficiency:</strong> O(m·n) = O({lbfgsM}·3) = {lbfgsM * 3} operations vs O(n³) = O(27) for full Hessian inversion!</p>
+        </div>
+
+        {iterations[currentIter]?.twoLoopData ? (
+          <>
+            <h3 className="text-xl font-bold text-indigo-800 mb-3">First Loop (Backward Pass)</h3>
+            <p className="text-gray-800 mb-3">Start with q = ∇f. For each stored pair (newest to oldest), remove its effect on the gradient.</p>
+            <div className="overflow-x-auto mb-6">
+              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
+                <thead className="bg-indigo-200">
+                  <tr>
+                    <th className="px-4 py-2 text-left">i</th>
+                    <th className="px-4 py-2 text-left">ρᵢ</th>
+                    <th className="px-4 py-2 text-left">sᵢᵀq</th>
+                    <th className="px-4 py-2 text-left bg-yellow-100">αᵢ = ρᵢ(sᵢᵀq)</th>
+                    <th className="px-4 py-2 text-left">q after update</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {iterations[currentIter].twoLoopData!.firstLoop.map((row, idx) => (
+                    <tr key={idx} className="border-t border-indigo-200">
+                      <td className="px-4 py-2 font-mono">{row.i}</td>
+                      <td className="px-4 py-2 font-mono">{fmt(row.rho)}</td>
+                      <td className="px-4 py-2 font-mono">{fmt(row.sTq)}</td>
+                      <td className="px-4 py-2 font-mono bg-yellow-50">{fmt(row.alpha)}</td>
+                      <td className="px-4 py-2 font-mono">{fmtVec(row.q)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-indigo-200 rounded p-4 mb-6">
+              <h3 className="text-lg font-bold text-indigo-900 mb-2">Initial Hessian Scaling</h3>
+              <p className="font-mono">γ = (sₘᵀyₘ)/(yₘᵀyₘ) = {fmt(iterations[currentIter].twoLoopData!.gamma)}</p>
+              <p className="mt-2">r = γq. This estimates typical curvature from the most recent pair.</p>
+            </div>
+
+            <h3 className="text-xl font-bold text-indigo-800 mb-3">Second Loop (Forward Pass)</h3>
+            <p className="text-gray-800 mb-3">Now apply corrections by adding back scaled parameter changes.</p>
+            <div className="overflow-x-auto mb-4">
+              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
+                <thead className="bg-indigo-200">
+                  <tr>
+                    <th className="px-4 py-2 text-left">i</th>
+                    <th className="px-4 py-2 text-left">yᵢᵀr</th>
+                    <th className="px-4 py-2 text-left">β = ρᵢ(yᵢᵀr)</th>
+                    <th className="px-4 py-2 text-left bg-green-100">αᵢ - β</th>
+                    <th className="px-4 py-2 text-left">r after update</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {iterations[currentIter].twoLoopData!.secondLoop.map((row, idx) => (
+                    <tr key={idx} className="border-t border-indigo-200">
+                      <td className="px-4 py-2 font-mono">{row.i}</td>
+                      <td className="px-4 py-2 font-mono">{fmt(row.yTr)}</td>
+                      <td className="px-4 py-2 font-mono">{fmt(row.beta)}</td>
+                      <td className="px-4 py-2 font-mono bg-green-50">{fmt(row.correction)}</td>
+                      <td className="px-4 py-2 font-mono">{fmtVec(row.r)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-indigo-200 rounded p-4">
+              <h3 className="text-lg font-bold text-indigo-900 mb-2">Final Direction</h3>
+              <p><strong>p = -r = {fmtVec(iterations[currentIter].direction)}</strong></p>
+              <p className="text-sm mt-2">This is our Newton-like direction that accounts for curvature!</p>
+            </div>
+          </>
+        ) : (
+          <div className="bg-indigo-50 rounded-lg p-6 text-center">
+            <p className="text-indigo-800 font-semibold">Two-loop recursion not used yet (Iteration 0)</p>
+            <p className="text-sm text-indigo-700 mt-2">Starting from iteration 1, this section will show the two-loop algorithm that computes the search direction using stored memory pairs.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Approximate Hessian Comparison */}
+      <CollapsibleSection
+        title="Approximate Hessian Comparison (2D Visualization)"
+        defaultExpanded={true}
+        storageKey="lbfgs-hessian-comparison"
+        id="approximate-hessian"
+      >
+        <div className="bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg p-6" data-scroll-target="approximate-hessian">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+            <p className="font-bold text-yellow-900">Note: L-BFGS never computes this matrix!</p>
+            <p className="text-sm text-yellow-800 mt-1">
+              We reconstruct the approximate Hessian here in 2D just to show approximation quality.
+              In practice, L-BFGS works implicitly through the two-loop recursion without ever forming
+              the full Hessian matrix. This visualization is only possible in low dimensions.
+            </p>
+          </div>
+
+          {iterations[currentIter]?.hessianComparison ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-6">
+                {/* True Hessian */}
+                {iterations[currentIter].hessianComparison.trueHessian && (
+                  <div className="bg-white rounded-lg p-4 shadow">
+                    <h3 className="text-lg font-bold text-purple-900 mb-3">True Hessian H</h3>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="font-semibold text-gray-700">Matrix:</p>
+                        <div className="font-mono text-sm">
+                          {iterations[currentIter].hessianComparison.trueHessian.map((row, i) => (
+                            <div key={i}>
+                              [{row.map(val => fmt(val)).join(', ')}]
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      {iterations[currentIter].hessianComparison.trueEigenvalues && (
+                        <div>
+                          <p className="font-semibold text-gray-700">Eigenvalues:</p>
+                          <p className="font-mono text-sm">
+                            λ₁ = {fmt(iterations[currentIter].hessianComparison.trueEigenvalues.lambda1)},
+                            λ₂ = {fmt(iterations[currentIter].hessianComparison.trueEigenvalues.lambda2)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Approximate Hessian */}
+                <div className="bg-white rounded-lg p-4 shadow">
+                  <h3 className="text-lg font-bold text-purple-900 mb-3">Approximate Hessian B</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-semibold text-gray-700">Matrix:</p>
+                      <div className="font-mono text-sm">
+                        {iterations[currentIter].hessianComparison.approximateHessian.map((row, i) => (
+                          <div key={i}>
+                            [{row.map(val => fmt(val)).join(', ')}]
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {iterations[currentIter].hessianComparison.approximateEigenvalues && (
+                      <div>
+                        <p className="font-semibold text-gray-700">Eigenvalues:</p>
+                        <p className="font-mono text-sm">
+                          λ₁ = {fmt(iterations[currentIter].hessianComparison.approximateEigenvalues.lambda1)},
+                          λ₂ = {fmt(iterations[currentIter].hessianComparison.approximateEigenvalues.lambda2)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Error metric */}
+              {iterations[currentIter].hessianComparison.frobeniusError !== null && iterations[currentIter].hessianComparison.frobeniusError !== undefined && (
+                <div className="bg-purple-200 rounded-lg p-4">
+                  <h3 className="text-lg font-bold text-purple-900 mb-2">Approximation Quality</h3>
+                  <p className="font-mono">
+                    Frobenius Error ||H - B||<sub>F</sub> = {fmt(iterations[currentIter].hessianComparison.frobeniusError!)}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-2">
+                    Lower is better. As L-BFGS builds memory, the approximation typically improves.
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-purple-50 rounded-lg p-6 text-center">
+              <p className="text-purple-800 font-semibold">Hessian comparison not available yet</p>
+              <p className="text-sm text-purple-700 mt-2">
+                This visualization will appear when Hessian comparison data is computed.
+              </p>
+            </div>
+          )}
+        </div>
+      </CollapsibleSection>
+
       {/* L-BFGS - Quick Start */}
       <CollapsibleSection
         title="Quick Start"
@@ -866,134 +1133,6 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           </div>
         </div>
       </CollapsibleSection>
-
-      {/* L-BFGS Memory Section */}
-      <div className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-bold text-amber-900 mb-4">L-BFGS Memory</h2>
-        <div className="space-y-3 text-gray-800 mb-4">
-          <p><strong>What it is:</strong> Instead of storing the full Hessian H (n×n matrix), we store only M={lbfgsM} recent (s, y) pairs.</p>
-          <p><strong>s</strong> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
-          <p><strong>y</strong> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
-          <p><strong>Why it works:</strong> These pairs implicitly capture curvature: "when we moved in direction s, the gradient changed by y". This is enough to approximate H⁻¹!</p>
-        </div>
-
-        {iterations[currentIter]?.memory.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
-              <thead className="bg-amber-200">
-                <tr>
-                  <th className="px-4 py-2 text-left">Pair</th>
-                  <th className="px-4 py-2 text-left">s (parameter change)</th>
-                  <th className="px-4 py-2 text-left">y (gradient change)</th>
-                  <th className="px-4 py-2 text-left">sᵀy</th>
-                  <th className="px-4 py-2 text-left">ρ = 1/(sᵀy)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {iterations[currentIter].memory.map((mem, idx) => (
-                  <tr key={idx} className="border-t border-amber-200">
-                    <td className="px-4 py-2 font-mono">{idx + 1}</td>
-                    <td className="px-4 py-2 font-mono">{fmtVec(mem.s)}</td>
-                    <td className="px-4 py-2 font-mono">{fmtVec(mem.y)}</td>
-                    <td className="px-4 py-2 font-mono">{fmt(1 / mem.rho)}</td>
-                    <td className="px-4 py-2 font-mono">{fmt(mem.rho)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="bg-amber-50 rounded-lg p-6 text-center">
-            <p className="text-amber-800 font-semibold">No memory pairs yet (Iteration 0)</p>
-            <p className="text-sm text-amber-700 mt-2">Memory will be populated starting from iteration 1. First iteration uses steepest descent direction.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Two-Loop Recursion */}
-      <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-bold text-indigo-900 mb-4">Two-Loop Recursion Details</h2>
-        <div className="space-y-3 text-gray-800 mb-4">
-          <p><strong>Goal:</strong> Compute p ≈ -H⁻¹∇f using only the stored (s, y) pairs.</p>
-          <p><strong>Intuition:</strong> Transform the gradient by "undoing" the effect of past updates (first loop), scale by typical curvature, then "redo" them with corrections (second loop).</p>
-          <p><strong>Efficiency:</strong> O(m·n) = O({lbfgsM}·3) = {lbfgsM * 3} operations vs O(n³) = O(27) for full Hessian inversion!</p>
-        </div>
-
-        {iterations[currentIter]?.twoLoopData ? (
-          <>
-            <h3 className="text-xl font-bold text-indigo-800 mb-3">First Loop (Backward Pass)</h3>
-            <p className="text-gray-800 mb-3">Start with q = ∇f. For each stored pair (newest to oldest), remove its effect on the gradient.</p>
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
-                <thead className="bg-indigo-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left">i</th>
-                    <th className="px-4 py-2 text-left">ρᵢ</th>
-                    <th className="px-4 py-2 text-left">sᵢᵀq</th>
-                    <th className="px-4 py-2 text-left bg-yellow-100">αᵢ = ρᵢ(sᵢᵀq)</th>
-                    <th className="px-4 py-2 text-left">q after update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {iterations[currentIter].twoLoopData!.firstLoop.map((row, idx) => (
-                    <tr key={idx} className="border-t border-indigo-200">
-                      <td className="px-4 py-2 font-mono">{row.i}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.rho)}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.sTq)}</td>
-                      <td className="px-4 py-2 font-mono bg-yellow-50">{fmt(row.alpha)}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(row.q)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="bg-indigo-200 rounded p-4 mb-6">
-              <h3 className="text-lg font-bold text-indigo-900 mb-2">Initial Hessian Scaling</h3>
-              <p className="font-mono">γ = (sₘᵀyₘ)/(yₘᵀyₘ) = {fmt(iterations[currentIter].twoLoopData!.gamma)}</p>
-              <p className="mt-2">r = γq. This estimates typical curvature from the most recent pair.</p>
-            </div>
-
-            <h3 className="text-xl font-bold text-indigo-800 mb-3">Second Loop (Forward Pass)</h3>
-            <p className="text-gray-800 mb-3">Now apply corrections by adding back scaled parameter changes.</p>
-            <div className="overflow-x-auto mb-4">
-              <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
-                <thead className="bg-indigo-200">
-                  <tr>
-                    <th className="px-4 py-2 text-left">i</th>
-                    <th className="px-4 py-2 text-left">yᵢᵀr</th>
-                    <th className="px-4 py-2 text-left">β = ρᵢ(yᵢᵀr)</th>
-                    <th className="px-4 py-2 text-left bg-green-100">αᵢ - β</th>
-                    <th className="px-4 py-2 text-left">r after update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {iterations[currentIter].twoLoopData!.secondLoop.map((row, idx) => (
-                    <tr key={idx} className="border-t border-indigo-200">
-                      <td className="px-4 py-2 font-mono">{row.i}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.yTr)}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(row.beta)}</td>
-                      <td className="px-4 py-2 font-mono bg-green-50">{fmt(row.correction)}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(row.r)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="bg-indigo-200 rounded p-4">
-              <h3 className="text-lg font-bold text-indigo-900 mb-2">Final Direction</h3>
-              <p><strong>p = -r = {fmtVec(iterations[currentIter].direction)}</strong></p>
-              <p className="text-sm mt-2">This is our Newton-like direction that accounts for curvature!</p>
-            </div>
-          </>
-        ) : (
-          <div className="bg-indigo-50 rounded-lg p-6 text-center">
-            <p className="text-indigo-800 font-semibold">Two-loop recursion not used yet (Iteration 0)</p>
-            <p className="text-sm text-indigo-700 mt-2">Starting from iteration 1, this section will show the two-loop algorithm that computes the search direction using stored memory pairs.</p>
-          </div>
-        )}
-      </div>
     </>
   );
 };

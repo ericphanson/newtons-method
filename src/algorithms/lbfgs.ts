@@ -36,6 +36,22 @@ export interface TwoLoopData {
   alphas: number[];
 }
 
+export interface CurvaturePair {
+  s: number[];
+  y: number[];
+  sTy: number;
+  accepted: boolean;
+  reason: string;
+}
+
+export interface HessianComparison {
+  trueHessian: number[][] | null;  // 2x2 matrix, null if hessian not available
+  approximateHessian: number[][];   // 2x2 reconstructed from L-BFGS memory
+  trueEigenvalues: { lambda1: number; lambda2: number } | null;
+  approximateEigenvalues: { lambda1: number; lambda2: number };
+  frobeniusError: number | null;
+}
+
 export interface LBFGSIteration {
   iter: number;
   w: number[];
@@ -54,6 +70,126 @@ export interface LBFGSIteration {
     lossValues: number[];
     armijoValues: number[];
   };
+  curvaturePair: CurvaturePair | null;  // Attempted curvature pair for this iteration (may be rejected)
+  hessianComparison: HessianComparison | null;  // Only computed when memory has data
+}
+
+/**
+ * Apply two-loop recursion to compute B^{-1} * v for an arbitrary vector v
+ * This is the core L-BFGS operation that applies the approximate inverse Hessian
+ */
+function applyTwoLoopRecursion(
+  v: number[],
+  memory: MemoryPair[],
+  gamma: number
+): number[] {
+  if (memory.length === 0) {
+    return scale(v, -1); // Just return -v if no memory
+  }
+
+  const q = [...v];
+  const alphas: number[] = [];
+
+  // First loop (backward)
+  for (let i = memory.length - 1; i >= 0; i--) {
+    const { s, y, rho } = memory[i];
+    const alpha = rho * dot(s, q);
+    alphas.unshift(alpha);
+    for (let j = 0; j < q.length; j++) {
+      q[j] -= alpha * y[j];
+    }
+  }
+
+  // Scale by initial Hessian approximation
+  const r = scale(q, gamma);
+
+  // Second loop (forward)
+  for (let i = 0; i < memory.length; i++) {
+    const { s, y, rho } = memory[i];
+    const beta = rho * dot(y, r);
+    const correction = alphas[i] - beta;
+    for (let j = 0; j < r.length; j++) {
+      r[j] += correction * s[j];
+    }
+  }
+
+  return r;
+}
+
+/**
+ * Reconstruct the full approximate Hessian B from L-BFGS memory (2D only)
+ * Returns B^{-1} by applying two-loop to basis vectors, then inverts to get B
+ */
+function reconstructApproximateHessian(
+  memory: MemoryPair[],
+  gamma: number
+): number[][] {
+  if (memory.length === 0) {
+    // No memory: return identity scaled by 1/gamma (B_0 = (1/gamma)I)
+    return [[1/gamma, 0], [0, 1/gamma]];
+  }
+
+  // Apply two-loop to basis vectors to get B^{-1}
+  const BInvCol1 = applyTwoLoopRecursion([1, 0], memory, gamma);
+  const BInvCol2 = applyTwoLoopRecursion([0, 1], memory, gamma);
+
+  // B^{-1} matrix
+  const BInv = [
+    [BInvCol1[0], BInvCol2[0]],
+    [BInvCol1[1], BInvCol2[1]]
+  ];
+
+  // Invert to get B (2x2 matrix inversion)
+  const det = BInv[0][0] * BInv[1][1] - BInv[0][1] * BInv[1][0];
+  if (Math.abs(det) < 1e-10) {
+    // Singular, return identity
+    return [[1, 0], [0, 1]];
+  }
+
+  const B = [
+    [BInv[1][1] / det, -BInv[0][1] / det],
+    [-BInv[1][0] / det, BInv[0][0] / det]
+  ];
+
+  return B;
+}
+
+/**
+ * Compute eigenvalues of a 2x2 symmetric matrix
+ */
+function computeEigenvalues2x2(M: number[][]): { lambda1: number; lambda2: number } {
+  // For symmetric 2x2: λ = (tr ± sqrt(tr^2 - 4*det)) / 2
+  const trace = M[0][0] + M[1][1];
+  const det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  const discriminant = trace * trace - 4 * det;
+
+  if (discriminant < 0) {
+    // Complex eigenvalues, return real part (should not happen for symmetric positive definite)
+    return { lambda1: trace / 2, lambda2: trace / 2 };
+  }
+
+  const sqrtDisc = Math.sqrt(discriminant);
+  const lambda1 = (trace + sqrtDisc) / 2;
+  const lambda2 = (trace - sqrtDisc) / 2;
+
+  // Return sorted (largest first)
+  return lambda1 >= lambda2
+    ? { lambda1, lambda2 }
+    : { lambda1: lambda2, lambda2: lambda1 };
+}
+
+/**
+ * Compute Frobenius norm of difference between two matrices
+ */
+function frobeniusNorm(A: number[][], B: number[][]): number {
+  let sum = 0;
+  for (let i = 0; i < A.length; i++) {
+    for (let j = 0; j < A[i].length; j++) {
+      const diff = A[i][j] - B[i][j];
+      sum += diff * diff;
+    }
+  }
+  return Math.sqrt(sum);
 }
 
 /**
@@ -165,6 +301,67 @@ export const runLBFGS = (
     const newLoss = problem.objective(wNew);
     const newGrad = problem.gradient(wNew);
 
+    // Compute curvature pair for this iteration (will be used in next iteration)
+    let curvaturePair: CurvaturePair | null = null;
+    if (iter > 0) {
+      const s = sub(wNew, w);
+      const y = sub(newGrad, grad);
+      const sTy = dot(s, y);
+
+      const accepted = sTy > 1e-10;
+      curvaturePair = {
+        s,
+        y,
+        sTy,
+        accepted,
+        reason: accepted
+          ? 'Positive curvature (sᵀy > 0)'
+          : sTy <= 0
+          ? 'Negative/zero curvature (sᵀy ≤ 0) - rejected'
+          : 'Near-zero curvature (numerical safety) - rejected'
+      };
+
+      if (accepted) {
+        memory.push({ s, y, rho: 1 / sTy });
+        if (memory.length > M) memory.shift();
+      }
+    }
+
+    // Compute Hessian comparison (only if we have memory and problem has Hessian)
+    let hessianComparison: HessianComparison | null = null;
+    if (memory.length > 0) {
+      // Get gamma for current memory state
+      const lastMem = memory[memory.length - 1];
+      const gammaBase = dot(lastMem.s, lastMem.y) / dot(lastMem.y, lastMem.y);
+      const gamma = hessianDamping > 0
+        ? gammaBase / (1 + hessianDamping * gammaBase)
+        : gammaBase;
+
+      // Reconstruct approximate Hessian B
+      const approximateHessian = reconstructApproximateHessian(memory, gamma);
+      const approximateEigenvalues = computeEigenvalues2x2(approximateHessian);
+
+      // Get true Hessian if available
+      let trueHessian: number[][] | null = null;
+      let trueEigenvalues: { lambda1: number; lambda2: number } | null = null;
+      let frobeniusError: number | null = null;
+
+      if (problem.hessian) {
+        const H = problem.hessian(wNew);
+        trueHessian = H;
+        trueEigenvalues = computeEigenvalues2x2(H);
+        frobeniusError = frobeniusNorm(approximateHessian, H);
+      }
+
+      hessianComparison = {
+        trueHessian,
+        approximateHessian,
+        trueEigenvalues,
+        approximateEigenvalues,
+        frobeniusError
+      };
+    }
+
     iterations.push({
       iter,
       w: [...w],
@@ -178,19 +375,10 @@ export const runLBFGS = (
       memory: memory.map(m => ({ ...m })),
       twoLoopData,
       lineSearchTrials: lineSearchResult.trials,
-      lineSearchCurve: lineSearchResult.curve
+      lineSearchCurve: lineSearchResult.curve,
+      curvaturePair,
+      hessianComparison
     });
-
-    if (iter > 0) {
-      const s = sub(wNew, w);
-      const y = sub(newGrad, grad);
-      const sTy = dot(s, y);
-
-      if (sTy > 1e-10) {
-        memory.push({ s, y, rho: 1 / sTy });
-        if (memory.length > M) memory.shift();
-      }
-    }
 
     w = wNew;
 

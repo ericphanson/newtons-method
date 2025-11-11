@@ -95,8 +95,11 @@ const UnifiedVisualizer = () => {
 
   // Experiment state
   const [experimentLoading, setExperimentLoading] = useState(false);
-  const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
   const [configurationExpanded, setConfigurationExpanded] = useState<boolean | undefined>(undefined);
+
+  // Universal iteration proportion (0.0 = start, 1.0 = end)
+  // Enables cross-algorithm sync: same proportion works across different history lengths
+  const [iterationProportion, setIterationProportion] = useState(1.0);
 
   // Ref to prevent IntersectionObserver from interfering during programmatic scrolls
   const isNavigatingRef = useRef(false);
@@ -104,18 +107,17 @@ const UnifiedVisualizer = () => {
   // Ref to prevent problemParameters reset during experiment loading
   const isLoadingExperimentRef = useRef(false);
 
-  // Clear the loading ref after experimentJustLoaded is cleared
-  // This ensures the ref stays true until all React effects have run
-  useEffect(() => {
-    if (!experimentJustLoaded && isLoadingExperimentRef.current) {
-      isLoadingExperimentRef.current = false;
-    }
-  }, [experimentJustLoaded]);
+  // Refs to track pending animation frames for cleanup
+  const pendingAnimationFramesRef = useRef<number[]>([]);
 
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm, skipScroll = false) => {
     const currentHash = window.location.hash;
     console.log('[TAB CHANGE] Starting - currentHash:', currentHash, 'newTab:', newTab, 'skipScroll:', skipScroll);
+
+    // Cancel any pending animation frames from previous tab changes
+    pendingAnimationFramesRef.current.forEach(id => cancelAnimationFrame(id));
+    pendingAnimationFramesRef.current = [];
 
     // Disable IntersectionObserver updates BEFORE tab switch
     isNavigatingRef.current = true;
@@ -133,7 +135,7 @@ const UnifiedVisualizer = () => {
     // After React renders the new tab, try to scroll to the hash if it exists
     if (currentHash && !skipScroll) {
       // Use requestAnimationFrame for minimal delay (one frame ~16ms)
-      requestAnimationFrame(() => {
+      const frameId1 = requestAnimationFrame(() => {
         console.log('[TAB CHANGE] After one frame, looking for element:', currentHash);
         const targetElement = document.querySelector(currentHash);
         if (targetElement) {
@@ -148,17 +150,20 @@ const UnifiedVisualizer = () => {
         // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
 
         // Re-enable IntersectionObserver after instant scroll (one more frame)
-        requestAnimationFrame(() => {
+        const frameId2 = requestAnimationFrame(() => {
           console.log('[TAB CHANGE] After instant scroll, setting isNavigatingRef = false');
           isNavigatingRef.current = false;
         });
+        pendingAnimationFramesRef.current.push(frameId2);
       });
+      pendingAnimationFramesRef.current.push(frameId1);
     } else {
       // If no hash to preserve, re-enable observer after render
-      requestAnimationFrame(() => {
+      const frameId = requestAnimationFrame(() => {
         console.log('[TAB CHANGE] No hash, setting isNavigatingRef = false after one frame');
         isNavigatingRef.current = false;
       });
+      pendingAnimationFramesRef.current.push(frameId);
     }
   };
 
@@ -338,8 +343,7 @@ const UnifiedVisualizer = () => {
         tolerance: gdFixedTolerance,
       });
     },
-    [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
+    [currentProblem, lambda, gdFixedAlpha, gdFixedTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]
   );
 
   // Use custom hook for GD Line Search algorithm
@@ -356,8 +360,7 @@ const UnifiedVisualizer = () => {
         tolerance: gdLSTolerance,
       });
     },
-    [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
+    [currentProblem, lambda, gdLSC1, gdLSTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]
   );
 
   // Use custom hook for Newton's Method algorithm
@@ -380,8 +383,7 @@ const UnifiedVisualizer = () => {
         },
       });
     },
-    [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
+    [currentProblem, lambda, newtonC1, newtonLineSearch, newtonHessianDamping, newtonTolerance, newtonFtol, newtonXtol, maxIter, initialW0, initialW1, getCurrentProblemFunctions]
   );
 
   // Use custom hook for L-BFGS algorithm
@@ -407,8 +409,7 @@ const UnifiedVisualizer = () => {
       }
       return result;
     },
-    [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
+    [currentProblem, lambda, lbfgsC1, lbfgsM, lbfgsHessianDamping, lbfgsTolerance, maxIter, initialW0, initialW1, getCurrentProblemFunctions]
   );
 
   // Use custom hook for Diagonal Preconditioner algorithm
@@ -438,9 +439,57 @@ const UnifiedVisualizer = () => {
       }
       return result;
     },
-    [currentProblem, diagPrecondLineSearch, lambda, diagPrecondHessianDamping, maxIter, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, initialW0, initialW1, getCurrentProblemFunctions],
-    { jumpToEnd: experimentJustLoaded }
+    [currentProblem, diagPrecondLineSearch, lambda, diagPrecondHessianDamping, maxIter, diagPrecondC1, diagPrecondTolerance, diagPrecondFtol, diagPrecondXtol, initialW0, initialW1, getCurrentProblemFunctions]
   );
+
+  // Helper to get current algorithm's data
+  const getCurrentAlgorithmData = useCallback(() => {
+    const history = selectedTab === 'gd-fixed' ? gdFixed.iterations :
+                   selectedTab === 'gd-linesearch' ? gdLS.iterations :
+                   selectedTab === 'newton' ? newton.iterations :
+                   selectedTab === 'lbfgs' ? lbfgs.iterations :
+                   diagPrecond.iterations;
+
+    const summary = selectedTab === 'gd-fixed' ? gdFixed.summary :
+                   selectedTab === 'gd-linesearch' ? gdLS.summary :
+                   selectedTab === 'newton' ? newton.summary :
+                   selectedTab === 'lbfgs' ? lbfgs.summary :
+                   diagPrecond.summary;
+
+    return { history, summary };
+  }, [selectedTab, gdFixed.iterations, gdFixed.summary, gdLS.iterations, gdLS.summary,
+      newton.iterations, newton.summary, lbfgs.iterations, lbfgs.summary,
+      diagPrecond.iterations, diagPrecond.summary]);
+
+  // Derive currentIter from proportion for active algorithm
+  const currentIter = useMemo(() => {
+    const { history } = getCurrentAlgorithmData();
+    const maxIter = history.length - 1;
+
+    if (maxIter <= 0) return 0;
+    if (iterationProportion === 0) return 0;
+    if (iterationProportion === 1.0) return maxIter;
+
+    return Math.round(iterationProportion * maxIter);
+  }, [iterationProportion, getCurrentAlgorithmData]);
+
+  // Handle iteration change from UI (slider, keyboard, etc.)
+  const handleIterationChange = useCallback((newIter: number) => {
+    const { history } = getCurrentAlgorithmData();
+    const maxIter = history.length - 1;
+
+    if (maxIter <= 0) {
+      setIterationProportion(1.0);
+      return;
+    }
+
+    // Convert iteration to proportion, using exact values for edges
+    const proportion = newIter === 0 ? 0 :
+                       newIter >= maxIter ? 1.0 :
+                       newIter / maxIter;
+
+    setIterationProportion(proportion);
+  }, [getCurrentAlgorithmData]);
 
   // Helper function to calculate parameter bounds from iterations
   const calculateParamBounds = useCallback((
@@ -776,8 +825,8 @@ const UnifiedVisualizer = () => {
     setExperimentLoading(true);
     isLoadingExperimentRef.current = true;
 
-    // Signal all algorithms to jump to end on next update
-    setExperimentJustLoaded(true);
+    // Jump to end for experiment loads (show final result)
+    setIterationProportion(1.0);
 
     try {
       // 1. Update hyperparameters
@@ -853,15 +902,9 @@ const UnifiedVisualizer = () => {
         setConfigurationExpanded(undefined); // Reset to default (uncontrolled)
       }
 
-      // Clear loading state immediately (no artificial delay to avoid race conditions)
+      // Clear loading state immediately
       setExperimentLoading(false);
-
-      // Reset jump-to-end flag after a tick so all useEffects can read it
-      // This uses the event loop to ensure hooks see experimentJustLoaded: true before it resets
-      // Note: isLoadingExperimentRef is cleared by a separate useEffect to ensure proper timing
-      setTimeout(() => {
-        setExperimentJustLoaded(false);
-      }, 0);
+      isLoadingExperimentRef.current = false;
 
       // Build smart toast content based on what's changing
       const changes: string[] = [];
@@ -955,14 +998,10 @@ const UnifiedVisualizer = () => {
     setMaxIter(cfg.maxIter);
     setInitialW0(cfg.initialW0);
     setInitialW1(cfg.initialW1);
-    // Reset all algorithm iterations to 0
-    gdFixed.resetIter();
-    gdLS.resetIter();
-    diagPrecond.resetIter();
-    newton.resetIter();
-    lbfgs.resetIter();
+    // Reset iteration display to start
+    setIterationProportion(0);
     setCustomPoints([]);
-  }, [gdFixed, gdLS, diagPrecond, newton, lbfgs, currentProblem]);
+  }, [currentProblem, setIterationProportion]);
 
 
 
@@ -1029,43 +1068,19 @@ const UnifiedVisualizer = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedTab === 'gd-fixed') {
-        if (e.key === 'ArrowLeft' && gdFixed.currentIter > 0) {
-          gdFixed.setCurrentIter(gdFixed.currentIter - 1);
-        } else if (e.key === 'ArrowRight' && gdFixed.currentIter < gdFixed.iterations.length - 1) {
-          gdFixed.setCurrentIter(gdFixed.currentIter + 1);
-        }
-      } else if (selectedTab === 'gd-linesearch') {
-        if (e.key === 'ArrowLeft' && gdLS.currentIter > 0) {
-          gdLS.setCurrentIter(gdLS.currentIter - 1);
-        } else if (e.key === 'ArrowRight' && gdLS.currentIter < gdLS.iterations.length - 1) {
-          gdLS.setCurrentIter(gdLS.currentIter + 1);
-        }
-       } else if (selectedTab === 'diagonal-precond') {
-          if (e.key === 'ArrowLeft' && diagPrecond.currentIter > 0) {
-            diagPrecond.setCurrentIter(diagPrecond.currentIter - 1);
-          } else if (e.key === 'ArrowRight' && diagPrecond.currentIter < diagPrecond.iterations.length - 1) {
-            diagPrecond.setCurrentIter(diagPrecond.currentIter + 1);
-          }
-      } else if (selectedTab === 'newton') {
-        if (e.key === 'ArrowLeft' && newton.currentIter > 0) {
-          newton.setCurrentIter(newton.currentIter - 1);
-        } else if (e.key === 'ArrowRight' && newton.currentIter < newton.iterations.length - 1) {
-          newton.setCurrentIter(newton.currentIter + 1);
-        }
-      } else {
-        if (e.key === 'ArrowLeft' && lbfgs.currentIter > 0) {
-          lbfgs.setCurrentIter(lbfgs.currentIter - 1);
-        } else if (e.key === 'ArrowRight' && lbfgs.currentIter < lbfgs.iterations.length - 1) {
-          lbfgs.setCurrentIter(lbfgs.currentIter + 1);
-        }
+      const { history } = getCurrentAlgorithmData();
+      const maxIter = history.length - 1;
+
+      if (e.key === 'ArrowLeft' && currentIter > 0) {
+        handleIterationChange(currentIter - 1);
+      } else if (e.key === 'ArrowRight' && currentIter < maxIter) {
+        handleIterationChange(currentIter + 1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- gdFixed properties are accessed but object itself doesn't need to be in deps
-  }, [selectedTab, gdFixed.currentIter, gdFixed.iterations.length, gdLS.currentIter, gdLS.iterations.length, newton.currentIter, newton.iterations.length, lbfgs.currentIter, lbfgs.iterations.length, diagPrecond.currentIter, diagPrecond.iterations.length]);
+  }, [currentIter, getCurrentAlgorithmData, handleIterationChange]);
 
   // Keyboard shortcuts for experiments
   useEffect(() => {
@@ -1168,12 +1183,10 @@ const UnifiedVisualizer = () => {
     // Classification problems (logistic regression, separating hyperplane) display geometric decision boundaries.
     // This is acknowledged in the migration plan as a UI-only special case.
     // See: docs/plans/2025-11-10-dataset-problems-registry-migration.md
-    const currentIter = selectedTab === 'gd-fixed' ? gdFixed.iterations[gdFixed.currentIter] :
-                       selectedTab === 'gd-linesearch' ? gdLS.iterations[gdLS.currentIter] :
-                       selectedTab === 'newton' ? newton.iterations[newton.currentIter] :
-                       lbfgs.iterations[lbfgs.currentIter];
-    if (requiresDataset(currentProblem) && currentIter) {
-      const [w0, w1] = currentIter.wNew;
+    const { history } = getCurrentAlgorithmData();
+    const currentIterData = history[currentIter];
+    if (requiresDataset(currentProblem) && currentIterData) {
+      const [w0, w1] = currentIterData.wNew;
 
       ctx.strokeStyle = '#10b981';
       ctx.lineWidth = 3;
@@ -1330,13 +1343,13 @@ const UnifiedVisualizer = () => {
       ctx.textAlign = 'center';
       ctx.fillText(`Click to add ${addPointMode === 1 ? 'Class 0 (red)' : 'Class 1 (blue)'} points`, w / 2, h / 2);
     }
-  }, [data, gdFixed.iterations, gdFixed.currentIter, gdLS.iterations, gdLS.currentIter, newton.iterations, newton.currentIter, lbfgs.iterations, lbfgs.currentIter, addPointMode, customPoints, selectedTab, currentProblem, problemParameters, bias]);
+  }, [data, currentIter, getCurrentAlgorithmData, addPointMode, customPoints, selectedTab, currentProblem, problemParameters, bias]);
 
   // Draw Newton's Hessian matrix
   useEffect(() => {
     const canvas = newtonHessianCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newton.iterations[newton.currentIter];
+    const iter = newton.iterations[currentIter];
     if (!iter) return;
 
     const { ctx, width: w, height: h } = setupCanvas(canvas);
@@ -1399,7 +1412,7 @@ const UnifiedVisualizer = () => {
     ctx.fillStyle = '#111827';
     ctx.textAlign = 'left';
     ctx.fillText('Hessian Matrix H', startX, 20);
-  }, [newton.iterations, newton.currentIter, selectedTab]);
+  }, [newton.iterations, currentIter, selectedTab]);
 
   // Helper function to draw parameter space plot
   const drawParameterSpacePlot = (
@@ -1545,13 +1558,13 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = newtonParamCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newton.iterations[newton.currentIter];
+    const iter = newton.iterations[currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblemFunctions();
-    drawParameterSpacePlot(canvas, newtonParamBounds, newton.iterations, newton.currentIter, problem);
+    drawParameterSpacePlot(canvas, newtonParamBounds, newton.iterations, currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [newton.currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
+  }, [currentIter, data, newton.iterations, newtonParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Helper function to draw line search plot
   const drawLineSearchPlot = (
@@ -1723,89 +1736,89 @@ const UnifiedVisualizer = () => {
   useEffect(() => {
     const canvas = newtonLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'newton') return;
-    const iter = newton.iterations[newton.currentIter];
+    const iter = newton.iterations[currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [newton.iterations, newton.currentIter, selectedTab]);
+  }, [newton.iterations, currentIter, selectedTab]);
 
   // Draw L-BFGS parameter space
   useEffect(() => {
     const canvas = lbfgsParamCanvasRef.current;
     if (!canvas || selectedTab !== 'lbfgs') return;
-    const iter = lbfgs.iterations[lbfgs.currentIter];
+    const iter = lbfgs.iterations[currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblemFunctions();
-    drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgs.iterations, lbfgs.currentIter, problem);
+    drawParameterSpacePlot(canvas, lbfgsParamBounds, lbfgs.iterations, currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [lbfgs.currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
+  }, [currentIter, data, lbfgs.iterations, lbfgsParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw L-BFGS line search
   useEffect(() => {
     const canvas = lbfgsLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'lbfgs') return;
-    const iter = lbfgs.iterations[lbfgs.currentIter];
+    const iter = lbfgs.iterations[currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [lbfgs.iterations, lbfgs.currentIter, selectedTab]);
+  }, [lbfgs.iterations, currentIter, selectedTab]);
 
   // Draw GD Fixed parameter space
   useEffect(() => {
     const canvas = gdFixedParamCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-fixed') return;
-    const iter = gdFixed.iterations[gdFixed.currentIter];
+    const iter = gdFixed.iterations[currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblemFunctions();
-    drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixed.iterations, gdFixed.currentIter, problem);
+    drawParameterSpacePlot(canvas, gdFixedParamBounds, gdFixed.iterations, currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdFixed.currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
+  }, [currentIter, data, gdFixed.iterations, gdFixedParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw GD Line Search parameter space
   useEffect(() => {
     const canvas = gdLSParamCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-linesearch') return;
-    const iter = gdLS.iterations[gdLS.currentIter];
+    const iter = gdLS.iterations[currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblemFunctions();
-    drawParameterSpacePlot(canvas, gdLSParamBounds, gdLS.iterations, gdLS.currentIter, problem);
+    drawParameterSpacePlot(canvas, gdLSParamBounds, gdLS.iterations, currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [gdLS.currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
+  }, [currentIter, data, gdLS.iterations, gdLSParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw GD Line Search plot
   useEffect(() => {
     const canvas = gdLSLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'gd-linesearch') return;
-    const iter = gdLS.iterations[gdLS.currentIter];
+    const iter = gdLS.iterations[currentIter];
     if (!iter) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [gdLS.iterations, gdLS.currentIter, selectedTab]);
+  }, [gdLS.iterations, currentIter, selectedTab]);
 
   // Draw Diagonal Preconditioner parameter space
   useEffect(() => {
     const canvas = diagPrecondParamCanvasRef.current;
     if (!canvas || selectedTab !== 'diagonal-precond') return;
-    const iter = diagPrecond.iterations[diagPrecond.currentIter];
+    const iter = diagPrecond.iterations[currentIter];
     if (!iter) return;
 
     const problem = getCurrentProblemFunctions();
-    drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecond.iterations, diagPrecond.currentIter, problem);
+    drawParameterSpacePlot(canvas, diagPrecondParamBounds, diagPrecond.iterations, currentIter, problem);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawParameterSpacePlot is a stable function definition, not a dependency
-  }, [diagPrecond.currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
+  }, [currentIter, data, diagPrecond.iterations, diagPrecondParamBounds, lambda, selectedTab, currentProblem, logisticGlobalMin, getCurrentProblemFunctions]);
 
   // Draw Diagonal Preconditioner line search
   useEffect(() => {
     const canvas = diagPrecondLineSearchCanvasRef.current;
     if (!canvas || selectedTab !== 'diagonal-precond') return;
-    const iter = diagPrecond.iterations[diagPrecond.currentIter];
+    const iter = diagPrecond.iterations[currentIter];
     if (!iter || !iter.lineSearchCurve) return;
 
     drawLineSearchPlot(canvas, iter);
-  }, [diagPrecond.iterations, diagPrecond.currentIter, selectedTab]);
+  }, [diagPrecond.iterations, currentIter, selectedTab]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gray-50">
@@ -1825,12 +1838,8 @@ const UnifiedVisualizer = () => {
         onProblemChange={(newProblem, defaults) => {
           setCurrentProblem(newProblem);
 
-          // Reset algorithm state when problem changes
-          gdFixed.resetIter();
-          gdLS.resetIter();
-          diagPrecond.resetIter();
-          newton.resetIter();
-          lbfgs.resetIter();
+          // Reset iteration display to start when problem changes
+          setIterationProportion(0);
 
           // Apply problem-specific defaults
           setGdFixedAlpha(defaults.gdFixedAlpha);
@@ -1954,9 +1963,9 @@ const UnifiedVisualizer = () => {
               gdFixedTolerance={gdFixedTolerance}
               onGdFixedToleranceChange={setGdFixedTolerance}
               iterations={gdFixed.iterations}
-              currentIter={gdFixed.currentIter}
-              onIterChange={(val) => gdFixed.setCurrentIter(val)}
-              onResetIter={() => gdFixed.setCurrentIter(0)}
+              currentIter={currentIter}
+              onIterChange={handleIterationChange}
+              onResetIter={() => handleIterationChange(0)}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -1980,9 +1989,9 @@ const UnifiedVisualizer = () => {
               gdLSTolerance={gdLSTolerance}
               onGdLSToleranceChange={setGdLSTolerance}
               iterations={gdLS.iterations}
-              currentIter={gdLS.currentIter}
-              onIterChange={(val) => gdLS.setCurrentIter(val)}
-              onResetIter={() => gdLS.setCurrentIter(0)}
+              currentIter={currentIter}
+              onIterChange={handleIterationChange}
+              onResetIter={() => handleIterationChange(0)}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -2015,9 +2024,9 @@ const UnifiedVisualizer = () => {
               newtonXtol={newtonXtol}
               onNewtonXtolChange={setNewtonXtol}
               iterations={newton.iterations}
-              currentIter={newton.currentIter}
-              onIterChange={(val) => newton.setCurrentIter(val)}
-              onResetIter={() => newton.setCurrentIter(0)}
+              currentIter={currentIter}
+              onIterChange={handleIterationChange}
+              onResetIter={() => handleIterationChange(0)}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -2049,9 +2058,9 @@ const UnifiedVisualizer = () => {
               lbfgsTolerance={lbfgsTolerance}
               onLbfgsToleranceChange={setLbfgsTolerance}
               iterations={lbfgs.iterations}
-              currentIter={lbfgs.currentIter}
-              onIterChange={(val) => lbfgs.setCurrentIter(val)}
-              onResetIter={() => lbfgs.setCurrentIter(0)}
+              currentIter={currentIter}
+              onIterChange={handleIterationChange}
+              onResetIter={() => handleIterationChange(0)}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
@@ -2086,9 +2095,9 @@ const UnifiedVisualizer = () => {
               diagPrecondXtol={diagPrecondXtol}
               onDiagPrecondXtolChange={setDiagPrecondXtol}
               iterations={diagPrecond.iterations}
-              currentIter={diagPrecond.currentIter}
-              onIterChange={(val) => diagPrecond.setCurrentIter(val)}
-              onResetIter={() => diagPrecond.resetIter()}
+              currentIter={currentIter}
+              onIterChange={handleIterationChange}
+              onResetIter={() => handleIterationChange(0)}
               problemFuncs={problemFuncs}
               problem={problem}
               currentProblem={currentProblem}
