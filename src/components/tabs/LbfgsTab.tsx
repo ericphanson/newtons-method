@@ -284,10 +284,10 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
       <div className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="lbfgs-memory">
         <h2 className="text-2xl font-bold text-amber-900 mb-4">L-BFGS Memory</h2>
         <div className="space-y-3 text-gray-800 mb-4">
-          <p><strong>What it is:</strong> Instead of storing the full Hessian H (n×n matrix), we store only M={lbfgsM} recent (s, y) pairs.</p>
-          <p><strong>s</strong> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
-          <p><strong>y</strong> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
-          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{`s^T y > 0`}</InlineMath> (positive curvature). This ensures the approximate Hessian B stays positive definite, guaranteeing descent directions even in non-convex regions where the true Hessian H may have negative eigenvalues.</p>
+          <p><strong>What it is:</strong> Instead of storing the full Hessian <InlineMath>\varH</InlineMath> (n×n matrix), we store only <InlineMath>\varM</InlineMath>={lbfgsM} recent (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs.</p>
+          <p><InlineMath>\varS</InlineMath> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
+          <p><InlineMath>\varY</InlineMath> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
+          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{String.raw`\varS^T \varY > 0`}</InlineMath> (positive curvature). This ensures the approximate Hessian <InlineMath>\varB</InlineMath> stays positive definite, guaranteeing descent directions even in non-convex regions where the true Hessian <InlineMath>\varH</InlineMath> may have negative eigenvalues.</p>
         </div>
 
         {/* Memory table */}
@@ -379,7 +379,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                     const lambda2 = fmt(iterations[currentIter].hessianComparison.trueEigenvalues?.lambda2 ?? 0);
                     return (
                       <div className="bg-white rounded-lg p-4 shadow">
-                        <h3 className="text-lg font-bold text-purple-900 mb-3">True Hessian H</h3>
+                        <h3 className="text-lg font-bold text-purple-900 mb-3">True Hessian <InlineMath>\varH</InlineMath></h3>
                         <div className="space-y-2">
                           <div>
                             <p className="font-semibold text-gray-700">Matrix:</p>
@@ -409,7 +409,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   const lambda2 = fmt(iterations[currentIter].hessianComparison.approximateEigenvalues?.lambda2 ?? 0);
                   return (
                     <div className="bg-white rounded-lg p-4 shadow">
-                      <h3 className="text-lg font-bold text-purple-900 mb-3">Approximate Hessian B</h3>
+                      <h3 className="text-lg font-bold text-purple-900 mb-3">Approximate Hessian <InlineMath>\varB</InlineMath></h3>
                       <div className="space-y-2">
                         <div>
                           <p className="font-semibold text-gray-700">Matrix:</p>
@@ -588,9 +588,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">What is L-BFGS?</h3>
             <p>
-              Newton's method uses <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> for smarter steps,
-              but computing the Hessian <InlineMath>H</InlineMath> costs <InlineMath>O(d^3)</InlineMath> and storing it costs <InlineMath>O(d^2)</InlineMath>. <strong>L-BFGS approximates</strong>{' '}
-              <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> using only <InlineMath>M</InlineMath> recent gradient changes, requiring just <InlineMath>O(Md)</InlineMath> memory and <InlineMath>O(Md)</InlineMath> time per iteration.
+              Newton's method uses the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var> for smarter steps,
+              but computing the Hessian <InlineMath>\varH</InlineMath> costs <InlineMath>O(d^3)</InlineMath> and storing it costs <InlineMath>O(d^2)</InlineMath>. <strong>L-BFGS approximates</strong> the same direction using only <InlineMath>\varM</InlineMath> recent gradient changes, requiring just <InlineMath>O(Md)</InlineMath> memory and <InlineMath>O(Md)</InlineMath> time per iteration.
               No Hessian matrix is ever formed or inverted!
             </p>
           </div>
@@ -608,13 +607,13 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">Key Parameters</h3>
             <p className="mb-1">
-              <strong><InlineMath>M</InlineMath> (memory size):</strong> Number of recent gradient changes to store.
-              Larger <InlineMath>M</InlineMath> gives better Hessian approximation but costs more computation (<InlineMath>O(Md)</InlineMath> per iteration).
+              <strong><InlineMath>\varM</InlineMath> (memory size):</strong> Number of recent gradient changes to store.
+              Larger <InlineMath>\varM</InlineMath> gives better Hessian approximation but costs more computation (<InlineMath>O(Md)</InlineMath> per iteration).
               Trade-off between approximation quality and computational cost.
             </p>
             <p>
-              <strong>Hessian Damping (<InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>):</strong> Regularization for numerical stability.
-              <InlineMath>{String.raw`\lambda = 0`}</InlineMath> gives pure L-BFGS; increasing <InlineMath>\lambda</InlineMath> adds more regularization, eventually reducing to gradient descent as <InlineMath>{String.raw`\lambda \to \infty`}</InlineMath>.
+              <strong>Hessian Damping (<InlineMath>\varLambdaDamp</InlineMath>):</strong> Regularization for numerical stability.
+              <InlineMath>\varLambdaDamp</InlineMath> = 0 gives pure L-BFGS; increasing <InlineMath>\varLambdaDamp</InlineMath> adds more regularization, eventually reducing to gradient descent as <InlineMath>{String.raw`\lambda_{\text{damp}} \to \infty`}</InlineMath>.
             </p>
           </div>
 
@@ -700,7 +699,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   <span className="ml-4">Use <strong>two-loop recursion</strong> to compute <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ≈ −<Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{`H^{-1}`}</InlineMath></Var><Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> from history <Complexity explanation="M pairs × d, vector ops only">O(Md)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <Var id="B_0" type="d×d matrix (scaled identity)"><InlineMath>{`B_0`}</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> with damping)</span>
+                  <span className="ml-4 ml-8 text-sm text-gray-600">(Uses initial Hessian approx. <InlineMath>\varBZero</InlineMath> + <InlineMath>\varLambdaDamp</InlineMath> · <InlineMath>\varI</InlineMath> with damping)</span>
                 </>,
                 <>
                   <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
@@ -737,17 +736,17 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 <span className="ml-4 inline-block my-1">
                   <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
                 </span><br/>
-                where <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var> is the parameter change.
+                where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
               </p>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>2. Rearranging:</strong> Define <Var id="y" type="vector ℝᵈ"><InlineMath>{String.raw`y = \nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath></Var> (gradient change). Then:<br/>
-                <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`y = H \cdot s`}</InlineMath></span><br/>
-                <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`H^{-1} \cdot y = s`}</InlineMath></span> (the <strong>secant equation</strong>)
+                <strong>2. Rearranging:</strong> Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change). Then:<br/>
+                <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`\varY = \varH \cdot \varS`}</InlineMath></span><br/>
+                <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`\varH^{-1} \cdot \varY = \varS`}</InlineMath></span> (the <strong>secant equation</strong>)
               </p>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>3. Why we want this:</strong> If our approximate inverse Hessian <Var id="B_inv" type="d×d matrix (implicit)"><InlineMath>{String.raw`B^{-1}`}</InlineMath></Var> satisfies <InlineMath>{String.raw`B^{-1} \cdot y = s`}</InlineMath> for all our observed <InlineMath>(s, y)</InlineMath> pairs, then <Var id="B_inv" type="d×d matrix (implicit)"><InlineMath>{String.raw`B^{-1}`}</InlineMath></Var> plays the same role as <Var id="H_inv" type="d×d matrix (implicit)"><InlineMath>{String.raw`H^{-1}`}</InlineMath></Var> in the Taylor expansion. It correctly relates parameter changes to gradient changes!
+                <strong>3. Why we want this:</strong> If our approximate inverse Hessian <InlineMath>{String.raw`\varB^{-1}`}</InlineMath> satisfies <InlineMath>{String.raw`\varB^{-1} \cdot \varY = \varS`}</InlineMath> for all our observed (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs, then <InlineMath>{String.raw`\varB^{-1}`}</InlineMath> plays the same role as <InlineMath>{String.raw`\varH^{-1}`}</InlineMath> in the Taylor expansion. It correctly relates parameter changes to gradient changes!
               </p>
 
               <div className="bg-amber-50 border border-amber-400 rounded p-3 my-2">
@@ -766,45 +765,45 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </div>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>4. BFGS update formula:</strong> Given a new pair <InlineMath>(s_k, y_k)</InlineMath>, how do we update our approximate Hessian <InlineMath>B_k</InlineMath> to satisfy the new secant equation? The BFGS update is:
+                <strong>4. BFGS update formula:</strong> Given a new pair (<InlineMath>\varS_k</InlineMath>, <InlineMath>\varY_k</InlineMath>), how do we update our approximate Hessian <InlineMath>\varBK</InlineMath> to satisfy the new secant equation? The BFGS update is:
               </p>
               <div className="ml-4 my-2">
-                <BlockMath>{String.raw`B_{k+1} = (I - \rho_k s_k y_k^T) B_k (I - \rho_k y_k s_k^T) + \rho_k s_k s_k^T`}</BlockMath>
+                <BlockMath>{String.raw`\varB_{k+1} = (\varI - \varRho_k \varS_k \varY_k^T) \varBK (\varI - \varRho_k \varY_k \varS_k^T) + \varRho_k \varS_k \varS_k^T`}</BlockMath>
               </div>
               <p className="text-sm text-blue-800">
-                where <InlineMath>{String.raw`\rho_k = 1/(s_k^T y_k)`}</InlineMath>.
+                where <InlineMath>{String.raw`\varRho_k = 1/(\varS_k^T \varY_k)`}</InlineMath>.
               </p>
 
               <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
                 <p className="text-sm text-blue-900 font-semibold mb-2">
-                  Verification: Does <InlineMath>{String.raw`B_{k+1} y_k = s_k`}</InlineMath>?
+                  Verification: Does <InlineMath>{String.raw`\varB_{k+1} \varY_k = \varS_k`}</InlineMath>?
                 </p>
                 <p className="text-xs text-blue-800 mb-2">
-                  Multiply the BFGS formula by <InlineMath>y_k</InlineMath>:
+                  Multiply the BFGS formula by <InlineMath>\varY_k</InlineMath>:
                 </p>
                 <div className="ml-2 my-2">
-                  <BlockMath>{String.raw`B_{k+1} y_k = \left[(I - \rho s y^T) B_k (I - \rho y s^T) + \rho s s^T\right] y_k`}</BlockMath>
+                  <BlockMath>{String.raw`\varB_{k+1} \varY_k = \left[(\varI - \varRho \varS \varY^T) \varBK (\varI - \varRho \varY \varS^T) + \varRho \varS \varS^T\right] \varY_k`}</BlockMath>
                 </div>
                 <p className="text-xs text-blue-800 mb-2">
-                  <strong>Key step:</strong> What is <InlineMath>(I - \rho y s^T) y_k</InlineMath>?
+                  <strong>Key step:</strong> What is <InlineMath>{String.raw`(\varI - \varRho \varY \varS^T) \varY_k`}</InlineMath>?
                 </p>
                 <div className="ml-2 my-2">
-                  <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - \rho y (s^T y_k) = y_k - \rho (s^T y) y_k`}</BlockMath>
+                  <BlockMath>{String.raw`(\varI - \varRho \varY \varS^T) \varY_k = \varY_k - \varRho \varY (\varS^T \varY_k) = \varY_k - \varRho (\varS^T \varY) \varY_k`}</BlockMath>
                 </div>
                 <p className="text-xs text-blue-800 mb-2">
-                  Since <InlineMath>{String.raw`\rho = 1/(s^T y)`}</InlineMath>, we have <InlineMath>{String.raw`\rho(s^T y) = 1`}</InlineMath>, so:
+                  Since <InlineMath>{String.raw`\varRho = 1/(\varS^T \varY)`}</InlineMath>, we have <InlineMath>{String.raw`\varRho(\varS^T \varY) = 1`}</InlineMath>, so:
                 </p>
                 <div className="ml-2 my-2">
-                  <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - y_k = \mathbf{0}`}</BlockMath>
+                  <BlockMath>{String.raw`(\varI - \varRho \varY \varS^T) \varY_k = \varY_k - \varY_k = \mathbf{0}`}</BlockMath>
                 </div>
                 <p className="text-xs text-blue-800 mb-2">
-                  Therefore the entire <InlineMath>B_k</InlineMath> term vanishes! We're left with:
+                  Therefore the entire <InlineMath>\varBK</InlineMath> term vanishes! We're left with:
                 </p>
                 <div className="ml-2 my-2">
-                  <BlockMath>{String.raw`B_{k+1} y_k = (I - \rho s y^T) B_k \cdot \mathbf{0} + \rho s s^T y_k = \rho (s^T y) s = s_k \,\checkmark`}</BlockMath>
+                  <BlockMath>{String.raw`\varB_{k+1} \varY_k = (\varI - \varRho \varS \varY^T) \varBK \cdot \mathbf{0} + \varRho \varS \varS^T \varY_k = \varRho (\varS^T \varY) \varS = \varS_k \,\checkmark`}</BlockMath>
                 </div>
                 <p className="text-xs text-blue-800 mt-2">
-                  <strong>The magic:</strong> The formula is specifically designed so <InlineMath>B_k</InlineMath> drops out completely when multiplied by <InlineMath>y_k</InlineMath>, leaving only the new curvature information <InlineMath>s_k</InlineMath>.
+                  <strong>The magic:</strong> The formula is specifically designed so <InlineMath>\varBK</InlineMath> drops out completely when multiplied by <InlineMath>\varY_k</InlineMath>, leaving only the new curvature information <InlineMath>\varS_k</InlineMath>.
                 </p>
               </div>
 
@@ -813,11 +812,11 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 • <strong>Rank-1 removal:</strong> Subtract out the "old guess" about curvature<br/>
                 • <strong>Rank-1 addition:</strong> Add the "new observation" about curvature<br/>
                 <br/>
-                We need both because we have one vector constraint (the secant equation) but must maintain symmetry (<InlineMath>B = B^T</InlineMath>). A single rank-1 update can't do both. The rank-2 update is the minimal symmetric modification that satisfies the secant equation while preserving positive definiteness.
+                We need both because we have one vector constraint (the secant equation) but must maintain symmetry (<InlineMath>{String.raw`\varB = \varB^T`}</InlineMath>). A single rank-1 update can't do both. The rank-2 update is the minimal symmetric modification that satisfies the secant equation while preserving positive definiteness.
               </p>
 
               <p className="text-sm text-blue-800 mt-2 font-semibold">
-                L-BFGS applies M of these updates sequentially starting from <InlineMath>B_0 = (1/\gamma)I</InlineMath>, but <strong>never forms the matrix</strong> — the two-loop recursion below implicitly applies all M updates to compute <InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath>!
+                L-BFGS applies <InlineMath>\varM</InlineMath> of these updates sequentially starting from <InlineMath>{String.raw`\varBZero = (1/\varGamma)\varI`}</InlineMath>, but <strong>never forms the matrix</strong> — the two-loop recursion below implicitly applies all <InlineMath>\varM</InlineMath> updates to compute the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath></Var>!
               </p>
             </div>
           </div>
@@ -827,34 +826,34 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-xl font-bold text-indigo-900 mb-3">The Two-Loop Recursion</h3>
 
             <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
-              <p className="font-semibold text-green-900 mb-3">How we compute <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> without forming any matrix:</p>
+              <p className="font-semibold text-green-900 mb-3">How we compute the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B_M^{-1}\nabla f`}</InlineMath></Var> without forming any matrix:</p>
 
               <p className="text-sm text-green-800 mb-2">
-                <strong>The challenge:</strong> We've applied M BFGS updates to get <InlineMath>{String.raw`B_0 \to B_1 \to \cdots \to B_M`}</InlineMath>. Now we need <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath>, but forming <InlineMath>B_M</InlineMath> or <InlineMath>{String.raw`B_M^{-1}`}</InlineMath> explicitly would cost O(d²) space!
+                <strong>The challenge:</strong> We've applied <InlineMath>\varM</InlineMath> BFGS updates to get <InlineMath>\varBZero</InlineMath> → <InlineMath>\varBOne</InlineMath> → ⋯ → <InlineMath>\varBM</InlineMath>. Now we need the direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B_M^{-1}\nabla f`}</InlineMath></Var>, but forming <InlineMath>\varBM</InlineMath> or its inverse explicitly would cost O(d²) space!
               </p>
 
               <p className="text-sm text-green-800 mb-2">
                 <strong>Key observation:</strong> Each BFGS update has a special structure. The inverse of the update can be applied recursively:
               </p>
               <div className="ml-4 my-2 text-sm text-green-800">
-                <BlockMath>{String.raw`B_M^{-1} \nabla f = (\text{undo update M}) \circ (\text{undo update M-1}) \circ \cdots \circ (\text{undo update 1}) \circ B_0^{-1} \nabla f`}</BlockMath>
+                <BlockMath>{String.raw`\varBM^{-1} \nabla f = (\text{undo update M}) \circ (\text{undo update M-1}) \circ \cdots \circ (\text{undo update 1}) \circ \varBZero^{-1} \nabla f`}</BlockMath>
               </div>
 
               <p className="text-sm text-green-800 mt-3">
                 <strong>The two-loop algorithm does exactly this:</strong>
               </p>
               <ul className="text-sm text-green-800 ml-6 list-disc space-y-1">
-                <li><strong>First loop (backward):</strong> Undo updates M, M-1, ..., 1 in reverse order, transforming <InlineMath>{String.raw`\nabla f \to q`}</InlineMath></li>
-                <li><strong>Middle step:</strong> Apply <InlineMath>{String.raw`B_0^{-1} = \gamma I`}</InlineMath> to get <InlineMath>r = \gamma q</InlineMath></li>
-                <li><strong>Second loop (forward):</strong> Re-apply updates 1, 2, ..., M on the transformed vector, adjusting <InlineMath>r</InlineMath> to get <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath></li>
+                <li><strong>First loop (backward):</strong> Undo updates <InlineMath>\varM</InlineMath>, <InlineMath>M-1</InlineMath>, ..., 1 in reverse order, transforming <InlineMath>\nabla f</InlineMath> → <InlineMath>\varQ</InlineMath></li>
+                <li><strong>Middle step:</strong> Apply <InlineMath>{String.raw`\varBZero^{-1} = \varGamma \varI`}</InlineMath> to get <InlineMath>{String.raw`\varR = \varGamma \varQ`}</InlineMath></li>
+                <li><strong>Second loop (forward):</strong> Re-apply updates 1, 2, ..., <InlineMath>\varM</InlineMath> on the transformed vector, adjusting <InlineMath>\varR</InlineMath> to get the final direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B_M^{-1}\nabla f`}</InlineMath></Var></li>
               </ul>
 
               <p className="text-sm text-green-800 mt-3 font-semibold">
-                Result: We compute <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> using only the stored vectors (s, y), never forming any matrix!
+                Result: We compute the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B_M^{-1}\nabla f`}</InlineMath></Var> using only the stored vectors (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>), never forming any matrix!
               </p>
 
               <p className="text-sm text-green-800 mt-2">
-                <strong>Efficiency:</strong> O(Md) time and O(Md) memory vs O(d³) time and O(d²) memory for full Hessian inversion.
+                <strong>Efficiency:</strong> <InlineMath>O(Md)</InlineMath> time and <InlineMath>O(Md)</InlineMath> memory vs <InlineMath>O(d³)</InlineMath> time and <InlineMath>O(d²)</InlineMath> memory for full Hessian inversion.
               </p>
             </div>
 
@@ -872,7 +871,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                     },
                     {
                       id: "memory",
-                      display: <InlineMath>{String.raw`[(s_1,y_1), \ldots, (s_M,y_M)]`}</InlineMath>,
+                      display: <InlineMath>{String.raw`[(\varSOne,\varYOne), \ldots, (\varSM,\varYM)]`}</InlineMath>,
                       description: "M most recent accepted curvature pairs"
                     }
                   ]}
@@ -886,15 +885,15 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   steps={[
                     <>Initialize working vector <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="grad_f" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity>O(1)</Complexity></>,
                     <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`M, M\!-\!1, \ldots, 1`}</InlineMath> (backward through memory):</>,
-                    <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
-                    <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>s_i^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
-                    <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>y_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
-                    <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(s_M^T y_M) / (y_M^T y_M)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
+                    <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (\varSI^T \varYI)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                    <><span className="ml-4">Compute and store <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>\varSI^T q</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                    <><span className="ml-4">Update <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> ← <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> - <Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> <InlineMath>\varYI</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                    <>Compute scaling <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> ← <InlineMath>{String.raw`(\varSM^T \varYM) / (\varYM^T \varYM)`}</InlineMath> <Complexity explanation="Two inner products">O(d)</Complexity></>,
                     <>Scale result <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="gamma" type="scalar"><InlineMath>\gamma</InlineMath></Var> <Var id="q" type="vector ℝᵈ"><InlineMath>q</InlineMath></Var> <Complexity explanation="Scalar-vector multiplication">O(d)</Complexity></>,
                     <><strong>for</strong> <Var id="i" type="scalar"><InlineMath>i</InlineMath></Var> = <InlineMath>{String.raw`1, 2, \ldots, M`}</InlineMath> (forward through memory):</>,
-                    <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (s_i^T y_i)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
-                    <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>y_i^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
-                    <><span className="ml-4">Update <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> + (<Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> - <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var>) <InlineMath>s_i</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
+                    <><span className="ml-4">Compute <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> ← <InlineMath>{String.raw`1 / (\varSI^T \varYI)`}</InlineMath> <Complexity explanation="Inner product + division">O(d)</Complexity></span></>,
+                    <><span className="ml-4">Compute correction <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var> ← <Var id="rho_i" type="scalar"><InlineMath>\rho_i</InlineMath></Var> · (<InlineMath>\varYI^T r</InlineMath>) <Complexity explanation="Inner product">O(d)</Complexity></span></>,
+                    <><span className="ml-4">Update <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> ← <Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> + (<Var id="alpha_i" type="scalar"><InlineMath>\alpha_i</InlineMath></Var> - <Var id="beta_i" type="scalar"><InlineMath>\beta_i</InlineMath></Var>) <InlineMath>\varSI</InlineMath> <Complexity explanation="Vector operations">O(d)</Complexity></span></>,
                     <><strong>return</strong> search direction -<Var id="r" type="vector ℝᵈ"><InlineMath>r</InlineMath></Var> (negated for descent) <Complexity>O(1)</Complexity></>
                   ]}
                 />
@@ -914,12 +913,12 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <p className="mb-3">
               L-BFGS direction with damping:
             </p>
-            <BlockMath>{'p = -(B + \\lambda_{\\text{damp}} I)^{-1}\\nabla f'}</BlockMath>
+            <BlockMath>{String.raw`\varP = -(\varB + \varLambdaDamp \varI)^{-1}\nabla f`}</BlockMath>
 
             <div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-3">
               <p className="font-semibold text-amber-900 mb-2">Why add damping?</p>
               <p className="text-sm text-amber-800 mb-2">
-                The approximate Hessian B can become ill-conditioned or nearly singular, especially:
+                The approximate Hessian <InlineMath>\varB</InlineMath> can become ill-conditioned or nearly singular, especially:
               </p>
               <ul className="list-disc ml-6 text-sm text-amber-800 space-y-1">
                 <li>Early in optimization when we have few memory pairs</li>
@@ -927,20 +926,20 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 <li>When the curvature information in memory is stale or inconsistent</li>
               </ul>
               <p className="text-sm text-amber-800 mt-3">
-                Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> ensures the direction remains a valid descent direction and improves numerical stability.
+                Adding <InlineMath>\varLambdaDamp \varI</InlineMath> ensures the direction remains a valid descent direction and improves numerical stability.
               </p>
             </div>
 
             <p className="mb-2"><strong>Implementation:</strong></p>
             <p className="text-sm mb-2">
-              We never form B explicitly! Instead, damping is applied by modifying the initial scaling factor in the two-loop recursion:
+              We never form <InlineMath>\varB</InlineMath> explicitly! Instead, damping is applied by modifying the initial scaling factor in the two-loop recursion:
             </p>
-            <BlockMath>{'\\gamma_{\\text{damped}} = \\frac{\\gamma_{\\text{base}}}{1 + \\lambda_{\\text{damp}} \\cdot \\gamma_{\\text{base}}}'}</BlockMath>
+            <BlockMath>{String.raw`\varGamma_{\text{damped}} = \frac{\varGamma_{\text{base}}}{1 + \varLambdaDamp \cdot \varGamma_{\text{base}}}`}</BlockMath>
             <p className="text-sm mt-2">
-              where <InlineMath>{'\\gamma_{\\text{base}} = s^T y / y^T y'}</InlineMath> is the standard L-BFGS scaling.
+              where <InlineMath>{String.raw`\varGamma_{\text{base}} = \varS^T \varY / \varY^T \varY`}</InlineMath> is the standard L-BFGS scaling.
             </p>
             <p className="text-sm mt-2">
-              This is mathematically equivalent to <InlineMath>{String.raw`(B_0 + \lambda I)^{-1}`}</InlineMath> where <InlineMath>{'B_0 = (1/\\gamma)I'}</InlineMath>.
+              This is mathematically equivalent to <InlineMath>{String.raw`(\varBZero + \varLambdaDamp \varI)^{-1}`}</InlineMath> where <InlineMath>{String.raw`\varBZero = (1/\varGamma)\varI`}</InlineMath>.
             </p>
 
             <div className="bg-gray-100 rounded p-3 mt-3">
@@ -958,11 +957,11 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div className="bg-indigo-100 rounded p-4">
             <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
             <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
-              <li>(s, y) pairs capture curvature through the secant equation: <InlineMath>By = s</InlineMath></li>
+              <li>(<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs capture curvature through the secant equation: <InlineMath>{String.raw`\varB \varY = \varS`}</InlineMath></li>
               <li>BFGS updates maintain positive definiteness and satisfy the secant equation</li>
-              <li>Two-loop recursion computes <InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath> using only vectors, never matrices</li>
+              <li>Two-loop recursion computes the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath></Var> using only vectors, never matrices</li>
               <li>Hessian damping improves stability without changing the problem significantly</li>
-              <li>Total cost: O(Md) time and O(Md) memory per iteration</li>
+              <li>Total cost: <InlineMath>O(Md)</InlineMath> time and <InlineMath>O(Md)</InlineMath> memory per iteration</li>
             </ul>
           </div>
         </div>
@@ -979,7 +978,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">Why Line Search for L-BFGS</h3>
             <p>
-              Quasi-Newton direction <InlineMath>{'p \\approx -H^{-1}\\nabla f'}</InlineMath> is only
+              Quasi-Newton direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`p \approx -H^{-1}\nabla f`}</InlineMath></Var> is only
               an approximation:
             </p>
             <ul className="list-disc ml-6 space-y-1 mt-2">
@@ -1017,7 +1016,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               additionalNotes={
                 <p className="text-sm">
                   <strong>Typical behavior:</strong> When the quasi-Newton approximation is good
-                  (near minimum, after building history), <InlineMath>\alpha = 1</InlineMath> is
+                  (near minimum, after building history), <InlineMath>\varAlpha</InlineMath> = 1 is
                   often accepted. When approximation is poor (early iterations, far from minimum),
                   backtracking finds smaller steps.
                 </p>
@@ -1067,10 +1066,10 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </div>
 
               <div>
-                <p className="font-semibold">❌ "More memory (larger M) is always better"</p>
+                <p className="font-semibold">❌ "More memory (larger <InlineMath>\varM</InlineMath>) is always better"</p>
                 <p className="text-sm ml-6">
-                  ✓ Diminishing returns as M increases<br />
-                  ✓ Larger M = more computation per iteration (<InlineMath>O(Md)</InlineMath>)<br />
+                  ✓ Diminishing returns as <InlineMath>\varM</InlineMath> increases<br />
+                  ✓ Larger <InlineMath>\varM</InlineMath> = more computation per iteration (<InlineMath>O(Md)</InlineMath>)<br />
                   ✓ Very old pairs may contain stale curvature information
                 </p>
               </div>
@@ -1098,8 +1097,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 ✓ Advantage over Newton in non-convex regions
               </p>
               <p className="text-sm text-green-800">
-                L-BFGS filters out negative curvature pairs (<InlineMath>s^T y \leq 0</InlineMath>), keeping its approximate Hessian positive definite.
-                Newton's method uses the true Hessian, which can have negative eigenvalues near saddle points, potentially causing convergence to saddles or maxima.
+                L-BFGS filters out negative curvature pairs (<InlineMath>{String.raw`\varS^T \varY \leq 0`}</InlineMath>), keeping its approximate Hessian <InlineMath>\varB</InlineMath> positive definite.
+                Newton's method uses the true Hessian <InlineMath>\varH</InlineMath>, which can have negative eigenvalues near saddle points, potentially causing convergence to saddles or maxima.
                 This makes L-BFGS more robust on non-convex problems like Himmelblau's function.
               </p>
             </div>
@@ -1115,8 +1114,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </li>
               <li>
                 <strong>Slow convergence:</strong> Compare iterations needed vs gradient descent or Newton.
-                Slow convergence suggests either: (a) M is too small to capture curvature, or (b) damping is too aggressive.
-                Trade-off: larger M improves approximation but increases cost (<InlineMath>O(Md)</InlineMath> per iteration).
+                Slow convergence suggests either: (a) <InlineMath>\varM</InlineMath> is too small to capture curvature, or (b) damping is too aggressive.
+                Trade-off: larger <InlineMath>\varM</InlineMath> improves approximation but increases cost (<InlineMath>O(Md)</InlineMath> per iteration).
               </li>
               <li>
                 <strong>Rejected curvature pairs:</strong> Check the memory table's "sᵀy &gt; 0?" column.
@@ -1125,7 +1124,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </li>
               <li>
                 <strong>Poor Hessian approximation:</strong> Use the eigenvalue evolution plots to see how well
-                the approximate Hessian B matches the true Hessian H. Large gaps indicate the limited memory
+                the approximate Hessian <InlineMath>\varB</InlineMath> matches the true Hessian <InlineMath>\varH</InlineMath>. Large gaps indicate the limited memory
                 isn't capturing the full curvature structure.
               </li>
             </ul>
@@ -1151,19 +1150,19 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <p className="mb-2">Why use limited memory instead of full BFGS?</p>
             <ul className="list-disc ml-6 space-y-1">
               <li>
-                <strong>Full BFGS:</strong> stores <InlineMath>B_k</InlineMath> (d×d matrix)
+                <strong>Full BFGS:</strong> stores <InlineMath>\varBK</InlineMath> (d×d matrix)
                 → O(d²) memory, O(d²) update cost
               </li>
               <li>
-                <strong>L-BFGS:</strong> stores only M recent <InlineMath>(s,y)</InlineMath> pairs
+                <strong>L-BFGS:</strong> stores only <InlineMath>\varM</InlineMath> recent (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs
                 → O(Md) memory, O(Md) computation
               </li>
               <li>
-                <strong>Scaling advantage:</strong> L-BFGS memory and computation scale linearly with d instead of quadratically, making it practical for large-scale problems.
+                <strong>Scaling advantage:</strong> L-BFGS memory and computation scale linearly with <InlineMath>d</InlineMath> instead of quadratically, making it practical for large-scale problems.
               </li>
             </ul>
             <p className="text-sm mt-2">
-              The trade-off: L-BFGS uses less information (only M recent pairs) so approximation quality may be worse than full BFGS,
+              The trade-off: L-BFGS uses less information (only <InlineMath>\varM</InlineMath> recent pairs) so approximation quality may be worse than full BFGS,
               but the computational savings often outweigh this cost for large problems.
             </p>
           </div>
@@ -1174,7 +1173,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
               <li>Faster than linear convergence (gradient descent) but slower than quadratic (Newton's method)</li>
-              <li>Convergence rate depends on M: larger M → closer to Newton's quadratic rate</li>
+              <li>Convergence rate depends on <InlineMath>\varM</InlineMath>: larger <InlineMath>\varM</InlineMath> → closer to Newton's quadratic rate</li>
               <li>Requires strong convexity for convergence guarantees; works well empirically on non-convex problems too</li>
             </ul>
           </div>
@@ -1183,9 +1182,9 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Connection to Conjugate Gradient</h3>
             <p className="mb-2">Both L-BFGS and conjugate gradient (CG) use history to improve search directions:</p>
             <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li><strong>CG:</strong> Uses gradient history to build conjugate directions. Converges in at most d steps on quadratic functions.</li>
-              <li><strong>L-BFGS:</strong> Uses <InlineMath>(s,y)</InlineMath> history to approximate <InlineMath>{String.raw`H^{-1}`}</InlineMath>. More robust on non-quadratic functions.</li>
-              <li>For strictly convex quadratics, L-BFGS with sufficient memory (M=d) reduces to BFGS, which is related to CG.</li>
+              <li><strong>CG:</strong> Uses gradient history to build conjugate directions. Converges in at most <InlineMath>d</InlineMath> steps on quadratic functions.</li>
+              <li><strong>L-BFGS:</strong> Uses (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) history to approximate the Newton direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var>. More robust on non-quadratic functions.</li>
+              <li>For strictly convex quadratics, L-BFGS with sufficient memory (<InlineMath>\varM</InlineMath>=<InlineMath>d</InlineMath>) reduces to BFGS, which is related to CG.</li>
               <li>L-BFGS generally more practical for general non-linear optimization.</li>
             </ul>
           </div>

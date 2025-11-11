@@ -132,6 +132,18 @@ export const LineChart: React.FC<LineChartProps> = ({
     return ticks;
   }, [maxLength]);
 
+  // Calculate dynamic y-axis label position based on tick label widths
+  const yAxisLabelX = React.useMemo(() => {
+    // Find the longest tick label
+    const maxTickLabelLength = Math.max(...yTicks.map(t => t.toFixed(2).length));
+    // Estimate width (approximately 6px per character at fontSize 10)
+    const estimatedTickWidth = maxTickLabelLength * 6;
+    // Tick labels are anchored at MARGIN.left - 8 and extend left
+    const leftmostTickEdge = (MARGIN.left - 8) - estimatedTickWidth;
+    // Position y-axis label with 10px buffer, but don't go below 8px from edge
+    return Math.max(8, leftmostTickEdge - 10);
+  }, [yTicks, MARGIN.left]);
+
   return (
     <div className={showLegend ? "space-y-2" : "space-y-0"}>
       <h4 className="text-sm font-semibold text-gray-800">{title}</h4>
@@ -245,13 +257,13 @@ export const LineChart: React.FC<LineChartProps> = ({
 
         {/* Y-axis label */}
         <text
-          x={15}
+          x={yAxisLabelX}
           y={MARGIN.top + PLOT_HEIGHT / 2}
           textAnchor="middle"
           fontSize="12"
           fill="#374151"
           fontWeight="500"
-          transform={`rotate(-90, 15, ${MARGIN.top + PLOT_HEIGHT / 2})`}
+          transform={`rotate(-90, ${yAxisLabelX}, ${MARGIN.top + PLOT_HEIGHT / 2})`}
         >
           {yAxisLabel}
         </text>
@@ -292,16 +304,104 @@ export const LineChart: React.FC<LineChartProps> = ({
 
         {/* Current iteration marker */}
         {currentIndex !== undefined && currentIndex < maxLength && (
-          <line
-            x1={indexToX(currentIndex)}
-            y1={MARGIN.top}
-            x2={indexToX(currentIndex)}
-            y2={MARGIN.top + PLOT_HEIGHT}
-            stroke="#ef4444"
-            strokeWidth="2"
-            strokeDasharray="4,4"
-            opacity="0.7"
-          />
+          <g>
+            {/* Vertical line */}
+            <line
+              x1={indexToX(currentIndex)}
+              y1={MARGIN.top}
+              x2={indexToX(currentIndex)}
+              y2={MARGIN.top + PLOT_HEIGHT}
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeDasharray="4,4"
+              opacity="0.7"
+            />
+
+            {/* Value labels at current iteration */}
+            {(() => {
+              // Calculate y-positions for all series
+              const positions = series.map((s, idx) => ({
+                seriesIdx: idx,
+                value: currentIndex < s.data.length ? s.data[currentIndex] : null,
+                y: currentIndex < s.data.length ? valueToY(s.data[currentIndex]) : 0,
+              })).filter(p => p.value !== null);
+
+              // Sort by y-position to detect overlaps
+              const sorted = [...positions].sort((a, b) => a.y - b.y);
+
+              // Calculate smart offsets to avoid overlaps
+              const LABEL_HEIGHT = 14;
+              const MIN_SEPARATION = LABEL_HEIGHT + 4; // Minimum space between labels
+              const offsets = new Map<number, number>();
+
+              sorted.forEach((pos, idx) => {
+                if (idx === 0) {
+                  offsets.set(pos.seriesIdx, 0);
+                } else {
+                  const prevPos = sorted[idx - 1];
+                  const prevY = prevPos.y + (offsets.get(prevPos.seriesIdx) || 0);
+                  const currentY = pos.y;
+                  const gap = currentY - prevY;
+
+                  if (gap < MIN_SEPARATION) {
+                    // Too close - push this one down
+                    offsets.set(pos.seriesIdx, MIN_SEPARATION - gap);
+                  } else {
+                    offsets.set(pos.seriesIdx, 0);
+                  }
+                }
+              });
+
+              return series.map((s, seriesIdx) => {
+                if (currentIndex >= s.data.length) return null;
+                const value = s.data[currentIndex];
+                const x = indexToX(currentIndex);
+                const y = valueToY(value);
+
+                // Apply smart offset to avoid overlaps
+                const labelOffset = offsets.get(seriesIdx) || 0;
+                const labelX = x + 8;
+                const labelY = y + labelOffset;
+
+                return (
+                <g key={`current-label-${seriesIdx}`}>
+                  {/* Background box for label */}
+                  <rect
+                    x={labelX - 2}
+                    y={labelY - 9}
+                    width={value.toFixed(2).length * 6 + 4}
+                    height={14}
+                    fill="white"
+                    stroke={s.color}
+                    strokeWidth="1"
+                    rx="2"
+                    opacity="0.95"
+                  />
+                  {/* Value text */}
+                  <text
+                    x={labelX}
+                    y={labelY}
+                    fontSize="10"
+                    fontWeight="600"
+                    fill={s.color}
+                    dominantBaseline="middle"
+                  >
+                    {value.toFixed(2)}
+                  </text>
+                  {/* Marker dot */}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="3.5"
+                    fill={s.color}
+                    stroke="white"
+                    strokeWidth="1.5"
+                  />
+                </g>
+                );
+              });
+            })()}
+          </g>
         )}
 
         {/* Legend */}

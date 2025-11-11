@@ -139,16 +139,98 @@ Avoid:
 
 ## Variable Highlighting and Type Annotations
 
-### Using the `<Var>` Component
+There are two complementary approaches for making variables interactive:
+1. **KaTeX macros** (e.g., `\varH`, `\varM`) — Use for simple variables within LaTeX expressions
+2. **`<Var>` wrapper component** — Use for composite expressions or custom rendering
 
-The `<Var>` component provides **cross-linked highlighting** and **type tooltips** for mathematical variables throughout pedagogical content.
+Both approaches provide cross-linked highlighting and type tooltips. Choose based on context and readability.
+
+### Using KaTeX Macros (Preferred for Simple Variables)
+
+All common mathematical variables have auto-generated KaTeX macros defined in [`src/variables.ts`](../src/variables.ts). These macros inject data attributes for interactivity while maintaining perfect LaTeX rendering.
+
+**When to use macros:**
+- ✅ Simple variables within longer LaTeX expressions (e.g., `\varH` in `\varH^{-1}\varGrad`)
+- ✅ Repeated variables that appear frequently
+- ✅ When you want clean, readable LaTeX source code
+- ❌ Composite expressions like H⁻¹∇f as a single concept (use `<Var>` wrapper instead)
+
+**Macro naming convention:**
+- Pattern: `\var` + PascalCase variable ID
+- **Numbers are spelled out** (LaTeX macros can only contain letters)
+- Examples:
+  - `\varH` → Hessian matrix H (id="H")
+  - `\varM` → Memory size M (id="M")
+  - `\vars` → Parameter change vector s (id="s")
+  - `\varY` → Gradient change vector y (id="y")
+  - `\varBZero` → Initial Hessian B₀ (id="B_0") — note: 0 → Zero
+  - `\varBOne` → B₁ after one update (id="B_1") — note: 1 → One
+  - `\varSI` → Parameter change sᵢ (id="s_i") — note: i is a letter
+  - `\varGrad` → Gradient ∇f (id="grad")
+  - `\varAlphaI` → Forward coefficient αᵢ (id="alpha_i")
+  - `\varLambdaDamp` → Damping parameter λ_damp (id="lambda_damp")
+
+**See [`src/variables.ts`](../src/variables.ts) for the complete list of available macros.**
+
+**⚠️ Common Pitfall: Numbers in Macro Names**
+
+LaTeX macros can **only contain letters** (a-z, A-Z), not digits. This means `\varB0` is invalid and will be interpreted as the macro `\varB` followed by the digit `0`, causing spacing issues.
+
+```tsx
+❌ WRONG: <InlineMath>\varB0 = (1/\varGamma)\varI</InlineMath>
+<!-- Renders as "B 0 = (1/γ)I" with unwanted space -->
+
+✅ CORRECT: <InlineMath>\varBZero = (1/\varGamma)\varI</InlineMath>
+<!-- Renders properly as "B₀ = (1/γ)I" -->
+```
+
+The `toPascalCase()` function in `src/variables.ts` automatically handles this by spelling out digits (0→Zero, 1→One, etc.).
+
+**Example usage:**
+
+```tsx
+<p>
+  Newton's method uses <InlineMath>\varH</InlineMath> to compute the search direction,
+  but L-BFGS approximates it using only <InlineMath>\varM</InlineMath> recent gradient changes.
+</p>
+
+<p className="text-sm">
+  The two-loop recursion computes <InlineMath>\varB^{{-1}}\varGrad</InlineMath> in
+  <InlineMath>O(Md)</InlineMath> time without forming the matrix.
+</p>
+```
+
+**Benefits:**
+- Clean, readable LaTeX source code
+- No need to specify `id` and `type` props repeatedly (defined once in registry)
+- Automatic consistency enforcement via central registry
+- Perfect rendering with no spacing issues
+
+### Using the `<Var>` Component (For Composite Expressions)
+
+The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to make **semantic compound expressions** interactive with a single ID.
+
+**CRITICAL DISTINCTION:**
+
+**✅ Use `<Var>` for semantic compounds** (results we treat as one meaningful concept):
+- H⁻¹∇f as "search direction" — this is a **result** with its own semantic meaning (vector that points in descent direction)
+- The compound has meaningful dimensionality (e.g., vector, not matrix)
+- We refer to this compound as a unit in explanations
+
+**❌ Do NOT use `<Var>` for equations/definitions** (showing how something is computed):
+- `y = ∇f_new - ∇f_old` — this is a **definition** showing how `y` is computed
+- `B_k(I - ρys^T)` — this shows **mathematical manipulations** where each piece needs to be understood
+- In these cases, mark individual variables with macros (both left and right sides), but DON'T wrap the entire equation as one variable
 
 **When to use `<Var>`:**
-- ✅ Wrap ALL mathematical variables in pedagogical text (not just in pseudocode)
-- ✅ Parameters, vectors, matrices, scalars (e.g., `s`, `y`, `B`, `H`, `M`, `γ`)
-- ✅ Subscripted or modified versions if they represent the same concept (e.g., `s_k` and `s_i` both use `id="s"` if they're the same type of object)
-- ❌ Do NOT wrap plain English words or non-variable text
-- ❌ Do NOT wrap mathematical operators or constants like `0`, `1`, `∞`
+- ✅ Semantic compound expressions (e.g., H⁻¹∇f as "search direction")
+- ✅ Custom LaTeX that doesn't match a registry variable
+- ✅ Variables in plain text paragraphs (outside LaTeX)
+- ✅ When you need to override the default type tooltip
+- ❌ Equations showing definitions or computations (use individual macros instead)
+- ❌ Simple single variables within LaTeX (use macros: `\varH`, `\varM`)
+- ❌ Plain English words or non-variable text
+- ❌ Mathematical operators or constants like `0`, `1`, `∞`
 
 **ID naming conventions:**
 - **Use consistent IDs** for the same concept throughout the entire tab
@@ -170,18 +252,49 @@ The `<Var>` component provides **cross-linked highlighting** and **type tooltips
   - `type="d×d matrix (implicit)"` for implicitly-represented matrices
   - `type="d×d matrix (scaled identity)"` for special structure
 
-**Example usage in pedagogical text:**
+**Example usage:**
 
 ```tsx
-<p className="text-sm text-blue-800 mb-2">
-  <strong>Taylor expansion:</strong> The gradient at a new point relates to
-  the old gradient via the Hessian <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var>:<br/>
-  <span className="ml-4 inline-block my-1">
-    <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
-  </span><br/>
+{/* ✅ CORRECT: Semantic compound with meaningful dimensionality */}
+<p>
+  Newton's method uses the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var> for smarter steps.
+</p>
+{/* This is correct because H⁻¹∇f is a RESULT (search direction) that we treat as one concept */}
+
+{/* ❌ WRONG: Equation/definition wrapped as one thing */}
+<p>
   where <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var> is the parameter change.
 </p>
+{/* This is WRONG because it's showing HOW s is computed, not a semantic compound */}
+
+{/* ✅ CORRECT: Mark individual variables with macros */}
+<p>
+  where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
+</p>
+{/* Now users can hover s on the left to see it highlighted everywhere */}
+
+{/* ✅ EVEN BETTER: Mark ALL variables if they appear in the registry */}
+<p>
+  Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change).
+</p>
+{/* This makes individual variables interactive for cross-linking, without treating the whole equation as one thing */}
+
+{/* ❌ WRONG: Mathematical manipulations wrapped as one variable */}
+<p>
+  The formula is <Var id="bfgs_term"><InlineMath>{String.raw`B_k(I - \rho ys^T)`}</InlineMath></Var>
+</p>
+{/* This is WRONG - we're showing manipulations, each piece needs separate highlighting */}
+
+{/* ✅ CORRECT: Use macros for each variable within the expression */}
+<p>
+  The formula is <InlineMath>{String.raw`\varB_k(\varI - \varRho \varY \varS^T)`}</InlineMath>
+</p>
+{/* Now users can hover each variable (B_k, I, ρ, y, s) to see where they appear elsewhere */}
 ```
+
+**Key question to ask:** "Is this a **result** we refer to as one thing, or are we showing **how to compute** something?"
+- If showing computation/definition → use individual macros
+- If referring to a meaningful compound result → use `<Var>` wrapper
 
 **Benefits of global cross-linking:**
 - Hovering over `s` in the "Building Intuition" section highlights ALL occurrences of `s` in the pseudocode
@@ -194,24 +307,66 @@ The `<Var>` component provides **cross-linked highlighting** and **type tooltips
 - Hover highlighting will show you if you've accidentally used inconsistent IDs
 - This is a feature, not a bug - it forces pedagogical clarity
 
-**What NOT to do:**
+### Adding New Variables to the Registry
+
+When you need a new mathematical variable that doesn't exist in the registry:
+
+1. **Add to `src/variables.ts`:**
+   ```typescript
+   export const VARIABLES: Record<string, VariableMetadata> = {
+     // ... existing variables
+
+     my_new_var: {
+       id: 'my_new_var',
+       type: 'vector ℝᵈ',
+       latex: 'v',  // Optional: defaults to id if not specified
+       description: 'My new variable',
+     },
+   };
+   ```
+
+2. **Use the auto-generated macro:**
+   ```tsx
+   <InlineMath>\varMy_new_var</InlineMath>
+   ```
+
+3. **Validation is automatic:**
+   - Build-time KaTeX validation (via `npm run build`) checks all macros
+   - TypeScript compilation ensures registry consistency
+   - Undefined macros will fail the build with clear error messages
+
+**Macro naming is automatic:**
+- Registry ID `my_var` → Macro `\varMyVar`
+- Registry ID `H` → Macro `\varH`
+- Registry ID `lambda_damp` → Macro `\varLambdaDamp`
+- Registry ID `B_0` → Macro `\varBZero` (0 → Zero)
+- Registry ID `s_i` → Macro `\varSI` (i is a letter)
+- Registry ID `alpha_i` → Macro `\varAlphaI`
+
+The `generateKaTeXMacros()` function handles the conversion automatically, including spelling out numbers (0-9 → Zero-Nine) since LaTeX macros can only contain letters.
+
+### Choosing Between Macros and `<Var>` Wrapper
+
+**Use macros for simple variables:**
 ```tsx
-❌ <p>The vector s has dimension d</p>
-<!-- Plain text, no linking or tooltips -->
+✅ <p>L-BFGS stores <InlineMath>\varM</InlineMath> recent gradient changes.</p>
+✅ <p>The Hessian <InlineMath>\varH</InlineMath> costs <InlineMath>O(d^3)</InlineMath> to compute.</p>
+✅ <InlineMath>\varB^{{-1}}\varGrad</InlineMath>  {/* Multiple variables in one expression */}
 
-❌ <Var id="s_temp"><InlineMath>s</InlineMath></Var>
-<!-- Missing type annotation -->
-
-❌ <Var id="parameter_change_vector" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var>
-<!-- ID too verbose, use "s" -->
+❌ <p>L-BFGS stores <Var id="M" type="scalar"><InlineMath>M</InlineMath></Var> recent changes.</p>
+<!-- Verbose! Use \varM macro instead -->
 ```
 
-**What TO do:**
+**Use `<Var>` wrapper for composite expressions:**
 ```tsx
-✅ <p>The vector <Var id="s" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var> has dimension <InlineMath>d</InlineMath></p>
+✅ <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var>
+<!-- Composite expression with custom ID "p" for search direction -->
 
-✅ <Var id="s" type="vector ℝᵈ"><InlineMath>s</InlineMath></Var>
-<!-- Clear ID, proper type annotation -->
+✅ <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var>
+<!-- Custom expression not in variable registry -->
+
+❌ <InlineMath>\varH^{{-1}}\varGrad</InlineMath>
+<!-- If you want H⁻¹∇f to be ONE interactive element, use <Var> wrapper instead -->
 ```
 
 ## Content Organization Patterns

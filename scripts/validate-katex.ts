@@ -7,6 +7,7 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, extname } from 'path';
 import katex from 'katex';
+import { KATEX_MACROS } from '../src/variables.js';
 
 interface ValidationError {
   file: string;
@@ -90,7 +91,9 @@ function validateLatex(latex: string): string | null {
   try {
     katex.renderToString(latex, {
       throwOnError: true,
-      strict: 'error',
+      strict: false, // Disable strict mode to allow HTML extensions (required for \htmlData)
+      trust: true, // Required for \htmlData commands in macros
+      macros: KATEX_MACROS, // Include our custom variable macros
     });
     return null; // No error
   } catch (error) {
