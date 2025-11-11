@@ -296,7 +296,8 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <div>
                 <p className="font-semibold">❌ "Gradient descent always converges"</p>
                 <p className="text-sm ml-6">
-                  ✓ Only with proper step size <InlineMath>{String.raw`\varAlpha`}</InlineMath><br />
+                  ✓ Requires <GlossaryTooltip termKey="smooth" /> function + step size 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/L for convergence<br />
+                  ✓ Even then, only converges to *stationary point* (may be local minimum, not global)<br />
                   ✓ Can diverge if <InlineMath>{String.raw`\varAlpha`}</InlineMath> too large<br />
                   ✓ Can get stuck in local minima on non-<GlossaryTooltip termKey="convex" /> functions
                 </p>
@@ -318,7 +319,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
-                (guaranteed with proper <InlineMath>{String.raw`\varAlpha`}</InlineMath>)
+                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/L)
               </li>
               <li>
                 <strong>Convex:</strong> Converges to global minimum (possibly slowly)
@@ -339,10 +340,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <BlockMath>{String.raw`0 < \varAlpha < \frac{2}{L}`}</BlockMath>
               <p>
                 where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.
-              </p>
-              <p className="mt-2">
-                <strong>Practical approach:</strong> Try <InlineMath>{String.raw`\varAlpha = 0.1`}</InlineMath>,
-                then adjust based on behavior (increase if too slow, decrease if diverging).
               </p>
               <p className="mt-2">
                 <strong>Better approach:</strong> Use line search (next tab) to avoid manual tuning.
@@ -453,8 +450,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <BlockMath>{String.raw`v_{k+1} = \beta v_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
             <BlockMath>{String.raw`\varW_{k+1} = \varW_k + v_{k+1}`}</BlockMath>
             <p className="text-sm mt-2">
-              Typical <InlineMath>{String.raw`\beta = 0.9`}</InlineMath>. Momentum accumulates
-              velocity in consistent directions, damping oscillations.
+              Momentum accumulates velocity in consistent directions, damping oscillations.
             </p>
           </div>
 

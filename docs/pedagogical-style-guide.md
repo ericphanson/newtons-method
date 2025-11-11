@@ -13,6 +13,64 @@ This document captures the principles and guidelines for writing pedagogical con
 - ❌ "M=5-10 usually works well" (unless we can demonstrate this)
 - ❌ "Use L-BFGS for d > 1000" (arbitrary threshold without justification)
 
+#### Avoid Misleading by Omission
+
+**A statement can be technically correct but still misleading if it omits critical conditions.** This is especially important in educational content where students trust the material.
+
+**Bad example:**
+
+```tsx
+❌ "Gradient descent always converges"
+✓ Only with proper step size α
+```
+
+This implies gradient descent converges whenever α is "proper," which is misleading. Even with correct step size, GD only converges to stationary points (which may be local minima), and requires smoothness assumptions.
+
+**Good example:**
+
+```tsx
+✅ "Gradient descent always converges"
+✓ Requires smooth function + step size 0 < α < 2/L for convergence
+✓ Even then, only converges to *stationary point* (may be local minimum, not global)
+✓ Can diverge if α too large
+✓ Can get stuck in local minima on non-convex functions
+```
+
+**Guiding principles:**
+
+- **Not misleading**: Include essential conditions (smoothness, convexity, step size bounds)
+- **Not "sales-y"**: Don't oversell algorithms' capabilities or undersell their limitations
+- **Balanced**: Present both strengths AND weaknesses fairly
+- **Educational accuracy**: Students are learning — inaccuracies compound as misconceptions
+- **Still engaging**: Accurate ≠ dry. Use clear language, examples, visualizations
+
+**More examples:**
+
+❌ **Misleading**: "Newton's method converges in one step on quadratic functions"
+
+- Technically true but omits that this requires exact line search and being at a point where the quadratic model is exact
+
+✅ **Accurate**: "Newton's method converges in one step on strictly convex quadratic functions (where the Hessian is constant)"
+
+❌ **Overselling**: "L-BFGS achieves nearly Newton-like performance with a fraction of the memory"
+
+- "Nearly" is vague and oversells; depends heavily on M, problem structure, and what "nearly" means
+
+✅ **Balanced**: "L-BFGS approximates Newton's direction using O(Md) memory vs O(d²), achieving superlinear (vs quadratic) convergence on strongly convex functions"
+
+❌ **Underselling**: "Gradient descent is slow and inefficient"
+
+- Overlooks that it's the most widely used optimizer in ML due to stochastic variants, simplicity, and stability
+
+✅ **Fair**: "Gradient descent has slower convergence rates (linear vs superlinear/quadratic) but is simple, stable, and memory-efficient. Forms the basis for widely-used optimizers like SGD and Adam."
+
+**When in doubt, ask:**
+
+1. Is this statement true **in general**, or only under specific conditions I didn't mention?
+2. Am I emphasizing positives/negatives fairly, or cherry-picking?
+3. Would a student walk away with accurate understanding or misconceptions?
+4. Can I back this claim up (either via demonstration or rigorous theory)?
+
 ### 2. Demonstrable Concepts First
 
 Prioritize two types of content:
@@ -25,24 +83,30 @@ Avoid specific practitioner heuristics that we can't back up with either demonst
 #### Examples
 
 ✅ **Good (Demonstrable)**:
+
 - "L-BFGS only accepts pairs where s^T y > 0, making it more robust near saddle points" (we show this in stories)
 - "Newton's method costs O(d³) per iteration, L-BFGS costs O(Md)" (general theory)
 - "The two-loop recursion computes B^{-1}∇f without forming matrices" (can prove mathematically)
 
 ❌ **Avoid (Unsupported Heuristics)**:
+
 - "M=5-10 usually works well in practice"
 - "Use L-BFGS when d > 1000"
 - "Set λ_damp to 0.01 as a starting point"
 - "M=20 is often sufficient for near-Newton performance"
 
+Just delete these. Don't change them to be more vague. We can save some space on our page.
+
 ### 3. One Good Explanation Per Concept
 
 Avoid redundancy. Each concept should have:
+
 - **Either**: One comprehensive explanation
 - **Or**: One quick gloss + one deep explanation (clearly separated)
 - **Never**: The same concept explained 3+ times at similar depth levels randomly scattered
 
 When we found the two-loop recursion explained 3 times (Quick Start, Two-Loop Details, Mathematical Derivations), we consolidated into:
+
 - Quick mention in Quick Start: "uses two-loop recursion"
 - Full explanation in "How L-BFGS Works"
 - Reference pointer in Mathematical Details
@@ -68,12 +132,14 @@ Structure content from quick → complete → deep:
 ```
 
 **Quick Start Guidelines**:
+
 - Keep it under 50 lines
 - Answer: What is it? When to use? Key parameters? What to try?
 - Point to detailed sections for deep dives
 - Default to **open** (defaultExpanded={true})
 
 **How It Works Guidelines**:
+
 - This is the comprehensive section - can be 200-400 lines
 - Include: algorithm pseudocode, intuition, mathematical derivations, key insights
 - Default to **closed** (defaultExpanded={false}) to not overwhelm
@@ -82,6 +148,7 @@ Structure content from quick → complete → deep:
 ### 5. Emphasize Unique Features
 
 If a feature is:
+
 1. Unique to this algorithm (vs others on the site)
 2. Featured in our stories
 3. Important for understanding behavior
@@ -89,6 +156,7 @@ If a feature is:
 **Make it prominent** - include it in Quick Start AND explain it thoroughly in the deep section.
 
 **Example**: L-BFGS curvature filtering
+
 - Mentioned in Quick Start "When to Use"
 - Prominent amber callout box in "How L-BFGS Works"
 - Green success box in "When Things Go Wrong"
@@ -103,12 +171,14 @@ If a feature is:
 **Examples of undefined notation to avoid:**
 
 ❌ **Wrong - using e_k without definition**:
+
 ```tsx
 <p>L-BFGS exhibits superlinear convergence:</p>
 <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
 ```
 
 ✅ **Correct - define e_k first**:
+
 ```tsx
 <p>
   Let <InlineMath>e_k = \|w_k - w^*\|</InlineMath> be the error at iteration k
@@ -118,6 +188,7 @@ If a feature is:
 ```
 
 ❌ **Wrong - inconsistent notation (x vs w)**:
+
 ```tsx
 <p>The gradient relates to the Hessian via:</p>
 <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
@@ -125,6 +196,7 @@ If a feature is:
 ```
 
 ✅ **Correct - consistent notation throughout**:
+
 ```tsx
 <p>The gradient relates to the Hessian via:</p>
 <InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + H \cdot s`}</InlineMath>
@@ -133,12 +205,14 @@ If a feature is:
 ```
 
 **General guidelines:**
+
 - Define all variables the first time they appear in a formula
 - Use consistent notation throughout the entire tab (don't switch between x and w for parameters)
 - When introducing a formula with subscripts (e.g., B_k), explain what the subscript means
 - Even "obvious" notation like i, j, k should be introduced as iteration indices if used in summations
 
 ✅ **Correct**:
+
 ```tsx
 <InlineMath>M</InlineMath> recent gradient changes
 costs <InlineMath>O(Md)</InlineMath> time
@@ -146,6 +220,7 @@ parameter <InlineMath>\lambda_{\text{damp}}</InlineMath>
 ```
 
 ❌ **Avoid**:
+
 ```tsx
 M recent gradient changes (plain text)
 costs O(Md) time (plain text)
@@ -153,6 +228,7 @@ parameter λ_damp (Unicode)
 ```
 
 **LaTeX in JSX strings**: Use `String.raw` for complex LaTeX to avoid escaping issues:
+
 ```tsx
 <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>
 ```
@@ -160,19 +236,23 @@ parameter λ_damp (Unicode)
 ### 7. Troubleshooting Content
 
 Only include issues that we can either:
+
 1. **Demonstrate** in our 2D experiments
 2. **Explain with theory** (e.g., "slow convergence means eigenvalues are poorly approximated")
 
 Avoid:
+
 - Specific parameter recommendations without justification
 - "Try increasing X to Y" without demonstrable reasoning
 - Rules of thumb that aren't backed by visible behavior
 
 ✅ **Good**:
+
 - "If convergence is slow, the memory size M might be too small to capture the Hessian structure. Increasing M improves the approximation but costs more per iteration (O(Md))."
 - "If you see 'rejected' curvature pairs, the step wasn't useful for approximating the Hessian. This is normal and expected."
 
 ❌ **Avoid**:
+
 - "Try increasing M to 20"
 - "Set λ_damp to 0.1 or higher"
 - "M=10 is usually sufficient"
@@ -180,6 +260,7 @@ Avoid:
 ## Variable Highlighting and Type Annotations
 
 There are two complementary approaches for making variables interactive:
+
 1. **KaTeX macros** (e.g., `\varH`, `\varM`) — Use for simple variables within LaTeX expressions
 2. **`<Var>` wrapper component** — Use for composite expressions or custom rendering
 
@@ -190,12 +271,14 @@ Both approaches provide cross-linked highlighting and type tooltips. Choose base
 All common mathematical variables have auto-generated KaTeX macros defined in [`src/variables.ts`](../src/variables.ts). These macros inject data attributes for interactivity while maintaining perfect LaTeX rendering.
 
 **When to use macros:**
+
 - ✅ Simple variables within longer LaTeX expressions (e.g., `\varH` in `\varH^{-1}\varGrad`)
 - ✅ Repeated variables that appear frequently
 - ✅ When you want clean, readable LaTeX source code
 - ❌ Composite expressions like H⁻¹∇f as a single concept (use `<Var>` wrapper instead)
 
 **Macro naming convention:**
+
 - Pattern: `\var` + PascalCase variable ID
 - **Numbers are spelled out** (LaTeX macros can only contain letters)
 - Examples:
@@ -241,6 +324,7 @@ The `toPascalCase()` function in `src/variables.ts` automatically handles this b
 ```
 
 **Benefits:**
+
 - Clean, readable LaTeX source code
 - No need to specify `id` and `type` props repeatedly (defined once in registry)
 - Automatic consistency enforcement via central registry
@@ -253,16 +337,19 @@ The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to
 **CRITICAL DISTINCTION:**
 
 **✅ Use `<Var>` for semantic compounds** (results we treat as one meaningful concept):
+
 - H⁻¹∇f as "search direction" — this is a **result** with its own semantic meaning (vector that points in descent direction)
 - The compound has meaningful dimensionality (e.g., vector, not matrix)
 - We refer to this compound as a unit in explanations
 
 **❌ Do NOT use `<Var>` for equations/definitions** (showing how something is computed):
+
 - `y = ∇f_new - ∇f_old` — this is a **definition** showing how `y` is computed
 - `B_k(I - ρys^T)` — this shows **mathematical manipulations** where each piece needs to be understood
 - In these cases, mark individual variables with macros (both left and right sides), but DON'T wrap the entire equation as one variable
 
 **When to use `<Var>`:**
+
 - ✅ Semantic compound expressions (e.g., H⁻¹∇f as "search direction")
 - ✅ Custom LaTeX that doesn't match a registry variable
 - ✅ Variables in plain text paragraphs (outside LaTeX)
@@ -273,6 +360,7 @@ The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to
 - ❌ Mathematical operators or constants like `0`, `1`, `∞`
 
 **ID naming conventions:**
+
 - **Use consistent IDs** for the same concept throughout the entire tab
 - The ID is what links variables together for cross-highlighting
 - Examples:
@@ -284,6 +372,7 @@ The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to
   - `id="alpha"` for step size α
 
 **Type annotations:**
+
 - **Always provide the `type` prop** for tooltips showing dimensionality
 - Use clear, concise descriptions:
   - `type="vector ℝᵈ"` for d-dimensional vectors
@@ -295,54 +384,94 @@ The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to
 **Example usage:**
 
 ```tsx
-{/* ✅ CORRECT: Semantic compound with meaningful dimensionality */}
+{
+  /* ✅ CORRECT: Semantic compound with meaningful dimensionality */
+}
 <p>
-  Newton's method uses the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var> for smarter steps.
-</p>
-{/* This is correct because H⁻¹∇f is a RESULT (search direction) that we treat as one concept */}
+  Newton's method uses the search direction{" "}
+  <Var id="p" type="vector ℝᵈ">
+    <InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath>
+  </Var>{" "}
+  for smarter steps.
+</p>;
+{
+  /* This is correct because H⁻¹∇f is a RESULT (search direction) that we treat as one concept */
+}
 
-{/* ❌ WRONG: Equation/definition wrapped as one thing */}
+{
+  /* ❌ WRONG: Equation/definition wrapped as one thing */
+}
 <p>
-  where <Var id="s" type="vector ℝᵈ"><InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath></Var> is the parameter change.
-</p>
-{/* This is WRONG because it's showing HOW s is computed, not a semantic compound */}
+  where{" "}
+  <Var id="s" type="vector ℝᵈ">
+    <InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath>
+  </Var>{" "}
+  is the parameter change.
+</p>;
+{
+  /* This is WRONG because it's showing HOW s is computed, not a semantic compound */
+}
 
-{/* ✅ CORRECT: Mark individual variables with macros */}
+{
+  /* ✅ CORRECT: Mark individual variables with macros */
+}
 <p>
-  where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
-</p>
-{/* Now users can hover s on the left to see it highlighted everywhere */}
+  where <InlineMath>\varS</InlineMath> = <InlineMath>{String.raw`x_{\text{new}} - x_{\text{old}}`}</InlineMath>{" "}
+  is the parameter change.
+</p>;
+{
+  /* Now users can hover s on the left to see it highlighted everywhere */
+}
 
-{/* ✅ EVEN BETTER: Mark ALL variables if they appear in the registry */}
+{
+  /* ✅ EVEN BETTER: Mark ALL variables if they appear in the registry */
+}
 <p>
-  Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change).
-</p>
-{/* This makes individual variables interactive for cross-linking, without treating the whole equation as one thing */}
+  Define <InlineMath>\varY</InlineMath> = <InlineMath>{String.raw`\nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath>{" "}
+  (gradient change).
+</p>;
+{
+  /* This makes individual variables interactive for cross-linking, without treating the whole equation as one thing */
+}
 
-{/* ❌ WRONG: Mathematical manipulations wrapped as one variable */}
+{
+  /* ❌ WRONG: Mathematical manipulations wrapped as one variable */
+}
 <p>
-  The formula is <Var id="bfgs_term"><InlineMath>{String.raw`B_k(I - \rho ys^T)`}</InlineMath></Var>
-</p>
-{/* This is WRONG - we're showing manipulations, each piece needs separate highlighting */}
+  The formula is{" "}
+  <Var id="bfgs_term">
+    <InlineMath>{String.raw`B_k(I - \rho ys^T)`}</InlineMath>
+  </Var>
+</p>;
+{
+  /* This is WRONG - we're showing manipulations, each piece needs separate highlighting */
+}
 
-{/* ✅ CORRECT: Use macros for each variable within the expression */}
+{
+  /* ✅ CORRECT: Use macros for each variable within the expression */
+}
 <p>
   The formula is <InlineMath>{String.raw`\varB_k(\varI - \varRho \varY \varS^T)`}</InlineMath>
-</p>
-{/* Now users can hover each variable (B_k, I, ρ, y, s) to see where they appear elsewhere */}
+</p>;
+{
+  /* Now users can hover each variable (B_k, I, ρ, y, s) to see where they appear elsewhere */
+}
 ```
 
 **Key question to ask:** "Is this a **result** we refer to as one thing, or are we showing **how to compute** something?"
+
 - If showing computation/definition → use individual macros
 - If referring to a meaningful compound result → use `<Var>` wrapper
 
 **Benefits of global cross-linking:**
+
 - Hovering over `s` in the "Building Intuition" section highlights ALL occurrences of `s` in the pseudocode
 - Enforces consistency: if you use `id="s"` for two different concepts, the highlighting makes it obvious
 - Helps readers trace variable flow through the algorithm
 - Type tooltips provide dimensional information without cluttering the text
 
 **ID consistency enforcement:**
+
 - If a variable appears in multiple contexts (pseudocode + intuition + summary), use the **same ID** everywhere
 - Hover highlighting will show you if you've accidentally used inconsistent IDs
 - This is a feature, not a bug - it forces pedagogical clarity
@@ -352,20 +481,22 @@ The `<Var>` component wraps entire `<InlineMath>` or `<BlockMath>` components to
 When you need a new mathematical variable that doesn't exist in the registry:
 
 1. **Add to `src/variables.ts`:**
+
    ```typescript
    export const VARIABLES: Record<string, VariableMetadata> = {
      // ... existing variables
 
      my_new_var: {
-       id: 'my_new_var',
-       type: 'vector ℝᵈ',
-       latex: 'v',  // Optional: defaults to id if not specified
-       description: 'My new variable',
+       id: "my_new_var",
+       type: "vector ℝᵈ",
+       latex: "v", // Optional: defaults to id if not specified
+       description: "My new variable",
      },
    };
    ```
 
 2. **Use the auto-generated macro:**
+
    ```tsx
    <InlineMath>\varMy_new_var</InlineMath>
    ```
@@ -376,6 +507,7 @@ When you need a new mathematical variable that doesn't exist in the registry:
    - Undefined macros will fail the build with clear error messages
 
 **Macro naming is automatic:**
+
 - Registry ID `my_var` → Macro `\varMyVar`
 - Registry ID `H` → Macro `\varH`
 - Registry ID `lambda_damp` → Macro `\varLambdaDamp`
@@ -388,6 +520,7 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 ### Choosing Between Macros and `<Var>` Wrapper
 
 **Use macros for simple variables:**
+
 ```tsx
 ✅ <p>L-BFGS stores <InlineMath>\varM</InlineMath> recent gradient changes.</p>
 ✅ <p>The Hessian <InlineMath>\varH</InlineMath> costs <InlineMath>O(d^3)</InlineMath> to compute.</p>
@@ -398,6 +531,7 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 ```
 
 **Use `<Var>` wrapper for composite RESULTS (not definitions):**
+
 ```tsx
 ✅ <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var>
 <!-- Composite RESULT treated as one semantic unit (search direction) -->
@@ -413,6 +547,7 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 ```
 
 **Key distinction:**
+
 - **Result** (use `<Var>`): H⁻¹∇f as "search direction" - a meaningful compound we reference as ONE thing
 - **Definition** (use macros): s = x_new - x_old - we're showing HOW to compute s, not referring to a compound result
 
@@ -430,6 +565,7 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 ```
 
 **defaultExpanded Guidelines**:
+
 - `true`: Quick Start, Try This (first-time user essentials)
 - `false`: How It Works, Mathematical Details, Advanced Topics (deep dives)
 
@@ -438,6 +574,7 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 Use colored callout boxes to highlight important insights:
 
 **Amber** (🛡️) - Unique features, important differences:
+
 ```tsx
 <div className="bg-amber-50 border border-amber-400 rounded p-3 my-2">
   <p className="text-sm text-amber-900 font-semibold mb-2">
@@ -448,21 +585,19 @@ Use colored callout boxes to highlight important insights:
 ```
 
 **Blue** (💡) - Key insights, intuition:
+
 ```tsx
 <div className="bg-blue-50 border border-blue-400 rounded p-3 my-2">
-  <p className="text-sm text-blue-900 font-semibold mb-2">
-    💡 Intuition
-  </p>
+  <p className="text-sm text-blue-900 font-semibold mb-2">💡 Intuition</p>
   {/* Content */}
 </div>
 ```
 
 **Green** (✅) - Success patterns, advantages:
+
 ```tsx
 <div className="bg-green-50 border border-green-400 rounded p-3 my-2">
-  <p className="text-sm text-green-900 font-semibold mb-2">
-    ✅ Advantage
-  </p>
+  <p className="text-sm text-green-900 font-semibold mb-2">✅ Advantage</p>
   {/* Content */}
 </div>
 ```
@@ -473,9 +608,9 @@ When removing redundancy, add explicit pointers:
 
 ```tsx
 <p className="text-sm italic">
-  For the full explanation of the secant equation, BFGS updates,
-  and two-loop recursion, see the <strong>"How L-BFGS Works"</strong> section above.
-  This section covers advanced theoretical topics.
+  For the full explanation of the secant equation, BFGS updates, and two-loop
+  recursion, see the <strong>"How L-BFGS Works"</strong> section above. This
+  section covers advanced theoretical topics.
 </p>
 ```
 
@@ -515,16 +650,24 @@ Final structure after reorganization:
 Use the `<Complexity>` component to annotate algorithmic complexity in pseudocode:
 
 ```tsx
-<span className="ml-4">Compute gradient <Var id="grad"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+<span className="ml-4">
+  Compute gradient{" "}
+  <Var id="grad">
+    <InlineMath>\nabla f(w)</InlineMath>
+  </Var>{" "}
+  <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity>
+</span>
 ```
 
 **Guidelines:**
+
 - Include `explanation` prop for hover tooltips explaining what contributes to the complexity
 - Use clear, concise notation: `O(d)`, `O(Md)`, `O(d³)`
 - For problem-dependent operations (gradient, function evaluations), use counts: `1 ∇f eval`, `≈1-4 f evals`
 - Always include for every step in pseudocode to help readers understand computational cost
 
 **Common patterns:**
+
 - `<Complexity>O(1)</Complexity>` - Constant time (assignments, conditionals)
 - `<Complexity explanation="Vector addition">O(d)</Complexity>` - Linear in dimension
 - `<Complexity explanation="Inner product + division">O(d)</Complexity>` - Multiple O(d) operations
@@ -536,12 +679,14 @@ Use the `<Complexity>` component to annotate algorithmic complexity in pseudocod
 **For all glossary-related guidelines, see the authoritative style guide in [`src/lib/glossary.tsx`](../src/lib/glossary.tsx) (lines 10-78).**
 
 The glossary file contains comprehensive documentation on:
+
 - When to add terms to the glossary registry vs. when NOT to add
 - When to use `<GlossaryTooltip>` vs. plain text
 - Balancing help without overwhelming with visual noise
 - Detailed example patterns for different contexts
 
 **Quick reference:**
+
 ```tsx
 // First occurrence in a section - use tooltip
 <p><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
@@ -557,6 +702,7 @@ The glossary file contains comprehensive documentation on:
 **Complete color guide for semantic callouts:**
 
 **Amber** (⚠️) - Warnings, cautions, important limitations:
+
 ```tsx
 <div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-3">
   <p className="font-semibold text-amber-900 mb-2">⚠️ Important Limitation</p>
@@ -565,22 +711,29 @@ The glossary file contains comprehensive documentation on:
 ```
 
 **Blue** (💡) - Key insights, intuition, "why this works":
+
 ```tsx
 <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
-  <p className="font-semibold text-blue-900 mb-3">💡 Why (s, y) pairs capture curvature:</p>
+  <p className="font-semibold text-blue-900 mb-3">
+    💡 Why (s, y) pairs capture curvature:
+  </p>
   <p className="text-sm text-blue-800">{/* Content */}</p>
 </div>
 ```
 
 **Green** (✅) - Success patterns, advantages, robustness features:
+
 ```tsx
 <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
-  <p className="text-sm text-green-900 font-semibold mb-1">✅ Advantage over Newton</p>
+  <p className="text-sm text-green-900 font-semibold mb-1">
+    ✅ Advantage over Newton
+  </p>
   <p className="text-sm text-green-800">{/* Content */}</p>
 </div>
 ```
 
 **Purple/Indigo** - Mathematical details, proofs, derivations:
+
 ```tsx
 <div className="bg-indigo-100 rounded p-4">
   <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
@@ -591,6 +744,7 @@ The glossary file contains comprehensive documentation on:
 ```
 
 **Red** - Errors, failures, what NOT to do (use sparingly):
+
 ```tsx
 <div className="bg-red-50 border-l-4 border-red-500 p-4 my-3">
   <p className="font-semibold text-red-900 mb-2">❌ Common Mistake</p>
@@ -599,9 +753,12 @@ The glossary file contains comprehensive documentation on:
 ```
 
 **Gray** - Implementation details, parameter effects, neutral information:
+
 ```tsx
 <div className="bg-gray-100 rounded p-3 mt-3">
-  <p className="font-bold text-sm mb-2">Effect of λ<sub>damp</sub>:</p>
+  <p className="font-bold text-sm mb-2">
+    Effect of λ<sub>damp</sub>:
+  </p>
   <ul className="text-sm list-disc ml-6 space-y-1">{/* Content */}</ul>
 </div>
 ```
@@ -611,6 +768,7 @@ The glossary file contains comprehensive documentation on:
 ## Metrics
 
 Good reorganization should achieve:
+
 - **Reduced line count** from eliminating redundancy (L-BFGS: 1090 → ~750 lines)
 - **No concept explained more than 2 times** (1 quick + 1 deep maximum)
 - **All parameters use KaTeX** (InlineMath/BlockMath)
@@ -624,6 +782,7 @@ Before adding any content, ask these questions:
 ### 1. Can we demonstrate this on our 2D problems?
 
 **What counts as "demonstrated":**
+
 - ✅ **Behavior is observable** in the visualizer across multiple test problems (e.g., Rosenbrock, Himmelblau, Beale)
 - ✅ **Quantitative verification** via plots, metrics, or memory tables (e.g., eigenvalue evolution shows approximation quality)
 - ✅ **User can reproduce** by following "Try This" experiments (e.g., "Run L-BFGS with M=3 vs M=10 on Rosenbrock")
@@ -631,6 +790,7 @@ Before adding any content, ask these questions:
 - ❌ **Specific numerical claims** without verification (e.g., "M=5 is optimal for most problems")
 
 **Examples:**
+
 - ✅ "L-BFGS is more robust than Newton on Himmelblau (avoids saddle points)" - DEMONSTRABLE via comparison
 - ✅ "Curvature filtering: memory table shows rejected pairs where s^T y ≤ 0" - DEMONSTRABLE via live data
 - ❌ "L-BFGS typically converges in 50-100 iterations on real problems" - NOT demonstrable (depends on problem)
@@ -639,6 +799,7 @@ Before adding any content, ask these questions:
 ### 2. Can we prove this mathematically?
 
 **What counts as "provable":**
+
 - ✅ **Theoretical results** with citations (e.g., "superlinear convergence under strong convexity")
 - ✅ **Complexity analysis** we can derive (e.g., "O(Md) per iteration")
 - ✅ **Algorithmic correctness** we can verify (e.g., BFGS update satisfies secant equation)
@@ -651,6 +812,7 @@ Before adding any content, ask these questions:
 ### 3. Is this featured in our stories?
 
 If a concept appears in `src/stories/*.ts` (curated examples), make it prominent with:
+
 - Callout boxes in the relevant sections
 - Cross-references to experiments that demonstrate it
 - Visual emphasis (colored borders, icons)
@@ -658,11 +820,13 @@ If a concept appears in `src/stories/*.ts` (curated examples), make it prominent
 ### 4. Would a beginner be overwhelmed?
 
 **Move to collapsed sections if:**
+
 - Mathematical proofs or derivations (→ "Mathematical Details")
 - Implementation specifics (→ "Advanced Topics")
 - Edge cases or failure modes (→ "When Things Go Wrong")
 
 **Keep visible if:**
+
 - Core algorithm understanding (→ "How It Works")
 - Practical guidance (→ "Quick Start", "Try This")
 - Key intuitions (→ prominent callouts)
@@ -670,6 +834,7 @@ If a concept appears in `src/stories/*.ts` (curated examples), make it prominent
 ### 5. Are we repeating ourselves?
 
 **One Good Explanation Per Concept:**
+
 - Quick mention in "Quick Start" (1-2 sentences)
 - Deep explanation in "How It Works" (full section)
 - Cross-reference from other sections instead of repeating
