@@ -241,7 +241,6 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <li>Simple baseline for any differentiable function</li>
               <li>Educational purposes (understanding optimization)</li>
               <li>When computational cost per iteration must be minimal</li>
-              <li>Problems where you can tune <InlineMath>{String.raw`\varAlpha`}</InlineMath> effectively</li>
             </ul>
           </div>
 
@@ -333,7 +332,9 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size <InlineMath>{String.raw`\varAlpha`}</InlineMath></h3>
+            <h3 className="text-lg font-bold text-yellow-800 mb-2">
+              Choosing Step Size <InlineMath>{String.raw`\varAlpha`}</InlineMath>
+            </h3>
             <div className="space-y-2 text-sm">
               <p>
                 <strong>Theoretical guideline:</strong> For <GlossaryTooltip termKey="smooth" /> functions
@@ -341,7 +342,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               </p>
               <BlockMath>{String.raw`0 < \varAlpha < \frac{2}{L}`}</BlockMath>
               <p>
-                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.
+                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition" />
               </p>
               <p className="mt-2">
                 <strong>Better approach:</strong> Use line search (next tab) to avoid manual tuning.
@@ -393,12 +394,14 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <p className="text-sm mt-2">
               Let <InlineMath>{String.raw`\varW^*`}</InlineMath> denote the optimal parameters,
               <InlineMath>{String.raw`\mu > 0`}</InlineMath> the strong convexity parameter, and
-              <InlineMath>{String.raw`L`}</InlineMath> the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>. Then:
+              <InlineMath>{String.raw`L`}</InlineMath> the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>. With
+              optimal step size <InlineMath>{String.raw`\varAlpha = 2/(L+\mu)`}</InlineMath>:
             </p>
-            <BlockMath>{String.raw`\|\varW_k - \varW^*\| \leq \left(1 - \frac{\mu}{L}\right)^k \|\varWZero - \varW^*\|`}</BlockMath>
+            <BlockMath>{String.raw`\|\varW_k - \varW^*\|^2 \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|^2`}</BlockMath>
             <p className="text-sm mt-2">
-              <strong>Linear convergence:</strong> Error decreases by constant factor each iteration.
-              The rate depends on the condition number <InlineMath>{String.raw`L/\mu`}</InlineMath>.
+              <strong>Linear convergence:</strong> Squared error decreases by constant factor each iteration.
+              The rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>, which can be
+              rewritten as <InlineMath>{String.raw`\left(\frac{Q-1}{Q+1}\right)^k`}</InlineMath>.<Citation citationKey="gd-strongly-convex-linear-convergence" />
             </p>
           </div>
 
@@ -409,6 +412,9 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               For <GlossaryTooltip termKey="smooth" /> functions with Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath>:
             </p>
             <BlockMath>{String.raw`\varAlpha < \frac{2}{L}`}</BlockMath>
+            <p className="text-sm mt-2">
+              guarantees that each step decreases the function value.<Citation citationKey="gd-smooth-descent-condition" />
+            </p>
             <p className="text-sm mt-2">
               The Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath> satisfies:
             </p>
@@ -465,7 +471,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <p className="text-sm mt-2">
               Provably optimal convergence rate for{' '}
               <GlossaryTooltip termKey="smooth" />{' '}
-              <GlossaryTooltip termKey="convex" /> functions.
+              <GlossaryTooltip termKey="convex" /> functions.<Citation citationKey="nesterov-accelerated-optimal-rate" />
             </p>
           </div>
 
@@ -509,7 +515,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
         </div>
       </CollapsibleSection>
 
-      <References usedIn="GdFixedTab" defaultExpanded={false} storageKey="gd-fixed-references" />
+      <References usedIn="GdFixedTab" />
 
     </>
   );

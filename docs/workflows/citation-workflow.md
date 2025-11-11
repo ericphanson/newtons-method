@@ -134,6 +134,40 @@ Once you've verified the exact page and content, add the citation to `docs/citat
 - If referring to the website: "here we use α" instead of "in our codebase we use α"
 - Keep language concise and reader-focused
 
+**Mathematical Notation:**
+
+Use LaTeX syntax with `$...$` delimiters for all mathematical expressions in `claim`, `quote`, and `readerNotes` fields:
+
+```json
+{
+  "claim": "Gradient descent achieves linear convergence when $0 < \\alpha < 2/(L+\\mu)$",
+  "quote": "Let $f \\in S^{1,1}_{\\mu,L}(\\mathbb{R}^n)$ and $0 < h < 2/L$...",
+  "readerNotes": "The notation $S^{1,1}_{\\mu,L}(\\mathbb{R}^n)$ denotes..."
+}
+```
+
+**Important:**
+- **Always use LaTeX, NOT Unicode** - Write `$\\alpha$` instead of `α`, `$\\mu$` instead of `μ`
+- **Use LaTeX for all math** - Even single variables: `$m$`, `$L$`, `$\\nabla f$`
+- **Double-escape backslashes** - JSON requires `\\alpha` not `\alpha`
+- **Validation is automatic** - Invalid KaTeX will fail the build with clear error messages
+
+Common LaTeX patterns:
+- Greek letters: `$\\alpha$`, `$\\mu$`, `$\\nabla$`
+- Subscripts: `$x_k$`, `$\\mu,L$` → $x_k$, $μ,L$
+- Superscripts: `$k^2$`, `$S^{1,1}_{\\mu,L}$`
+- Fractions: `$\\frac{2}{L+\\mu}$`
+- Sets: `$\\mathbb{R}^n$`
+- Inequalities: `$0 < \\alpha < 2/L$`
+- Norms: `$\\|x\\|$`, `$\\|\\nabla f\\|$`
+
+**Why LaTeX over Unicode?**
+- Consistent rendering across all browsers and devices
+- Better visual quality (KaTeX renders proper math fonts)
+- Easier to search and edit (plain text `\alpha` vs Unicode `α`)
+- Automatic validation catches typos immediately
+- Semantic meaning preserved (Unicode `μ` is just a character, `$\mu$` is a mathematical symbol)
+
 **Validation:**
 
 All citations are automatically validated during `npm run dev` and `npm run build`. The validator checks:
@@ -141,8 +175,18 @@ All citations are automatically validated during `npm run dev` and `npm run buil
 - No required fields have null or empty values
 - Arrays (`proofPages`, `usedIn`) are non-empty
 - Date format is YYYY-MM-DD
+- **KaTeX math expressions** in `claim`, `quote`, and `readerNotes` are valid
 
 To manually validate: `npm run validate-citations`
+
+If you have invalid KaTeX, you'll see an error like:
+```
+❌ Found 1 validation error:
+
+Citation: "gd-strongly-convex-linear-convergence"
+  - Invalid KaTeX in field 'claim': $0 < \apha < 2/L$
+    Error: KaTeX parse error: Undefined control sequence: \apha
+```
 
 ## Scripts Reference
 

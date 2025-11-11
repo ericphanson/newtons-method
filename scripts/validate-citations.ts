@@ -5,11 +5,14 @@
  * Validates docs/citations.json to ensure all citations have required fields
  * and no null values for required fields.
  *
+ * Also validates KaTeX math expressions in citation fields using $...$ syntax.
+ *
  * This runs as part of the build and dev process to catch citation errors early.
  */
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import katex from 'katex';
 
 interface Citation {
   reference: string;
@@ -50,8 +53,38 @@ type RequiredField = typeof REQUIRED_FIELDS[number];
 interface ValidationError {
   citationKey: string;
   field: string;
-  issue: 'missing' | 'null' | 'empty-array' | 'invalid-type';
+  issue: 'missing' | 'null' | 'empty-array' | 'invalid-type' | 'invalid-math';
   message: string;
+}
+
+/**
+ * Validates KaTeX math expressions in text using $...$ syntax
+ */
+function validateMathInText(
+  text: string,
+  citationKey: string,
+  field: string
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const mathPattern = /\$([^$]+)\$/g;
+
+  let match;
+  while ((match = mathPattern.exec(text)) !== null) {
+    const mathContent = match[1];
+    try {
+      katex.renderToString(mathContent, { throwOnError: true });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      errors.push({
+        citationKey,
+        field,
+        issue: 'invalid-math',
+        message: `Invalid KaTeX in field '${field}': $${mathContent}$\n    Error: ${errorMessage}`,
+      });
+    }
+  }
+
+  return errors;
 }
 
 function validateCitation(key: string, citation: any): ValidationError[] {
@@ -138,6 +171,17 @@ function validateCitation(key: string, citation: any): ValidationError[] {
         message: `verified date must be in YYYY-MM-DD format, got: ${citation.verified}`,
       });
     }
+  }
+
+  // Validate KaTeX math expressions in text fields
+  if ('claim' in citation && typeof citation.claim === 'string') {
+    errors.push(...validateMathInText(citation.claim, key, 'claim'));
+  }
+  if ('quote' in citation && typeof citation.quote === 'string') {
+    errors.push(...validateMathInText(citation.quote, key, 'quote'));
+  }
+  if ('readerNotes' in citation && typeof citation.readerNotes === 'string') {
+    errors.push(...validateMathInText(citation.readerNotes, key, 'readerNotes'));
   }
 
   return errors;
