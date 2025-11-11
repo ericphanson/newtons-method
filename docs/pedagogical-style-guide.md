@@ -111,7 +111,13 @@ When we found the two-loop recursion explained 3 times (Quick Start, Two-Loop De
 - Full explanation in "How L-BFGS Works"
 - Reference pointer in Mathematical Details
 
-### 4. Progressive Disclosure
+### 4. Every statement must have a point
+
+There needs to be a reason we are including each statement on our page. We have limited space and our readers have limited attention. It's not enough for our statements to be true, they need to be building an understanding. We can't just throw random facts at the reader.
+
+It's OK to delete stuff if it doesn't help with this, even if the statement is true.
+
+### 5. Progressive Disclosure
 
 Structure content from quick → complete → deep:
 
@@ -145,7 +151,7 @@ Structure content from quick → complete → deep:
 - Default to **closed** (defaultExpanded={false}) to not overwhelm
 - Use subsections with clear headers
 
-### 5. Emphasize Unique Features
+### 6. Emphasize Unique Features
 
 If a feature is:
 
@@ -162,7 +168,7 @@ If a feature is:
 - Green success box in "When Things Go Wrong"
 - Featured heavily in `src/stories/lbfgs-memory.ts`
 
-### 6. Mathematical Notation
+### 7. Mathematical Notation
 
 **Always use KaTeX** for mathematical symbols, even for simple parameters.
 
@@ -233,7 +239,7 @@ parameter λ_damp (Unicode)
 <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>
 ```
 
-### 7. Troubleshooting Content
+### 8. Troubleshooting Content
 
 Only include issues that we can either:
 
