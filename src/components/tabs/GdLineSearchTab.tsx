@@ -7,7 +7,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var, Complexity } from '../Pseudocode';
+import { Pseudocode, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
@@ -177,7 +177,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Idea</h3>
             <p>
-              Instead of using a fixed step size <InlineMath>\alpha</InlineMath>, automatically
+              Instead of using a fixed step size <InlineMath>\varAlpha</InlineMath>, automatically
               search for a good step size at each iteration. This makes the algorithm{' '}
               <strong>robust and efficient</strong> across different problems.
             </p>
@@ -188,38 +188,38 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
+                display: <InlineMath>{String.raw`w_0 \in \mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
                 id: "f",
-                display: <InlineMath>f</InlineMath>,
+                display: <InlineMath>\varF</InlineMath>,
                 description: "objective function to minimize"
               }
             ]}
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{`w^*`}</InlineMath>,
+                display: <InlineMath>{String.raw`w^*`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
+              <>Initialize <InlineMath>\varW \leftarrow \varWZero</InlineMath> <Complexity>O(1)</Complexity></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                <span className="ml-4">Compute gradient <InlineMath>{String.raw`\varGrad = \nabla f(\varW)`}</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Set search direction <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ← −<Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4">Set search direction <InlineMath>{String.raw`\varP \leftarrow -\varGrad`}</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><strong>Line search:</strong> find step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> that decreases loss sufficiently <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
+                <span className="ml-4"><strong>Line search:</strong> find step size <InlineMath>\varAlpha</InlineMath> that decreases loss sufficiently <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4"><InlineMath>{String.raw`\varW \leftarrow \varW + \varAlpha \varP`}</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <InlineMath>\varW</InlineMath></>
             ]}
           />
 
@@ -235,10 +235,10 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <li>Different regions of parameter space</li>
             </ul>
             <p className="text-sm mt-3 text-gray-700">
-              <strong>Note:</strong> Line search adapts <InlineMath>\alpha</InlineMath> iteration-by-iteration,
+              <strong>Note:</strong> Line search adapts <InlineMath>\varAlpha</InlineMath> iteration-by-iteration,
               which prevents divergence and speeds up convergence. However, it's still <strong>one step size
-                for all directions</strong> at each iteration. On ill-conditioned problems, this causes
-              zig-zagging (just less severe than fixed <InlineMath>\alpha</InlineMath>).
+                for all directions</strong> at each iteration. On <GlossaryTooltip termKey="ill-conditioned" /> problems, this causes
+              zig-zagging (just less severe than fixed <InlineMath>\varAlpha</InlineMath>).
             </p>
           </div>
 
@@ -252,7 +252,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             </ul>
           </div>
 
-          <div className="bg-teal-100 rounded p-3">
+          <div className="bg-gray-100 rounded p-3">
             <p className="font-bold text-sm">Tradeoff:</p>
             <p className="text-sm">
               Each iteration costs more (multiple gradient evaluations for line search),
@@ -273,20 +273,20 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-teal-800 mb-2">Why Line Search for Gradient Descent</h3>
             <p>
-              Fixed step size <InlineMath>\alpha</InlineMath> fails when landscape has
+              Fixed step size <InlineMath>\varAlpha</InlineMath> (where <InlineMath>\varAlpha</InlineMath> is the step size controlling how far we move along the gradient) fails when landscape has
               varying curvature:
             </p>
             <ul className="list-disc ml-6 space-y-1 mt-2">
               <li>
-                <strong>Steep regions:</strong> need small <InlineMath>\alpha</InlineMath> to
+                <strong>Steep regions:</strong> need small <InlineMath>\varAlpha</InlineMath> to
                 avoid overshooting
               </li>
               <li>
-                <strong>Flat regions:</strong> can use large <InlineMath>\alpha</InlineMath> for
+                <strong>Flat regions:</strong> can use large <InlineMath>\varAlpha</InlineMath> for
                 faster progress
               </li>
               <li>
-                <strong>Curvature changes:</strong> optimal <InlineMath>\alpha</InlineMath> varies
+                <strong>Curvature changes:</strong> optimal <InlineMath>\varAlpha</InlineMath> varies
                 across iterations
               </li>
             </ul>
@@ -314,16 +314,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               ]}
               additionalNotes={
                 <div className="bg-teal-50 rounded p-3">
-                  <p className="font-semibold text-sm mb-2">Understanding <InlineMath>c_1</InlineMath>:</p>
+                  <p className="font-semibold text-sm mb-2">Understanding <InlineMath>{String.raw`c_1`}</InlineMath> (Armijo parameter):</p>
                   <ul className="text-sm list-disc ml-6">
                     <li>
-                      <strong><InlineMath>c_1</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
+                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
                     </li>
                     <li>
-                      <strong><InlineMath>c_1</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
+                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
                     </li>
                     <li>
-                      <strong><InlineMath>c_1</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
+                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
                     </li>
                   </ul>
                 </div>
@@ -408,13 +408,13 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
-            <p className="mb-2">Same as fixed step gradient descent:</p>
+            <p className="mb-2">Same convergence guarantees as fixed step gradient descent:</p>
             <ul className="space-y-2">
               <li>
-                <strong>Strongly convex:</strong> Linear convergence, line search improves constant
+                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence, line search improves the convergence constant
               </li>
               <li>
-                <strong>Convex:</strong> Converges to global minimum
+                <strong><GlossaryTooltip termKey="convex" />:</strong> Converges to global minimum
               </li>
               <li>
                 <strong>Non-convex:</strong> May converge to local minima, line search helps stability
@@ -426,10 +426,10 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
             <ul className="list-disc ml-6 space-y-1">
               <li>
-                <strong>Too many backtracking steps</strong> → <InlineMath>c_1</InlineMath> too large, decrease it
+                <strong>Too many backtracking steps</strong> → <InlineMath>{String.raw`c_1`}</InlineMath> too large, decrease it
               </li>
               <li>
-                <strong>Slow progress</strong> → <InlineMath>c_1</InlineMath> too small, increase it (or use better algorithm)
+                <strong>Slow progress</strong> → <InlineMath>{String.raw`c_1`}</InlineMath> too small, increase it (or use better algorithm)
               </li>
               <li>
                 <strong>Still diverging</strong> → gradient computation bug, check implementation
@@ -453,46 +453,56 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Armijo Condition Proof</h3>
-            <p>The Armijo condition ensures sufficient decrease:</p>
-            <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+            <p>
+              Let <InlineMath>\varW</InlineMath> be the current parameters, <InlineMath>\varP</InlineMath> the search direction,
+              and <InlineMath>\varAlpha</InlineMath> the step size. The Armijo condition ensures sufficient decrease in
+              the objective function <InlineMath>\varF</InlineMath>:
+            </p>
+            <BlockMath>{String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}</BlockMath>
             <p className="text-sm mt-2">
-              For descent direction <InlineMath>p = -\nabla f</InlineMath>, we have{' '}
-              <InlineMath>{`\\nabla f^T p < 0`}</InlineMath>, so the right side decreases
-              with <InlineMath>\alpha</InlineMath>.
+              where <InlineMath>{String.raw`c_1 \in (0, 1)`}</InlineMath> is the Armijo parameter (typically 0.0001).
             </p>
             <p className="text-sm mt-2">
-              <strong>Guarantees:</strong> Backtracking terminates in finite steps (by Taylor expansion).
+              For descent direction <InlineMath>{String.raw`\varP = -\varGrad`}</InlineMath>, we have{' '}
+              <InlineMath>{String.raw`\varGrad^T \varP = -\|\varGrad\|^2 < 0`}</InlineMath>, so the right side decreases
+              linearly with <InlineMath>\varAlpha</InlineMath>.
+            </p>
+            <p className="text-sm mt-2">
+              <strong>Guarantees:</strong> Backtracking terminates in finite steps (by Taylor expansion, shown below).
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
-            <p>For L-<GlossaryTooltip termKey="smooth" /> functions:</p>
+            <p>
+              For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions (where <InlineMath>L</InlineMath> is the <GlossaryTooltip termKey="lipschitz-continuous" /> constant of the gradient):
+            </p>
             <BlockMath>
-              {`f(w + \\alpha p) \\leq f(w) + \\alpha \\nabla f^T p + \\frac{L\\alpha^2}{2}\\|p\\|^2`}
+              {String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + \varAlpha \varGrad^T \varP + \frac{L\varAlpha^2}{2}\|\varP\|^2`}
             </BlockMath>
             <p className="text-sm mt-2">
-              This bounds how much f can increase along direction p, guaranteeing
-              backtracking finds acceptable step.
+              This bounds how much <InlineMath>\varF</InlineMath> can increase along direction <InlineMath>\varP</InlineMath>, guaranteeing
+              backtracking finds an acceptable step.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Why Backtracking Terminates</h3>
-            <p>By Taylor expansion around <InlineMath>w</InlineMath>:</p>
+            <p>By Taylor expansion around <InlineMath>\varW</InlineMath>:</p>
             <BlockMath>
-              f(w + \alpha p) = f(w) + \alpha \nabla f^T p + O(\alpha^2)
+              {String.raw`f(\varW + \varAlpha \varP) = f(\varW) + \varAlpha \varGrad^T \varP + O(\varAlpha^2)`}
             </BlockMath>
             <p className="text-sm mt-2">
-              For small enough <InlineMath>\alpha</InlineMath>, the{' '}
-              <InlineMath>O(\alpha^2)</InlineMath> term is negligible, so:
+              For small enough <InlineMath>\varAlpha</InlineMath>, the{' '}
+              <InlineMath>{String.raw`O(\varAlpha^2)`}</InlineMath> term is negligible, so:
             </p>
             <BlockMath>
-              {`f(w + \\alpha p) \\approx f(w) + \\alpha \\nabla f^T p < f(w) + c_1 \\alpha \\nabla f^T p`}
+              {String.raw`f(\varW + \varAlpha \varP) \approx f(\varW) + \varAlpha \varGrad^T \varP < f(\varW) + c_1 \varAlpha \varGrad^T \varP`}
             </BlockMath>
             <p className="text-sm mt-2">
-              Since <InlineMath>{`c_1 < 1`}</InlineMath> and{' '}
-              <InlineMath>{`\\nabla f^T p < 0`}</InlineMath>, Armijo condition satisfied.
+              Since <InlineMath>{String.raw`c_1 < 1`}</InlineMath> and{' '}
+              <InlineMath>{String.raw`\varGrad^T \varP < 0`}</InlineMath> (descent direction), the Armijo condition is satisfied.
+              This proves backtracking will always find an acceptable step size.
             </p>
           </div>
         </div>
@@ -508,38 +518,38 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Wolfe Conditions</h3>
-            <p>Stronger than Armijo, adds curvature condition:</p>
+            <p>Stronger than Armijo, adds a curvature condition to ensure steps aren't too small:</p>
             <div className="mt-2">
               <p className="font-semibold text-sm">1. Sufficient decrease (Armijo):</p>
-              <BlockMath>f(w + \alpha p) \leq f(w) + c_1 \alpha \nabla f^T p</BlockMath>
+              <BlockMath>{String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}</BlockMath>
             </div>
             <div className="mt-2">
               <p className="font-semibold text-sm">2. Curvature condition:</p>
-              <BlockMath>\nabla f(w + \alpha p)^T p \geq c_2 \nabla f^T p</BlockMath>
+              <BlockMath>{String.raw`\nabla f(\varW + \varAlpha \varP)^T \varP \geq c_2 \varGrad^T \varP`}</BlockMath>
             </div>
             <p className="text-sm mt-2">
-              Typical: <InlineMath>c_1 = 0.0001</InlineMath>, <InlineMath>c_2 = 0.9</InlineMath>.
-              Ensures step isn't too small.
+              Typical values: <InlineMath>{String.raw`c_1 = 0.0001`}</InlineMath>, <InlineMath>{String.raw`c_2 = 0.9`}</InlineMath>.
+              The curvature condition prevents accepting steps where the gradient hasn't decreased enough.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Strong Wolfe Conditions</h3>
-            <p>Replace curvature condition with:</p>
-            <BlockMath>|\nabla f(w + \alpha p)^T p| \leq c_2 |\nabla f^T p|</BlockMath>
+            <p>Replace curvature condition with an absolute value constraint:</p>
+            <BlockMath>{String.raw`\left|\nabla f(\varW + \varAlpha \varP)^T \varP\right| \leq c_2 \left|\varGrad^T \varP\right|`}</BlockMath>
             <p className="text-sm mt-2">
-              Prevents steps where curvature increases too much.
+              Prevents steps where curvature increases too much. Used in quasi-Newton methods like L-BFGS.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Goldstein Conditions</h3>
-            <p>Alternative to Armijo with upper and lower bounds:</p>
+            <p>Alternative to Armijo with upper and lower bounds on the decrease:</p>
             <BlockMath>
-              {'f(w) + (1-c)\\alpha \\nabla f^T p \\leq f(w + \\alpha p) \\leq f(w) + c\\alpha \\nabla f^T p'}
+              {String.raw`f(\varW) + (1-c)\varAlpha \varGrad^T \varP \leq f(\varW + \varAlpha \varP) \leq f(\varW) + c\varAlpha \varGrad^T \varP`}
             </BlockMath>
             <p className="text-sm mt-2">
-              Less commonly used than Wolfe conditions.
+              where <InlineMath>{String.raw`c \in (0, 1/2)`}</InlineMath>. Less commonly used than Wolfe conditions.
             </p>
           </div>
 

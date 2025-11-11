@@ -97,6 +97,11 @@ export const VARIABLES: Record<string, VariableMetadata> = {
     latex: 'I_d',
     description: 'Identity matrix (d×d)',
   },
+  D: {
+    id: 'D',
+    type: 'd×d diagonal matrix',
+    description: 'Diagonal preconditioner matrix',
+  },
 
   // Vectors
   s: {
@@ -142,6 +147,12 @@ export const VARIABLES: Record<string, VariableMetadata> = {
     type: 'vector ℝᵈ',
     latex: 'w^{*}',
     description: 'Optimal parameters',
+  },
+  w_k: {
+    id: 'w_k',
+    type: 'vector ℝᵈ',
+    latex: 'w_{k}',
+    description: 'Parameters at iteration k',
   },
   q: {
     id: 'q',
@@ -241,6 +252,7 @@ export const VARIABLES: Record<string, VariableMetadata> = {
   f: {
     id: 'f',
     type: 'function',
+    latex: 'f',
     description: 'Objective function',
   },
 };

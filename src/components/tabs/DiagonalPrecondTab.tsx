@@ -6,7 +6,8 @@ import { InlineMath, BlockMath } from '../Math';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var, Complexity } from '../Pseudocode';
+import { Pseudocode, Complexity } from '../Pseudocode';
+import { GlossaryTooltip } from '../GlossaryTooltip';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { DiagonalPrecondIteration } from '../../algorithms/diagonal-preconditioner';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -200,17 +201,91 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
         {/* Quick Start */}
         <CollapsibleSection
           title="Quick Start"
-          defaultExpanded={false}
+          defaultExpanded={true}
           storageKey="diagonal-precond-quick-start"
           id="quick-start"
         >
           <div className="space-y-4 text-gray-800">
             <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Idea</h3>
+              <h3 className="text-lg font-bold text-teal-800 mb-2">What Is Diagonal Preconditioning?</h3>
               <p>
-                Instead of using one step size for all directions (gradient descent) or computing
-                the full inverse Hessian (Newton), use just the <strong>diagonal</strong> of the
-                Hessian to get per-coordinate step sizes.
+                Diagonal preconditioning uses per-coordinate adaptive learning rates based on the diagonal of the <GlossaryTooltip termKey="hessian" />.
+                Instead of one step size for all directions (gradient descent) or computing the full inverse Hessian (Newton's method),
+                it uses just the <strong>diagonal</strong> of the Hessian to scale each coordinate independently.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-teal-800 mb-2">When to Use</h3>
+              <ul className="list-disc ml-6 space-y-1">
+                <li>
+                  <strong>Axis-aligned problems:</strong> When the Hessian is diagonal or nearly diagonal,
+                  this method achieves Newton-like convergence in 1-2 iterations
+                </li>
+                <li>
+                  <strong>Need per-coordinate learning rates:</strong> When different coordinates have vastly
+                  different scales or curvatures
+                </li>
+                <li>
+                  <strong>Cannot afford full Newton:</strong> When <InlineMath>O(d^3)</InlineMath> matrix inversion
+                  is too expensive but you can compute the Hessian diagonal
+                </li>
+                <li>
+                  <strong>Avoid for rotated problems:</strong> Fails when Hessian has large off-diagonal terms
+                  (coordinate coupling). Use Newton's method or L-BFGS instead.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-teal-800 mb-2">Key Parameters</h3>
+              <ul className="list-disc ml-6 space-y-1">
+                <li>
+                  <strong>Hessian damping (<InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>):</strong> Numerical
+                  stability term added to diagonal elements. Prevents division by zero when Hessian has zero eigenvalues.
+                  Costs <InlineMath>O(d)</InlineMath> per iteration.
+                </li>
+                <li>
+                  <strong>Line Search:</strong> Optional Armijo backtracking for step size. Use for robustness on
+                  non-quadratic problems. Disable (<InlineMath>\alpha = 1</InlineMath>) for pure diagonal Newton
+                  step on quadratic problems.
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-teal-800 mb-2">What to Try</h3>
+              <p>
+                See the <strong>"Try This"</strong> section below for experiments demonstrating when diagonal
+                preconditioning excels (axis-aligned quadratics) and when it fails (rotated problems).
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+              <p className="font-semibold text-blue-900 mb-2">💡 Key Insight</p>
+              <p className="text-sm text-blue-800">
+                Diagonal preconditioning is the simplest second-order method. It captures
+                per-coordinate curvature but ignores coordinate coupling. Think of it as "Newton's method
+                if the world were axis-aligned."
+              </p>
+            </div>
+          </div>
+        </CollapsibleSection>
+
+        {/* How It Works */}
+        <CollapsibleSection
+          title="How Diagonal Preconditioning Works"
+          defaultExpanded={false}
+          storageKey="diagonal-precond-how-it-works"
+          id="how-it-works"
+        >
+          <div className="space-y-4 text-gray-800">
+            <div>
+              <h3 className="text-lg font-bold text-teal-800 mb-2">High-Level Algorithm</h3>
+              <p className="mb-3">
+                Let <InlineMath>{String.raw`w \in \mathbb{R}^d`}</InlineMath> be the parameter vector we want to optimize,
+                where <InlineMath>d</InlineMath> is the dimension (number of parameters).
+                Let <InlineMath>{String.raw`i \in \{0, 1, ..., d-1\}`}</InlineMath> index individual coordinates.
               </p>
             </div>
 
@@ -219,7 +294,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               inputs={[
                 {
                   id: "w_0",
-                  display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
+                  display: <InlineMath>{String.raw`w_0 \in \mathbb{R}^d`}</InlineMath>,
                   description: "initial parameter vector"
                 },
                 {
@@ -229,107 +304,88 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 },
                 {
                   id: "lambda_damp",
-                  display: <InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath>,
+                  display: <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>,
                   description: "Hessian damping parameter"
                 }
               ]}
               outputs={[
                 {
                   id: "w_star",
-                  display: <InlineMath>{`w^*`}</InlineMath>,
+                  display: <InlineMath>{String.raw`w^*`}</InlineMath>,
                   description: "optimized parameter vector"
                 }
               ]}
               steps={[
-                <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
+                <>Initialize <InlineMath>\varW \leftarrow w_0</InlineMath> <Complexity>O(1)</Complexity></>,
                 <><strong>repeat</strong> until convergence:</>,
                 <>
-                  <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                  <span className="ml-4">Compute gradient <InlineMath>\varGrad = \nabla f(\varW)</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> (matrix of second derivatives) <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
+                  <span className="ml-4">Compute Hessian <InlineMath>\varH = H(\varW)</InlineMath> (matrix of second derivatives) <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Extract diagonal: <Var id="d_i" type="scalar (per coordinate)"><InlineMath>{'d_i'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>{'H_{ii}'}</InlineMath></Var> for each coordinate <InlineMath>i</InlineMath> <Complexity>O(d)</Complexity></span>
+                  <span className="ml-4"><strong>for</strong> each coordinate <InlineMath>i = 0</InlineMath> to <InlineMath>d-1</InlineMath>:</span>
                 </>,
                 <>
-                  <span className="ml-4">Build diagonal preconditioner: <Var id="D" type="d×d diagonal matrix"><InlineMath>{'D'}</InlineMath></Var> ← <InlineMath>{'\\text{diag}(1/(H_{00}+\\lambda_{\\text{damp}}), 1/(H_{11}+\\lambda_{\\text{damp}}), ...)'}</InlineMath> <Complexity>O(d)</Complexity></span>
+                  <span className="ml-8">Extract diagonal element: <InlineMath>{String.raw`d_i \leftarrow H_{ii}`}</InlineMath> <Complexity>O(1)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute preconditioned direction: <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> ← −<Var id="D" type="d×d diagonal matrix"><InlineMath>D</InlineMath></Var> · <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> <Complexity explanation="Diagonal multiply">O(d)</Complexity></span>
+                  <span className="ml-8">Compute preconditioner entry: <InlineMath>{String.raw`D_{ii} \leftarrow 1/(d_i + \lambda_{\text{damp}})`}</InlineMath> <Complexity>O(1)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> (or use <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> = 1) <Complexity explanation="Optional backtracking">0-4 f evals</Complexity></span>
+                  <span className="ml-4">Compute preconditioned direction: <InlineMath>\varP = -\varD \cdot \varGrad</InlineMath> (element-wise multiply) <Complexity explanation="Element-wise multiply">O(d)</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
+                  <span className="ml-4">Line search for step size <InlineMath>\varAlpha</InlineMath> (or use <InlineMath>\varAlpha = 1</InlineMath>) <Complexity explanation="Optional backtracking">0-4 f evals</Complexity></span>
                 </>,
-                <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
+                <>
+                  <span className="ml-4">Update parameters: <InlineMath>\varW \leftarrow \varW + \varAlpha \varP</InlineMath> <Complexity explanation="Vector addition">O(d)</Complexity></span>
+                </>,
+                <><strong>return</strong> <InlineMath>\varW</InlineMath> <Complexity>O(1)</Complexity></>
               ]}
             />
 
-            <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">Key Formula</h3>
-              <p>Update rule with diagonal preconditioning:</p>
-              <BlockMath>{'w_{\\text{new}} = w_{\\text{old}} - D \\cdot \\nabla f(w_{\\text{old}})'}</BlockMath>
-              <p className="text-sm mt-2">
-                Where <InlineMath>{'D = \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}</InlineMath> gives different
-                step sizes per coordinate based on local curvature.
+            <div className="mt-4">
+              <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Update Rule</h3>
+              <p className="mb-2">
+                At each iteration, we update parameters using per-coordinate adaptive learning rates
+                derived from the Hessian diagonal:
               </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">When It Works (And When It Doesn't)</h3>
-              <div className="space-y-2">
-                <div className="bg-green-50 border border-green-200 rounded p-3">
-                  <p className="font-semibold text-green-900">✓ Perfect on axis-aligned problems</p>
-                  <p className="text-sm text-gray-700">
-                    When the Hessian is diagonal (e.g., <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath>),
-                    our diagonal preconditioner <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges in
-                    1-2 iterations like Newton's method.
-                  </p>
-                </div>
-
-                <div className="bg-red-50 border border-red-200 rounded p-3">
-                  <p className="font-semibold text-red-900">✗ Struggles on rotated problems</p>
-                  <p className="text-sm text-gray-700">
-                    When Hessian has large off-diagonal terms (e.g., rotated ellipse), diagonal
-                    approximation misses critical coupling between coordinates. Takes many iterations
-                    and zig-zags like gradient descent.
-                  </p>
-                </div>
-              </div>
+              <BlockMath>{String.raw`w \leftarrow w - D \cdot \nabla f(w)`}</BlockMath>
+              <p className="text-sm mt-2">
+                where <InlineMath>{String.raw`D = \text{diag}(1/H_{00}, 1/H_{11}, ..., 1/H_{d-1,d-1})`}</InlineMath> is
+                a diagonal matrix containing the inverse of each Hessian diagonal element. The damping
+                term <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath> ensures numerical stability
+                when diagonal entries are near zero.
+              </p>
             </div>
 
             <div>
               <h3 className="text-lg font-bold text-teal-800 mb-2">Computational Cost</h3>
               <ul className="list-disc ml-6 space-y-1">
-                <li><strong>Per iteration:</strong> O(n²) to compute Hessian, O(n) for diagonal extraction</li>
-                <li><strong>Memory:</strong> O(n²) for Hessian, O(n) for diagonal</li>
-                <li><strong>Cheaper than Newton:</strong> No matrix inversion (O(n³)), just element-wise division</li>
-                <li><strong>More expensive than GD:</strong> Requires Hessian computation</li>
+                <li><strong>Per iteration:</strong> <InlineMath>O(d^2)</InlineMath> to compute Hessian, <InlineMath>O(d)</InlineMath> for diagonal extraction and preconditioner construction</li>
+                <li><strong>Memory:</strong> <InlineMath>O(d^2)</InlineMath> for Hessian (if stored), <InlineMath>O(d)</InlineMath> for diagonal preconditioner</li>
+                <li><strong>Cheaper than Newton:</strong> No matrix inversion (<InlineMath>O(d^3)</InlineMath>), just element-wise division (<InlineMath>O(d)</InlineMath>)</li>
+                <li><strong>More expensive than gradient descent:</strong> Requires full Hessian computation</li>
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">Parameters</h3>
-              <ul className="list-disc ml-6 space-y-1">
-                <li>
-                  <strong>Hessian damping (λ<sub>damp</sub>):</strong> Numerical stability term prevents division by zero. Increase if you see instability.
-                </li>
-                <li>
-                  <strong>Line Search:</strong> Optional Armijo backtracking. Use for robustness on
-                  non-quadratic problems. Disable (α=1) for pure diagonal Newton step on quadratics.
-                </li>
-              </ul>
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
+              <p className="text-sm text-green-900 font-semibold mb-1">✅ Perfect on Axis-Aligned Problems</p>
+              <p className="text-sm text-green-800">
+                When the Hessian is diagonal (e.g., <InlineMath>{String.raw`f(x,y) = x^2 + 100y^2`}</InlineMath>),
+                the diagonal preconditioner <InlineMath>{String.raw`D = H^{-1}`}</InlineMath> exactly! This achieves
+                Newton-like convergence in 1-2 iterations because we're capturing all the curvature information.
+              </p>
             </div>
 
-            <div className="bg-blue-100 rounded p-3">
-              <p className="font-bold text-sm">Key Insight:</p>
-              <p className="text-sm">
-                Diagonal preconditioning is the simplest second-order method. It captures
-                per-coordinate curvature but ignores coupling. Think of it as "Newton's method
-                if the world were axis-aligned."
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-3">
+              <p className="text-sm text-amber-900 font-semibold mb-2">⚠️ Fails on Rotated Problems</p>
+              <p className="text-sm text-amber-800">
+                When the Hessian has large off-diagonal terms (coordinate coupling), the diagonal approximation
+                completely ignores this information. The method zig-zags like gradient descent and requires
+                many iterations. See the "Why Diagonal Fails on Rotation" section below for mathematical details.
               </p>
             </div>
           </div>
@@ -346,9 +402,10 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             <div>
               <h3 className="text-lg font-bold text-teal-800 mb-2">The Problem: Off-Diagonal Terms</h3>
               <p>
-                A diagonal preconditioner only uses the main diagonal of the Hessian matrix and
-                completely ignores the off-diagonal terms. This works when the Hessian is diagonal
-                (or nearly diagonal), but fails when coordinates are coupled.
+                A diagonal preconditioner only uses the main diagonal of the Hessian matrix
+                (<InlineMath>{String.raw`H_{00}, H_{11}, ..., H_{d-1,d-1}`}</InlineMath>) and
+                completely ignores the off-diagonal terms (<InlineMath>{String.raw`H_{ij}`}</InlineMath> where <InlineMath>i \neq j</InlineMath>).
+                This works when the Hessian is diagonal (or nearly diagonal), but fails when coordinates are coupled.
               </p>
             </div>
 
@@ -358,24 +415,24 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="border border-green-300 rounded p-3 bg-green-50">
                   <p className="font-semibold text-green-900 mb-2">✓ Axis-Aligned (Perfect)</p>
-                  <p className="text-sm mb-2">Function: <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath></p>
+                  <p className="text-sm mb-2">Function: <InlineMath>{String.raw`f(x,y) = x^2 + 100y^2`}</InlineMath></p>
                   <p className="text-sm mb-2">Hessian:</p>
                   <BlockMath>{String.raw`H = \begin{bmatrix} 2 & 0 \\ 0 & 200 \end{bmatrix}`}</BlockMath>
                   <p className="text-sm mt-2">
-                    Diagonal preconditioner: <InlineMath>{'D = \\text{diag}(1/2, 1/200)'}</InlineMath>
+                    Diagonal preconditioner: <InlineMath>{String.raw`D = \text{diag}(1/2, 1/200)`}</InlineMath>
                   </p>
                   <p className="text-sm mt-2 font-semibold">
-                    Result: <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges immediately.
+                    Result: <InlineMath>{String.raw`D = H^{-1}`}</InlineMath> exactly! Converges immediately.
                   </p>
                 </div>
 
                 <div className="border border-red-300 rounded p-3 bg-red-50">
                   <p className="font-semibold text-red-900 mb-2">✗ Rotated 45° (Fails)</p>
-                  <p className="text-sm mb-2">Function: <InlineMath>f(u,v) = u^2 + 100v^2</InlineMath></p>
-                  <p className="text-sm mb-2">In (x,y) coordinates after rotation:</p>
+                  <p className="text-sm mb-2">Function: <InlineMath>{String.raw`f(u,v) = u^2 + 100v^2`}</InlineMath></p>
+                  <p className="text-sm mb-2">In <InlineMath>(x,y)</InlineMath> coordinates after rotation:</p>
                   <BlockMath>{String.raw`H = \begin{bmatrix} 51 & 49 \\ 49 & 51 \end{bmatrix}`}</BlockMath>
                   <p className="text-sm mt-2">
-                    Diagonal preconditioner: <InlineMath>{'D \\approx \\text{diag}(1/51, 1/51)'}</InlineMath>
+                    Diagonal preconditioner: <InlineMath>{String.raw`D \approx \text{diag}(1/51, 1/51)`}</InlineMath>
                   </p>
                   <p className="text-sm mt-2 font-semibold text-red-900">
                     Result: Ignores off-diagonal 49! Wrong scaling, many iterations.
@@ -384,24 +441,25 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               </div>
             </div>
 
-            <div className="bg-amber-100 rounded p-4">
-              <h3 className="text-lg font-bold text-amber-900 mb-2">The Mathematical Issue</h3>
-              <p className="mb-2">
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+              <p className="font-semibold text-blue-900 mb-2">💡 The Mathematical Issue</p>
+              <p className="text-sm text-blue-800 mb-2">
                 The inverse of a matrix is NOT just the inverse of its diagonal:
               </p>
               <BlockMath>
-                {'H^{-1} \\neq \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}
+                {String.raw`H^{-1} \neq \text{diag}(1/H_{00}, 1/H_{11}, ...)`}
               </BlockMath>
-              <p className="text-sm mt-2">
-                When H has large off-diagonal terms, computing only the diagonal gives a poor
-                approximation to <InlineMath>{`H^{-1}`}</InlineMath>.
+              <p className="text-sm text-blue-800 mt-2">
+                When <InlineMath>\varH</InlineMath> has large off-diagonal terms, computing only the diagonal gives a poor
+                approximation to <InlineMath>{String.raw`H^{-1}`}</InlineMath>. The off-diagonal terms encode how
+                coordinates are coupled, which is critical information for choosing the right step direction.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-bold text-teal-800 mb-2">What Newton's Method Does Better</h3>
               <p className="mb-2">
-                Newton's method computes the full matrix inverse <InlineMath>{`H^{-1}`}</InlineMath>,
+                Newton's method computes the full matrix inverse <InlineMath>{String.raw`H^{-1}`}</InlineMath>,
                 which properly handles:
               </p>
               <ul className="list-disc ml-6 space-y-1 text-sm">
@@ -410,18 +468,26 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 <li>Both scaling AND rotation of the step direction</li>
               </ul>
               <p className="text-sm mt-3">
-                <strong>Cost tradeoff:</strong> Newton needs O(n³) for matrix inversion vs O(n²) for
-                Hessian computation + O(n) for diagonal extraction in diagonal preconditioning.
+                <strong>Cost tradeoff:</strong> Newton needs <InlineMath>O(d^3)</InlineMath> for matrix inversion vs <InlineMath>O(d^2)</InlineMath> for
+                Hessian computation + <InlineMath>O(d)</InlineMath> for diagonal extraction in diagonal preconditioning.
               </p>
             </div>
 
-            <div className="bg-teal-100 rounded p-3">
-              <p className="font-bold text-sm mb-2">Key Takeaway:</p>
-              <p className="text-sm">
-                Use diagonal preconditioning when you know the problem is axis-aligned or when you
-                need something cheaper than Newton but better than gradient descent. Use Newton's
-                method when you need rotation invariance and can afford the O(n³) cost.
-              </p>
+            <div className="bg-indigo-100 rounded p-4">
+              <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
+              <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+                <li>
+                  Use diagonal preconditioning when you know the problem is axis-aligned or when you
+                  need something cheaper than Newton but better than gradient descent
+                </li>
+                <li>
+                  Use Newton's method when you need rotation invariance and can afford the <InlineMath>O(d^3)</InlineMath> cost
+                </li>
+                <li>
+                  Consider L-BFGS as a middle ground: approximates <InlineMath>{String.raw`H^{-1}`}</InlineMath> including
+                  off-diagonal structure using only <InlineMath>O(Md)</InlineMath> memory and time
+                </li>
+              </ul>
             </div>
           </div>
         </CollapsibleSection>

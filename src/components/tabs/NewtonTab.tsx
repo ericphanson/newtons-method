@@ -7,7 +7,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var, Complexity } from '../Pseudocode';
+import { Pseudocode, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
@@ -235,149 +235,163 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
+                display: <InlineMath>{String.raw`\varWZero \in \mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
                 id: "f",
-                display: <InlineMath>f</InlineMath>,
+                display: <InlineMath>{String.raw`\varF`}</InlineMath>,
                 description: "objective function to minimize"
               },
               {
                 id: "lambda_damp",
-                display: <InlineMath>{`\\lambda_{\\text{damp}}`}</InlineMath>,
+                display: <InlineMath>{String.raw`\varLambdaDamp`}</InlineMath>,
                 description: "Hessian damping parameter"
               }
             ]}
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{`w^*`}</InlineMath>,
+                display: <InlineMath>{String.raw`\varWStar`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
+              <>Initialize <InlineMath>{String.raw`\varW`}</InlineMath> ← <InlineMath>{String.raw`\varWZero`}</InlineMath></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                <span className="ml-4">Compute gradient <InlineMath>{String.raw`\varGrad(\varW)`}</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Compute Hessian <Var id="H" type="d×d matrix"><InlineMath>H(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
+                <span className="ml-4">Compute Hessian <InlineMath>{String.raw`\varH(\varW)`}</InlineMath> <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Add damping: <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> ← <Var id="H" type="d×d matrix"><InlineMath>H</InlineMath></Var> + <Var id="lambda_damp" type="scalar"><InlineMath>{'\\lambda_{\\text{damp}}'}</InlineMath></Var> · <Var id="I" type="d×d matrix"><InlineMath>I</InlineMath></Var> <Complexity explanation="Add diagonal">O(d)</Complexity></span>
+                <span className="ml-4">Add damping: <InlineMath>{String.raw`H_d`}</InlineMath> ← <InlineMath>{String.raw`\varH + \varLambdaDamp \cdot \varI`}</InlineMath> <Complexity explanation="Add diagonal">O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Solve linear system <Var id="H_d" type="d×d matrix"><InlineMath>{'H_d'}</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> = −<Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f</InlineMath></Var> for <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity explanation="Cholesky/LU, never invert">O(d³)</Complexity></span>
+                <span className="ml-4">Solve linear system <InlineMath>{String.raw`H_d \varP = -\varGrad`}</InlineMath> for <InlineMath>{String.raw`\varP`}</InlineMath> <Complexity explanation="Cholesky/LU, never invert">O(d³)</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Line search for step size <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Complexity explanation="Backtracking">≈1-3 f evals</Complexity></span>
+                <span className="ml-4">Line search for step size <InlineMath>{String.raw`\varAlpha`}</InlineMath> <Complexity explanation="Backtracking">≈1-3 f evals</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> + <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="p" type="vector ℝᵈ"><InlineMath>p</InlineMath></Var> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4"><InlineMath>{String.raw`\varW`}</InlineMath> ← <InlineMath>{String.raw`\varW + \varAlpha \varP`}</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <InlineMath>{String.raw`\varW`}</InlineMath></>
             ]}
           />
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Key Formula</h3>
-            <p>Newton direction via linear solve (with damping):</p>
-            <BlockMath>{'(H + \\lambda_{\\text{damp}} I) p = -\\nabla f'}</BlockMath>
+            <p>
+              Let <InlineMath>\varH</InlineMath> be the <GlossaryTooltip termKey="hessian" /> matrix (d×d matrix of second derivatives),
+              <InlineMath>\varGrad</InlineMath> be the gradient vector (∇f ∈ ℝ<sup>d</sup>),
+              <InlineMath>\varP</InlineMath> be the search direction vector (∈ ℝ<sup>d</sup>),
+              <InlineMath>\varLambdaDamp</InlineMath> be the damping parameter (scalar ≥ 0), and
+              <InlineMath>\varI</InlineMath> be the d×d identity matrix.
+            </p>
+            <p className="mt-2">Newton direction via linear solve (with damping):</p>
+            <BlockMath>{'(\\varH + \\varLambdaDamp \\varI) \\varP = -\\varGrad'}</BlockMath>
             <p className="text-sm mt-2">
-              <strong>Implementation note:</strong> Never invert <InlineMath>H</InlineMath>! Instead, solve the linear system using
-              Cholesky decomposition (if <InlineMath>H</InlineMath> is positive definite) or LU decomposition.
-              This is much faster (O(d³) vs O(d³) but better constants) and more numerically stable.
+              <strong>Implementation note:</strong> Never invert <InlineMath>\varH</InlineMath>! Instead, solve the linear system using
+              Cholesky decomposition (if <InlineMath>\varH</InlineMath> is positive definite) or LU decomposition.
+              This is much faster and more numerically stable.
             </p>
             <p className="text-sm mt-2">
-              <strong>Intuition:</strong> The solve implicitly applies <InlineMath>{`H^{-1}`}</InlineMath> to transform the gradient into the
-              natural coordinate system of the problem. Adding <InlineMath>{`\\lambda_{\\text{damp}} I`}</InlineMath> improves
-              numerical stability when <InlineMath>H</InlineMath> has tiny <GlossaryTooltip termKey="eigenvalue" />s.
+              <strong>Intuition:</strong> The solve implicitly applies <InlineMath>\varHInv</InlineMath> (the inverse Hessian) to transform the gradient into the
+              natural coordinate system of the problem. Adding <InlineMath>\varLambdaDamp \varI</InlineMath> improves
+              numerical stability when <InlineMath>\varH</InlineMath> has tiny <GlossaryTooltip termKey="eigenvalue" />s.
             </p>
             <p className="text-sm mt-2">
-              <strong>Why this matters:</strong> If you rescale coordinates (e.g., x→1000x), both
-              <InlineMath>\nabla f</InlineMath> and <InlineMath>H</InlineMath> transform in complementary ways,
-              so <InlineMath>{'H^{-1}\\nabla f'}</InlineMath> stays invariant. The Newton step automatically
+              <strong>Why this matters:</strong> If you rescale coordinates (e.g., <InlineMath>w_1 \to 1000 w_1</InlineMath>), both
+              <InlineMath>\varGrad</InlineMath> and <InlineMath>\varH</InlineMath> transform in complementary ways,
+              so <InlineMath>\varHInv\varGrad</InlineMath> stays invariant. The Newton step automatically
               adapts to different scales in different directions, eliminating the zig-zagging that plagues
               gradient descent.
             </p>
             <p className="text-sm mt-1 text-gray-600">
-              (When λ_damp = 0, this is pure Newton's method: <InlineMath>{'p = -H^{-1}\\nabla f'}</InlineMath>)
+              (When <InlineMath>\varLambdaDamp = 0</InlineMath>, this is pure Newton's method: <InlineMath>\varP = -\varHInv\varGrad</InlineMath>)
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">When to Use</h3>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Small-medium problems (n &lt; 1000 parameters)</li>
-              <li>Smooth, twice-differentiable objectives</li>
+              <li>Small-medium problems (d &lt; 1000 parameters)</li>
+              <li><GlossaryTooltip termKey="smooth" />, twice-differentiable objectives</li>
               <li>Near a local minimum (<GlossaryTooltip termKey="quadratic-convergence" />)</li>
-              <li>When you can afford O(n³) computation per iteration</li>
+              <li>When you can afford O(d³) computation per iteration</li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Damping Parameter</h3>
-            <p className="mb-2">The default 0.01 works for most problems. Adjust when:</p>
+            <p className="mb-2">
+              The damping parameter <InlineMath>\varLambdaDamp</InlineMath> (default 0.01) adds numerical stability.
+              Adjust when:
+            </p>
             <ul className="list-disc ml-6 space-y-1">
               <li>Lower to ~0 to see pure Newton's method behavior (may be unstable)</li>
-              <li>Increase to 0.1+ for very ill-conditioned problems</li>
+              <li>Increase to 0.1+ for very <GlossaryTooltip termKey="ill-conditioned" /> problems</li>
             </ul>
           </div>
 
-          <div className="bg-purple-100 rounded p-4 mb-4">
-            <h3 className="text-lg font-bold text-purple-900 mb-2">
-              🎯 Why Newton Doesn't Zig-Zag (The Step Size Issue)
-            </h3>
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-3">💡 Why Newton Doesn't Zig-Zag (The Step Size Issue)</p>
 
-            <p className="mb-2">
-              <strong>Gradient Descent (Fixed <InlineMath>\alpha</InlineMath>):</strong> <InlineMath>{'w_{k+1} = w_k - \\alpha\\nabla f'}</InlineMath>
+            <p className="text-sm text-blue-800 mb-2">
+              Let <InlineMath>k</InlineMath> denote iteration number, <InlineMath>\varW_k</InlineMath> be parameters at iteration <InlineMath>k</InlineMath>,
+              and <InlineMath>\varAlpha</InlineMath> be the step size.
             </p>
-            <ul className="list-disc ml-6 space-y-1 text-sm mb-3">
-              <li>One step size <InlineMath>\alpha</InlineMath> for all directions, forever</li>
-              <li>On x² + 100y²: same <InlineMath>\alpha</InlineMath> for both directions despite 100× curvature difference</li>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>Gradient Descent (Fixed <InlineMath>\varAlpha</InlineMath>):</strong> <InlineMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha\varGrad`}</InlineMath>
+            </p>
+            <ul className="list-disc ml-6 space-y-1 text-sm mb-3 text-blue-800">
+              <li>One step size <InlineMath>\varAlpha</InlineMath> for all directions, forever</li>
+              <li>On <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>: same <InlineMath>\varAlpha</InlineMath> for both directions despite 100× curvature difference</li>
               <li>Result: severe zig-zagging</li>
             </ul>
 
-            <p className="mb-2">
-              <strong>GD with Line Search:</strong> Adaptive <InlineMath>\alpha</InlineMath> each iteration
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>GD with Line Search:</strong> Adaptive <InlineMath>\varAlpha</InlineMath> each iteration
             </p>
-            <ul className="list-disc ml-6 space-y-1 text-sm mb-3">
-              <li>Still one <InlineMath>\alpha</InlineMath> for all directions at each step, but adapts as we go</li>
-              <li>Much better than fixed <InlineMath>\alpha</InlineMath> - prevents divergence, speeds convergence</li>
-              <li>But still zig-zags on ill-conditioned problems (just less severe)</li>
+            <ul className="list-disc ml-6 space-y-1 text-sm mb-3 text-blue-800">
+              <li>Still one <InlineMath>\varAlpha</InlineMath> for all directions at each step, but adapts as we go</li>
+              <li>Much better than fixed <InlineMath>\varAlpha</InlineMath> - prevents divergence, speeds convergence</li>
+              <li>But still zig-zags on <GlossaryTooltip termKey="ill-conditioned" /> problems (just less severe)</li>
             </ul>
 
-            <p className="mb-2">
-              <strong>Newton's Method:</strong> <InlineMath>{`w_{k+1} = w_k - H^{-1}\\nabla f`}</InlineMath>
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>Newton's Method:</strong> <InlineMath>{String.raw`\varW_{k+1} = \varW_k - \varHInv\varGrad`}</InlineMath>
             </p>
-            <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li><InlineMath>{`H^{-1}`}</InlineMath> provides direction-specific step sizes based on curvature</li>
-              <li>On x² + 100y²: automatically uses 100× smaller step in y-direction</li>
+            <ul className="list-disc ml-6 space-y-1 text-sm text-blue-800">
+              <li><InlineMath>\varHInv</InlineMath> provides direction-specific step sizes based on curvature</li>
+              <li>On <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>: automatically uses 100× smaller step in <InlineMath>w_1</InlineMath> direction</li>
               <li>Result: no zig-zagging, straight to minimum</li>
             </ul>
 
-            <p className="text-sm mt-3 italic text-purple-800">
+            <p className="text-sm mt-3 italic text-blue-800">
               Line search: "One size fits all (per iteration)."
               Newton: "Custom fit for each direction."
             </p>
           </div>
 
-          <div className="bg-amber-100 rounded p-4 mb-4">
-            <h3 className="text-lg font-bold text-amber-900 mb-2">
-              🤔 What About Per-Coordinate Step Sizes?
-            </h3>
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-3">💡 What About Per-Coordinate Step Sizes?</p>
 
-            <p className="mb-3">
+            <p className="text-sm text-blue-800 mb-3">
               Natural question: If different directions need different step sizes,
               what if we use just the <strong>diagonal</strong> of the Hessian - one step size per coordinate?
             </p>
 
-            <p className="mb-2"><strong>This is called diagonal preconditioning:</strong></p>
-            <BlockMath>{'w_{new} = w_{old} - D \\cdot \\nabla f, \\quad \\text{where } D = \\text{diag}(1/H_{00}, 1/H_{11}, ...)'}</BlockMath>
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>This is called diagonal preconditioning.</strong> Let <InlineMath>D</InlineMath> be a d×d diagonal matrix
+              where <InlineMath>{String.raw`D_{ii} = 1/H_{ii}`}</InlineMath> (i-th diagonal entry of <InlineMath>\varH</InlineMath>):
+            </p>
+            <BlockMath>{String.raw`\varW_{\text{new}} = \varW_{\text{old}} - D \cdot \varGrad, \quad \text{where } D = \text{diag}(1/H_{00}, 1/H_{11}, \ldots, 1/H_{dd})`}</BlockMath>
 
-            <p className="mb-3 mt-3">
+            <p className="text-sm text-blue-800 mb-3 mt-3">
               <strong>Good news:</strong> We've implemented this! See the <strong>Diagonal Preconditioning</strong> tab
               to try it directly.
             </p>
@@ -386,15 +400,15 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               <div className="bg-green-50 border border-green-200 rounded p-3">
                 <p className="font-semibold text-green-900 mb-1">✓ Works perfectly on axis-aligned problems</p>
                 <p className="text-sm text-gray-700">
-                  When H is diagonal (e.g., <InlineMath>f(x,y) = x^2 + 100y^2</InlineMath>), diagonal
-                  preconditioning gives <InlineMath>{`D = H^{-1}`}</InlineMath> exactly! Converges like full Newton's method.
+                  When <InlineMath>\varH</InlineMath> is diagonal (e.g., <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>), diagonal
+                  preconditioning gives <InlineMath>D = \varHInv</InlineMath> exactly! Converges like full Newton's method.
                 </p>
               </div>
 
               <div className="bg-red-50 border border-red-200 rounded p-3">
                 <p className="font-semibold text-red-900 mb-1">✗ Struggles when problem is rotated</p>
                 <p className="text-sm text-gray-700 mb-2">
-                  Example: <InlineMath>f(x,y) = (x+y)^2 + 100(x-y)^2</InlineMath> has a diagonal valley.
+                  Example: <InlineMath>f(w_0, w_1) = (w_0+w_1)^2 + 100(w_0-w_1)^2</InlineMath> has a diagonal valley.
                 </p>
                 <ul className="list-disc ml-6 space-y-1 text-sm text-gray-700">
                   <li>The Hessian has large off-diagonal terms that capture coordinate coupling</li>
@@ -404,14 +418,14 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               </div>
             </div>
 
-            <p className="mb-2 mt-3"><strong>Full Newton's matrix <InlineMath>{`H^{-1}`}</InlineMath> handles both:</strong></p>
-            <ul className="list-disc ml-6 space-y-1 text-sm">
+            <p className="text-sm text-blue-800 mb-2 mt-3"><strong>Full Newton's matrix <InlineMath>\varHInv</InlineMath> handles both:</strong></p>
+            <ul className="list-disc ml-6 space-y-1 text-sm text-blue-800">
               <li>SCALE: Different step sizes per direction (like diagonal preconditioning)</li>
               <li>ROTATE: Align with problem geometry via off-diagonal terms</li>
-              <li>This is why we need n² values (full matrix) not just n values (diagonal)</li>
+              <li>This is why we need d² values (full matrix) not just d values (diagonal)</li>
             </ul>
 
-            <p className="text-sm mt-3 italic text-amber-800">
+            <p className="text-sm mt-3 italic text-blue-800">
               Try the Diagonal Preconditioning tab to see exactly when per-coordinate step sizes work!
             </p>
           </div>
@@ -437,11 +451,13 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Why Line Search for Newton's Method</h3>
-            <p>Pure Newton (<InlineMath>\alpha = 1</InlineMath> always) assumes the quadratic
-              approximation is perfect:</p>
+            <p>
+              Pure Newton (step size <InlineMath>\varAlpha = 1</InlineMath> always) assumes the quadratic
+              approximation is perfect:
+            </p>
             <ul className="list-disc ml-6 space-y-1 mt-2">
               <li><strong>Far from minimum:</strong> quadratic approximation breaks down</li>
-              <li><strong>Non-convex regions:</strong> negative eigenvalues → wrong direction</li>
+              <li><strong>Non-<GlossaryTooltip termKey="convex" /> regions:</strong> negative <GlossaryTooltip termKey="eigenvalue" />s → wrong direction</li>
               <li><strong>Line search provides damping:</strong> reduces to gradient descent if needed</li>
             </ul>
           </div>
@@ -464,8 +480,8 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               ]}
               additionalNotes={
                 <p className="text-sm">
-                  <strong>Why it works:</strong> Near the minimum with positive definite Hessian,
-                  <InlineMath>\alpha = 1</InlineMath> is usually accepted. Far away or in
+                  <strong>Why it works:</strong> Near the minimum with <GlossaryTooltip termKey="positive-definite" /> Hessian,
+                  <InlineMath>\varAlpha = 1</InlineMath> is usually accepted. Far away or in
                   problematic regions, backtracking provides safety.
                 </p>
               }
@@ -517,15 +533,15 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               <div>
                 <p className="font-semibold">❌ "The Hessian tells you the direction to the minimum"</p>
                 <p className="text-sm ml-6">
-                  ✓ <InlineMath>{'-H^{-1}\\nabla f'}</InlineMath> is the Newton direction, not just <InlineMath>H</InlineMath><br />
-                  ✓ If H not positive definite, may not be a descent direction
+                  ✓ <InlineMath>-\varHInv\varGrad</InlineMath> is the Newton direction, not just <InlineMath>\varH</InlineMath><br />
+                  ✓ If <InlineMath>\varH</InlineMath> not <GlossaryTooltip termKey="positive-definite" />, may not be a descent direction
                 </p>
               </div>
 
               <div>
                 <p className="font-semibold">❌ "Newton's method always finds the global minimum"</p>
                 <p className="text-sm ml-6">
-                  ✓ Only for convex functions<br />
+                  ✓ Only for <GlossaryTooltip termKey="convex" /> functions<br />
                   ✓ Non-convex: converges to local minimum or saddle point
                 </p>
               </div>
@@ -536,16 +552,16 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong>Strongly convex:</strong>{' '}
+                <strong><GlossaryTooltip termKey="strong-convexity" />:</strong>{' '}
                 <GlossaryTooltip termKey="quadratic-convergence" /> guaranteed,
-                H <GlossaryTooltip termKey="positive-definite" /> everywhere
+                <InlineMath>\varH</InlineMath> <GlossaryTooltip termKey="positive-definite" /> everywhere
               </li>
               <li>
-                <strong>Convex:</strong> H positive semidefinite, converges to global minimum
+                <strong><GlossaryTooltip termKey="convex" />:</strong> <InlineMath>\varH</InlineMath> positive semidefinite, converges to global minimum
               </li>
               <li>
                 <strong>Non-convex:</strong> May converge to local minimum or saddle point,
-                H can have negative <GlossaryTooltip termKey="eigenvalue" />s
+                <InlineMath>\varH</InlineMath> can have negative <GlossaryTooltip termKey="eigenvalue" />s
               </li>
             </ul>
           </div>
@@ -554,16 +570,16 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
             <ul className="list-disc ml-6 space-y-1">
               <li>
-                <strong>Instability / Huge steps</strong> → increase Hessian damping (λ_damp) to 0.1 or higher
+                <strong>Instability / Huge steps</strong> → increase Hessian damping (<InlineMath>\varLambdaDamp</InlineMath>) to 0.1 or higher
               </li>
               <li>
-                <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor), or λ_damp too high (try lowering toward 0.01)
+                <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor), or <InlineMath>\varLambdaDamp</InlineMath> too high (try lowering toward 0.01)
               </li>
               <li>
-                <strong>Numerical issues</strong> → Hessian severely ill-conditioned, increase λ_damp further or switch to L-BFGS
+                <strong>Numerical issues</strong> → Hessian severely <GlossaryTooltip termKey="ill-conditioned" />, increase <InlineMath>\varLambdaDamp</InlineMath> further or switch to L-BFGS
               </li>
               <li>
-                <strong>High cost</strong> → n too large, switch to L-BFGS
+                <strong>High cost</strong> → d too large, switch to L-BFGS
               </li>
             </ul>
           </div>
@@ -580,25 +596,31 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Taylor Expansion</h3>
-            <p>Approximate f locally as quadratic:</p>
+            <p>
+              Let <InlineMath>\varF</InlineMath> be the objective function, <InlineMath>\varW</InlineMath> be the current parameters,
+              <InlineMath>\varP</InlineMath> be the step direction, <InlineMath>\varGrad</InlineMath> be the gradient at <InlineMath>\varW</InlineMath>,
+              and <InlineMath>\varH</InlineMath> be the Hessian at <InlineMath>\varW</InlineMath>.
+            </p>
+            <p className="mt-2">Approximate <InlineMath>\varF</InlineMath> locally as quadratic:</p>
             <BlockMath>
-              {'f(w+p) = f(w) + \\nabla f(w)^T p + \\frac{1}{2}p^T H(w) p + O(\\|p\\|^3)'}
+              {String.raw`\varF(\varW+\varP) = \varF(\varW) + \varGrad^T \varP + \frac{1}{2}\varP^T \varH \varP + O(\|\varP\|^3)`}
             </BlockMath>
             <p className="text-sm mt-2">
-              This is a second-order approximation using the Hessian matrix.
+              This is a second-order approximation using the Hessian matrix. The <InlineMath>O(\|\varP\|^3)</InlineMath> term
+              captures higher-order terms that become negligible near <InlineMath>\varW</InlineMath>.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Deriving Newton Direction</h3>
-            <p>Minimize the quadratic approximation over p:</p>
+            <p>Minimize the quadratic approximation over <InlineMath>\varP</InlineMath>:</p>
             <BlockMath>
-              {'\\nabla_p \\left[ f(w) + \\nabla f^T p + \\frac{1}{2}p^T H p \\right] = \\nabla f + Hp = 0'}
+              {String.raw`\nabla_{\varP} \left[ \varF(\varW) + \varGrad^T \varP + \frac{1}{2}\varP^T \varH \varP \right] = \varGrad + \varH\varP = 0`}
             </BlockMath>
             <p>Therefore:</p>
-            <BlockMath>Hp = -\nabla f</BlockMath>
-            <p>Newton direction:</p>
-            <BlockMath>{'p = -H^{-1}\\nabla f'}</BlockMath>
+            <BlockMath>{String.raw`\varH\varP = -\varGrad`}</BlockMath>
+            <p>Newton direction (solving for <InlineMath>\varP</InlineMath>):</p>
+            <BlockMath>{String.raw`\varP = -\varHInv\varGrad`}</BlockMath>
           </div>
 
           <div>
@@ -608,7 +630,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
                 At minimum of quadratic function, this gives <strong>exact solution in one step</strong>
               </li>
               <li>
-                Near a minimum, f behaves like quadratic → <strong>fast convergence</strong>
+                Near a minimum, <InlineMath>\varF</InlineMath> behaves like quadratic → <strong>fast convergence</strong>
               </li>
               <li>
                 Uses curvature information to <strong>scale gradient properly</strong> in each direction
@@ -619,28 +641,29 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
             <p>
-              <strong><GlossaryTooltip termKey="quadratic-convergence" />:</strong>
+              <strong><GlossaryTooltip termKey="quadratic-convergence" />:</strong> Let <InlineMath>{String.raw`e_k = \|\varWK - \varWStar\|`}</InlineMath>
+              be the error at iteration <InlineMath>k</InlineMath> (distance from optimal parameters <InlineMath>\varWStar</InlineMath>), and
+              <InlineMath>C</InlineMath> be a constant depending on the Hessian.
             </p>
             <BlockMath>
-              {`\\|e_{k+1}\\| \\leq C\\|e_k\\|^2`}
+              {String.raw`\|e_{k+1}\| \leq C\|e_k\|^2`}
             </BlockMath>
             <p className="text-sm mt-2">
-              where <InlineMath>{`e_k = w_k - w^*`}</InlineMath> is the error.
               Error <strong>squared</strong> at each iteration (very fast near solution).
             </p>
             <p className="text-sm mt-2">
               <strong>Requires:</strong>{' '}
               <GlossaryTooltip termKey="strong-convexity" />
               , <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" />,
-              starting close enough to <InlineMath>{`w^*`}</InlineMath>
+              starting close enough to <InlineMath>\varWStar</InlineMath>
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Proof Sketch</h3>
             <ol className="list-decimal ml-6 space-y-1 text-sm">
-              <li>Taylor expand f(<InlineMath>w_k</InlineMath>) and f(<InlineMath>w^*</InlineMath>) around <InlineMath>w_k</InlineMath></li>
-              <li>Use Newton update rule to relate <InlineMath>{String.raw`w_{k+1}`}</InlineMath> and <InlineMath>w_k</InlineMath></li>
+              <li>Taylor expand <InlineMath>\varF(\varWK)</InlineMath> and <InlineMath>\varF(\varWStar)</InlineMath> around <InlineMath>\varWK</InlineMath></li>
+              <li>Use Newton update rule to relate <InlineMath>{String.raw`\varW_{k+1}`}</InlineMath> and <InlineMath>\varWK</InlineMath></li>
               <li>Bound error using Hessian Lipschitz constant</li>
               <li>Show error term is quadratic in current error</li>
             </ol>
@@ -653,26 +676,26 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <h3 className="text-lg font-bold text-indigo-800 mb-2">With Hessian Damping</h3>
             <p>The damped Hessian adds a diagonal regularization term:</p>
             <BlockMath>
-              {'H_{\\text{damped}} = H + \\lambda_{\\text{damp}} \\cdot I'}
+              {String.raw`H_{\text{damped}} = \varH + \varLambdaDamp \cdot \varI`}
             </BlockMath>
             <p className="mt-2">The Newton direction becomes:</p>
             <BlockMath>
-              {'p = -(H + \\lambda_{\\text{damp}} \\cdot I)^{-1} \\nabla f'}
+              {String.raw`\varP = -(\varH + \varLambdaDamp \cdot \varI)^{-1} \varGrad`}
             </BlockMath>
             <p className="text-sm mt-2">
               <strong>This interpolates between two extremes:</strong>
             </p>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
               <li>
-                <InlineMath>{`\\lambda_{\\text{damp}} = 0`}</InlineMath>: Pure Newton's method
+                <InlineMath>\varLambdaDamp = 0</InlineMath>: Pure Newton's method
               </li>
               <li>
-                <InlineMath>{`\\lambda_{\\text{damp}} \\to \\infty`}</InlineMath>: Approaches gradient descent <InlineMath>{`(p \\approx -\\nabla f / \\lambda_{\\text{damp}})`}</InlineMath>
+                <InlineMath>\varLambdaDamp \to \infty</InlineMath>: Approaches gradient descent <InlineMath>{String.raw`(\varP \approx -\varGrad / \varLambdaDamp)`}</InlineMath>
               </li>
             </ul>
             <p className="text-sm mt-2 text-gray-600">
-              Damping improves numerical stability by ensuring <InlineMath>{`H_{\\text{damped}}`}</InlineMath> is
-              positive definite, even when H has small or negative eigenvalues.
+              Damping improves numerical stability by ensuring <InlineMath>{String.raw`H_{\text{damped}}`}</InlineMath> is
+              <GlossaryTooltip termKey="positive-definite" />, even when <InlineMath>\varH</InlineMath> has small or negative <GlossaryTooltip termKey="eigenvalue" />s.
             </p>
           </div>
         </div>
@@ -688,11 +711,14 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
+            <p className="mb-2">
+              Let <InlineMath>d</InlineMath> be the number of parameters (dimension of <InlineMath>\varW</InlineMath>).
+            </p>
             <ul className="list-disc ml-6 space-y-1">
-              <li><strong>Computing Hessian H:</strong> O(n²) operations and memory</li>
-              <li><strong>Solving Hp = -∇f:</strong> O(n³) with direct methods (Cholesky, LU)</li>
-              <li><strong>Total per iteration:</strong> O(n³) time, O(n²) space</li>
-              <li><strong>For n=1000:</strong> ~1 billion operations per iteration</li>
+              <li><strong>Computing Hessian <InlineMath>\varH</InlineMath>:</strong> O(d²) operations and memory</li>
+              <li><strong>Solving <InlineMath>\varH\varP = -\varGrad</InlineMath>:</strong> O(d³) with direct methods (Cholesky, LU)</li>
+              <li><strong>Total per iteration:</strong> O(d³) time, O(d²) space</li>
+              <li><strong>For d=1000:</strong> ~1 billion operations per iteration</li>
             </ul>
             <p className="text-sm mt-2 italic">
               This is why Newton's method becomes impractical for large-scale problems,
@@ -703,14 +729,18 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Condition Number and Convergence</h3>
             <p>
-              The <GlossaryTooltip termKey="hessian" /> has two{' '}
+              The <GlossaryTooltip termKey="hessian" /> <InlineMath>\varH</InlineMath> has d{' '}
               <GlossaryTooltip termKey="eigenvalue" />s which reveal the local curvature.
+              Let <InlineMath>{String.raw`\lambda_{\text{max}}`}</InlineMath> and <InlineMath>{String.raw`\lambda_{\text{min}}`}</InlineMath> be
+              the largest and smallest eigenvalues.
             </p>
-            <p><GlossaryTooltip termKey="condition-number" />: <InlineMath>{'\\kappa = \\lambda_{max}/\\lambda_{min}'}</InlineMath></p>
+            <p className="mt-2">
+              <GlossaryTooltip termKey="condition-number" />: <InlineMath>{String.raw`\kappa = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>
+            </p>
             <ul className="list-disc ml-6 space-y-1">
               <li>Large <InlineMath>\kappa</InlineMath> → elongated level sets (<GlossaryTooltip termKey="ill-conditioned" />)</li>
-              <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>{`H^{-1}`}</InlineMath> automatically provides direction-specific step sizes</li>
-              <li>GD's single <InlineMath>\alpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
+              <li>Newton handles ill-conditioning <strong>better than gradient descent</strong> because <InlineMath>\varHInv</InlineMath> automatically provides direction-specific step sizes</li>
+              <li>GD's single <InlineMath>\varAlpha</InlineMath> (even with line search) can't adapt to different curvatures in different directions → zig-zags</li>
               <li>But numerical stability suffers with very large <InlineMath>\kappa</InlineMath></li>
             </ul>
           </div>
@@ -720,9 +750,12 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
 
             <div className="mt-2">
               <p className="font-semibold">Levenberg-Marquardt:</p>
-              <BlockMath>{'p = -(H + \\lambda I)^{-1}\\nabla f'}</BlockMath>
+              <p className="text-sm mb-1">
+                Let <InlineMath>\lambda</InlineMath> be an adaptive damping parameter.
+              </p>
+              <BlockMath>{String.raw`\varP = -(\varH + \lambda \varI)^{-1}\varGrad`}</BlockMath>
               <ul className="list-disc ml-6 space-y-1 text-sm">
-                <li>Adds regularization to make H positive definite</li>
+                <li>Adds regularization to make <InlineMath>\varH</InlineMath> <GlossaryTooltip termKey="positive-definite" /></li>
                 <li><InlineMath>\lambda=0</InlineMath>: pure Newton; <InlineMath>\lambda\to\infty</InlineMath>: gradient descent</li>
                 <li>Interpolates between methods based on trust</li>
               </ul>
@@ -737,23 +770,25 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Inexact Newton</h3>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Solve Hp = -∇f <strong>approximately</strong> using iterative methods</li>
+              <li>Solve <InlineMath>\varH\varP = -\varGrad</InlineMath> <strong>approximately</strong> using iterative methods</li>
               <li>Use Conjugate Gradient (CG) for large problems</li>
-              <li>Reduces O(n³) to O(n²) or better</li>
-              <li>Still achieves superlinear convergence with loose tolerances</li>
+              <li>Reduces O(d³) to O(d²) or better</li>
+              <li>Still achieves <GlossaryTooltip termKey="superlinear-convergence" /> with loose tolerances</li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Trust Region Methods</h3>
-            <p>Alternative to line search:</p>
+            <p>
+              Alternative to line search. Let <InlineMath>\Delta</InlineMath> be the trust region radius (scalar).
+            </p>
             <BlockMath>
-              {'\\min_p \\; f(w) + \\nabla f^T p + \\frac{1}{2}p^T H p \\quad \\text{s.t.} \\; \\|p\\| \\leq \\Delta'}
+              {String.raw`\min_{\varP} \; f(\varW) + \varGrad^T \varP + \frac{1}{2}\varP^T \varH \varP \quad \text{s.t.} \; \|\varP\| \leq \Delta`}
             </BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li>Constrain step to trust region of radius Δ</li>
-              <li>Adjust Δ based on agreement between model and actual function</li>
-              <li>More robust in non-convex settings</li>
+              <li>Constrain step to trust region of radius <InlineMath>\Delta</InlineMath></li>
+              <li>Adjust <InlineMath>\Delta</InlineMath> based on agreement between model and actual function</li>
+              <li>More robust in non-<GlossaryTooltip termKey="convex" /> settings</li>
             </ul>
           </div>
 
@@ -761,10 +796,10 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <h3 className="text-lg font-bold text-purple-800 mb-2">Quasi-Newton Preview</h3>
             <p>Key insight: Newton requires exact Hessian (expensive)</p>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Quasi-Newton approximates H or H⁻¹ from gradients</li>
+              <li>Quasi-Newton approximates <InlineMath>\varH</InlineMath> or <InlineMath>\varHInv</InlineMath> from gradients</li>
               <li>Builds up curvature information over iterations</li>
               <li>Next algorithm: <strong>L-BFGS</strong> (Limited-memory BFGS)</li>
-              <li>O(mn) cost instead of O(n³), where m ≈ 5-20</li>
+              <li>O(<InlineMath>\varM</InlineMath>d) cost instead of O(d³), where <InlineMath>\varM</InlineMath> ≈ 5-20 is memory size</li>
             </ul>
           </div>
         </div>

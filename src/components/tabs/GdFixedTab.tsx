@@ -7,7 +7,7 @@ import { GlossaryTooltip } from '../GlossaryTooltip';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
-import { Pseudocode, Var, Complexity } from '../Pseudocode';
+import { Pseudocode, Complexity } from '../Pseudocode';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { GDIteration } from '../../algorithms/gradient-descent';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -175,9 +175,10 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-green-800 mb-2">The Core Idea</h3>
             <p>
-              Follow the <strong>gradient downhill</strong>. The gradient{' '}
-              <InlineMath>\nabla f(w)</InlineMath> points in the direction of steepest
-              increase, so <InlineMath>-\nabla f(w)</InlineMath> points toward steepest
+              Follow the <strong>gradient downhill</strong>. Let <InlineMath>{String.raw`\varW \in \mathbb{R}^d`}</InlineMath> be
+              the <InlineMath>{String.raw`d`}</InlineMath>-dimensional parameter vector.
+              The gradient <InlineMath>{String.raw`\varGrad`}</InlineMath> points in the direction of steepest
+              increase, so <InlineMath>{String.raw`-\varGrad`}</InlineMath> points toward steepest
               decrease.
             </p>
           </div>
@@ -187,46 +188,48 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             inputs={[
               {
                 id: "w_0",
-                display: <InlineMath>{`w_0 \\in \\mathbb{R}^d`}</InlineMath>,
+                display: <InlineMath>{String.raw`\varWZero \in \mathbb{R}^d`}</InlineMath>,
                 description: "initial parameter vector"
               },
               {
                 id: "f",
-                display: <InlineMath>f</InlineMath>,
+                display: <InlineMath>{String.raw`f`}</InlineMath>,
                 description: "objective function to minimize"
               },
               {
                 id: "alpha",
-                display: <InlineMath>\alpha</InlineMath>,
+                display: <InlineMath>{String.raw`\varAlpha`}</InlineMath>,
                 description: "fixed step size"
               }
             ]}
             outputs={[
               {
                 id: "w_star",
-                display: <InlineMath>{`w^*`}</InlineMath>,
+                display: <InlineMath>{String.raw`\varW^*`}</InlineMath>,
                 description: "optimized parameter vector"
               }
             ]}
             steps={[
-              <>Initialize <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w_0" type="vector ℝᵈ"><InlineMath>{`w_0`}</InlineMath></Var></>,
+              <>Initialize <InlineMath>{String.raw`\varW \leftarrow \varWZero`}</InlineMath></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                <span className="ml-4">Compute gradient <InlineMath>{String.raw`\varGrad`}</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> ← <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var> − <Var id="alpha" type="scalar"><InlineMath>\alpha</InlineMath></Var> <Var id="grad" type="vector ℝᵈ"><InlineMath>\nabla f(w)</InlineMath></Var> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4"><InlineMath>{String.raw`\varW \leftarrow \varW - \varAlpha \varGrad`}</InlineMath> <Complexity explanation="Vector subtraction and scalar multiplication">O(d)</Complexity></span>
               </>,
-              <><strong>return</strong> <Var id="w" type="vector ℝᵈ"><InlineMath>w</InlineMath></Var></>
+              <><strong>return</strong> <InlineMath>{String.raw`\varW`}</InlineMath></>
             ]}
           />
 
           <div>
             <h3 className="text-lg font-bold text-green-800 mb-2">Key Formula</h3>
-            <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k)'}</BlockMath>
+            <p className="text-sm mb-2">
+              Let <InlineMath>{String.raw`k`}</InlineMath> be the iteration index. At each iteration:
+            </p>
+            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
             <p className="text-sm mt-2">
-              where <InlineMath>\alpha</InlineMath> (alpha) is the <strong>learning rate</strong>
-              or step size.
+              where <InlineMath>{String.raw`\varAlpha > 0`}</InlineMath> is the <strong>step size</strong> (also called learning rate).
             </p>
           </div>
 
@@ -236,14 +239,14 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <li>Simple baseline for any differentiable function</li>
               <li>Educational purposes (understanding optimization)</li>
               <li>When computational cost per iteration must be minimal</li>
-              <li>Problems where you can tune <InlineMath>\alpha</InlineMath> effectively</li>
+              <li>Problems where you can tune <InlineMath>{String.raw`\varAlpha`}</InlineMath> effectively</li>
             </ul>
           </div>
 
-          <div className="bg-green-100 rounded p-3">
-            <p className="font-bold text-sm">Key Challenge:</p>
-            <p className="text-sm">
-              Choosing <InlineMath>\alpha</InlineMath> is critical. Too large → divergence.
+          <div className="bg-amber-50 border border-amber-400 rounded p-3">
+            <p className="font-bold text-sm text-amber-900 mb-1">⚠️ Key Challenge: Step Size Selection</p>
+            <p className="text-sm text-amber-800">
+              Choosing <InlineMath>{String.raw`\varAlpha`}</InlineMath> is critical. Too large → divergence.
               Too small → slow convergence. This is why line search methods exist
               (see Gradient Descent with Line Search tab).
             </p>
@@ -285,25 +288,25 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
                 <p className="font-semibold">❌ "The gradient points to the minimum"</p>
                 <p className="text-sm ml-6">
                   ✓ The gradient points toward steepest <strong>increase</strong><br />
-                  ✓ We follow <InlineMath>-\nabla f</InlineMath> (negative gradient) downhill<br />
-                  ✓ This is the direction of steepest <strong>decrease</strong>, not necessarily toward minimum
+                  ✓ We follow <InlineMath>{String.raw`-\varGrad`}</InlineMath> (negative gradient) downhill<br />
+                  ✓ This is the direction of steepest <strong>decrease</strong>, not necessarily toward the minimum
                 </p>
               </div>
 
               <div>
                 <p className="font-semibold">❌ "Gradient descent always converges"</p>
                 <p className="text-sm ml-6">
-                  ✓ Only with proper step size <InlineMath>\alpha</InlineMath><br />
-                  ✓ Can diverge if <InlineMath>\alpha</InlineMath> too large<br />
-                  ✓ Can get stuck in local minima on non-convex functions
+                  ✓ Only with proper step size <InlineMath>{String.raw`\varAlpha`}</InlineMath><br />
+                  ✓ Can diverge if <InlineMath>{String.raw`\varAlpha`}</InlineMath> too large<br />
+                  ✓ Can get stuck in local minima on non-<GlossaryTooltip termKey="convex" /> functions
                 </p>
               </div>
 
               <div>
-                <p className="font-semibold">❌ "Just pick <InlineMath>\alpha=0.01</InlineMath> and it'll work"</p>
+                <p className="font-semibold">❌ "Just pick <InlineMath>{String.raw`\varAlpha = 0.01`}</InlineMath> and it'll work"</p>
                 <p className="text-sm ml-6">
-                  ✓ Optimal <InlineMath>\alpha</InlineMath> depends on problem scaling and coordinate choice<br />
-                  ✓ Fixed step size treats all coordinates equally: rescale one variable (meters→kilometers) and <InlineMath>\alpha</InlineMath> becomes 1000× too large/small for that direction<br />
+                  ✓ Optimal <InlineMath>{String.raw`\varAlpha`}</InlineMath> depends on problem scaling and coordinate choice<br />
+                  ✓ Fixed step size treats all coordinates equally: rescale one variable (meters→kilometers) and <InlineMath>{String.raw`\varAlpha`}</InlineMath> becomes 1000× too large/small for that direction<br />
                   ✓ Line search methods (next tab) solve this automatically
                 </p>
               </div>
@@ -314,8 +317,8 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong>Strongly convex:</strong> Linear convergence to global minimum
-                (guaranteed with proper <InlineMath>\alpha</InlineMath>)
+                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
+                (guaranteed with proper <InlineMath>{String.raw`\varAlpha`}</InlineMath>)
               </li>
               <li>
                 <strong>Convex:</strong> Converges to global minimum (possibly slowly)
@@ -327,15 +330,18 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size <InlineMath>\alpha</InlineMath></h3>
+            <h3 className="text-lg font-bold text-yellow-800 mb-2">Choosing Step Size <InlineMath>{String.raw`\varAlpha`}</InlineMath></h3>
             <div className="space-y-2 text-sm">
-              <p><strong>Rule of thumb:</strong></p>
-              <BlockMath>{'0 < \\alpha < \\frac{2}{L}'}</BlockMath>
               <p>
-                where L is the Lipschitz constant of <InlineMath>\nabla f</InlineMath> (smoothness).
+                <strong>Theoretical guideline:</strong> For <GlossaryTooltip termKey="smooth" /> functions
+                with <GlossaryTooltip termKey="lipschitz-continuous" /> gradient:
+              </p>
+              <BlockMath>{String.raw`0 < \varAlpha < \frac{2}{L}`}</BlockMath>
+              <p>
+                where <InlineMath>{String.raw`L`}</InlineMath> is the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>.
               </p>
               <p className="mt-2">
-                <strong>Practical approach:</strong> Try <InlineMath>\alpha = 0.1</InlineMath>,
+                <strong>Practical approach:</strong> Try <InlineMath>{String.raw`\varAlpha = 0.1`}</InlineMath>,
                 then adjust based on behavior (increase if too slow, decrease if diverging).
               </p>
               <p className="mt-2">
@@ -355,63 +361,77 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Gradient Descent Update Rule</h3>
-            <p>The basic update is simple:</p>
-            <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k)'}</BlockMath>
+            <p>
+              Let <InlineMath>{String.raw`k`}</InlineMath> be the iteration index. The basic update is:
+            </p>
+            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
             <p className="text-sm mt-2">
-              Where <InlineMath>{`\\alpha > 0`}</InlineMath> is the step size (learning rate).
+              where <InlineMath>{String.raw`\varAlpha > 0`}</InlineMath> is the step size.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Why This Works</h3>
-            <p>By Taylor expansion around <InlineMath>w_k</InlineMath>:</p>
-            <BlockMath>{'f(w_{k+1}) \\approx f(w_k) + \\nabla f(w_k)^T (w_{k+1} - w_k)'}</BlockMath>
-            <p className="text-sm mt-2">
-              Substituting the update rule:
+            <p>
+              By Taylor expansion around <InlineMath>{String.raw`\varW_k`}</InlineMath>:
             </p>
-            <BlockMath>{`f(w_{k+1}) \\approx f(w_k) - \\alpha \\|\\nabla f(w_k)\\|^2`}</BlockMath>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) + \nabla f(\varW_k)^T (\varW_{k+1} - \varW_k)`}</BlockMath>
             <p className="text-sm mt-2">
-              Since <InlineMath>\|\nabla f(w_k)\|^2 \geq 0</InlineMath>, the loss decreases
-              (for small enough <InlineMath>\alpha</InlineMath>).
+              Substituting the update rule <InlineMath>{String.raw`\varW_{k+1} - \varW_k = -\varAlpha \nabla f(\varW_k)`}</InlineMath>:
+            </p>
+            <BlockMath>{String.raw`f(\varW_{k+1}) \approx f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2`}</BlockMath>
+            <p className="text-sm mt-2">
+              Since <InlineMath>{String.raw`\|\nabla f(\varW_k)\|^2 \geq 0`}</InlineMath>, the loss decreases
+              (for small enough <InlineMath>{String.raw`\varAlpha`}</InlineMath>).
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
             <p>
-              <strong>For{' '}
-                <GlossaryTooltip termKey="strongly-convex" />{' '}
-                functions:</strong>
+              <strong>For strongly convex functions:</strong>
             </p>
-            <BlockMath>{'\\|w_k - w^*\\| \\leq (1 - \\mu/L)^k \\|w_0 - w^*\\|'}</BlockMath>
             <p className="text-sm mt-2">
-              Where <InlineMath>\mu</InlineMath> is strong convexity parameter and{' '}
-              <InlineMath>L</InlineMath> is smoothness (Lipschitz constant of gradient).
+              Let <InlineMath>{String.raw`\varW^*`}</InlineMath> denote the optimal parameters,
+              <InlineMath>{String.raw`\mu > 0`}</InlineMath> the strong convexity parameter, and
+              <InlineMath>{String.raw`L`}</InlineMath> the Lipschitz constant of <InlineMath>{String.raw`\varGrad`}</InlineMath>. Then:
             </p>
+            <BlockMath>{String.raw`\|\varW_k - \varW^*\| \leq \left(1 - \frac{\mu}{L}\right)^k \|\varWZero - \varW^*\|`}</BlockMath>
             <p className="text-sm mt-2">
               <strong>Linear convergence:</strong> Error decreases by constant factor each iteration.
+              The rate depends on the condition number <InlineMath>{String.raw`L/\mu`}</InlineMath>.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Step Size Selection</h3>
             <p><strong>Sufficient condition for decrease:</strong></p>
-            <BlockMath>{'\\alpha < \\frac{2}{L}'}</BlockMath>
-            <p className="text-sm mt-2">
-              Where <InlineMath>L</InlineMath> satisfies:
+            <p className="text-sm mb-2">
+              For <GlossaryTooltip termKey="smooth" /> functions with Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath>:
             </p>
-            <BlockMath>{'\\|\\nabla f(x) - \\nabla f(y)\\| \\leq L\\|x - y\\|'}</BlockMath>
+            <BlockMath>{String.raw`\varAlpha < \frac{2}{L}`}</BlockMath>
             <p className="text-sm mt-2">
-              (Lipschitz continuity of gradient)
+              The Lipschitz constant <InlineMath>{String.raw`L`}</InlineMath> satisfies:
+            </p>
+            <BlockMath>{String.raw`\|\nabla f(\varW) - \nabla f(\varW')\| \leq L\|\varW - \varW'\|`}</BlockMath>
+            <p className="text-sm mt-2">
+              for all <InlineMath>{String.raw`\varW, \varW' \in \mathbb{R}^d`}</InlineMath>.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">For Logistic Regression</h3>
-            <p><strong>Loss function:</strong></p>
-            <BlockMath>{`f(w) = -\\frac{1}{N} \\sum_{i=1}^{N} \\left[y_i \\log(\\sigma(w^T x_i)) + (1-y_i) \\log(1-\\sigma(w^T x_i))\\right] + \\frac{\\lambda}{2}\\|w\\|^2`}</BlockMath>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">Example: Logistic Regression</h3>
+            <p className="text-sm mb-2">
+              Let <InlineMath>{String.raw`N`}</InlineMath> be the number of training examples,
+              <InlineMath>{String.raw`x_i \in \mathbb{R}^d`}</InlineMath> the features,
+              <InlineMath>{String.raw`y_i \in \{0,1\}`}</InlineMath> the labels,
+              <InlineMath>{String.raw`\sigma(z) = 1/(1+e^{-z})`}</InlineMath> the sigmoid function, and
+              <InlineMath>{String.raw`\lambda \geq 0`}</InlineMath> the regularization parameter.
+            </p>
+            <p className="text-sm mt-1"><strong>Loss function:</strong></p>
+            <BlockMath>{String.raw`f(\varW) = -\frac{1}{N} \sum_{i=1}^{N} \left[y_i \log(\sigma(\varW^T x_i)) + (1-y_i) \log(1-\sigma(\varW^T x_i))\right] + \frac{\lambda}{2}\|\varW\|^2`}</BlockMath>
             <p className="text-sm mt-2"><strong>Gradient:</strong></p>
-            <BlockMath>{`\\nabla f(w) = \\frac{1}{N} \\sum_{i=1}^{N} (\\sigma(w^T x_i) - y_i) x_i + \\lambda w`}</BlockMath>
+            <BlockMath>{String.raw`\nabla f(\varW) = \frac{1}{N} \sum_{i=1}^{N} (\sigma(\varW^T x_i) - y_i) x_i + \lambda \varW`}</BlockMath>
           </div>
         </div>
       </CollapsibleSection>
@@ -425,19 +445,25 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
         <div className="space-y-4 text-gray-800">
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Momentum Methods</h3>
-            <p>Add momentum to accelerate convergence:</p>
-            <BlockMath>{'v_{k+1} = \\beta v_k - \\alpha \\nabla f(w_k)'}</BlockMath>
-            <BlockMath>{'w_{k+1} = w_k + v_{k+1}'}</BlockMath>
+            <p className="text-sm mb-2">
+              Let <InlineMath>{String.raw`v_k \in \mathbb{R}^d`}</InlineMath> be the velocity vector
+              and <InlineMath>{String.raw`\beta \in [0,1)`}</InlineMath> the momentum coefficient.
+              Add momentum to accelerate convergence:
+            </p>
+            <BlockMath>{String.raw`v_{k+1} = \beta v_k - \varAlpha \nabla f(\varW_k)`}</BlockMath>
+            <BlockMath>{String.raw`\varW_{k+1} = \varW_k + v_{k+1}`}</BlockMath>
             <p className="text-sm mt-2">
-              Typical <InlineMath>\beta = 0.9</InlineMath>. Momentum accumulates
+              Typical <InlineMath>{String.raw`\beta = 0.9`}</InlineMath>. Momentum accumulates
               velocity in consistent directions, damping oscillations.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Nesterov Acceleration</h3>
-            <p>"Look ahead" before computing gradient:</p>
-            <BlockMath>{'w_{k+1} = w_k - \\alpha \\nabla f(w_k + \\beta v_k) + \\beta v_k'}</BlockMath>
+            <p className="text-sm mb-2">
+              "Look ahead" before computing gradient:
+            </p>
+            <BlockMath>{String.raw`\varW_{k+1} = \varW_k - \varAlpha \nabla f(\varW_k + \beta v_k) + \beta v_k`}</BlockMath>
             <p className="text-sm mt-2">
               Provably optimal convergence rate for{' '}
               <GlossaryTooltip termKey="smooth" />{' '}
@@ -449,14 +475,14 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <h3 className="text-lg font-bold text-purple-800 mb-2">Adaptive Methods Preview</h3>
             <ul className="list-disc ml-6 space-y-1 text-sm">
               <li>
-                <strong>AdaGrad:</strong> Adapts learning rate per parameter based on
+                <strong>AdaGrad:</strong> Adapts step size per parameter based on
                 historical gradients
               </li>
               <li>
                 <strong>RMSprop:</strong> Uses moving average of squared gradients
               </li>
               <li>
-                <strong>Adam:</strong> Combines momentum and adaptive learning rates
+                <strong>Adam:</strong> Combines momentum and adaptive step sizes
                 (most popular in deep learning)
               </li>
             </ul>
@@ -467,10 +493,16 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Complexity</h3>
+            <p className="text-sm mb-2">
+              Let <InlineMath>{String.raw`d`}</InlineMath> be the dimension of the parameter space.
+            </p>
             <ul className="list-disc ml-6 space-y-1">
-              <li><strong>Per iteration:</strong> O(n) for gradient computation</li>
-              <li><strong>Memory:</strong> O(n) to store parameters</li>
-              <li><strong>Total cost:</strong> depends on # iterations to converge</li>
+              <li>
+                <strong>Per iteration:</strong> <InlineMath>{String.raw`O(d)`}</InlineMath> for the parameter update,
+                plus problem-dependent cost of computing <InlineMath>{String.raw`\varGrad`}</InlineMath>
+              </li>
+              <li><strong>Memory:</strong> <InlineMath>{String.raw`O(d)`}</InlineMath> to store parameters</li>
+              <li><strong>Total cost:</strong> depends on number of iterations to converge</li>
             </ul>
             <p className="text-sm mt-2 italic">
               Simple and cheap per iteration, but may require many iterations.

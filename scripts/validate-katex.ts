@@ -8,12 +8,20 @@ import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, extname } from 'path';
 import katex from 'katex';
 import { KATEX_MACROS } from '../src/variables.js';
+import { glossary } from '../src/lib/glossary.js';
 
 interface ValidationError {
   file: string;
   line: number;
   latex: string;
   error: string;
+}
+
+interface GlossaryValidationError {
+  file: string;
+  line: number;
+  termKey: string;
+  availableTerms: string[];
 }
 
 /**
@@ -85,6 +93,50 @@ function extractLatexExpressions(content: string): Array<{ latex: string; line: 
 }
 
 /**
+ * Extract glossary term keys from source file content
+ * Finds all <GlossaryTooltip termKey="..." /> usages
+ * Skips matches inside comments (single-line or block comments)
+ */
+function extractGlossaryTerms(content: string): Array<{ termKey: string; line: number }> {
+  const terms: Array<{ termKey: string; line: number }> = [];
+
+  // Pattern: <GlossaryTooltip termKey="term-name" />
+  const glossaryRegex = /<GlossaryTooltip\s+termKey=["']([^"']+)["']\s*\/>/g;
+
+  let match;
+  while ((match = glossaryRegex.exec(content)) !== null) {
+    const termKey = match[1];
+    const matchIndex = match.index;
+
+    // Check if this match is inside a comment
+    const beforeMatch = content.substring(0, matchIndex);
+    const lineNumber = beforeMatch.split('\n').length;
+
+    // Get the line content
+    const lines = content.split('\n');
+    const currentLine = lines[lineNumber - 1];
+    const matchPositionInLine = matchIndex - beforeMatch.lastIndexOf('\n') - 1;
+
+    // Check if there's a // comment before this match on the same line
+    const commentIndex = currentLine.indexOf('//');
+    if (commentIndex !== -1 && commentIndex < matchPositionInLine) {
+      continue; // Skip - inside a line comment
+    }
+
+    // Check if we're inside a /* */ block comment
+    const lastBlockCommentStart = beforeMatch.lastIndexOf('/*');
+    const lastBlockCommentEnd = beforeMatch.lastIndexOf('*/');
+    if (lastBlockCommentStart > lastBlockCommentEnd) {
+      continue; // Skip - inside a block comment
+    }
+
+    terms.push({ termKey, line: lineNumber });
+  }
+
+  return terms;
+}
+
+/**
  * Validate a LaTeX expression using KaTeX
  */
 function validateLatex(latex: string): string | null {
@@ -99,6 +151,45 @@ function validateLatex(latex: string): string | null {
   } catch (error) {
     return error instanceof Error ? error.message : String(error);
   }
+}
+
+/**
+ * Validate all glossary terms in source files
+ */
+function validateAllGlossaryTerms(rootDir: string): GlossaryValidationError[] {
+  const errors: GlossaryValidationError[] = [];
+  const files = findSourceFiles(rootDir);
+  const availableTerms = Object.keys(glossary);
+
+  console.log(`🔍 Scanning ${files.length} source files for glossary terms...\n`);
+
+  let totalTermUsages = 0;
+
+  for (const file of files) {
+    const content = readFileSync(file, 'utf-8');
+    const terms = extractGlossaryTerms(content);
+
+    if (terms.length > 0) {
+      const relPath = file.replace(rootDir + '/', '');
+      console.log(`  ${relPath}: ${terms.length} glossary term(s)`);
+      totalTermUsages += terms.length;
+    }
+
+    for (const { termKey, line } of terms) {
+      if (!availableTerms.includes(termKey)) {
+        errors.push({
+          file: file.replace(rootDir + '/', ''),
+          line,
+          termKey,
+          availableTerms,
+        });
+      }
+    }
+  }
+
+  console.log(`\n✓ Found ${totalTermUsages} glossary term usage(s)\n`);
+
+  return errors;
 }
 
 /**
@@ -142,19 +233,41 @@ function validateAllKatex(rootDir: string): ValidationError[] {
 
 // Run validation
 const rootDir = process.cwd();
-const errors = validateAllKatex(rootDir);
+const katexErrors = validateAllKatex(rootDir);
+const glossaryErrors = validateAllGlossaryTerms(rootDir);
 
-if (errors.length > 0) {
-  console.error(`\n❌ Found ${errors.length} KaTeX validation error(s):\n`);
+let hasErrors = false;
 
-  for (const error of errors) {
+if (katexErrors.length > 0) {
+  console.error(`\n❌ Found ${katexErrors.length} KaTeX validation error(s):\n`);
+
+  for (const error of katexErrors) {
     console.error(`  ${error.file}:${error.line}`);
     console.error(`    LaTeX: ${error.latex}`);
     console.error(`    Error: ${error.error}\n`);
   }
 
-  process.exit(1);
+  hasErrors = true;
 } else {
   console.log('✅ All KaTeX expressions are valid!\n');
+}
+
+if (glossaryErrors.length > 0) {
+  console.error(`\n❌ Found ${glossaryErrors.length} glossary validation error(s):\n`);
+
+  for (const error of glossaryErrors) {
+    console.error(`  ${error.file}:${error.line}`);
+    console.error(`    Invalid term: "${error.termKey}"`);
+    console.error(`    Available terms: ${error.availableTerms.join(', ')}\n`);
+  }
+
+  hasErrors = true;
+} else {
+  console.log('✅ All glossary terms are valid!\n');
+}
+
+if (hasErrors) {
+  process.exit(1);
+} else {
   process.exit(0);
 }
