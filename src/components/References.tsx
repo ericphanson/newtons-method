@@ -77,9 +77,9 @@ export const References: React.FC<ReferencesProps> = ({
                     </div>
                   )}
 
-                  {citation.notes && (
+                  {citation.readerNotes && (
                     <div className="text-xs text-gray-600 mt-1">
-                      <span className="font-semibold">Notes:</span> {citation.notes}
+                      <span className="font-semibold">Notes:</span> {citation.readerNotes}
                     </div>
                   )}
 

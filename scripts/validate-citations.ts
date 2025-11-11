@@ -1,0 +1,225 @@
+#!/usr/bin/env tsx
+/**
+ * Citation Validator
+ *
+ * Validates docs/citations.json to ensure all citations have required fields
+ * and no null values for required fields.
+ *
+ * This runs as part of the build and dev process to catch citation errors early.
+ */
+
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+interface Citation {
+  reference: string;
+  pages: string;
+  claim: string;
+  quote: string;
+  proofPages: string[];
+  verified: string;
+  verifiedBy: string;
+  verificationNotes: string;
+  usedIn: string[];
+  // Optional fields
+  theorem?: string;
+  notes?: string;
+  readerNotes?: string;
+}
+
+interface CitationsFile {
+  references: Record<string, unknown>;
+  citations: Record<string, Citation>;
+}
+
+// Required fields for every citation
+const REQUIRED_FIELDS = [
+  'reference',
+  'pages',
+  'claim',
+  'quote',
+  'proofPages',
+  'verified',
+  'verifiedBy',
+  'verificationNotes',
+  'usedIn',
+] as const;
+
+type RequiredField = typeof REQUIRED_FIELDS[number];
+
+interface ValidationError {
+  citationKey: string;
+  field: string;
+  issue: 'missing' | 'null' | 'empty-array' | 'invalid-type';
+  message: string;
+}
+
+function validateCitation(key: string, citation: any): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Check for missing required fields
+  for (const field of REQUIRED_FIELDS) {
+    if (!(field in citation)) {
+      errors.push({
+        citationKey: key,
+        field,
+        issue: 'missing',
+        message: `Missing required field: ${field}`,
+      });
+    } else if (citation[field] === null) {
+      errors.push({
+        citationKey: key,
+        field,
+        issue: 'null',
+        message: `Required field '${field}' is null`,
+      });
+    } else if (citation[field] === undefined) {
+      errors.push({
+        citationKey: key,
+        field,
+        issue: 'null',
+        message: `Required field '${field}' is undefined`,
+      });
+    } else if (citation[field] === '') {
+      errors.push({
+        citationKey: key,
+        field,
+        issue: 'null',
+        message: `Required field '${field}' is empty string`,
+      });
+    }
+  }
+
+  // Special validation for array fields
+  if ('proofPages' in citation) {
+    if (!Array.isArray(citation.proofPages)) {
+      errors.push({
+        citationKey: key,
+        field: 'proofPages',
+        issue: 'invalid-type',
+        message: 'proofPages must be an array',
+      });
+    } else if (citation.proofPages.length === 0) {
+      errors.push({
+        citationKey: key,
+        field: 'proofPages',
+        issue: 'empty-array',
+        message: 'proofPages array is empty (must have at least one proof page)',
+      });
+    }
+  }
+
+  if ('usedIn' in citation) {
+    if (!Array.isArray(citation.usedIn)) {
+      errors.push({
+        citationKey: key,
+        field: 'usedIn',
+        issue: 'invalid-type',
+        message: 'usedIn must be an array',
+      });
+    } else if (citation.usedIn.length === 0) {
+      errors.push({
+        citationKey: key,
+        field: 'usedIn',
+        issue: 'empty-array',
+        message: 'usedIn array is empty (should list where citation is used)',
+      });
+    }
+  }
+
+  // Validate date format for 'verified'
+  if ('verified' in citation && citation.verified) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(citation.verified)) {
+      errors.push({
+        citationKey: key,
+        field: 'verified',
+        issue: 'invalid-type',
+        message: `verified date must be in YYYY-MM-DD format, got: ${citation.verified}`,
+      });
+    }
+  }
+
+  return errors;
+}
+
+function validateCitationsFile(): { valid: boolean; errors: ValidationError[] } {
+  const citationsPath = join(process.cwd(), 'docs', 'citations.json');
+
+  let data: CitationsFile;
+
+  try {
+    const fileContent = readFileSync(citationsPath, 'utf-8');
+    data = JSON.parse(fileContent);
+  } catch (error) {
+    console.error('❌ Failed to read or parse citations.json:');
+    console.error(error);
+    return { valid: false, errors: [] };
+  }
+
+  // Validate structure
+  if (!data.citations || typeof data.citations !== 'object') {
+    console.error('❌ citations.json must have a "citations" object');
+    return { valid: false, errors: [] };
+  }
+
+  const allErrors: ValidationError[] = [];
+  const citationKeys = Object.keys(data.citations);
+
+  // Validate each citation
+  for (const key of citationKeys) {
+    const citation = data.citations[key];
+    const errors = validateCitation(key, citation);
+    allErrors.push(...errors);
+  }
+
+  return {
+    valid: allErrors.length === 0,
+    errors: allErrors,
+  };
+}
+
+function main() {
+  console.log('Validating citations.json...');
+
+  const { valid, errors } = validateCitationsFile();
+
+  if (valid) {
+    const citationsPath = join(process.cwd(), 'docs', 'citations.json');
+    const fileContent = readFileSync(citationsPath, 'utf-8');
+    const data = JSON.parse(fileContent);
+    const count = Object.keys(data.citations).length;
+
+    console.log(`✅ All ${count} citation${count !== 1 ? 's' : ''} valid`);
+    process.exit(0);
+  } else {
+    console.error(`\n❌ Found ${errors.length} validation error${errors.length !== 1 ? 's' : ''}:\n`);
+
+    // Group errors by citation key
+    const errorsByCitation = new Map<string, ValidationError[]>();
+    for (const error of errors) {
+      if (!errorsByCitation.has(error.citationKey)) {
+        errorsByCitation.set(error.citationKey, []);
+      }
+      errorsByCitation.get(error.citationKey)!.push(error);
+    }
+
+    // Print grouped errors
+    for (const [citationKey, citationErrors] of errorsByCitation) {
+      console.error(`Citation: "${citationKey}"`);
+      for (const error of citationErrors) {
+        console.error(`  - ${error.message}`);
+      }
+      console.error('');
+    }
+
+    console.error('Fix these errors in docs/citations.json before building.\n');
+    console.error('Required fields for all citations:');
+    console.error('  ' + REQUIRED_FIELDS.join(', '));
+    console.error('\nSee docs/workflows/citation-workflow.md for details.\n');
+
+    process.exit(1);
+  }
+}
+
+main();

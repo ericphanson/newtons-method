@@ -19,6 +19,7 @@ export interface Citation {
   claim: string;
   quote?: string;
   notes?: string;
+  readerNotes?: string;
   proofPages?: string[];
   verified?: string;
   verifiedBy?: string;

@@ -71,7 +71,64 @@ This implies gradient descent converges whenever α is "proper," which is mislea
 3. Would a student walk away with accurate understanding or misconceptions?
 4. Can I back this claim up (either via demonstration or rigorous theory)?
 
-### 2. Demonstrable Concepts First
+### 2. Citations and Academic References
+
+**Back up theoretical claims with citations.** When making statements about convergence rates, complexity guarantees, or mathematical properties, cite authoritative sources.
+
+#### When to Use Citations
+
+**MUST cite:**
+- Theoretical convergence rates (e.g., "linear convergence on strongly convex functions")
+- Mathematical theorems and proofs (e.g., "gradient descent converges when 0 < α < 2/L")
+- Specific complexity results (e.g., "O(d³) per iteration for Newton's method")
+- Non-obvious mathematical properties (e.g., "BFGS updates preserve positive definiteness")
+
+**Optional/contextual:**
+- Well-established algorithm descriptions (e.g., "gradient descent follows the negative gradient")
+- Definitions widely used in the field (e.g., "convexity means...")
+- Properties we demonstrate in visualizations (still good to cite, but demonstration provides support)
+
+**NO citation needed:**
+- Obvious facts (e.g., "matrices are square")
+- Our own experimental observations (e.g., "in this visualization, you can see...")
+- Algorithm pseudocode (this is descriptive, not a claim)
+
+#### Using the Citation Component
+
+Add inline citations using the `<Citation>` component:
+
+```tsx
+import { Citation } from '../Citation';
+
+<p>
+  <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
+  (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ),
+  where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence" />
+</p>
+```
+
+The citation renders as a superscript link `[1]` with a hover tooltip showing the source. Users can click to jump to the full reference in the References section.
+
+#### Adding a References Section
+
+Add a References section at the bottom of your tab:
+
+```tsx
+import { References } from '../References';
+
+// At the end of your component JSX:
+<References usedIn="GdFixedTab" defaultExpanded={false} storageKey="gd-fixed-references" />
+```
+
+The `usedIn` prop filters to only show citations marked for that component in `citations.json`.
+
+#### Creating New Citations
+
+See **[docs/workflows/citation-workflow.md](workflows/citation-workflow.md)** for the complete workflow on searching PDFs, extracting pages, and adding verified citations to `docs/citations.json`.
+
+**Requirements:** Every citation must include exact page numbers, word-for-word quotes, your claim, notes on notation differences, and proof page images for verification.
+
+### 3. Demonstrable Concepts First
 
 Prioritize two types of content:
 
@@ -97,7 +154,7 @@ Avoid specific practitioner heuristics that we can't back up with either demonst
 
 Just delete these. Don't change them to be more vague. We can save some space on our page.
 
-### 3. One Good Explanation Per Concept
+### 4. One Good Explanation Per Concept
 
 Avoid redundancy. Each concept should have:
 
@@ -111,13 +168,13 @@ When we found the two-loop recursion explained 3 times (Quick Start, Two-Loop De
 - Full explanation in "How L-BFGS Works"
 - Reference pointer in Mathematical Details
 
-### 4. Every statement must have a point
+### 5. Every statement must have a point
 
 There needs to be a reason we are including each statement on our page. We have limited space and our readers have limited attention. It's not enough for our statements to be true, they need to be building an understanding. We can't just throw random facts at the reader.
 
 It's OK to delete stuff if it doesn't help with this, even if the statement is true.
 
-### 5. Progressive Disclosure
+### 6. Progressive Disclosure
 
 Structure content from quick → complete → deep:
 
@@ -151,7 +208,7 @@ Structure content from quick → complete → deep:
 - Default to **closed** (defaultExpanded={false}) to not overwhelm
 - Use subsections with clear headers
 
-### 6. Emphasize Unique Features
+### 7. Emphasize Unique Features
 
 If a feature is:
 
@@ -168,7 +225,7 @@ If a feature is:
 - Green success box in "When Things Go Wrong"
 - Featured heavily in `src/stories/lbfgs-memory.ts`
 
-### 7. Mathematical Notation
+### 8. Mathematical Notation
 
 **Always use KaTeX** for mathematical symbols, even for simple parameters.
 
@@ -239,7 +296,7 @@ parameter λ_damp (Unicode)
 <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath>
 ```
 
-### 8. Troubleshooting Content
+### 9. Troubleshooting Content
 
 Only include issues that we can either:
 

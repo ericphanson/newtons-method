@@ -93,7 +93,8 @@ Once you've verified the exact page and content, add the citation to `docs/citat
       "theorem": "Theorem 2.1.15",
       "claim": "Gradient descent with fixed step size achieves linear convergence...",
       "quote": "If f ∈ S^(1,1)_μ,L(R^n) and 0 < h < 2/(L+μ), then...",
-      "notes": "The notation S^(1,1)_μ,L(R^n) denotes strongly convex functions with parameter μ > 0...",
+      "notes": "Internal: Used in GdFixedTab. Compare with Theorem 2.1.14 (convex case).",
+      "readerNotes": "The notation S^(1,1)_μ,L(ℝⁿ) denotes strongly convex functions with strong convexity parameter μ > 0 and Lipschitz continuous gradient with constant L. Note: Nesterov uses 'h' for step size; here we use 'α'...",
       "proofPages": [
         "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
         "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
@@ -116,15 +117,32 @@ Once you've verified the exact page and content, add the citation to `docs/citat
 - `pages`: Page number(s) where the result appears
 - `claim`: Your interpretation/application of the result
 - `quote`: Exact quote from the source
-- `proofPages`: Array of relative paths to extracted PNG images of the relevant pages
+- `proofPages`: Array of relative paths to extracted PNG images of the relevant pages (must have at least one)
 - `verified`: Date when citation was verified (YYYY-MM-DD format)
 - `verifiedBy`: Who verified this citation (agent name or human name)
 - `verificationNotes`: Brief summary of what was verified and any important findings
-- `usedIn`: Array of components/tabs using this citation
+- `usedIn`: Array of components/tabs using this citation (must have at least one)
 
 **Optional:**
 - `theorem`: Theorem/Lemma/Corollary number for easy reference (highly recommended)
-- `notes`: Context about notation, prerequisites, or related results (highly recommended)
+- `notes`: Internal notes for developers/agents (not shown to readers) - e.g., which component uses this, cross-references to code
+- `readerNotes`: Public-facing explanations shown on the website (highly recommended) - e.g., notation definitions, prerequisites, notation translations for fact-checking
+
+**Language Style for readerNotes:**
+- Avoid phrases like "in our implementation" or "in our codebase"
+- Use direct language: "we use α" instead of "we use α in our implementation"
+- If referring to the website: "here we use α" instead of "in our codebase we use α"
+- Keep language concise and reader-focused
+
+**Validation:**
+
+All citations are automatically validated during `npm run dev` and `npm run build`. The validator checks:
+- All required fields are present
+- No required fields have null or empty values
+- Arrays (`proofPages`, `usedIn`) are non-empty
+- Date format is YYYY-MM-DD
+
+To manually validate: `npm run validate-citations`
 
 ## Scripts Reference
 
