@@ -1,0 +1,36 @@
+{
+  "references": {
+    "nocedal-wright-2006": {
+      "title": "Numerical Optimization",
+      "authors": ["Jorge Nocedal", "Stephen J. Wright"],
+      "year": 2006,
+      "edition": "2nd",
+      "publisher": "Springer",
+      "file": "NumericalOptimization2006.pdf"
+    },
+    "boyd-vandenberghe-2004": {
+      "title": "Convex Optimization",
+      "authors": ["Stephen Boyd", "Lieven Vandenberghe"],
+      "year": 2004,
+      "publisher": "Cambridge University Press",
+      "file": "Boyd+Vandenberghe-2004-Convex_optimization.pdf"
+    },
+    "nesterov-2004": {
+      "title": "Introductory Lectures on Convex Optimization: A Basic Course",
+      "authors": ["Yurii Nesterov"],
+      "year": 2004,
+      "publisher": "Kluwer Academic Publishers",
+      "file": "Introductory-Lectures-on-Convex-Programming-Yurii-Nesterov-2004.pdf"
+    },
+    "liu-nocedal-1989": {
+      "title": "On the Limited Memory BFGS Method for Large Scale Optimization",
+      "authors": ["Dong C. Liu", "Jorge Nocedal"],
+      "year": 1989,
+      "journal": "Mathematical Programming",
+      "volume": "45",
+      "pages": "503-528",
+      "file": "LiuNocedal1989.pdf"
+    }
+  },
+  "citations": {}
+}
