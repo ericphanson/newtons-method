@@ -44,6 +44,8 @@ interface LbfgsTabProps {
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
   onLoadExperiment: (experiment: ExperimentPreset) => void;
+  configurationExpanded?: boolean;
+  onConfigurationExpandedChange?: (expanded: boolean) => void;
 }
 
 export const LbfgsTab: React.FC<LbfgsTabProps> = ({
@@ -74,6 +76,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   lineSearchCanvasRef,
   experimentLoading,
   onLoadExperiment,
+  configurationExpanded,
+  onConfigurationExpandedChange,
 }) => {
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('lbfgs'),
@@ -83,7 +87,13 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   return (
     <>
       {/* 1. Configuration Section */}
-      <CollapsibleSection title="Algorithm Configuration" defaultExpanded={false} data-scroll-target="configuration">
+      <CollapsibleSection
+        title="Algorithm Configuration"
+        defaultExpanded={false}
+        expanded={configurationExpanded}
+        onExpandedChange={onConfigurationExpandedChange}
+        data-scroll-target="configuration"
+      >
         <AlgorithmConfiguration
           algorithm="lbfgs"
           maxIter={maxIter}

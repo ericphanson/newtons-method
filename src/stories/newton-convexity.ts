@@ -37,19 +37,19 @@ export const newtonConvexity: Story = {
       scrollTo: 'metrics'
     },
     {
-      experimentId: 'newton-failure-saddle',
-      narrative: 'Now for the ultimate test: f(w)=w₀²-w₁². This is a hyperbolic paraboloid - curved upward in one direction, downward in the other. At the origin, the gradient is zero, but is it a minimum?',
+      experimentId: 'newton-himmelblau-failure',
+      narrative: 'Now the ultimate challenge: Himmelblau\'s function has 4 global minima (all at f=0), but also saddle points. Can Newton distinguish true minima from saddles in this complex multimodal landscape?',
       scrollTo: 'problem'
     },
     {
-      experimentId: 'newton-failure-saddle',
-      narrative: 'Look at the eigenvalues: λ₁=2.0, λ₂=-2.0. One positive, one NEGATIVE! This indefinite Hessian is the signature of a saddle point, not a minimum.',
-      scrollTo: 'metrics'
+      experimentId: 'newton-himmelblau-failure',
+      narrative: 'Without eigenvalue checking, Newton converges to 8 "attractors" instead of 4 - half are saddle points! The basin of convergence plot shows regions where Newton fails to converge. This is Newton\'s Achilles heel: it finds critical points (∇f=0) but can\'t tell minima from saddles.',
+      scrollTo: 'basin-of-convergence'
     },
     {
-      experimentId: 'newton-failure-saddle',
-      narrative: 'Newton converges to the saddle in 2 iterations - gradient is zero, so Newton thinks it succeeded! But the negative eigenvalue proves this is NOT a minimum. Newton finds critical points (∇f=0) but can\'t tell minima from saddles without checking eigenvalue signs. Quasi-Newton methods handle this better by only approximating positive curvature...',
-      scrollTo: 'canvas'
+      experimentId: 'lbfgs-himmelblau-success',
+      narrative: 'L-BFGS solves this beautifully: 4 clean basins, convergence everywhere, no saddles. By approximating only positive curvature (sTy > 0 check), quasi-Newton methods filter out the indefinite Hessian regions that mislead pure Newton. More conservative curvature approximation is sometimes better than exact!',
+      scrollTo: 'basin-of-convergence'
     }
   ]
 };

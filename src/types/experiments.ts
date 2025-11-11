@@ -30,6 +30,7 @@ export interface ExperimentUiConfig {
   details?: string;
   footnote?: string;
   hidden?: boolean;
+  openPanels?: string[];  // Panel IDs to expand by default (e.g., ['configuration'])
   relatedActions?: Array<{
     label: string;
     targetId: string;

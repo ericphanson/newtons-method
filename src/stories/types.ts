@@ -1,6 +1,6 @@
 // src/stories/types.ts
 
-export type ScrollTarget = 'problem' | 'canvas' | 'metrics' | 'configuration' | 'top';
+export type ScrollTarget = 'problem' | 'canvas' | 'metrics' | 'configuration' | 'basin-of-convergence' | 'top';
 
 export interface StoryStep {
   experimentId: string;  // References existing experiment preset

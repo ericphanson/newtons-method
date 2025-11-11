@@ -48,6 +48,8 @@ interface NewtonTabProps {
   hessianCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
   onLoadExperiment: (experiment: ExperimentPreset) => void;
+  configurationExpanded?: boolean;
+  onConfigurationExpandedChange?: (expanded: boolean) => void;
 }
 
 export const NewtonTab: React.FC<NewtonTabProps> = ({
@@ -83,6 +85,8 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   hessianCanvasRef,
   experimentLoading,
   onLoadExperiment,
+  configurationExpanded,
+  onConfigurationExpandedChange,
 }) => {
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('newton'),
@@ -92,7 +96,13 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   return (
     <>
       {/* 1. Configuration Section */}
-      <CollapsibleSection title="Algorithm Configuration" defaultExpanded={false} data-scroll-target="configuration">
+      <CollapsibleSection
+        title="Algorithm Configuration"
+        defaultExpanded={false}
+        expanded={configurationExpanded}
+        onExpandedChange={onConfigurationExpandedChange}
+        data-scroll-target="configuration"
+      >
         <AlgorithmConfiguration
           algorithm="newton"
           maxIter={maxIter}

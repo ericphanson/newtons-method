@@ -96,6 +96,7 @@ const UnifiedVisualizer = () => {
   // Experiment state
   const [experimentLoading, setExperimentLoading] = useState(false);
   const [experimentJustLoaded, setExperimentJustLoaded] = useState(false);
+  const [configurationExpanded, setConfigurationExpanded] = useState<boolean | undefined>(undefined);
 
   // Ref to prevent IntersectionObserver from interfering during programmatic scrolls
   const isNavigatingRef = useRef(false);
@@ -845,6 +846,13 @@ const UnifiedVisualizer = () => {
 
       // 6. Iterations reset automatically via useEffect when state changes
 
+      // Handle panel expansion from experiment UI config
+      if (experiment.ui?.openPanels) {
+        setConfigurationExpanded(experiment.ui.openPanels.includes('configuration'));
+      } else {
+        setConfigurationExpanded(undefined); // Reset to default (uncontrolled)
+      }
+
       // Clear loading state immediately (no artificial delay to avoid race conditions)
       setExperimentLoading(false);
 
@@ -1441,7 +1449,7 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12,
+      numLevels: 25,
       minValue: minLoss,
       maxValue: maxLoss,
       margins
@@ -1454,7 +1462,7 @@ const UnifiedVisualizer = () => {
       bounds: { minW0, maxW0, minW1, maxW1 },
       canvasWidth: w,
       canvasHeight: h,
-      numLevels: 12,
+      numLevels: 25,
       minValue: minLoss,
       maxValue: maxLoss,
       margins
@@ -1467,7 +1475,7 @@ const UnifiedVisualizer = () => {
       canvasHeight: h,
       minValue: minLoss,
       maxValue: maxLoss,
-      numLevels: 12,
+      numLevels: 25,
       margins
     });
 
@@ -2020,6 +2028,8 @@ const UnifiedVisualizer = () => {
               hessianCanvasRef={newtonHessianCanvasRef}
               experimentLoading={experimentLoading}
               onLoadExperiment={loadExperiment}
+              configurationExpanded={configurationExpanded}
+              onConfigurationExpandedChange={setConfigurationExpanded}
             />
           )}
           {selectedTab === 'lbfgs' && (
@@ -2051,6 +2061,8 @@ const UnifiedVisualizer = () => {
               lineSearchCanvasRef={lbfgsLineSearchCanvasRef}
               experimentLoading={experimentLoading}
               onLoadExperiment={loadExperiment}
+              configurationExpanded={configurationExpanded}
+              onConfigurationExpandedChange={setConfigurationExpanded}
             />
           )}
           {selectedTab === 'diagonal-precond' && (

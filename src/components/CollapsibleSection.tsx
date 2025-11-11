@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 interface CollapsibleSectionProps {
   title: string;
   defaultExpanded?: boolean;
+  expanded?: boolean;  // Controlled mode: external control of expansion state
+  onExpandedChange?: (expanded: boolean) => void;  // Callback for controlled mode
   storageKey?: string;  // For localStorage persistence
   id?: string;  // For hash navigation
   children: React.ReactNode;
@@ -13,15 +15,20 @@ interface CollapsibleSectionProps {
  *
  * Displays a title with expand/collapse toggle. Content can be shown or hidden.
  * If storageKey is provided, remembers user's preference across sessions.
+ *
+ * Can be used in controlled mode by providing `expanded` and `onExpandedChange` props.
  */
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   defaultExpanded = true,
+  expanded: controlledExpanded,
+  onExpandedChange,
   storageKey,
   id,
   children
 }) => {
-  const [isExpanded, setIsExpanded] = useState(() => {
+  // Internal state for uncontrolled mode
+  const [internalExpanded, setInternalExpanded] = useState(() => {
     if (storageKey && typeof window !== 'undefined') {
       const stored = localStorage.getItem(storageKey);
       if (stored !== null) {
@@ -31,14 +38,27 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     return defaultExpanded;
   });
 
+  // Use controlled value if provided, otherwise use internal state
+  const isControlled = controlledExpanded !== undefined;
+  const isExpanded = isControlled ? controlledExpanded : internalExpanded;
+
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined') {
-      localStorage.setItem(storageKey, String(isExpanded));
+    // Only persist to localStorage in uncontrolled mode
+    if (!isControlled && storageKey && typeof window !== 'undefined') {
+      localStorage.setItem(storageKey, String(internalExpanded));
     }
-  }, [isExpanded, storageKey]);
+  }, [internalExpanded, storageKey, isControlled]);
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    const newValue = !isExpanded;
+
+    if (isControlled) {
+      // Controlled mode: notify parent
+      onExpandedChange?.(newValue);
+    } else {
+      // Uncontrolled mode: update internal state
+      setInternalExpanded(newValue);
+    }
   };
 
   return (

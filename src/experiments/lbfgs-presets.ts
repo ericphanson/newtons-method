@@ -58,4 +58,23 @@ export const lbfgsExperiments: ExperimentPreset[] = [
       tone: 'purple',
     },
   },
+  {
+    id: 'lbfgs-himmelblau-success',
+    name: 'Success: Himmelblau Basin of Convergence',
+    description: 'L-BFGS finds 4 correct minima, converges from all initial points',
+    algorithm: 'lbfgs',
+    problem: 'himmelblau',
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      m: 10,
+      maxIter: 50,
+    },
+    initialPoint: [0, 0],
+    expectation: 'Observe: 4 clean basins of convergence, no saddle points, converges everywhere. By approximating only positive curvature, L-BFGS avoids Newton\'s failure modes.',
+    ui: {
+      tone: 'green',
+      openPanels: ['configuration'],
+    },
+  },
 ];

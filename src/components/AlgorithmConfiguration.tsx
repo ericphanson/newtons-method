@@ -592,7 +592,7 @@ export const AlgorithmConfiguration: React.FC<AlgorithmConfigurationProps> = (pr
         </div>
 
         {/* Basin Picker (replaces sliders) */}
-        <div className="col-span-2">
+        <div className="col-span-2" data-scroll-target="basin-of-convergence">
           <BasinPicker
             problem={props.problem}
             currentProblem={props.currentProblem}

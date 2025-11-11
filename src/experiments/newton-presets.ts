@@ -195,4 +195,24 @@ export const newtonExperiments: ExperimentPreset[] = [
       tone: 'purple',
     },
   },
+  {
+    id: 'newton-himmelblau-failure',
+    name: 'Multimodal Failure: Himmelblau Basin of Convergence',
+    description: 'Newton finds 8 "minima" instead of 4 - some are saddles! Basin plot shows non-convergence regions.',
+    algorithm: 'newton',
+    problem: 'himmelblau',
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      maxIter: 50,
+      hessianDamping: 0,
+      lineSearch: 'none',
+    },
+    initialPoint: [0, 0],
+    expectation: 'Observe: Without eigenvalue checking, Newton converges to saddle points. Line search can get stuck (α=0). Use basin of convergence view to see 8 attractors instead of 4 true minima.',
+    ui: {
+      tone: 'red',
+      openPanels: ['configuration'],
+    },
+  },
 ];
