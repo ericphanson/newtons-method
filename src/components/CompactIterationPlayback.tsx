@@ -19,7 +19,7 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
   };
 
   const handleNext = () => {
-    if (currentIter < totalIters) {
+    if (currentIter < totalIters - 1) {
       onIterChange(currentIter + 1);
     }
   };
@@ -50,8 +50,8 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
         {/* Next button */}
         <button
           onClick={handleNext}
-          disabled={currentIter === totalIters}
-          className={`p-1 rounded transition-colors ${currentIter === totalIters
+          disabled={currentIter === totalIters - 1}
+          className={`p-1 rounded transition-colors ${currentIter === totalIters - 1
               ? 'text-gray-300 cursor-not-allowed'
               : 'text-gray-700 hover:bg-gray-200'
             }`}
@@ -66,12 +66,12 @@ export const CompactIterationPlayback: React.FC<CompactIterationPlaybackProps> =
       <input
         type="range"
         min="0"
-        max={totalIters}
+        max={totalIters - 1}
         value={currentIter}
         onChange={(e) => onIterChange(parseInt(e.target.value, 10))}
         className="flex-1 h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer slider-thumb"
         style={{
-          background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentIter / totalIters) * 100}%, #d1d5db ${(currentIter / totalIters) * 100}%, #d1d5db 100%)`
+          background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentIter / (totalIters - 1)) * 100}%, #d1d5db ${(currentIter / (totalIters - 1)) * 100}%, #d1d5db 100%)`
         }}
       />
     </div>
