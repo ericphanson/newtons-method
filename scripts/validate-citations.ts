@@ -48,8 +48,6 @@ const REQUIRED_FIELDS = [
   'usedIn',
 ] as const;
 
-type RequiredField = typeof REQUIRED_FIELDS[number];
-
 interface ValidationError {
   citationKey: string;
   field: string;
@@ -87,7 +85,7 @@ function validateMathInText(
   return errors;
 }
 
-function validateCitation(key: string, citation: any): ValidationError[] {
+function validateCitation(key: string, citation: Record<string, unknown>): ValidationError[] {
   const errors: ValidationError[] = [];
 
   // Check for missing required fields
