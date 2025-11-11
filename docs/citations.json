@@ -32,5 +32,42 @@
       "file": "LiuNocedal1989.pdf"
     }
   },
-  "citations": {}
+  "citations": {
+    "gd-strongly-convex-linear-convergence": {
+      "reference": "nesterov-2004",
+      "pages": "86-87",
+      "theorem": "Theorem 2.1.15",
+      "claim": "Gradient descent with fixed step size achieves linear convergence to the global minimum on strongly convex smooth functions when 0 < α < 2/(L+μ)",
+      "quote": "If f ∈ S^(1,1)_μ,L(R^n) and 0 < h < 2/(L+μ), then the gradient method generates a sequence {x_k} such that ||x_k - x*||^2 ≤ (1 - (2hμL)/(L+μ))^k ||x_0 - x*||^2",
+      "notes": "The notation S^(1,1)_μ,L(R^n) denotes strongly convex functions with parameter μ > 0 and Lipschitz continuous gradient with constant L (see Definition 2.1.1 on page 82). The condition number Q_f = L/μ determines the convergence rate. With optimal step size h = 2/(L+μ), the convergence rate is ((Q_f-1)/(Q_f+1))^k. Note: Nesterov uses 'h' for step size; our codebase uses 'α'. This result differs from Theorem 2.1.14 (convex but not strongly convex) which has bound 2/L instead of 2/(L+μ).",
+      "proofPages": [
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0087.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "verification-agent",
+      "verificationNotes": "Independently verified: quote is word-for-word accurate, claim matches source, usage in GdFixedTab.tsx is consistent. Added page 82 (notation definition) and page 85 (gradient method setup) to proofPages for better context. Expanded notes to clarify notation translation (h→α) and distinction from Theorem 2.1.14.",
+      "usedIn": ["GdFixedTab"]
+    },
+    "gd-convex-sublinear-convergence": {
+      "reference": "nesterov-2004",
+      "pages": "86-87",
+      "theorem": "Theorem 2.1.14 and Corollary 2.1.2",
+      "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when 0 < α < 2/L",
+      "quote": "Let f ∈ F_L^{1,1}(R^n) and 0 < h < 2/L. Then the gradient method generates a sequence {x_k}, which converges... [With optimal step size] If h = 1/L and f ∈ F_L^{1,1}(R^n), then f(x_k) - f* ≤ 2L||x_0 - x*||^2/(k+4)",
+      "notes": "The notation F_L^{1,1}(R^n) denotes convex functions with Lipschitz continuous gradient with constant L (this is the case where μ = 0, i.e., convex but not strongly convex). With optimal step size h = 1/L, the convergence rate is O(1/k), which is SUBLINEAR convergence - much slower than the linear convergence O(((Q_f-1)/(Q_f+1))^k) for strongly convex functions (Theorem 2.1.15). This explains why convergence may be slow: without strong convexity, we lose the exponential (geometric) convergence rate. The key difference from Theorem 2.1.15: for strongly convex functions we have 0 < h < 2/(L+μ) with linear rate, but for merely convex functions (μ=0) we have 0 < h < 2/L with sublinear rate. Note: Nesterov uses 'h' for step size; our codebase uses 'α'.",
+      "proofPages": [
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0082.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0085.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0086.png",
+        "docs/references/extracted-pages/introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr_page_0087.png"
+      ],
+      "verified": "2025-11-11",
+      "verifiedBy": "citation-creation-agent",
+      "verificationNotes": "Verified Theorem 2.1.14 and Corollary 2.1.2. Quote extracted from visual verification of PDF pages. The O(1/k) sublinear rate directly supports the claim that convergence is 'possibly slow'. All proof pages include necessary context (notation definition, gradient method setup, theorem statements).",
+      "usedIn": ["GdFixedTab"]
+    }
+  }
 }

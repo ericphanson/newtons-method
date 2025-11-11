@@ -8,6 +8,8 @@ import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Complexity } from '../Pseudocode';
+import { Citation } from '../Citation';
+import { References } from '../References';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { GDIteration } from '../../algorithms/gradient-descent';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -319,10 +321,10 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
-                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/L)
+                (requires <GlossaryTooltip termKey="smooth" /> function + 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ), where μ is strong convexity parameter)<Citation citationKey="gd-strongly-convex-linear-convergence" />
               </li>
               <li>
-                <strong>Convex:</strong> Converges to global minimum (possibly slowly)
+                <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence" />
               </li>
               <li>
                 <strong>Non-convex:</strong> May get stuck in local minima or saddle points
@@ -506,6 +508,8 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
           </div>
         </div>
       </CollapsibleSection>
+
+      <References usedIn="GdFixedTab" defaultExpanded={false} storageKey="gd-fixed-references" />
 
     </>
   );
