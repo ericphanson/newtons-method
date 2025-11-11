@@ -1,4 +1,5 @@
 import React from 'react';
+import { InlineMath } from '../components/Math';
 
 /**
  * Global glossary registry for mathematical and optimization terms
@@ -87,8 +88,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'smooth',
     definition: (
       <>
-        <strong>Smooth function:</strong> Has Lipschitz continuous gradient, meaning
-        ||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L. Equivalently: continuously
+        <strong>Smooth function:</strong> Has <InlineMath>L</InlineMath>-Lipschitz continuous gradient, meaning{' '}
+        <InlineMath>{String.raw`\|\nabla f(x) - \nabla f(y)\| \leq L\|x - y\|`}</InlineMath> for some constant <InlineMath>L</InlineMath>. Equivalently: continuously
         differentiable with bounded gradient variation. All test problems in this tool are smooth.
       </>
     ),
@@ -99,9 +100,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Strongly convex function:</strong> For twice-differentiable functions, has a
-        positive lower bound μ &gt; 0 on the Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere.
-        This is stronger than regular convexity (∇²f(x) ⪰ 0) and guarantees a unique global
-        minimum. The strong convexity parameter μ controls convergence speed.
+        positive lower bound <InlineMath>\mu</InlineMath> &gt; 0 on the Hessian eigenvalues: <InlineMath>{String.raw`\nabla^2 f(x) \succeq \mu I`}</InlineMath> everywhere.
+        This is stronger than regular convexity (<InlineMath>{String.raw`\nabla^2 f(x) \succeq 0`}</InlineMath>) and guarantees a unique global
+        minimum. The strong convexity parameter <InlineMath>\mu</InlineMath> controls convergence speed.
       </>
     ),
   },
@@ -111,9 +112,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Strongly convex function:</strong> For twice-differentiable functions, has a
-        positive lower bound μ &gt; 0 on the Hessian eigenvalues: ∇²f(x) ⪰ μI everywhere.
-        This is stronger than regular convexity (∇²f(x) ⪰ 0) and guarantees a unique global
-        minimum. The strong convexity parameter μ controls convergence speed.
+        positive lower bound <InlineMath>\mu</InlineMath> &gt; 0 on the Hessian eigenvalues: <InlineMath>{String.raw`\nabla^2 f(x) \succeq \mu I`}</InlineMath> everywhere.
+        This is stronger than regular convexity (<InlineMath>{String.raw`\nabla^2 f(x) \succeq 0`}</InlineMath>) and guarantees a unique global
+        minimum. The strong convexity parameter <InlineMath>\mu</InlineMath> controls convergence speed.
       </>
     ),
   },
@@ -123,7 +124,7 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Convex function:</strong> For twice-differentiable functions, has non-negative
-        Hessian eigenvalues: ∇²f(x) ⪰ 0 everywhere. Weaker than strong convexity; may have
+        Hessian eigenvalues: <InlineMath>{String.raw`\nabla^2 f(x) \succeq 0`}</InlineMath> everywhere. Weaker than strong convexity; may have
         slower convergence rates. Any local minimum is also a global minimum.
       </>
     ),
@@ -133,8 +134,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'Hessian',
     definition: (
       <>
-        <strong>Hessian matrix:</strong> The matrix of second partial derivatives ∇²f(x).
-        For f: ℝⁿ → ℝ, the Hessian H[i,j] = ∂²f/∂xᵢ∂xⱼ. Encodes local curvature
+        <strong>Hessian matrix:</strong> The matrix of second partial derivatives <InlineMath>{String.raw`\nabla^2 f(x)`}</InlineMath>.
+        For <InlineMath>{String.raw`f: \mathbb{R}^n \to \mathbb{R}`}</InlineMath>, the Hessian <InlineMath>{String.raw`H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}`}</InlineMath>. Encodes local curvature
         information. Positive definite Hessian indicates a local minimum; indefinite
         Hessian indicates a saddle point.
       </>
@@ -145,7 +146,7 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'eigenvalue',
     definition: (
       <>
-        <strong>Eigenvalue:</strong> A scalar λ such that Hv = λv for some non-zero vector v
+        <strong>Eigenvalue:</strong> A scalar <InlineMath>\lambda</InlineMath> such that <InlineMath>{String.raw`Hv = \lambda v`}</InlineMath> for some non-zero vector <InlineMath>v</InlineMath>{' '}
         (the eigenvector). For symmetric matrices like the Hessian, eigenvalues are real and
         indicate principal curvatures. Positive eigenvalues mean the function curves upward
         in that direction; negative eigenvalues mean it curves downward.
@@ -157,8 +158,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'quadratic convergence',
     definition: (
       <>
-        <strong>Quadratic convergence:</strong> The error is squared at each iteration:
-        ||eₖ₊₁|| ≤ C||eₖ||². This means the number of correct digits roughly doubles
+        <strong>Quadratic convergence:</strong> The error is squared at each iteration:{' '}
+        <InlineMath>{String.raw`\|e_{k+1}\| \leq C\|e_k\|^2`}</InlineMath>. This means the number of correct digits roughly doubles
         each iteration near the solution. Much faster than linear convergence.
         Newton's method achieves this under appropriate conditions.
       </>
@@ -170,8 +171,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Linear convergence:</strong> The error decreases by a constant factor each
-        iteration: ||eₖ₊₁|| ≤ ρ||eₖ|| for some 0 &lt; ρ &lt; 1. Requires O(log(1/ε))
-        iterations to reach ε accuracy. Gradient descent achieves this on strongly convex
+        iteration: <InlineMath>{String.raw`\|e_{k+1}\| \leq \rho\|e_k\|`}</InlineMath> for some 0 &lt; <InlineMath>\rho</InlineMath> &lt; 1. Requires <InlineMath>{String.raw`O(\log(1/\varepsilon))`}</InlineMath>{' '}
+        iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy. Gradient descent achieves this on strongly convex
         smooth functions.
       </>
     ),
@@ -181,8 +182,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'superlinear convergence',
     definition: (
       <>
-        <strong>Superlinear convergence:</strong> Faster than linear but not quite quadratic:
-        ||eₖ₊₁||/||eₖ|| → 0 as k → ∞. L-BFGS with sufficient memory achieves this on
+        <strong>Superlinear convergence:</strong> Faster than linear but not quite quadratic:{' '}
+        <InlineMath>{String.raw`\|e_{k+1}\|/\|e_k\| \to 0`}</InlineMath> as <InlineMath>{String.raw`k \to \infty`}</InlineMath>. L-BFGS with sufficient memory achieves this on
         strongly convex functions. Better than gradient descent, though not as fast as
         Newton's method.
       </>
@@ -193,7 +194,7 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'ill-conditioned',
     definition: (
       <>
-        <strong>Ill-conditioned problem:</strong> Has a large condition number (κ ≫ 1),
+        <strong>Ill-conditioned problem:</strong> Has a large condition number (<InlineMath>{String.raw`\kappa \gg 1`}</InlineMath>),
         meaning the Hessian has very different curvatures in different directions. This
         causes gradient descent to zig-zag slowly, while Newton's method adapts to the
         varying curvatures and converges much faster.
@@ -206,9 +207,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition: (
       <>
         <strong>Condition number:</strong> For positive definite Hessian, the ratio of largest
-        to smallest eigenvalue: κ = λₘₐₓ/λₘᵢₙ. Equivalently, κ = L/μ where L is the Lipschitz
-        constant and μ is the strong convexity parameter. Measures how "stretched" the problem
-        is. κ ≈ 1 means well-conditioned (easy); κ ≫ 1 means ill-conditioned (difficult for
+        to smallest eigenvalue: <InlineMath>{String.raw`\kappa = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>. Equivalently, <InlineMath>{String.raw`\kappa = L/\mu`}</InlineMath> where <InlineMath>L</InlineMath> is the Lipschitz
+        constant and <InlineMath>\mu</InlineMath> is the strong convexity parameter. Measures how "stretched" the problem
+        is. <InlineMath>{String.raw`\kappa \approx 1`}</InlineMath> means well-conditioned (easy); <InlineMath>{String.raw`\kappa \gg 1`}</InlineMath> means ill-conditioned (difficult for
         gradient descent).
       </>
     ),
@@ -218,8 +219,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'positive definite',
     definition: (
       <>
-        <strong>Positive definite matrix:</strong> A symmetric matrix H where all eigenvalues
-        are positive (λᵢ &gt; 0). Equivalently, xᵀHx &gt; 0 for all non-zero x. At a
+        <strong>Positive definite matrix:</strong> A symmetric matrix <InlineMath>H</InlineMath> where all eigenvalues
+        are positive (<InlineMath>{String.raw`\lambda_i > 0`}</InlineMath>). Equivalently, <InlineMath>{String.raw`x^T H x > 0`}</InlineMath> for all non-zero <InlineMath>x</InlineMath>. At a
         critical point, a positive definite Hessian guarantees a local minimum.
       </>
     ),
@@ -229,8 +230,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'Lipschitz continuous',
     definition: (
       <>
-        <strong>Lipschitz continuous gradient:</strong> The gradient doesn't change too
-        rapidly: ||∇f(x) - ∇f(y)|| ≤ L||x - y|| for some constant L (the Lipschitz constant).
+        <strong><InlineMath>L</InlineMath>-Lipschitz continuous gradient:</strong> The gradient doesn't change too
+        rapidly: <InlineMath>{String.raw`\|\nabla f(x) - \nabla f(y)\| \leq L\|x - y\|`}</InlineMath> for some constant <InlineMath>L</InlineMath> (the Lipschitz constant).
         This is the precise mathematical definition of "smooth" and enables convergence
         guarantees.
       </>
