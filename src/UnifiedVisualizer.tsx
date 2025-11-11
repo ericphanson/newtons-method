@@ -1469,11 +1469,15 @@ const UnifiedVisualizer = () => {
     const lossGrid: number[][] = [];
 
     // Compute loss landscape as 2D grid
+    // IMPORTANT: Array indexing (row-major) vs mathematical coordinates
+    // - Array: lossGrid[i][j] where i=row (vertical/y), j=column (horizontal/x)
+    // - Math:  f(w0, w1) where w0=x-axis (horizontal), w1=y-axis (vertical)
+    // Therefore: i → w1 (y-axis), j → w0 (x-axis)
     for (let i = 0; i < resolution; i++) {
       const row: number[] = [];
       for (let j = 0; j < resolution; j++) {
-        const w0 = minW0 + (i / resolution) * w0Range;
-        const w1 = minW1 + (j / resolution) * w1Range;
+        const w0 = minW0 + (j / resolution) * w0Range; // j is column index → x-axis → w0
+        const w1 = minW1 + (i / resolution) * w1Range; // i is row index → y-axis → w1
         // Use problem interface for loss computation (always 2D)
         const loss = problem.objective([w0, w1]);
         row.push(loss);
