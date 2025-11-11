@@ -2,7 +2,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { useMemo, useEffect, useRef, useContext } from 'react';
 import { KATEX_MACROS } from '../variables';
-import { PseudocodeContext } from './Pseudocode';
+import { PseudocodeContext } from './PseudocodeContext';
 
 interface MathProps {
   children: string;

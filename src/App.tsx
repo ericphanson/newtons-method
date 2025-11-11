@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UnifiedVisualizer from './UnifiedVisualizer';
-import { PseudocodeContext } from './components/Pseudocode';
+import { PseudocodeContext } from './components/PseudocodeContext';
 
 function App() {
   const [hoveredVar, setHoveredVar] = useState<string | null>(null);

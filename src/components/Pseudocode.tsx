@@ -1,15 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-// Context to track which variable is currently hovered
-interface PseudocodeContextType {
-  hoveredVar: string | null;
-  setHoveredVar: (id: string | null) => void;
-}
-
-export const PseudocodeContext = createContext<PseudocodeContextType>({
-  hoveredVar: null,
-  setHoveredVar: () => {},
-});
+import React, { useContext, useState, ReactNode } from 'react';
+import { PseudocodeContext } from './PseudocodeContext';
 
 // Component for a variable reference in pseudocode
 interface VarProps {
