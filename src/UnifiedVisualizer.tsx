@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import { useAlgorithmIterations } from './hooks/useAlgorithmIterations';
+import { useDebounce } from './hooks/useDebounce';
 import {
   DataPoint,
   generateCrescents,
@@ -109,6 +110,19 @@ const UnifiedVisualizer = () => {
   // Ref to prevent problemParameters reset during experiment loading
   const isLoadingExperimentRef = useRef(false);
 
+  // Refs for throttling iteration updates (30fps max to reduce canvas redraw cost)
+  const lastIterationUpdateTimeRef = useRef(0);
+  const pendingIterationUpdateRef = useRef<number | null>(null);
+
+  // Cleanup: Cancel pending iteration update on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingIterationUpdateRef.current !== null) {
+        cancelAnimationFrame(pendingIterationUpdateRef.current);
+      }
+    };
+  }, []);
+
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm, skipScroll = false) => {
     const currentHash = window.location.hash;
@@ -160,6 +174,10 @@ const UnifiedVisualizer = () => {
   const [toast, setToast] = useState<{ content: React.ReactNode; type: 'success' | 'error' | 'info'; duration?: number } | null>(null);
 
   const data = useMemo(() => [...baseData, ...customPoints], [baseData, customPoints]);
+
+  // Debounce problemParameters for expensive computations (300ms delay)
+  // This prevents UI stuttering when user drags parameter sliders
+  const debouncedProblemParameters = useDebounce(problemParameters, 300);
 
   // Get current problem definition (logistic regression or from registry)
   const getCurrentProblem = useCallback(() => {
@@ -216,16 +234,32 @@ const UnifiedVisualizer = () => {
   // Currently only dataset problems compute global minimum via L-BFGS
   // This is used for viewport centering and visualization purposes.
   // See: docs/plans/2025-11-10-dataset-problems-registry-migration.md
+  //
+  // PERFORMANCE: Uses debounced parameters to avoid blocking UI during slider drag
   useEffect(() => {
     if (requiresDataset(currentProblem)) {
       try {
-        const problemFuncs = getCurrentProblemFunctions();
+        // Resolve problem with debounced parameters to avoid expensive recomputation on every drag
+        const entry = problemRegistryV2[currentProblem];
+        const problem = resolveProblem(
+          currentProblem,
+          debouncedProblemParameters,
+          entry?.requiresDataset ? data : undefined
+        );
+
+        const problemFuncs: ProblemFunctions = {
+          objective: problem.objective,
+          gradient: problem.gradient,
+          hessian: problem.hessian,
+          dimensionality: 2,
+        };
+
         // Run L-BFGS with tight convergence to find global minimum
         const result = runLBFGS(problemFuncs, {
           maxIter: 1000,
           m: 10,
           c1: 0.0001,
-          lambda,
+          lambda: (debouncedProblemParameters.lambda as number) ?? 0.0001,
           hessianDamping: 0.01, // Use default damping for stability
           initialPoint: [0, 0],
           tolerance: 1e-10, // Very tight tolerance for accurate minimum
@@ -245,8 +279,7 @@ const UnifiedVisualizer = () => {
     } else {
       setLogisticGlobalMin(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- getCurrentProblemFunctions is a stable memoized function; its dependencies (currentProblem, data, problemParameters) are already in the array
-  }, [currentProblem, data, problemParameters, lambda]);
+  }, [currentProblem, data, debouncedProblemParameters]);
 
   // Automatically update URL hash based on visible section
   useEffect(() => {
@@ -457,6 +490,7 @@ const UnifiedVisualizer = () => {
   }, [iterationProportion, getCurrentAlgorithmData]);
 
   // Handle iteration change from UI (slider, keyboard, etc.)
+  // PERFORMANCE: Throttled to 30fps (33ms) to reduce canvas redraw cost
   const handleIterationChange = useCallback((newIter: number) => {
     const { history } = getCurrentAlgorithmData();
     const maxIter = history.length - 1;
@@ -471,7 +505,27 @@ const UnifiedVisualizer = () => {
                        newIter >= maxIter ? 1.0 :
                        newIter / maxIter;
 
-    setIterationProportion(proportion);
+    // Throttle updates to max 30fps (33ms between updates)
+    const now = performance.now();
+    const timeSinceLastUpdate = now - lastIterationUpdateTimeRef.current;
+    const THROTTLE_MS = 33; // 30fps
+
+    if (timeSinceLastUpdate < THROTTLE_MS) {
+      // Too soon - schedule update for later using RAF
+      if (pendingIterationUpdateRef.current !== null) {
+        cancelAnimationFrame(pendingIterationUpdateRef.current);
+      }
+
+      pendingIterationUpdateRef.current = requestAnimationFrame(() => {
+        setIterationProportion(proportion);
+        lastIterationUpdateTimeRef.current = performance.now();
+        pendingIterationUpdateRef.current = null;
+      });
+    } else {
+      // Enough time has passed - update immediately
+      setIterationProportion(proportion);
+      lastIterationUpdateTimeRef.current = now;
+    }
   }, [getCurrentAlgorithmData]);
 
   // Helper function to calculate parameter bounds from iterations

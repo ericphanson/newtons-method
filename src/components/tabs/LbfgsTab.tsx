@@ -219,23 +219,41 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {iterations[currentIter].allCurvaturePairs.map((pair, idx) => {
-                  return (
-                    <tr key={idx} className={`border-t ${pair.accepted ? 'border-amber-200' : 'border-red-200 bg-red-50'}`}>
-                      <td className="px-4 py-2 font-mono">{idx + 1}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(pair.s)}</td>
-                      <td className="px-4 py-2 font-mono">{fmtVec(pair.y)}</td>
-                      <td className="px-4 py-2 font-mono">{fmt(pair.sTy)}</td>
-                      <td className="px-4 py-2">
-                        {pair.accepted ? (
-                          <span className="text-green-700 font-bold">✓ Accepted</span>
-                        ) : (
-                          <span className="text-red-700 font-bold">✗ Rejected</span>
-                        )}
-                      </td>
-                    </tr>
+                {(() => {
+                  // Find which accepted pairs are in active memory (last M accepted pairs)
+                  const acceptedPairs = iterations[currentIter].allCurvaturePairs
+                    .map((p, idx) => ({ pair: p, originalIdx: idx }))
+                    .filter(p => p.pair.accepted);
+                  const activeMemoryStartIdx = Math.max(0, acceptedPairs.length - lbfgsM);
+                  const activeMemoryIndices = new Set(
+                    acceptedPairs.slice(activeMemoryStartIdx).map(p => p.originalIdx)
                   );
-                })}
+
+                  return iterations[currentIter].allCurvaturePairs.map((pair, idx) => {
+                    const isInActiveMemory = activeMemoryIndices.has(idx);
+                    const isGrayedOut = !isInActiveMemory;
+
+                    return (
+                      <tr key={idx} className={`border-t ${
+                        isInActiveMemory ? 'border-amber-200' : 'border-gray-200 bg-gray-50'
+                      }`}>
+                        <td className={`px-4 py-2 font-mono ${isGrayedOut ? 'text-gray-400' : ''}`}>{idx + 1}</td>
+                        <td className={`px-4 py-2 font-mono ${isGrayedOut ? 'text-gray-400' : ''}`}>{fmtVec(pair.s)}</td>
+                        <td className={`px-4 py-2 font-mono ${isGrayedOut ? 'text-gray-400' : ''}`}>{fmtVec(pair.y)}</td>
+                        <td className={`px-4 py-2 font-mono ${isGrayedOut ? 'text-gray-400' : ''}`}>{fmt(pair.sTy)}</td>
+                        <td className="px-4 py-2">
+                          {pair.accepted ? (
+                            <span className={`font-bold ${isInActiveMemory ? 'text-green-700' : 'text-gray-400'}`}>
+                              ✓ Accepted{!isInActiveMemory && ' (evicted)'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 font-bold">✗ Rejected</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           </div>
@@ -251,15 +269,134 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
       <div className="bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-lg shadow-md p-6 mb-6" data-scroll-target="two-loop-recursion">
         <h2 className="text-2xl font-bold text-indigo-900 mb-4">Two-Loop Recursion Details</h2>
         <div className="space-y-3 text-gray-800 mb-4">
-          <p><strong>Goal:</strong> Compute p ≈ -H⁻¹∇f using only the stored (s, y) pairs.</p>
-          <p><strong>Intuition:</strong> Transform the gradient by "undoing" the effect of past updates (first loop), scale by typical curvature, then "redo" them with corrections (second loop).</p>
+          <p><strong>The challenge:</strong> We have M={lbfgsM} memory pairs (s, y) showing how parameters and gradients changed. How can we get an inverse Hessian approximation H⁻¹ from this?</p>
+
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+            <p className="font-semibold text-blue-900 mb-3">Building intuition from Taylor expansion:</p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian:<br/>
+              <span className="ml-4 inline-block my-1">
+                <InlineMath>{String.raw`\nabla f(x_{\text{new}}) \approx \nabla f(x_{\text{old}}) + H \cdot s`}</InlineMath>
+              </span><br/>
+              where <InlineMath>{String.raw`s = x_{\text{new}} - x_{\text{old}}`}</InlineMath> is the parameter change.
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>2. Rearranging:</strong> Define <InlineMath>{String.raw`y = \nabla f(x_{\text{new}}) - \nabla f(x_{\text{old}})`}</InlineMath> (gradient change). Then:<br/>
+              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`y = H \cdot s`}</InlineMath></span><br/>
+              <span className="ml-4 inline-block my-1"><InlineMath>{String.raw`H^{-1} \cdot y = s`}</InlineMath></span> (the <strong>secant equation</strong>)
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>3. Why we want this:</strong> If our approximate inverse Hessian <InlineMath>{String.raw`B^{-1}`}</InlineMath> satisfies <InlineMath>{String.raw`B^{-1} \cdot y = s`}</InlineMath> for all our observed <InlineMath>(s, y)</InlineMath> pairs, then <InlineMath>{String.raw`B^{-1}`}</InlineMath> plays the same role as <InlineMath>{String.raw`H^{-1}`}</InlineMath> in the Taylor expansion. It correctly relates parameter changes to gradient changes!
+            </p>
+
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>4. Iterative updates:</strong> Given a new pair <InlineMath>(s_k, y_k)</InlineMath>, how do we update our approximate Hessian <InlineMath>B_k</InlineMath> to satisfy the new secant equation? The BFGS update is:
+            </p>
+            <div className="ml-4 my-2">
+              <BlockMath>{String.raw`B_{k+1} = (I - \rho_k s_k y_k^T) B_k (I - \rho_k y_k s_k^T) + \rho_k s_k s_k^T`}</BlockMath>
+            </div>
+            <p className="text-sm text-blue-800">
+              where <InlineMath>{String.raw`\rho_k = 1/(s_k^T y_k)`}</InlineMath>.
+            </p>
+
+            <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
+              <p className="text-sm text-blue-900 font-semibold mb-2">
+                Verification: Does <InlineMath>{String.raw`B_{k+1} y_k = s_k`}</InlineMath>?
+              </p>
+              <p className="text-xs text-blue-800 mb-2">
+                Multiply the BFGS formula by <InlineMath>y_k</InlineMath>:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`B_{k+1} y_k = \left[(I - \rho s y^T) B_k (I - \rho y s^T) + \rho s s^T\right] y_k`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                <strong>Key step:</strong> What is <InlineMath>(I - \rho y s^T) y_k</InlineMath>?
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - \rho y (s^T y_k) = y_k - \rho (s^T y) y_k`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                Since <InlineMath>{String.raw`\rho = 1/(s^T y)`}</InlineMath>, we have <InlineMath>{String.raw`\rho(s^T y) = 1`}</InlineMath>, so:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`(I - \rho y s^T) y_k = y_k - y_k = \mathbf{0}`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mb-2">
+                Therefore the entire <InlineMath>B_k</InlineMath> term vanishes! We're left with:
+              </p>
+              <div className="ml-2 my-2">
+                <BlockMath>{String.raw`B_{k+1} y_k = (I - \rho s y^T) B_k \cdot \mathbf{0} + \rho s s^T y_k = \rho (s^T y) s = s_k \,\checkmark`}</BlockMath>
+              </div>
+              <p className="text-xs text-blue-800 mt-2">
+                <strong>The magic:</strong> The formula is specifically designed so <InlineMath>B_k</InlineMath> drops out completely when multiplied by <InlineMath>y_k</InlineMath>, leaving only the new curvature information <InlineMath>s_k</InlineMath>.
+              </p>
+            </div>
+
+            <p className="text-sm text-blue-800 mt-2">
+              <strong>5. Why rank-2?</strong> This update can be decomposed into two rank-1 operations:<br/>
+              • <strong>Rank-1 removal:</strong> Subtract out the "old guess" about curvature (term with <InlineMath>B_k y</InlineMath>)<br/>
+              • <strong>Rank-1 addition:</strong> Add the "new observation" about curvature (term with <InlineMath>s_k s_k^T</InlineMath>)<br/>
+              <br/>
+              We need both because we have one vector constraint (the secant equation) but must maintain symmetry (<InlineMath>B = B^T</InlineMath>). A single rank-1 update can't do both. The rank-2 update is the minimal symmetric modification that satisfies the secant equation while preserving positive definiteness.
+            </p>
+
+            <p className="text-sm text-blue-800 mt-2 font-semibold">
+              L-BFGS applies M of these updates sequentially starting from <InlineMath>B_0 = (1/\gamma)I</InlineMath>, but <strong>never forms the matrix</strong> - the two-loop recursion below implicitly applies all M updates to compute <InlineMath>{String.raw`B^{-1}\nabla f`}</InlineMath>!
+            </p>
+          </div>
+
+          <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
+            <p className="font-semibold text-green-900 mb-3">How the two-loop recursion implements the updates:</p>
+
+            <p className="text-sm text-green-800 mb-2">
+              <strong>The challenge:</strong> We've applied M BFGS updates to get <InlineMath>{String.raw`B_0 \to B_1 \to \cdots \to B_M`}</InlineMath>. Now we need <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath>, but forming <InlineMath>B_M</InlineMath> or <InlineMath>{String.raw`B_M^{-1}`}</InlineMath> explicitly would cost O(n²) space!
+            </p>
+
+            <p className="text-sm text-green-800 mb-2">
+              <strong>Key observation:</strong> Each BFGS update has a special structure. The inverse of the update can be written as:
+            </p>
+            <div className="ml-4 my-2">
+              <BlockMath>{String.raw`B_{k+1}^{-1} = \text{(apply inverse of rank-2 update)} \circ B_k^{-1}`}</BlockMath>
+            </div>
+
+            <p className="text-sm text-green-800 mb-2">
+              So computing <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> is like peeling an onion:
+            </p>
+            <div className="ml-4 my-2 text-sm text-green-800">
+              <BlockMath>{String.raw`B_M^{-1} \nabla f = (\text{undo update M}) \circ (\text{undo update M-1}) \circ \cdots \circ (\text{undo update 1}) \circ B_0^{-1} \nabla f`}</BlockMath>
+            </div>
+
+            <p className="text-sm text-green-800 mt-3">
+              <strong>The two-loop algorithm does exactly this:</strong>
+            </p>
+            <ul className="text-sm text-green-800 ml-6 list-disc space-y-1">
+              <li><strong>First loop (backward):</strong> Undo updates M, M-1, ..., 1 in reverse order, transforming <InlineMath>{String.raw`\nabla f \to q`}</InlineMath></li>
+              <li><strong>Middle step:</strong> Apply <InlineMath>{String.raw`B_0^{-1} = \gamma I`}</InlineMath> to get <InlineMath>r = \gamma q</InlineMath></li>
+              <li><strong>Second loop (forward):</strong> Re-apply updates 1, 2, ..., M but on the transformed vector, adjusting <InlineMath>r</InlineMath> to get <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath></li>
+            </ul>
+
+            <p className="text-sm text-green-800 mt-3 font-semibold">
+              Result: We compute <InlineMath>{String.raw`B_M^{-1} \nabla f`}</InlineMath> using only the stored vectors (s, y), never forming any matrix!
+            </p>
+          </div>
+
           <p><strong>Efficiency:</strong> O(m·n) = O({lbfgsM}·3) = {lbfgsM * 3} operations vs O(n³) = O(27) for full Hessian inversion!</p>
         </div>
 
         {iterations[currentIter]?.twoLoopData ? (
           <>
             <h3 className="text-xl font-bold text-indigo-800 mb-3">First Loop (Backward Pass)</h3>
-            <p className="text-gray-800 mb-3">Start with q = ∇f. For each stored pair (newest to oldest), remove its effect on the gradient.</p>
+            <p className="text-gray-800 mb-3">
+              <strong>What we're doing:</strong> Transform the gradient ∇f into a vector q that "forgets" the direct effect of our stored pairs.
+              Start with q = ∇f, then for each pair (newest to oldest), compute how much that pair contributes (αᵢ = ρᵢ(sᵢᵀq)) and subtract its gradient effect: q ← q - αᵢyᵢ.
+            </p>
+            <p className="text-gray-700 text-sm mb-3">
+              <strong>Why backward?</strong> We process pairs from newest to oldest because recent pairs capture the most relevant local curvature.
+              The algorithm builds up α values that we'll use in the second loop.
+            </p>
             <div className="overflow-x-auto mb-6">
               <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
                 <thead className="bg-indigo-200">
@@ -288,11 +425,21 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <div className="bg-indigo-200 rounded p-4 mb-6">
               <h3 className="text-lg font-bold text-indigo-900 mb-2">Initial Hessian Scaling</h3>
               <p className="font-mono">γ = (sₘᵀyₘ)/(yₘᵀyₘ) = {fmt(iterations[currentIter].twoLoopData!.gamma)}</p>
-              <p className="mt-2">r = γq. This estimates typical curvature from the most recent pair.</p>
+              <p className="mt-2">
+                <strong>r = γq.</strong> This scales q by typical curvature estimated from the most recent memory pair.
+                Think of γ as a "base learning rate" that captures the overall scale of the problem. Then r = γq gives us H₀⁻¹∇f where H₀ = (1/γ)I is our initial Hessian approximation.
+              </p>
             </div>
 
             <h3 className="text-xl font-bold text-indigo-800 mb-3">Second Loop (Forward Pass)</h3>
-            <p className="text-gray-800 mb-3">Now apply corrections by adding back scaled parameter changes.</p>
+            <p className="text-gray-800 mb-3">
+              <strong>What we're doing:</strong> Refine r by adding back corrections from our memory pairs (oldest to newest).
+              For each pair, compute β = ρᵢ(yᵢᵀr) (how much that pair affects our current direction), then add a correction term (αᵢ - β)sᵢ.
+            </p>
+            <p className="text-gray-700 text-sm mb-3">
+              <strong>Why forward?</strong> We build up the solution from the base H₀⁻¹ by progressively applying corrections from older to newer pairs.
+              Each correction adjusts our direction to account for curvature captured by that pair. The final r ≈ H⁻¹∇f is our quasi-Newton direction!
+            </p>
             <div className="overflow-x-auto mb-4">
               <table className="min-w-full bg-white rounded-lg overflow-hidden text-sm">
                 <thead className="bg-indigo-200">

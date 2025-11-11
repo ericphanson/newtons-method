@@ -71,6 +71,7 @@ export interface LBFGSIteration {
     armijoValues: number[];
   };
   curvaturePair: CurvaturePair | null;  // Attempted curvature pair for this iteration (may be rejected)
+  allCurvaturePairs: CurvaturePair[];  // Complete history of all attempted pairs (accepted and rejected)
   hessianComparison: HessianComparison | null;  // Only computed when memory has data
 }
 
@@ -219,6 +220,7 @@ export const runLBFGS = (
   let w = initialPoint || [0.1, 0.1];
 
   const memory: MemoryPair[] = [];
+  const allCurvaturePairs: CurvaturePair[] = [];  // Track all attempted pairs for pedagogy
 
   for (let iter = 0; iter < maxIter; iter++) {
     const loss = problem.objective(w);
@@ -321,6 +323,10 @@ export const runLBFGS = (
           : 'Near-zero curvature (numerical safety) - rejected'
       };
 
+      // Add to complete history (for pedagogy)
+      allCurvaturePairs.push(curvaturePair);
+
+      // Only add to memory if accepted (for actual computation)
       if (accepted) {
         memory.push({ s, y, rho: 1 / sTy });
         if (memory.length > M) memory.shift();
@@ -377,6 +383,7 @@ export const runLBFGS = (
       lineSearchTrials: lineSearchResult.trials,
       lineSearchCurve: lineSearchResult.curve,
       curvaturePair,
+      allCurvaturePairs: allCurvaturePairs.map(p => ({ ...p })),
       hessianComparison
     });
 

@@ -59,6 +59,25 @@ export const lbfgsExperiments: ExperimentPreset[] = [
     },
   },
   {
+    id: 'lbfgs-quadratic-rotated',
+    name: 'Rotated Ellipse: Building Curvature Memory',
+    description: 'Watch L-BFGS incrementally learn the rotated problem structure',
+    algorithm: 'lbfgs',
+    problem: 'quadratic',
+    problemParameters: { kappa: 5, rotationAngle: 45 },
+    hyperparameters: {
+      c1: 0.0001,
+      lambda: 0,
+      m: 5,
+      maxIter: 50,
+    },
+    initialPoint: [2, 2],
+    expectation: 'Observe: Early iterations use steepest descent, then memory builds up and approximation improves',
+    ui: {
+      tone: 'purple',
+    },
+  },
+  {
     id: 'lbfgs-himmelblau-success',
     name: 'Success: Himmelblau Basin of Convergence',
     description: 'L-BFGS finds 4 correct minima, converges from all initial points',
