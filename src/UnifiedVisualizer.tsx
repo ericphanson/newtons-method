@@ -109,25 +109,10 @@ const UnifiedVisualizer = () => {
   // Ref to prevent problemParameters reset during experiment loading
   const isLoadingExperimentRef = useRef(false);
 
-  // Refs to track pending animation frames for cleanup
-  const pendingAnimationFramesRef = useRef<number[]>([]);
-
-  // Cleanup: Cancel all pending animation frames on unmount
-  useEffect(() => {
-    return () => {
-      pendingAnimationFramesRef.current.forEach(id => cancelAnimationFrame(id));
-      pendingAnimationFramesRef.current = [];
-    };
-  }, []);
-
   // Hash-preserving tab change handler
   const handleTabChange = (newTab: Algorithm, skipScroll = false) => {
     const currentHash = window.location.hash;
     console.log('[TAB CHANGE] Starting - currentHash:', currentHash, 'newTab:', newTab, 'skipScroll:', skipScroll);
-
-    // Cancel any pending animation frames from previous tab changes
-    pendingAnimationFramesRef.current.forEach(id => cancelAnimationFrame(id));
-    pendingAnimationFramesRef.current = [];
 
     // Disable IntersectionObserver updates BEFORE tab switch
     isNavigatingRef.current = true;
@@ -139,42 +124,30 @@ const UnifiedVisualizer = () => {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
 
-    setSelectedTab(newTab);
-    console.log('[TAB CHANGE] Called setSelectedTab');
+    // Use flushSync to force synchronous rendering - DOM will be ready immediately
+    flushSync(() => {
+      setSelectedTab(newTab);
+    });
+    console.log('[TAB CHANGE] Called setSelectedTab with flushSync - DOM is now ready');
 
-    // After React renders the new tab, try to scroll to the hash if it exists
+    // DOM is now guaranteed updated - scroll to hash if it exists
     if (currentHash && !skipScroll) {
-      // Use requestAnimationFrame for minimal delay (one frame ~16ms)
-      const frameId1 = requestAnimationFrame(() => {
-        console.log('[TAB CHANGE] After one frame, looking for element:', currentHash);
-        const targetElement = document.querySelector(currentHash);
-        if (targetElement) {
-          console.log('[TAB CHANGE] Found element, scrolling to it instantly');
-          targetElement.scrollIntoView({ block: 'start' });
-          // Restore hash after scrolling
-          console.log('[TAB CHANGE] Restoring hash to URL');
-          window.history.replaceState(null, '', window.location.pathname + window.location.search + currentHash);
-        } else {
-          console.log('[TAB CHANGE] Element not found (fallback A)');
-        }
-        // Fallback strategy A: if element doesn't exist, do nothing (maintain scroll)
-
-        // Re-enable IntersectionObserver after instant scroll (one more frame)
-        const frameId2 = requestAnimationFrame(() => {
-          console.log('[TAB CHANGE] After instant scroll, setting isNavigatingRef = false');
-          isNavigatingRef.current = false;
-        });
-        pendingAnimationFramesRef.current.push(frameId2);
-      });
-      pendingAnimationFramesRef.current.push(frameId1);
-    } else {
-      // If no hash to preserve, re-enable observer after render
-      const frameId = requestAnimationFrame(() => {
-        console.log('[TAB CHANGE] No hash, setting isNavigatingRef = false after one frame');
-        isNavigatingRef.current = false;
-      });
-      pendingAnimationFramesRef.current.push(frameId);
+      console.log('[TAB CHANGE] Looking for element:', currentHash);
+      const targetElement = document.querySelector(currentHash);
+      if (targetElement) {
+        console.log('[TAB CHANGE] Found element, scrolling to it');
+        targetElement.scrollIntoView({ block: 'start' });
+        // Restore hash after scrolling
+        console.log('[TAB CHANGE] Restoring hash to URL');
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + currentHash);
+      } else {
+        console.log('[TAB CHANGE] Element not found');
+      }
     }
+
+    // Re-enable IntersectionObserver immediately
+    console.log('[TAB CHANGE] Re-enabling IntersectionObserver');
+    isNavigatingRef.current = false;
   };
 
   // Problem state
