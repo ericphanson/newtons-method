@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InlineMath } from './Math';
 import { DataPoint } from '../shared-utils';
-import { resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2, requiresDataset } from '../problems';
+import { resolveProblem, getDefaultParameters, getProblemKeyInsights, problemRegistryV2, requiresDataset, PROBLEM_ORDER } from '../problems';
 import { getProblemDefaults } from '../utils/problemDefaults';
 import { ProblemExplainer } from './ProblemExplainer';
 import { SeparatingHyperplaneVariant } from '../types/experiments';
@@ -123,13 +123,11 @@ export const ProblemConfiguration: React.FC<ProblemConfigurationProps> = ({
             onChange={(e) => handleProblemChange(e.target.value)}
             className="px-2 py-1 border border-gray-300 rounded text-sm bg-white font-medium"
           >
-            <option value="logistic-regression">Logistic Regression</option>
-            <option value="quadratic">Quadratic Bowl</option>
-            <option value="rosenbrock">Rosenbrock Function</option>
-            <option value="non-convex-saddle">Saddle Point</option>
-            <option value="himmelblau">Himmelblau's Function</option>
-            <option value="three-hump-camel">Three-Hump Camel</option>
-            <option value="separating-hyperplane">Separating Hyperplane</option>
+            {PROBLEM_ORDER.map(problemKey => (
+              <option key={problemKey} value={problemKey}>
+                {problemRegistryV2[problemKey]?.displayName || problemKey}
+              </option>
+            ))}
           </select>
           <button
             onClick={() => setShowProblemExplainer(true)}

@@ -212,13 +212,13 @@ export const problemRegistryV2: Record<string, ProblemRegistryEntry> = {
  * Single source of truth for problem ordering in ProblemExplainer and other components
  */
 export const PROBLEM_ORDER = [
-  'logistic-regression',
-  'separating-hyperplane',
   'quadratic',
   'rosenbrock',
   'non-convex-saddle',
   'himmelblau',
   'three-hump-camel',
+  'logistic-regression',
+  'separating-hyperplane',
 ] as const;
 
 /**
