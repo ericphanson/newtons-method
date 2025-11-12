@@ -11,6 +11,7 @@ import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
+import { ParamSweep } from '../ParamSweep';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { GDLineSearchIteration } from '../../algorithms/gradient-descent-linesearch';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -69,6 +70,21 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('gd-linesearch'),
     []
+  );
+
+  // Memoize param sweep config to prevent re-computation on currentIter changes
+  const paramSweepConfig = React.useMemo(
+    () => ({
+      baseParams: {
+        maxIter,
+        tolerance: gdLSTolerance,
+        initialPoint: [initialW0, initialW1] as [number, number]
+      },
+      paramValues: Array.from({ length: 10 }, (_, i) =>
+        Math.pow(10, -5 + (i / 9) * 5)  // Range from 10^-5 to 10^0 (1)
+      )
+    }),
+    [maxIter, gdLSTolerance, initialW0, initialW1]
   );
 
   return (
@@ -167,6 +183,29 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           </div>
         )}
       </div>
+
+      {/* c₁ Parameter Sweep */}
+      {iterations.length > 0 && (
+        <div className="mb-6 bg-white rounded-lg shadow-md p-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-2">
+            How c₁ Affects Convergence
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Running the algorithm 10 times with different c₁ values on your current problem
+            from initial point [{initialW0.toFixed(2)}, {initialW1.toFixed(2)}].
+          </p>
+          <ParamSweep
+            algorithm="gd-linesearch"
+            problemFuncs={problemFuncs}
+            baseParams={paramSweepConfig.baseParams}
+            paramName="c1"
+            paramDisplayName="c₁"
+            paramValues={paramSweepConfig.paramValues}
+            paramFormatter={(v) => v.toExponential(1)}
+            showLineSearchTrials={true}
+          />
+        </div>
+      )}
 
       {/* Quick Start */}
       <CollapsibleSection
@@ -325,8 +364,8 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               </p>
               <p className="text-sm text-blue-800 mb-2">
                 The choice of c₁ affects the <strong>constant</strong> in the convergence bound but not the asymptotic
-                rate. Smaller c₁ makes the sufficient decrease condition easier to satisfy (larger steps accepted),
-                while larger c₁ requires more decrease per step.
+                rate. Smaller c₁ is less strict, accepting steps more easily during backtracking. Larger c₁ is more demanding,
+                requiring greater actual decrease.
               </p>
               <p className="text-sm text-blue-800 mt-3">
                 <strong>Practice:</strong> The value c₁ = 10⁻⁴ is widely used based on empirical experience,

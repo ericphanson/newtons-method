@@ -19,6 +19,7 @@ interface LineChartProps {
   transparentBackground?: boolean; // Use transparent background instead of white
   showLegend?: boolean; // Show legend for the series
   forceYMin?: number; // Force y-axis minimum value (e.g., 0 for non-negative data)
+  xTickLabels?: string[]; // Custom labels for x-axis ticks (instead of showing indices)
 }
 
 const VIEW_WIDTH = 600;
@@ -35,6 +36,7 @@ export const LineChart: React.FC<LineChartProps> = ({
   transparentBackground = false,
   showLegend = true,
   forceYMin,
+  xTickLabels,
 }) => {
   const VIEW_HEIGHT = height;
 
@@ -237,7 +239,7 @@ export const LineChart: React.FC<LineChartProps> = ({
                 fontSize="10"
                 fill="#6b7280"
               >
-                {tick}
+                {xTickLabels && tick < xTickLabels.length ? xTickLabels[tick] : tick}
               </text>
             </g>
           );
