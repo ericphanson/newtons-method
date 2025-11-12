@@ -365,88 +365,37 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </ul>
 
             <p className="text-sm text-blue-800 mb-2">
-              <strong>Newton's Method:</strong> <InlineMath>{String.raw`\varW_{k+1} = \varW_k - \varHInv\varGrad`}</InlineMath>
-            </p>
-            <ul className="list-disc ml-6 space-y-1 text-sm text-blue-800">
-              <li><InlineMath>\varHInv</InlineMath> provides direction-specific step sizes based on curvature</li>
-              <li>On <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>: automatically uses 100× smaller step in <InlineMath>w_1</InlineMath> direction</li>
-              <li>Result: no zig-zagging, straight to minimum</li>
-            </ul>
-
-            <p className="text-sm mt-3 italic text-blue-800">
-              Line search: "One size fits all (per iteration)."
-              Newton: "Custom fit for each direction."
-            </p>
-          </div>
-
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
-            <p className="font-semibold text-blue-900 mb-3">💡 What About Per-Coordinate Step Sizes?</p>
-
-            <p className="text-sm text-blue-800 mb-3">
-              Natural question: If different directions need different step sizes,
-              what if we use just the <strong>diagonal</strong> of the Hessian - one step size per coordinate?
-            </p>
-
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>This is called diagonal preconditioning.</strong> Let <InlineMath>D</InlineMath> be a d×d diagonal matrix
-              where <InlineMath>{String.raw`D_{ii} = 1/H_{ii}`}</InlineMath> (i-th diagonal entry of <InlineMath>\varH</InlineMath>):
-            </p>
-            <BlockMath>{String.raw`\varW_{\text{new}} = \varW_{\text{old}} - D \cdot \varGrad, \quad \text{where } D = \text{diag}(1/H_{00}, 1/H_{11}, \ldots, 1/H_{dd})`}</BlockMath>
-
-            <p className="text-sm text-blue-800 mb-3 mt-3">
-              <strong>Good news:</strong> We've implemented this! See the {onNavigateToTab ? (
+              <strong>{onNavigateToTab ? (
                 <button
                   onClick={() => onNavigateToTab('diagonal-precond')}
-                  className="font-semibold text-blue-700 hover:text-blue-900 underline cursor-pointer"
+                  className="font-semibold text-blue-800 hover:text-blue-900 underline cursor-pointer"
                 >
                   Diagonal Preconditioning
                 </button>
               ) : (
-                <strong>Diagonal Preconditioning</strong>
-              )} tab
-              to try it directly.
+                <span>Diagonal Preconditioning</span>
+              )}:</strong> Different <InlineMath>\varAlpha</InlineMath> per coordinate
             </p>
+            <ul className="list-disc ml-6 space-y-1 text-sm mb-3 text-blue-800">
+              <li>Uses diagonal of <InlineMath>\varH</InlineMath> to scale each coordinate independently</li>
+              <li>On <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>: uses 100× smaller step in <InlineMath>w_1</InlineMath> direction</li>
+              <li>But misses rotation information from off-diagonal terms - can't fix all zig-zagging</li>
+            </ul>
 
-            <div className="space-y-3">
-              <div className="bg-green-50 border border-green-200 rounded p-3">
-                <p className="font-semibold text-green-900 mb-1">✓ Works perfectly on axis-aligned problems</p>
-                <p className="text-sm text-gray-700">
-                  When <InlineMath>\varH</InlineMath> is diagonal (e.g., <InlineMath>f(w_0, w_1) = w_0^2 + 100w_1^2</InlineMath>), diagonal
-                  preconditioning gives <InlineMath>D = \varHInv</InlineMath> exactly! Converges like full Newton's method.
-                </p>
-              </div>
-
-              <div className="bg-red-50 border border-red-200 rounded p-3">
-                <p className="font-semibold text-red-900 mb-1">✗ Struggles when problem is rotated</p>
-                <p className="text-sm text-gray-700 mb-2">
-                  Example: <InlineMath>f(w_0, w_1) = (w_0+w_1)^2 + 100(w_0-w_1)^2</InlineMath> has a diagonal valley.
-                </p>
-                <ul className="list-disc ml-6 space-y-1 text-sm text-gray-700">
-                  <li>The Hessian has large off-diagonal terms that capture coordinate coupling</li>
-                  <li>Diagonal approximation misses this rotation information</li>
-                  <li>Result: zig-zagging, slow convergence</li>
-                </ul>
-              </div>
-            </div>
-
-            <p className="text-sm text-blue-800 mb-2 mt-3"><strong>Full Newton's matrix <InlineMath>\varHInv</InlineMath> handles both:</strong></p>
+            <p className="text-sm text-blue-800 mb-2">
+              <strong>Newton's Method:</strong> <InlineMath>{String.raw`\varW_{k+1} = \varW_k - \varHInv\varGrad`}</InlineMath>
+            </p>
             <ul className="list-disc ml-6 space-y-1 text-sm text-blue-800">
-              <li>SCALE: Different step sizes per direction (like diagonal preconditioning)</li>
-              <li>ROTATE: Align with problem geometry via off-diagonal terms</li>
-              <li>This is why we need d² values (full matrix) not just d values (diagonal)</li>
+              <li><InlineMath>\varHInv</InlineMath> provides direction-specific step sizes based on full curvature matrix</li>
+              <li>Handles both scale <em>and</em> rotation - accounts for all correlations between parameters</li>
+              <li>Result: no zig-zagging, straight to minimum</li>
             </ul>
 
             <p className="text-sm mt-3 italic text-blue-800">
-              Try the {onNavigateToTab ? (
-                <button
-                  onClick={() => onNavigateToTab('diagonal-precond')}
-                  className="font-semibold text-blue-700 hover:text-blue-900 underline cursor-pointer"
-                >
-                  Diagonal Preconditioning tab
-                </button>
-              ) : (
-                <strong>Diagonal Preconditioning tab</strong>
-              )} to see exactly when per-coordinate step sizes work!
+              Fixed step: "One size for all directions, forever."
+              Line search: "One size for all directions (per iteration)."
+              Diagonal: "Custom size per coordinate (but ignores rotation)."
+              Newton: "Custom fit for each direction (full curvature)."
             </p>
           </div>
 
@@ -802,13 +751,20 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <div className="mt-2">
               <p className="font-semibold">Levenberg-Marquardt:</p>
               <p className="text-sm mb-1">
-                Let <InlineMath>\lambda</InlineMath> be an adaptive damping parameter.
+                Let <InlineMath>\lambda</InlineMath> be an <strong>adaptive</strong> damping parameter that changes each iteration.
               </p>
               <BlockMath>{String.raw`\varP = -(\varH + \lambda \varI)^{-1}\varGrad`}</BlockMath>
               <ul className="list-disc ml-6 space-y-1 text-sm">
                 <li>Adds regularization to make <InlineMath>\varH</InlineMath> <GlossaryTooltip termKey="positive-definite" /></li>
                 <li><InlineMath>\lambda=0</InlineMath>: pure Newton; <InlineMath>\lambda\to\infty</InlineMath>: gradient descent</li>
-                <li>Interpolates between methods based on trust</li>
+                <li><strong>Key difference from our fixed <InlineMath>\varLambdaDamp</InlineMath>:</strong> L-M adjusts <InlineMath>\lambda</InlineMath> dynamically based on step quality</li>
+                <li><strong>How to choose <InlineMath>\lambda</InlineMath>:</strong> After computing step, evaluate <InlineMath>f(\varW + \varP)</InlineMath>:
+                  <ul className="list-disc ml-6 mt-1">
+                    <li>If function decreases well: accept step, reduce <InlineMath>\lambda</InlineMath> (e.g., <InlineMath>\lambda := \lambda/10</InlineMath>) to move toward Newton</li>
+                    <li>If function increases or decreases poorly: reject step, increase <InlineMath>\lambda</InlineMath> (e.g., <InlineMath>\lambda := 10\lambda</InlineMath>) to move toward gradient descent, retry</li>
+                  </ul>
+                </li>
+                <li>Interpolates between methods based on local function behavior (trust region style)</li>
               </ul>
             </div>
 
@@ -821,11 +777,11 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-purple-800 mb-2">Inexact Newton</h3>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Solve <InlineMath>\varH\varP = -\varGrad</InlineMath> <strong>approximately</strong> using iterative methods</li>
-              <li>Use Conjugate Gradient (CG) for large problems</li>
-              <li>Reduces O(d³) to O(d²) or better</li>
-              <li>Still achieves <GlossaryTooltip termKey="superlinear-convergence" /> with loose tolerances</li>
+              <li>Solve <InlineMath>\varH\varP = -\varGrad</InlineMath> <strong>approximately</strong> using iterative methods (e.g., Conjugate Gradient)</li>
+              <li>Reduces computational cost from O(d³) to O(d²) or better by avoiding direct Hessian factorization</li>
+              <li>Still achieves <GlossaryTooltip termKey="superlinear-convergence" /> with appropriate forcing sequences (loose tolerances)</li>
             </ul>
+            <Citation citationKey="inexact-newton-superlinear-convergence" />
           </div>
 
           <div>

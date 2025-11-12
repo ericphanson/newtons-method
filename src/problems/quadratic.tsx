@@ -130,7 +130,7 @@ export const quadraticExplainer = (
         <p className="text-sm font-semibold mb-1">Algorithm Performance on High <InlineMath>Q</InlineMath> Problems:</p>
         <ul className="text-sm list-disc ml-5 space-y-1">
           <li><strong>GD (fixed or line search):</strong> Iterations scale with <InlineMath>Q</InlineMath>. Heavy zig-zagging perpendicular to contours.</li>
-          <li><strong>Newton:</strong> ~5 iterations regardless of <InlineMath>Q</InlineMath>. Uses <InlineMath>H^{{-1}}</InlineMath> to perfectly scale each direction.</li>
+          <li><strong>Newton:</strong> ~5 iterations regardless of <InlineMath>Q</InlineMath>. Uses <InlineMath>{String.raw`H^{-1}`}</InlineMath> to perfectly scale each direction.</li>
           <li><strong>L-BFGS:</strong> Learns curvature from gradient history, adapts quickly to conditioning.</li>
           <li><strong>Diagonal Preconditioner:</strong> Perfect for <InlineMath>\theta=0°</InlineMath> (axis-aligned), struggles when <InlineMath>\theta \neq 0°</InlineMath> (off-diagonal Hessian terms).</li>
         </ul>

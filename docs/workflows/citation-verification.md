@@ -11,6 +11,15 @@ Every citation in `docs/citations.json` should be independently verified to ensu
 - Mathematical notation is correctly transcribed
 - All necessary context and prerequisites are documented
 
+## Quick Reference
+
+**New to verification?** Follow the steps below in order. **Experienced verifier?** Jump to these sections:
+- [Page Numbering (PDF vs Book)](#step-2-read-the-proof-pages) - Understanding page number differences
+- [Quote Formatting & Ellipsis](#step-2-read-the-proof-pages) - When [...] is acceptable
+- [Handling Discrepancies](#step-45-handle-discrepancies) - Strict inequalities, notation differences
+- [Troubleshooting](#troubleshooting-common-issues) - Common problems and solutions
+- [Batch Verification](#batch-verification) - Prioritization and parallel processing
+
 ## Verification Process
 
 ### Step 1: Select a Citation to Verify
@@ -34,15 +43,38 @@ Every citation should have `proofPages` - an array of extracted PDF page images.
 cat docs/citations.json | jq -r '.citations["gd-strongly-convex-linear-convergence"].proofPages[]'
 ```
 
+**IMPORTANT - Page Numbering:**
+- The `pages` field in citations uses **printed book page numbers** (the numbers visible in the book's headers/footers)
+- The `proofPages` array uses **PDF page numbers** (the physical page index in the PDF file)
+- These often differ by 10-30 pages due to frontmatter (cover, title page, preface, table of contents, etc.)
+- Example: Book page "177" might be PDF page 197 if there are 20 pages of frontmatter
+- When extracting pages with `extract-pdf-pages.py`, use PDF page numbers, not book page numbers
+- If proof page images don't show expected content, verify the PDF page offset
+
 Open each proof page image and verify:
 
 **Visual Verification Checklist:**
-- [ ] The page number in the filename matches the `pages` field
+- [ ] The page number in the filename matches the `pages` field (remember: PDF pages ≠ book pages)
 - [ ] The theorem/section number matches the `theorem` field (if present)
 - [ ] The quote in `quote` field appears on these pages
 - [ ] The quote is word-for-word accurate (check punctuation, symbols, etc.)
-- [ ] Mathematical notation is correctly transcribed
+- [ ] If quote contains [...] ellipsis, verify each segment separately
+- [ ] Mathematical notation is correctly transcribed (verify against images, not just OCR)
 - [ ] The claim in `claim` field is supported by what's written
+
+**Quote Formatting Guidelines:**
+- **Ellipsis usage**: Use [...] to omit non-essential explanatory text between key statements
+- **What to preserve**: All equations, formal conditions, theorem statements, and mathematical notation
+- **What can be omitted**: Intermediate prose explanations, examples, or lengthy derivations
+- **Rule**: Each segment before and after [...] should be word-for-word accurate
+- **Example**: "Theorem states: [equation] [...] The result holds for [conditions]." is acceptable if the omitted text is explanatory prose
+
+**Equation Reference Format:**
+- Match the source's primary numbering (e.g., "Theorem 2.1.15", "Lemma 3.1")
+- For multi-part equations, choose based on clarity:
+  - **Grouped**: "Equations (3.6) and (3.7)" - more readable, use for high-level references
+  - **Explicit**: "Equations (3.6a-b, 3.7a-b)" - more precise, use when sub-parts matter
+- Document the exact sub-parts in `verificationNotes` if there's any ambiguity
 
 ### Step 3: Check Context and Prerequisites
 
@@ -58,18 +90,56 @@ Often, understanding a theorem requires reading surrounding pages for:
 PDF_ID="introductory-lectures-on-convex-programming-yurii-nesterov-2004_ocr"
 CURRENT_PAGES="86-87"
 
-# Extract surrounding pages to check context
+# Extract surrounding pages to check context (use PDF page numbers!)
 python3 scripts/extract-pdf-pages.py $PDF_ID 84-89
 
 # Or extract specific definition pages
 python3 scripts/extract-pdf-pages.py $PDF_ID 60,82-83
+
+# If images are too small to read clearly, extract at higher DPI
+python3 scripts/extract-pdf-pages.py $PDF_ID 84-89 --dpi 200
 ```
+
+**Using OCR Text Files:**
+
+Many references have OCR text extracted in `docs/references/chunks/`. These are grouped in page ranges:
+
+```bash
+# Example: Find OCR text for pages 177-178
+# Look for files like "pages_0171-0180.txt" (pages are grouped in chunks of ~10)
+ls docs/references/chunks/
+
+# Search for specific text in OCR chunks
+grep -r "Wolfe conditions" docs/references/chunks/
+```
+
+**Note:** Always verify mathematical notation visually against PDF images, as OCR can miss or misinterpret symbols.
 
 **Context Verification Checklist:**
 - [ ] Any notation in the quote is defined in the source
 - [ ] Prerequisites are documented in the `notes` field
 - [ ] The theorem number/name is correct
 - [ ] Related results or important remarks are noted
+
+**Determining Appropriate Page Ranges:**
+
+**Minimal approach**: Include only pages containing the key theorem/result
+- Use when the theorem is self-contained and uses only standard notation
+- Example: A simple lemma with standard notation on a single page
+
+**Contextual approach** (recommended): Include surrounding pages for:
+- The main theorem/result statement
+- Notation definitions used in the result
+- Figures or visual aids that clarify the result
+- Existence or uniqueness proofs (if referenced)
+- Prerequisites or assumptions stated nearby
+- Algorithm descriptions (if the theorem analyzes an algorithm)
+
+**Guidelines:**
+- When in doubt, include more context rather than less
+- It's better to have unnecessary context than missing critical definitions
+- Pages in `proofPages` should enable a reader to fully understand the result without consulting the original PDF
+- If you extract additional pages during verification, add them to `proofPages`
 
 ### Step 4: Verify the Claim
 
@@ -80,6 +150,7 @@ The `claim` field is the verifier's interpretation/application of the result. Ch
 - [ ] The claim doesn't overstate the result
 - [ ] Important conditions are included (e.g., "when 0 < α < 2/(L+μ)")
 - [ ] The claim matches how it's used in the codebase
+- [ ] Any notation differences between source and claim are documented
 
 **Cross-reference with usage:**
 
@@ -90,9 +161,46 @@ cat docs/citations.json | jq -r ".citations[\"$CITATION_KEY\"].usedIn[]"
 
 # Example: If it says "GdFixedTab", check that file
 grep -n "strongly convex" src/components/tabs/GdFixedTab.tsx
+
+# To find ALL usages (in case usedIn is incomplete):
+grep -r "citationKey=\"$CITATION_KEY\"" src/
 ```
 
 Verify the actual code/documentation matches the claim.
+
+### Step 4.5: Handle Discrepancies
+
+**Strict vs Non-Strict Inequalities:**
+- If the theorem states $h \leq 2/(L+\mu)$ (non-strict) but code uses $h < 2/(L+\mu)$ (strict), this is **ACCEPTABLE**
+- The code is using a conservative/stricter bound, which is safer
+- Note this in `verificationNotes` but do not mark as an error
+- If the code claims a weaker result than the theorem proves, verify this is intentional simplification
+- If the code claims a stronger result than proven, this **REQUIRES CORRECTION**
+
+**Notation Differences:**
+- Source uses $h$ but implementation uses $\alpha$ for step size → Document in `readerNotes`
+- Source uses $\mu$ but implementation uses $m$ → Document the mapping
+- Any notation transformation must be mathematically equivalent
+- Format: "Note: [Source] uses $x$; in our implementation we use $y$"
+
+**When notation differs between source and implementation:**
+```json
+{
+  "readerNotes": "...Nesterov uses h for step size; in our implementation we use α..."
+}
+```
+
+**Common Acceptable Discrepancies:**
+- Conservative bounds (stricter than necessary)
+- Simplified big-O notation (e.g., $O(n\log n)$ stated as $O(n\log n)$ even if constants differ)
+- Rounding of numerical constants for readability
+- Notation standardization across the codebase
+
+**Unacceptable Discrepancies (require correction):**
+- Wrong inequality direction (≤ vs ≥)
+- Missing conditions or assumptions
+- Overclaiming results not proven in the source
+- Incorrect constant factors that change asymptotic behavior
 
 ### Step 5: Update the Citation (if needed)
 
@@ -230,6 +338,59 @@ None - citation is accurate and complete.
 - Update `theorem` field
 - Verify the quote matches the correct theorem
 
+## Troubleshooting Common Issues
+
+### Issue: Proof Pages Show Wrong Content
+
+**Symptoms:** The theorem number or content in proof page images doesn't match the citation
+
+**Cause:** PDF page numbers differ from printed book page numbers
+
+**Solution:**
+1. Check the printed page number visible in the proof page image header/footer
+2. Calculate the offset: `PDF_page - Book_page`
+3. Re-extract using correct PDF page numbers: `python3 scripts/extract-pdf-pages.py PDF_ID [corrected_pages]`
+
+### Issue: Mathematical Notation Doesn't Match
+
+**Symptoms:** OCR text shows different symbols than what's in the quote
+
+**Solution:**
+1. Always verify mathematical notation visually against PDF images
+2. OCR often misinterprets symbols like $\mu$, $\leq$, subscripts/superscripts
+3. Trust the visual verification over OCR text for mathematical content
+
+### Issue: Can't Find OCR Text File
+
+**Symptoms:** Looking for page 177 but can't find corresponding OCR file
+
+**Solution:**
+1. OCR text is grouped in chunks of ~10 pages: `pages_0171-0180.txt`
+2. Look for the chunk containing your page: `ls docs/references/chunks/ | grep -E "017[0-9]"`
+3. If no OCR exists, extract pages visually and verify from images only
+
+### Issue: Citation Has Multiple Quotes
+
+**Symptoms:** The quote field contains [...] between different text segments
+
+**Solution:**
+1. Verify each segment separately against the source
+2. Confirm each segment before and after [...] is word-for-word accurate
+3. Verify that omitted text (indicated by [...]) is indeed non-essential explanatory prose
+4. Ensure all equations and formal statements are preserved, not omitted
+
+### Issue: Unclear Whether to Update Citation
+
+**Decision Matrix:**
+
+| Situation | Action |
+|-----------|--------|
+| Minor typo in quote (1-2 characters) | Fix directly and note in verificationNotes |
+| Missing context (notation undefined) | Extract additional pages, update proofPages |
+| Claim overstates result | Update claim field to be accurate |
+| Wrong theorem referenced | Document issue, flag for team discussion |
+| Usage in code doesn't match citation | Check if code or citation needs correction |
+
 ## For AI Agents
 
 When verifying citations as an agent:
@@ -285,16 +446,50 @@ A verified citation must meet these standards:
 
 ## Batch Verification
 
-To verify all citations:
+### Finding Citations to Verify
 
 ```bash
-# List all unverified or old citations
-cat docs/citations.json | jq -r '.citations | to_entries[] |
-  select(.value.verified < "2025-11-01" or .value.verifiedBy == null) |
-  .key'
+# List citations lacking independent verification (not verified by "verification-agent")
+jq '.citations | to_entries[] | select(.value.verifiedBy == "verification-agent" | not) | .key' docs/citations.json
 
-# For each citation, follow the verification process above
+# Count how many need verification
+jq '.citations | to_entries[] | select(.value.verifiedBy == "verification-agent" | not) | .key' docs/citations.json | wc -l
+
+# List unverified or old citations
+jq -r '.citations | to_entries[] |
+  select(.value.verified < "2025-11-01" or .value.verifiedBy == null) |
+  .key' docs/citations.json
 ```
+
+### Prioritization Strategy
+
+When verifying citations in batches, prioritize:
+
+1. **High-usage citations first**: Citations used in multiple places are more critical
+   ```bash
+   jq -r '.citations | to_entries[] |
+     select(.value.verifiedBy != "verification-agent") |
+     "\(.value.usedIn | length) \(.key)"' docs/citations.json | sort -rn
+   ```
+
+2. **Core algorithm citations**: Citations about fundamental algorithms (gradient descent, Newton's method, etc.)
+
+3. **Simple before complex**: Start with single-theorem citations before multi-page proofs
+
+4. **Diverse sources**: Verify citations from different references to catch source-specific issues
+
+### Batch Processing Recommendations
+
+- **Parallel verification**: Run 3-4 verification agents in parallel for efficiency
+- **Feedback loops**: After each batch, review feedback to improve the workflow
+- **Progress tracking**: Keep a log of verified citations and time taken
+- **Quality over speed**: Better to verify thoroughly than quickly
+
+### Expected Time Estimates
+
+- **19 citations** × 20 minutes average = ~6-7 hours total work
+- With 3 parallel agents: ~2-3 hours of wall-clock time
+- Complex citations may take longer; simple ones faster
 
 ## See Also
 

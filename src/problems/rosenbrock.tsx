@@ -73,19 +73,19 @@ export const rosenbrockExplainer = (
 
       <p>
         <strong>What it does:</strong> Creates a narrow curved valley (banana shape).
-        Global minimum at (1, 1).
+        Global minimum at <InlineMath>(1, 1)</InlineMath>.
       </p>
 
       <p>
         <strong>Why it's interesting:</strong> Classic non-convex test function demonstrating curved ill-conditioning.
-        The valley is easy to find but hard to follow. Curvature changes dramatically along the path.
+        The valley is easy to find but requires many iterations to navigate. Curvature changes dramatically along the path.
       </p>
 
       <p>
         <strong>Adjusting <InlineMath>b</InlineMath> (valley steepness):</strong>
       </p>
       <ul className="text-sm list-disc ml-5 space-y-1">
-        <li><strong><InlineMath>b=10</InlineMath>:</strong> Gentle valley walls. Gradient descent can navigate reasonably well.</li>
+        <li><strong><InlineMath>b=10</InlineMath>:</strong> Gentle valley walls. Gradient descent makes steady progress with fewer oscillations.</li>
         <li><strong><InlineMath>b=100</InlineMath>:</strong> Moderately steep valley. First-order methods struggle but progress.</li>
         <li><strong><InlineMath>b=1000</InlineMath>:</strong> Extremely steep valley. First-order methods nearly trapped; second-order essential.</li>
       </ul>

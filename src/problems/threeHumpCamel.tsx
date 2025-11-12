@@ -91,15 +91,15 @@ export const threeHumpCamelExplainer = (
       <div>
         <p className="font-semibold">Three Minima:</p>
         <ul className="text-sm list-disc ml-5">
-          <li><strong>Global:</strong> (0, 0) with f = 0</li>
-          <li><strong>Local:</strong> approximately (1.75, -0.87) with f ≈ 0.30</li>
-          <li><strong>Local:</strong> approximately (-1.75, 0.87) with f ≈ 0.30</li>
+          <li><strong>Global:</strong> <InlineMath>(0, 0)</InlineMath> with <InlineMath>f = 0</InlineMath></li>
+          <li><strong>Local:</strong> approximately <InlineMath>(1.75, -0.87)</InlineMath> with <InlineMath>f \approx 0.30</InlineMath></li>
+          <li><strong>Local:</strong> approximately <InlineMath>(-1.75, 0.87)</InlineMath> with <InlineMath>f \approx 0.30</InlineMath></li>
         </ul>
       </div>
 
       <p>
         <strong>What it does:</strong> A standard multimodal benchmark with three valleys
-        - one deep global minimum at f=0 and two shallow local minima at f≈0.30.
+        - one deep global minimum at <InlineMath>f=0</InlineMath> and two shallow local minima at <InlineMath>f \approx 0.30</InlineMath>.
       </p>
 
       <p>

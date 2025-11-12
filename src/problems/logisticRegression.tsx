@@ -61,8 +61,9 @@ export const logisticRegressionExplainer = (
           <InlineMath>\lambda</InlineMath> (regularization): Controls model complexity
         </li>
         <li>
-          <InlineMath>b</InlineMath> (bias): Shifts the decision boundary. Unlike feature weights,
-          bias is a configuration parameter (not learned during optimization).
+          <InlineMath>b</InlineMath> (bias): Shifts the decision boundary. In our implementation,
+          bias is a configuration parameter (not learned during optimization). In typical ML practice,
+          bias would be learned alongside the weights.
         </li>
       </ul>
 

@@ -139,7 +139,8 @@ export function AlgorithmExplainer() {
             <strong>Convergence rate:</strong> Same as fixed-step gradient descent (linear for{' '}
             <GlossaryTooltip termKey="strongly-convex" />{' '}
             <GlossaryTooltip termKey="smooth" />{' '}
-            functions: <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations), but with guaranteed descent
+            functions: <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations)
+            <Citation citationKey="gd-linesearch-strongly-convex-linear-convergence-nesterov-2018" />, but with guaranteed descent
             at each step and no need for manual step size tuning.
           </p>
 
@@ -241,7 +242,7 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Solves axis-aligned quadratic problems in 1-2 iterations
+            <strong>Convergence rate:</strong> In our experiments, solves axis-aligned quadratic problems in 1-2 iterations
             (becomes equivalent to Newton's method when Hessian is diagonal). Degrades to linear
             convergence on rotated problems where off-diagonal Hessian structure is ignored.
           </p>
@@ -251,7 +252,7 @@ export function AlgorithmExplainer() {
           </p>
           <ul className="text-sm list-disc ml-5">
             <li><strong>Our implementation:</strong> Gradient + Hessian (same as Newton), no matrix inversion</li>
-            <li><strong>Adam/RMSprop:</strong> Just gradient + O(n) accumulator updates (very cheap!)</li>
+            <li><strong>Adam/RMSprop:</strong> Just gradient + <InlineMath>O(d)</InlineMath> accumulator updates (very cheap!)</li>
           </ul>
 
           <div className="bg-yellow-50 rounded p-3">
@@ -269,16 +270,16 @@ export function AlgorithmExplainer() {
             <ul className="text-sm list-disc ml-5">
               <li><strong>Coordinate-dependent</strong> - performance varies with rotation</li>
               <li>Ignores off-diagonal Hessian structure</li>
-              <li>Struggles on rotated problems (can be 20× slower!)</li>
+              <li>Struggles on rotated problems (can be <InlineMath>20\times</InlineMath> slower!)</li>
               <li>Requires Hessian computation (expensive) - our pedagogical implementation</li>
               <li>Gradient-based variants (Adam/RMSprop) avoid Hessian but are approximate</li>
             </ul>
             <p className="text-sm mt-2">
-              <strong>Why rotation hurts:</strong> Diagonal preconditioner uses <InlineMath>D = \text{{diag}}(1/H_{{00}}, 1/H_{{11}}, ...)</InlineMath>,
+              <strong>Why rotation hurts:</strong> Diagonal preconditioner uses <InlineMath>{String.raw`D = \text{diag}(1/H_{00}, 1/H_{11}, ...)`}</InlineMath>,
               which works perfectly when <InlineMath>H</InlineMath> is diagonal. But when rotated, <InlineMath>H</InlineMath> has off-diagonal terms that capture
-              coordinate coupling. The optimal inverse <InlineMath>H^{{-1}}</InlineMath> also has off-diagonals, but <InlineMath>D</InlineMath> ignores them.
+              coordinate coupling. The optimal inverse <InlineMath>{String.raw`H^{-1}`}</InlineMath> also has off-diagonals, but <InlineMath>D</InlineMath> ignores them.
               This means <InlineMath>D</InlineMath> applies the <strong>wrong scaling</strong> for coupled coordinates.
-              Example: At <InlineMath>\theta=45°</InlineMath>, diagonal can't correct for coupling between <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath>, leading to inefficient zigzagging.
+              Example: At <InlineMath>{String.raw`\theta=45°`}</InlineMath>, diagonal can't correct for coupling between <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath>, leading to inefficient zigzagging.
             </p>
           </div>
 
@@ -298,9 +299,9 @@ export function AlgorithmExplainer() {
               This algorithm demonstrates the critical limitation of diagonal methods:
             </p>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
-              <li><strong><InlineMath>\theta=0°</InlineMath> (aligned):</strong> <InlineMath>H</InlineMath> is diagonal → <InlineMath>D=H^{{-1}}</InlineMath> exactly → 1-2 iterations!</li>
-              <li><strong><InlineMath>\theta=45°</InlineMath> (rotated):</strong> <InlineMath>H</InlineMath> has off-diagonals → <InlineMath>D</InlineMath> misses them → 40+ iterations</li>
-              <li><strong>Newton:</strong> Full <InlineMath>H^{{-1}}</InlineMath> works identically at any angle → 2 iterations always</li>
+              <li><strong><InlineMath>{String.raw`\theta=0°`}</InlineMath> (aligned):</strong> <InlineMath>H</InlineMath> is diagonal → <InlineMath>{String.raw`D=H^{-1}`}</InlineMath> exactly → 1-2 iterations!</li>
+              <li><strong><InlineMath>{String.raw`\theta=45°`}</InlineMath> (rotated):</strong> <InlineMath>H</InlineMath> has off-diagonals → <InlineMath>D</InlineMath> misses them → 40+ iterations</li>
+              <li><strong>Newton:</strong> Full <InlineMath>{String.raw`H^{-1}`}</InlineMath> works identically at any angle → 2 iterations always</li>
             </ul>
             <p className="text-sm mt-2 font-semibold">
               Only Newton's full matrix achieves rotation invariance!
@@ -328,7 +329,7 @@ export function AlgorithmExplainer() {
             </BlockMath>
             <p className="text-sm mt-1">
               where <InlineMath>H(w_k)</InlineMath> is the Hessian at <InlineMath>w_k</InlineMath> (matrix of second derivatives),
-              <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> is a damping parameter for numerical stability,
+              <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath> is a damping parameter for numerical stability,
               and the entire damped matrix is inverted
             </p>
           </div>
@@ -356,7 +357,7 @@ export function AlgorithmExplainer() {
               </li>
               <li>
                 <strong>Why it helps:</strong> Prevents huge Newton steps when <InlineMath>H</InlineMath> has tiny eigenvalues.
-                Example: Perceptron with <InlineMath>\lambda=0.0001</InlineMath> → Hessian eigenvalues ≈ 0.0001 → direction magnitude ~10,000× gradient!
+                Example: Perceptron with <InlineMath>{String.raw`\lambda=0.0001`}</InlineMath> → Hessian eigenvalues <InlineMath>{String.raw`\approx 0.0001`}</InlineMath> → direction magnitude <InlineMath>{String.raw`\sim 10{,}000\times`}</InlineMath> gradient!
               </li>
               <li>
                 <strong>Connection to Levenberg-Marquardt:</strong> Classical LM is for nonlinear least-squares
@@ -367,12 +368,12 @@ export function AlgorithmExplainer() {
                 adjust <InlineMath>\lambda</InlineMath> based on a constraint radius.
               </li>
               <li>
-                <strong>Trade-offs:</strong> Lower <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> = more faithful to the original problem but less stable;
-                Higher <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> = more stable but adds implicit regularization to your optimization
+                <strong>Trade-offs:</strong> Lower <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath> = more faithful to the original problem but less stable;
+                Higher <InlineMath>{String.raw`\lambda_{\text{damp}}`}</InlineMath> = more stable but adds implicit regularization to your optimization
               </li>
               <li>
-                <strong>Spectrum of behavior:</strong> When <InlineMath>\lambda_{{\text{{damp}}}} = 0</InlineMath>, you get pure Newton's method;
-                as <InlineMath>\lambda_{{\text{{damp}}}} \to \infty</InlineMath>, the method approaches gradient descent (<InlineMath>H</InlineMath> becomes dominated by <InlineMath>\lambda I</InlineMath>)
+                <strong>Spectrum of behavior:</strong> When <InlineMath>{String.raw`\lambda_{\text{damp}} = 0`}</InlineMath>, you get pure Newton's method;
+                as <InlineMath>{String.raw`\lambda_{\text{damp}} \to \infty`}</InlineMath>, the method approaches gradient descent (<InlineMath>H</InlineMath> becomes dominated by <InlineMath>{String.raw`\lambda I`}</InlineMath>)
               </li>
             </ul>
           </div>
@@ -387,8 +388,7 @@ export function AlgorithmExplainer() {
             <strong>Convergence rate:</strong>{' '}
             <GlossaryTooltip termKey="quadratic-convergence" /> near a local minimum
             (requires starting close enough to the solution, with{' '}
-            <GlossaryTooltip termKey="positive-definite" /> Hessian, and{' '}
-            <GlossaryTooltip termKey="smooth" /> second derivatives)
+            <GlossaryTooltip termKey="positive-definite" /> Hessian, and Lipschitz continuous Hessian)
             <Citation citationKey="newton-quadratic-convergence" />.
             Once in the convergence region, doubles the digits of accuracy each iteration.
             Requires <InlineMath>O(\log\log(1/\varepsilon))</InlineMath> iterations.
@@ -405,7 +405,7 @@ export function AlgorithmExplainer() {
             <ul className="text-sm list-disc ml-5">
               <li>Quadratic convergence - extremely fast near solution</li>
               <li>Invariant to linear transformations (handles ill-conditioning)</li>
-              <li>Converges in one step on strictly convex quadratic functions (where the Hessian is constant)</li>
+              <li>Converges in one step on strictly convex quadratic functions (with <InlineMath>{String.raw`\alpha=1`}</InlineMath>, <InlineMath>{String.raw`\lambda_{\text{damp}}=0`}</InlineMath>, where the Hessian is constant)</li>
               <li>Uses full curvature information</li>
             </ul>
           </div>
@@ -414,7 +414,7 @@ export function AlgorithmExplainer() {
             <p className="text-sm font-semibold mb-1">Weaknesses:</p>
             <ul className="text-sm list-disc ml-5">
               <li>Requires Hessian computation (expensive in high dimensions)</li>
-              <li>Requires solving linear system (O(n³) for dense matrices; can be O(n) to O(n²) for sparse/structured problems)</li>
+              <li>Requires solving linear system (<InlineMath>O(d^3)</InlineMath> for dense matrices; can be <InlineMath>O(d)</InlineMath> to <InlineMath>O(d^2)</InlineMath> for sparse/structured problems)</li>
               <li>Can diverge on non-convex problems without line search</li>
               <li>Full Newton not suitable for very large-scale problems, but variants exist (truncated Newton, Newton-CG use iterative solvers)</li>
             </ul>
@@ -450,7 +450,7 @@ export function AlgorithmExplainer() {
               {String.raw`w_{k+1} = w_k - \alpha_k H_k^{-1} \nabla f(w_k)`}
             </BlockMath>
             <p className="text-sm mt-1">
-              where <InlineMath>{String.raw`H_k^{-1}`}</InlineMath> is implicitly approximated using the last M gradient differences
+              where <InlineMath>{String.raw`H_k^{-1}`}</InlineMath> is implicitly approximated using the last <InlineMath>M</InlineMath> gradient differences
             </p>
           </div>
 
@@ -483,15 +483,15 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Cost per iteration:</strong> One gradient + O(Mn) operations for
-            Hessian approximation (where M is the memory size).
+            <strong>Cost per iteration:</strong> One gradient + <InlineMath>O(Md)</InlineMath> operations for
+            Hessian approximation (where <InlineMath>M</InlineMath> is the memory size).
           </p>
 
           <div className="bg-yellow-50 rounded p-3">
             <p className="text-sm font-semibold mb-1">Strengths:</p>
             <ul className="text-sm list-disc ml-5">
               <li>Linear convergence (proven) without computing Hessian</li>
-              <li>Low memory: O(Mn) vs O(n²) for full Newton or full BFGS</li>
+              <li>Low memory: <InlineMath>O(Md)</InlineMath> vs <InlineMath>O(d^2)</InlineMath> for full Newton or full BFGS</li>
               <li>No manual tuning (works well with defaults)</li>
               <li>Excellent for large-scale optimization</li>
               <li>Industry standard for many ML problems</li>
@@ -561,7 +561,7 @@ export function AlgorithmExplainer() {
               <tr>
                 <td className="py-2 font-medium">L-BFGS</td>
                 <td className="py-2">Linear*</td>
-                <td className="py-2">Low-Med (1 grad + O(Mn))</td>
+                <td className="py-2">Low-Med (1 grad + <InlineMath>O(Md)</InlineMath>)</td>
                 <td className="py-2">Large-scale, production ML</td>
               </tr>
             </tbody>
@@ -593,7 +593,7 @@ export function AlgorithmExplainer() {
           <div>
             <p className="font-semibold text-gray-900">The rotation story:</p>
             <ul className="text-gray-700 list-disc ml-5">
-              <li>Diagonal Precond tab: Run at θ=0° then θ=45°</li>
+              <li>Diagonal Precond tab: Run at <InlineMath>\theta=0°</InlineMath> then <InlineMath>\theta=45°</InlineMath></li>
               <li>Watch convergence degrade dramatically</li>
               <li>Compare with Newton tab: identical at all angles</li>
               <li>Understand why Adam works (meaningful axes)</li>

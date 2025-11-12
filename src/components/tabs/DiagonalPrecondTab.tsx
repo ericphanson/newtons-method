@@ -354,7 +354,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                   <span className="ml-4">Compute gradient <InlineMath>{String.raw`\varGrad = \nabla f(\varW)`}</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
                 </>,
                 <>
-                  <span className="ml-4">Compute Hessian <InlineMath>{String.raw`\varH = H(\varW)`}</InlineMath> (matrix of second derivatives) <Complexity explanation="Problem-dependent">1 H eval</Complexity></span>
+                  <span className="ml-4">Compute Hessian diagonal (in practice, compute only diagonal directly; we show full <InlineMath>\varH</InlineMath> for pedagogy) <Complexity explanation="O(d) gradient evals in practice; O(d²) if computing full Hessian">O(d) in practice</Complexity></span>
                 </>,
                 <>
                   <span className="ml-4"><strong>for</strong> each coordinate <InlineMath>{String.raw`i = 0`}</InlineMath> to <InlineMath>{String.raw`d-1`}</InlineMath>:</span>
@@ -390,45 +390,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 a diagonal matrix containing the inverse of each Hessian diagonal element (plus damping). The damping
                 term <InlineMath>\varLambdaDamp</InlineMath> ensures numerical stability
                 when diagonal entries are near zero: <InlineMath>{String.raw`D_{ii} = 1/(H_{ii} + \varLambdaDamp)`}</InlineMath>.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-bold text-teal-800 mb-2">Computational Cost</h3>
-              <ul className="list-disc ml-6 space-y-1">
-                <li><strong>Per iteration:</strong> <InlineMath>O(d^2)</InlineMath> to compute Hessian, <InlineMath>O(d)</InlineMath> for diagonal extraction and preconditioner construction</li>
-                <li><strong>Memory:</strong> <InlineMath>O(d^2)</InlineMath> for Hessian (if stored), <InlineMath>O(d)</InlineMath> for diagonal preconditioner</li>
-                <li><strong>Cheaper than Newton:</strong> No matrix inversion (<InlineMath>O(d^3)</InlineMath>), just element-wise division (<InlineMath>O(d)</InlineMath>)</li>
-                <li><strong>More expensive than gradient descent:</strong> Requires full Hessian computation</li>
-              </ul>
-            </div>
-
-            <div className="bg-green-50 border-l-4 border-green-500 p-4 my-3">
-              <p className="text-sm text-green-900 font-semibold mb-1">✅ Perfect on Axis-Aligned Quadratics</p>
-              <p className="text-sm text-green-800">
-                When <InlineMath>\varH</InlineMath> is diagonal (e.g., <InlineMath>{String.raw`f(x,y) = x^2 + 100y^2`}</InlineMath>),
-                the diagonal preconditioner <InlineMath>{String.raw`\varD = \varH^{-1}`}</InlineMath> exactly (ignoring damping)! For strictly convex quadratic functions
-                with diagonal Hessian, diagonal preconditioning with <InlineMath>{String.raw`\varAlpha = 1`}</InlineMath> IS Newton's method,
-                which converges in one iteration on quadratics.<Citation citationKey="newton-computational-complexity" /> The Hessian is constant for quadratics, making the
-                diagonal approximation exact since all curvature information is on the diagonal.
-              </p>
-            </div>
-
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-3">
-              <p className="text-sm text-amber-900 font-semibold mb-2">⚠️ Fails on Rotated Problems</p>
-              <p className="text-sm text-amber-800">
-                When <InlineMath>\varH</InlineMath> has large off-diagonal terms (coordinate coupling), the diagonal approximation
-                completely ignores this information. The method zig-zags like {onNavigateToTab ? (
-                  <button
-                    onClick={() => onNavigateToTab('gd-fixed')}
-                    className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
-                  >
-                    gradient descent
-                  </button>
-                ) : (
-                  <strong>gradient descent</strong>
-                )} and requires
-                many iterations. See the <strong>"Why Diagonal Fails on Rotation"</strong> section below for mathematical details.
               </p>
             </div>
           </div>
@@ -631,6 +592,16 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                     ✓ Line search may choose <InlineMath>{String.raw`\varAlpha < 1`}</InlineMath> for stability
                   </p>
                 </div>
+
+                <div>
+                  <p className="font-semibold">❌ "You need to compute the full Hessian"</p>
+                  <p className="text-sm ml-6">
+                    ✓ Our pseudocode shows full Hessian for pedagogical clarity<br />
+                    ✓ In practice, compute only diagonal entries directly (much cheaper)<br />
+                    ✓ Methods: Hessian-vector products, forward-mode AD, finite differences on gradients<br />
+                    ✓ Diagonal-only costs <InlineMath>O(d)</InlineMath> gradient evals vs <InlineMath>{String.raw`O(d^2)`}</InlineMath> for full Hessian
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -677,19 +648,6 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 </li>
               </ul>
             </div>
-
-            <div>
-              <h3 className="text-lg font-bold text-blue-800 mb-2">When It Works Well</h3>
-              <p className="text-sm mb-2">
-                Diagonal preconditioning excels when:
-              </p>
-              <ul className="list-disc ml-6 space-y-1 text-sm">
-                <li>Problem is naturally axis-aligned (features/variables don't interact)</li>
-                <li>You can compute Hessian diagonal efficiently (some ML models support this)</li>
-                <li>Variables have vastly different scales and gradient descent struggles</li>
-                <li>Full Newton is too expensive but you need better than first-order methods</li>
-              </ul>
-            </div>
           </div>
         </CollapsibleSection>
 
@@ -729,6 +687,47 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               <BlockMath>{String.raw`\varP \approx -\varD^{-1}\varGrad`}</BlockMath>
               <p className="text-sm mt-2">
                 where <InlineMath>{String.raw`\varD = \text{diag}(H_{00}, H_{11}, ..., H_{d-1,d-1})`}</InlineMath>. Inverting a diagonal matrix is trivial: <InlineMath>{String.raw`\varD^{-1} = \text{diag}(1/H_{00}, 1/H_{11}, ..., 1/H_{d-1,d-1})`}</InlineMath>.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-indigo-800 mb-2">Practical Implementation: Computing Only the Diagonal</h3>
+              <p className="text-sm mb-2">
+                Our pseudocode shows computing the full Hessian <InlineMath>\varH</InlineMath> for pedagogical
+                clarity, but this is wasteful! In practice, compute only the diagonal entries directly.
+              </p>
+
+              <p className="text-sm mb-2 font-semibold mt-3">
+                Method 1: Hessian-vector products
+              </p>
+              <p className="text-sm mb-2">
+                Compute <InlineMath>{String.raw`H_{ii} = e_i^T \varH e_i`}</InlineMath> where <InlineMath>e_i</InlineMath> is
+                the <InlineMath>i</InlineMath>-th standard basis vector. Modern autodiff libraries (JAX, PyTorch)
+                support this efficiently via forward-over-reverse mode.
+              </p>
+
+              <p className="text-sm mb-2 font-semibold mt-3">
+                Method 2: Forward-mode automatic differentiation
+              </p>
+              <p className="text-sm mb-2">
+                Forward-mode AD can compute directional derivatives efficiently. For diagonal entries,
+                compute <InlineMath>{String.raw`\frac{\partial^2 f}{\partial w_i^2}`}</InlineMath> directly
+                without forming the full matrix.
+              </p>
+
+              <p className="text-sm mb-2 font-semibold mt-3">
+                Method 3: Finite differences on gradients
+              </p>
+              <BlockMath>{String.raw`H_{ii} \approx \frac{[\nabla f(\varW + \epsilon e_i)]_i - [\nabla f(\varW)]_i}{\epsilon}`}</BlockMath>
+              <p className="text-sm mt-2">
+                Requires <InlineMath>d</InlineMath> additional gradient evaluations, one per coordinate.
+              </p>
+
+              <p className="text-sm mb-3 mt-4">
+                <strong>Cost comparison:</strong> Computing diagonal entries directly costs <InlineMath>O(d)</InlineMath> gradient
+                evaluations (e.g., finite differences) instead of <InlineMath>{String.raw`O(d^2)`}</InlineMath> operations
+                for forming the full Hessian. For large <InlineMath>d</InlineMath>, this is the difference between
+                feasibility and infeasibility.
               </p>
             </div>
 

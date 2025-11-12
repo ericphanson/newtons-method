@@ -49,7 +49,7 @@ export const saddleKeyInsights = (
         Saddle Points: Where Gradient Descent Can Get Stuck
       </p>
       <p className="text-xs text-blue-900">
-        <strong>At origin (0,0):</strong> Gradient is zero, but it's NOT a minimum! It's a saddle point—a minimum in <InlineMath>w_0</InlineMath> direction, maximum in <InlineMath>w_1</InlineMath> direction.<br/>
+        <strong>At origin <InlineMath>(0,0)</InlineMath>:</strong> Gradient is zero, but it's NOT a minimum! It's a saddle point—a minimum in <InlineMath>w_0</InlineMath> direction, maximum in <InlineMath>w_1</InlineMath> direction.<br/>
         <strong>First-order methods:</strong> Can get stuck at saddle points since <InlineMath>\nabla f=0</InlineMath>. They need careful initialization or momentum to escape.<br/>
         <strong>Second-order methods:</strong> Use curvature information (Hessian) to detect saddle points. Negative eigenvalues reveal "escape directions" away from the saddle.
       </p>
@@ -87,13 +87,13 @@ export const saddleExplainer = (
       </div>
 
       <p>
-        <strong>What it does:</strong> Creates a saddle point at origin - minimum in <InlineMath>w_0</InlineMath>{' '}
+        <strong>What it does:</strong> Creates a saddle point at the origin <InlineMath>(0,0)</InlineMath> - minimum in <InlineMath>w_0</InlineMath>{' '}
         direction, maximum in <InlineMath>w_1</InlineMath> direction.
       </p>
 
       <p>
         <strong>Why it's interesting:</strong> Classic failure mode demonstrating the importance
-        of second-order optimality conditions. At a saddle point, the gradient is zero (∇f = 0)
+        of second-order optimality conditions. At a saddle point, the gradient is zero (<InlineMath>\nabla f = 0</InlineMath>)
         but the <GlossaryTooltip termKey="hessian" /> has mixed <GlossaryTooltip termKey="eigenvalue" />s (one positive, one negative).
       </p>
 
@@ -108,7 +108,7 @@ export const saddleExplainer = (
           <li><strong>WITHOUT line search:</strong> Diverges! Takes full step in wrong direction (moves uphill).</li>
           <li><strong>WITH line search (default):</strong> Line search rejects the bad step or shrinks it heavily. May stall near saddle point but won't diverge.</li>
           <li><strong>Key insight:</strong> Gradient norm alone is NOT sufficient for optimality. Need to check Hessian eigenvalues!</li>
-          <li><strong>All algorithms:</strong> Can't find a minimum here because the saddle point isn't a minimum - it's a critical point where ∇f = 0.</li>
+          <li><strong>All algorithms:</strong> Can't find a minimum here because the saddle point isn't a minimum - it's a critical point where <InlineMath>\nabla f = 0</InlineMath>.</li>
         </ul>
       </div>
     </div>
