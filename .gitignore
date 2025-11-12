@@ -27,4 +27,12 @@ dist-ssr
 venv
 
 tsconfig.tsbuildinfo
-docs/references
+
+# ignore PDF references (IP issues)
+docs/references/*.pdf
+# ignore extracted pages; size and potentially IP
+docs/references/extracted-pages/*.png
+# ignore chunks - IP
+docs/references/chunks
+docs/references/chunk-index.json
+# KEEP formulas, renders

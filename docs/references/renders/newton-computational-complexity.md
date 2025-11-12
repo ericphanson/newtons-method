@@ -1,0 +1,55 @@
+# newton-computational-complexity
+
+## Reference
+
+Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.
+
+**File:** `NumericalOptimization2006.pdf`
+
+## Claim
+
+Solving the Newton system $H \cdot p = -\nabla f$ requires $O(d^3)$ operations using direct methods (Cholesky or LU decomposition)
+
+## Quote
+
+> Newton's method: $p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$ [...] The factorization (A.20) can be found by using Gaussian elimination with row partial pivoting, an algorithm that requires approximately $2n^3/3$ floating-point operations when $A$ is dense. [...] When $A \in \mathbb{R}^{n \times n}$ is symmetric positive definite, it is possible to compute a similar but more specialized factorization at about half the cost—about $n^3/3$ operations. This factorization, known as the Cholesky factorization, produces a matrix $L$ such that $A = LL^T$.
+
+**Pages:** 64, 627-628
+
+**Theorem/Result:** Section 3.3 (Newton's Method) and Appendix A.1 (Cholesky/LU Factorization)
+
+## Reader Notes
+
+Newton's method computes the search direction by solving the linear system $H \cdot p = -\nabla f$ where $H = \nabla^2 f$ is the Hessian matrix (see equation 3.30 on page 64: $p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$). This requires solving a $d \times d$ linear system where $d$ is the number of optimization variables. For dense matrices, direct solution methods require $O(d^3)$ operations: **Gaussian elimination with LU decomposition** requires approximately $2d^3/3$ floating-point operations (page 627, Algorithm A.1), while **Cholesky factorization** (applicable when the Hessian is positive definite) requires about $d^3/3$ operations (page 628, Algorithm A.2). Both methods scale cubically with the problem dimension. In practice, once the factorization is computed, solving the system via forward- and back-substitution requires only $O(d^2)$ operations, so the dominant cost is the $O(d^3)$ factorization step. For large-scale problems, this cubic cost motivates the use of quasi-Newton methods (like BFGS or L-BFGS) which avoid computing and factorizing the full Hessian.
+
+## Internal Notes
+
+Internal: Used in NewtonTab to explain computational cost of Newton's method. Page 64 defines Newton's method as computing the search direction $p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$, which requires solving the linear system $\nabla^2 f_k \cdot p_k = -\nabla f_k$. Pages 627-628 (Appendix A.1) document the computational complexity of solving dense linear systems: LU decomposition via Gaussian elimination requires approximately $2n^3/3$ operations (equation A.20, Algorithm A.1), while Cholesky factorization for symmetric positive definite matrices requires about $n^3/3$ operations (equation A.23, Algorithm A.2). Both are $O(n^3)$ methods. The Newton system has the Hessian matrix as the coefficient matrix, so solving it requires $O(d^3)$ operations where $d$ is the problem dimension (number of variables). In the book, $n$ is used for dimension; we use $d$ in the codebase.
+
+## Verification
+
+**Verified:** 2025-11-12
+
+**Verified By:** verification-agent
+
+**Verification Notes:** ENHANCED VERIFICATION (563-page gap scrutiny): ✅ VERIFIED - The 563-page gap between page 64 and pages 627-628 is LEGITIMATE and intentional. This citation correctly combines two essential components: (1) Newton's method definition from Chapter 3 (page 64, equation 3.30), and (2) computational complexity analysis from Appendix A.1 (pages 627-628, Algorithms A.1 and A.2). VERIFICATION DETAILS: Page 64 shows equation 3.30: p_k^N = -∇²f_k^(-1)∇f_k, which defines Newton's search direction requiring solution of the linear system ∇²f_k·p_k = -∇f_k. Page 627 presents Algorithm A.1 (Gaussian Elimination with Partial Pivoting) and equation (A.20) stating LU factorization requires approximately 2n³/3 floating-point operations for dense n×n matrices. Page 628 presents Algorithm A.2 (Cholesky Factorization) stating it requires about n³/3 operations for symmetric positive definite matrices. Both algorithms are O(n³). Quote accuracy: VERIFIED word-for-word against source pages. Claim consistency: VERIFIED - claim correctly states O(d³) complexity (using d for dimension as per codebase convention, source uses n). The claim accurately reflects that solving the Newton system Hessian requires O(d³) operations. Cross-references VERIFIED: Used in NewtonTab (line 325) and DiagonalPrecondTab (lines 228, 504, 742, 768, 777) - all usage consistent with citation claim. GAP JUSTIFICATION: This is NOT a split citation error. The gap exists because Newton's method (Chapter 3, page 64) defines WHAT needs to be solved (the linear system), while Appendix A.1 (pages 627-628) provides the computational complexity analysis of HOW to solve dense linear systems. Both are essential to support the computational cost claim. This follows the workflow guideline: 'Appendix references: Generally DON'T include appendix pages in proofPages... Exception: If the appendix formula is obscure and critical, consider including' - here the appendix algorithms ARE critical as they provide the O(n³) complexity proof.
+
+## Used In
+
+- NewtonTab
+- DiagonalPrecondTab
+
+## Proof Pages
+
+### Page 1
+
+![Proof page 1](../extracted-pages/numericaloptimization2006_page_0064.png)
+
+### Page 2
+
+![Proof page 2](../extracted-pages/numericaloptimization2006_page_0627.png)
+
+### Page 3
+
+![Proof page 3](../extracted-pages/numericaloptimization2006_page_0628.png)
+

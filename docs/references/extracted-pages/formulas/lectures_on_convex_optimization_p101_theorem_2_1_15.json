@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p101_theorem_2_1_15",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 101,
+    "theorem": "Theorem 2.1.15",
+    "equation": "",
+    "description": "Linear convergence for strongly convex functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_15.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 77.5,
+      "right": 100,
+      "bottom": 86.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2151,
+      "right": 1831,
+      "bottom": 2401,
+      "width": 1831,
+      "height": 250
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\|x_k - x^*\\|^2 \\leq \\left(1 - \\frac{2h\\mu L}{\\mu+L}\\right)^k \\|x_0 - x^*\\|^2",
+    "extracted_by": "latex-extraction-agent",
+    "extracted_date": "2025-11-12T17:46:00Z",
+    "notes": "Perfect extraction. Formula matches citation exactly."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "citation-verification-workflow",
+    "verified_date": "2025-11-12T17:46:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T17:45:32.430939Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

@@ -1,0 +1,56 @@
+# lbfgs-computational-complexity-nocedal-wright-2006
+
+## Reference
+
+Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.
+
+**File:** `NumericalOptimization2006.pdf`
+
+## Claim
+
+L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the memory size (number of stored curvature pairs) and $d$ is the dimension
+
+## Quote
+
+> Without considering the multiplication $H_k^0 q$, the two-loop recursion scheme requires $4mn$ multiplications; if $H_k^0$ is diagonal, then $n$ additional multiplications are needed. [...] To circumvent this problem, we store a modified version of $H_k$ implicitly, by storing a certain number (say, $m$) of the vector pairs $\{s_i, y_i\}$ used in the formulas (7.16)–(7.18). The product $H_k \nabla f_k$ can be obtained by performing a sequence of inner products and vector summations involving $\nabla f_k$ and the pairs $\{s_i, y_i\}$.
+
+**Pages:** 177-178, 197-198
+
+## Reader Notes
+
+L-BFGS achieves its efficiency through compact storage: instead of storing a dense $d \times d$ approximate Hessian (requiring $O(d^2)$ memory), it stores only $M$ vector pairs $\{s_k, y_k\}$ of dimension $d$, requiring $O(Md)$ memory. The two-loop recursion (Algorithm 7.4) computes the search direction efficiently using these stored pairs. The algorithm performs two passes through the $M$ stored pairs, with each loop iteration performing $O(d)$ operations (inner products and vector additions), yielding $O(Md)$ total time per optimization iteration. The quote states that the recursion requires $4mn$ scalar multiplications (where $m = M$ and $n = d$), plus $n$ more if the initial approximation $H_k^0$ is diagonal.
+
+## Internal Notes
+
+Internal: The complexity analysis appears on page 178 following Algorithm 7.4. The key observation is that L-BFGS stores $m$ vector pairs $\{s_i, y_i\}$, each of length $n$ (dimension $d$ in our notation), requiring $O(mn) = O(Md)$ storage. The two-loop recursion performs $4mn$ scalar multiplications plus $n$ for the initial Hessian approximation, giving $O(mn) = O(Md)$ time complexity per iteration.
+
+## Verification
+
+**Verified:** 2025-11-12
+
+**Verified By:** verification-agent
+
+**Verification Notes:** Independent verification completed 2025-11-12: (1) Both quotes verified word-for-word against OCR text from pages 177-178; (2) Algorithm 7.4 correctly identified on page 178; (3) Claim accurately reflects source material - O(Md) memory for storing M vector pairs of dimension d, and O(Md) time from 4mn multiplications in two-loop recursion; (4) Usage in LbfgsTab.tsx (line 1311) is correct and appropriate; (5) Page numbers correct (printed pages 177-178, which are PDF physical pages 197-198 due to ~20 page offset from frontmatter). Citation is complete, accurate, and properly contextualized.
+
+## Used In
+
+- LbfgsTab
+
+## Proof Pages
+
+### Page 1
+
+![Proof page 1](../extracted-pages/numericaloptimization2006_page_0177.png)
+
+### Page 2
+
+![Proof page 2](../extracted-pages/numericaloptimization2006_page_0178.png)
+
+### Page 3
+
+![Proof page 3](../extracted-pages/numericaloptimization2006_page_0197.png)
+
+### Page 4
+
+![Proof page 4](../extracted-pages/numericaloptimization2006_page_0198.png)
+

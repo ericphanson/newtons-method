@@ -1,0 +1,53 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p100_theorem_2_1_14",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 100,
+    "theorem": "Theorem 2.1.14",
+    "equation": "",
+    "description": "Sublinear convergence for convex functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0100.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 54.0,
+      "right": 100,
+      "bottom": 72.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1499,
+      "right": 1831,
+      "bottom": 1998,
+      "width": 1831,
+      "height": 499
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x_k) - f^* \\leq \\frac{2(f(x_0) - f^*) \\|x_0 - x^*\\|^2}{2\\|x_0 - x^*\\|^2 + k \\cdot h(2 - Lh) \\cdot (f(x_0) - f^*)}, \\quad k \\geq 0",
+    "extracted_by": "latex-extraction-agent",
+    "extracted_date": "2025-11-12T17:49:00Z",
+    "notes": "This is the GENERAL form of Theorem 2.1.14 for any step size 0 < h <= 2/L. The citation currently has a SIMPLIFIED form (with h=1/L substituted), which is NOT what Theorem 2.1.14 states."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "citation-verification-workflow",
+    "verified_date": "2025-11-12T17:49:00Z",
+    "issues": [
+      "CITATION MISMATCH: Current citation has simplified formula with h=1/L, but Theorem 2.1.14 states the general formula with arbitrary step size h. Citation needs correction."
+    ]
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T17:48:01.958887Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

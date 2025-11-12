@@ -1,0 +1,58 @@
+# lbfgs-linear-convergence-liu-nocedal-1989
+
+## Reference
+
+Dong C. Liu and Jorge Nocedal. *On the Limited Memory BFGS Method for Large Scale Optimization*. Mathematical Programming, 45:503-528, 1989.
+
+**File:** `LiuNocedal1989.pdf`
+
+## Claim
+
+L-BFGS converges R-linearly (not superlinearly) on uniformly convex problems. The rate of convergence is linear, not superlinear. The paper explicitly states that 'R-linear convergence is the best we can expect' from L-BFGS.
+
+## Quote
+
+> In this section we show that the limited memory BFGS method is globally convergent on uniformly convex problems, and that its rate of convergence is R-linear... Then for any positive definite $B_0$, Algorithm 6.1 generates a sequence $\{x_k\}$ which converges to $x_*$. Moreover there is a constant $0 \leq r < 1$ such that $f_k - f_* \leq r^k[f_0 - f_*]$ which implies that $\{x_k\}$ converges R-linearly... R-linear convergence is the best we can expect.
+
+**Pages:** 20-23
+
+**Theorem/Result:** Theorem 6.1
+
+## Reader Notes
+
+**IMPORTANT:** L-BFGS achieves only **linear convergence**, not superlinear. Liu & Nocedal (1989) Theorem 6.1 proves that L-BFGS has R-linear convergence, and the paper explicitly states 'R-linear convergence is the best we can expect' (p. 23). This is fundamentally different from full BFGS, which can achieve superlinear convergence (Nocedal & Wright 2006, Theorem 6.6). The limited memory in L-BFGS (storing only $M$ recent curvature pairs) prevents the Hessian approximation from fully converging to the true Hessian, which limits the convergence rate to linear. The memory parameter $M$ affects the constant in the linear convergence rate but does NOT change the order of convergence to superlinear. Nocedal & Wright (2006) p. 196 confirms: L-BFGS yields 'an acceptable (albeit linear) rate of convergence.' Despite being 'only' linear, L-BFGS's convergence is still very effective in practice due to its low memory requirements ($O(Md)$ vs $O(d^2)$ for full BFGS) which enable its use on large-scale problems where full BFGS would be infeasible.
+
+## Internal Notes
+
+Internal: CRITICAL CORRECTION - This citation establishes that L-BFGS has LINEAR convergence, NOT superlinear. The paper explicitly states 'R-linear convergence is the best we can expect' (p. 23). This is in contrast to full BFGS, which can achieve superlinear convergence. Nocedal & Wright (2006) p. 196 also confirms L-BFGS has 'acceptable (albeit linear) rate of convergence.' The memory parameter M affects the constant in the linear convergence rate, not the order of convergence. Used in AlgorithmExplainer to correct the incorrect superlinear convergence claim.
+
+## Verification
+
+**Verified:** 2025-11-12
+
+**Verified By:** adversarial-verification-agent-batch6-agent5
+
+**Verification Notes:** ADVERSARIAL VERIFICATION - Corrected three errors: (1) Fixed page numbers from '21-24' to '20-23' (article pages, not PDF pages - this is a journal article); (2) Fixed notation in quote from $x^*$ and $f^*$ (superscript) to $x_*$ and $f_*$ (subscript) to match source exactly; (3) Removed unsupported claim about 'sufficient memory M approaching BFGS behavior' which is not explicitly stated in the theorem or surrounding text. Verified quote word-for-word against proof pages, confirmed theorem number, and verified all mathematical notation. All proof pages are present and show correct content.
+
+## Used In
+
+- AlgorithmExplainer
+
+## Proof Pages
+
+### Page 1
+
+![Proof page 1](../extracted-pages/liunocedal1989_page_0021.png)
+
+### Page 2
+
+![Proof page 2](../extracted-pages/liunocedal1989_page_0022.png)
+
+### Page 3
+
+![Proof page 3](../extracted-pages/liunocedal1989_page_0023.png)
+
+### Page 4
+
+![Proof page 4](../extracted-pages/liunocedal1989_page_0024.png)
+
