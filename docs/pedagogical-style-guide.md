@@ -659,8 +659,8 @@ The `generateKaTeXMacros()` function handles the conversion automatically, inclu
 
 **defaultExpanded Guidelines**:
 
-- `true`: Quick Start, Try This (first-time user essentials)
-- `false`: How It Works, Mathematical Details, Advanced Topics (deep dives)
+- `true`: Quick Start (first-time user essential)
+- `false`: Try this, How It Works, Mathematical Details, Advanced Topics (deeper dives)
 
 ### Callout Boxes
 

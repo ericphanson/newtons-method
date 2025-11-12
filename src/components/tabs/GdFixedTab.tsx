@@ -396,16 +396,36 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
+                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> <GlossaryTooltip termKey="linear-convergence" /> to global minimum
                 (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ))<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
-                <strong>Convex:</strong> Converges to global minimum (possibly slowly)<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
+                <strong>Convex:</strong> <GlossaryTooltip termKey="sublinear-convergence" /> to global minimum<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Non-convex:</strong> May get stuck in local minima or saddle points
               </li>
             </ul>
+          </div>
+
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 my-4">
+            <p className="font-semibold text-amber-900 mb-2">⚠️ Confusing Terminology Alert</p>
+            <p className="text-sm text-amber-800 mb-2">
+              The terms "linear convergence" and "sublinear convergence" above can be confusing (here <InlineMath>k</InlineMath> is the iteration number):
+            </p>
+            <ul className="text-sm text-amber-800 space-y-1 ml-4">
+              <li>
+                <strong>"<GlossaryTooltip termKey="linear-convergence" />"</strong> means the error decreases <em>exponentially</em> (like <InlineMath>{String.raw`\rho^k`}</InlineMath>).
+                It's called "linear" because log(error) decreases linearly with iterations.
+              </li>
+              <li>
+                <strong>"<GlossaryTooltip termKey="sublinear-convergence" />"</strong> means the error decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath> or slower—much
+                slower than the exponential decay of "linear convergence."
+              </li>
+            </ul>
+            <p className="text-sm text-amber-800 mt-2">
+              <em>Bottom line:</em> Linear convergence is fast (exponential decay). Sublinear convergence is slow (polynomial decay).
+            </p>
           </div>
 
         </div>
@@ -486,7 +506,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               </p>
               <BlockMath>{String.raw`\|\varW_k - \varW^*\|^2 \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|^2`}</BlockMath>
               <p className="text-sm mt-2">
-                <strong>Linear convergence:</strong> Error decreases by constant factor <InlineMath>{String.raw`\rho = \frac{L-\mu}{L+\mu} < 1`}</InlineMath> each iteration.
+                <strong><GlossaryTooltip termKey="linear-convergence" />:</strong> Error decreases by constant factor <InlineMath>{String.raw`\rho = \frac{L-\mu}{L+\mu} < 1`}</InlineMath> each iteration.
                 The condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> determines the rate: <InlineMath>{String.raw`\rho = \frac{Q-1}{Q+1}`}</InlineMath>.
                 Smaller <InlineMath>Q</InlineMath> (well-conditioned) → faster convergence.<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </p>
@@ -499,7 +519,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               </p>
               <BlockMath>{String.raw`f(\varW_k) - f(\varW^*) \leq \frac{L\|\varWZero - \varW^*\|^2}{2(k+1)}`}</BlockMath>
               <p className="text-sm mt-2">
-                <strong>Sublinear convergence:</strong> Function value gap decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath>.
+                <strong><GlossaryTooltip termKey="sublinear-convergence" />:</strong> Function value gap decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath>.
                 Slower than strongly convex case, but still guarantees progress.<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
               </p>
             </div>
@@ -544,8 +564,8 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
               <li><InlineMath>L</InlineMath>-smoothness enables step size <InlineMath>{String.raw`\varAlpha < \frac{2}{L}`}</InlineMath> with guaranteed descent</li>
               <li>Optimal fixed step size: <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath> (or <InlineMath>{String.raw`\frac{2}{L+\mu}`}</InlineMath> for strongly convex)</li>
-              <li>Strongly convex → linear convergence at rate <InlineMath>{String.raw`\frac{Q-1}{Q+1}`}</InlineMath></li>
-              <li>Convex → sublinear <InlineMath>{String.raw`O(1/k)`}</InlineMath> convergence in function value</li>
+              <li>Strongly convex → <GlossaryTooltip termKey="linear-convergence" /> at rate <InlineMath>{String.raw`\frac{Q-1}{Q+1}`}</InlineMath></li>
+              <li>Convex → <GlossaryTooltip termKey="sublinear-convergence" /> (<InlineMath>{String.raw`O(1/k)`}</InlineMath>) in function value</li>
               <li>Non-convex → gradient norm converges, but no global minimum guarantee</li>
             </ul>
           </div>

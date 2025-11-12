@@ -160,8 +160,9 @@ export const glossary: Record<string, GlossaryEntry> = {
       <>
         <strong>Quadratic convergence:</strong> The error is squared at each iteration:{' '}
         <InlineMath>{String.raw`\|e_{k+1}\| \leq C\|e_k\|^2`}</InlineMath>. This means the number of correct digits roughly doubles
-        each iteration near the solution. Much faster than linear convergence.
-        Newton's method achieves this under appropriate conditions.
+        each iteration near the solution. Much faster than linear convergence (where error decreases
+        by a constant factor). Requires <InlineMath>{String.raw`O(\log\log(1/\varepsilon))`}</InlineMath> iterations to reach{' '}
+        <InlineMath>\varepsilon</InlineMath> accuracy. Newton's method achieves this under appropriate conditions.
       </>
     ),
   },
@@ -173,7 +174,21 @@ export const glossary: Record<string, GlossaryEntry> = {
         <strong>Linear convergence:</strong> The error decreases by a constant factor each
         iteration: <InlineMath>{String.raw`\|e_{k+1}\| \leq \rho\|e_k\|`}</InlineMath> for some 0 &lt; <InlineMath>\rho</InlineMath> &lt; 1. Requires <InlineMath>{String.raw`O(\log(1/\varepsilon))`}</InlineMath>{' '}
         iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy. Gradient descent achieves this on strongly convex
-        smooth functions.
+        smooth functions. <em>Note:</em> Called "linear" because log(error) decreases linearly, even though
+        the error itself decreases exponentially (also called "geometric convergence").
+      </>
+    ),
+  },
+
+  'sublinear-convergence': {
+    term: 'sublinear convergence',
+    definition: (
+      <>
+        <strong>Sublinear convergence:</strong> The error (or function value gap) decreases as{' '}
+        <InlineMath>{String.raw`O(1/k)`}</InlineMath> or slower. Requires <InlineMath>{String.raw`O(1/\varepsilon)`}</InlineMath> iterations to reach{' '}
+        <InlineMath>\varepsilon</InlineMath> accuracy—much slower than linear convergence. Gradient descent
+        achieves <InlineMath>{String.raw`O(1/k)`}</InlineMath> convergence on convex smooth functions (without strong convexity).
+        <em>Note:</em> "Sublinear" means slower than linear convergence, despite "linear" actually being exponential decay.
       </>
     ),
   },
@@ -245,7 +260,8 @@ export const glossary: Record<string, GlossaryEntry> = {
         <strong>First-order method:</strong> An optimization algorithm that only uses
         function values and gradients (first derivatives). Examples: gradient descent,
         L-BFGS. Cheaper per iteration than second-order methods, but may require more
-        iterations.
+        iterations. <em>Note:</em> "First-order" refers to using first derivatives (gradients),
+        not to convergence speed.
       </>
     ),
   },
@@ -256,7 +272,8 @@ export const glossary: Record<string, GlossaryEntry> = {
       <>
         <strong>Second-order method:</strong> An optimization algorithm that uses the Hessian
         (second derivatives) in addition to gradients. Newton's method is the primary example.
-        More expensive per iteration but achieves faster convergence (quadratic vs. linear).
+        More expensive per iteration but typically achieves faster convergence. <em>Note:</em> "Second-order"
+        refers to using second derivatives (Hessian), not to convergence speed.
       </>
     ),
   },

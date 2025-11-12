@@ -2,7 +2,10 @@
   "references": {
     "nocedal-wright-2006": {
       "title": "Numerical Optimization",
-      "authors": ["Jorge Nocedal", "Stephen J. Wright"],
+      "authors": [
+        "Jorge Nocedal",
+        "Stephen J. Wright"
+      ],
       "year": 2006,
       "edition": "2nd",
       "publisher": "Springer",
@@ -10,21 +13,29 @@
     },
     "boyd-vandenberghe-2004": {
       "title": "Convex Optimization",
-      "authors": ["Stephen Boyd", "Lieven Vandenberghe"],
+      "authors": [
+        "Stephen Boyd",
+        "Lieven Vandenberghe"
+      ],
       "year": 2004,
       "publisher": "Cambridge University Press",
       "file": "Boyd+Vandenberghe-2004-Convex_optimization.pdf"
     },
     "nesterov-2004": {
       "title": "Introductory Lectures on Convex Optimization: A Basic Course",
-      "authors": ["Yurii Nesterov"],
+      "authors": [
+        "Yurii Nesterov"
+      ],
       "year": 2004,
       "publisher": "Kluwer Academic Publishers",
       "file": "Introductory-Lectures-on-Convex-Programming-Yurii-Nesterov-2004.pdf"
     },
     "liu-nocedal-1989": {
       "title": "On the Limited Memory BFGS Method for Large Scale Optimization",
-      "authors": ["Dong C. Liu", "Jorge Nocedal"],
+      "authors": [
+        "Dong C. Liu",
+        "Jorge Nocedal"
+      ],
       "year": 1989,
       "journal": "Mathematical Programming",
       "volume": "45",
@@ -33,7 +44,9 @@
     },
     "nesterov-2018": {
       "title": "Lectures on Convex Optimization",
-      "authors": ["Yurii Nesterov"],
+      "authors": [
+        "Yurii Nesterov"
+      ],
       "year": 2018,
       "edition": "2nd",
       "publisher": "Springer",
@@ -58,7 +71,9 @@
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94) for strongly convex functions. The quote is word-for-word accurate from the PDF. The theorem appears on page 101 (starting at the bottom) and continues to page 102. The step size condition allows equality ($h \\leq 2/(\\mu+L)$) unlike the 2004 edition which used strict inequality. Pages 93-94 provide the definition and characterization of strongly convex functions including Theorem 2.1.9 which gives equivalent conditions.",
-      "usedIn": ["GdFixedTab"]
+      "usedIn": [
+        "GdFixedTab"
+      ]
     },
     "nesterov-accelerated-optimal-rate-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -66,7 +81,7 @@
       "theorem": "Theorem 2.2.2 and Constant Step Scheme III (2.2.22)",
       "claim": "Nesterov's accelerated gradient method achieves the optimal convergence rate $O(1/k^2)$ for smooth convex functions, which is provably optimal among all first-order methods",
       "quote": "Let us take in (2.2.7) $\\gamma_0 = 3L + \\mu$. Then this scheme generates a sequence $\\{x_k\\}_{k=0}^{\\infty}$ such that $f(x_k) - f^* \\leq \\frac{2(4+q_f)L\\|x_0-x^*\\|^2}{3(k+1)^2}$. This means that method (2.2.7) is optimal for solving the unconstrained minimization problem (2.2.1) with $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $\\mu \\geq 0$. If $\\mu = 0$, then this method is optimal.",
-      "notes": "Internal: Used in GdFixedTab to explain Nesterov acceleration. This is the 2018 edition version with refined calligraphic notation. The general scheme (2.2.7) is developed in pages 102-111, with the constant step variant (Scheme III, equation 2.2.22) on page 114. Optimality is proven in Theorem 2.2.2 by comparing with Theorem 2.1.7 lower bound (pages 91-92). For μ=0 (smooth convex), equation (2.2.18) on page 112 gives the explicit rate: $f(x_k) - f^* \\leq \\frac{8L\\|x_0-x^*\\|^2}{3(k+1)^2}$, which is O(1/k²) compared to gradient descent's O(1/k) rate.",
+      "notes": "Internal: Used in GdFixedTab to explain Nesterov acceleration. This is the 2018 edition version with refined calligraphic notation. The general scheme (2.2.7) is developed in pages 102-111, with the constant step variant (Scheme III, equation 2.2.22) on page 114. Optimality is proven in Theorem 2.2.2 by comparing with Theorem 2.1.7 lower bound (pages 91-92). For \u03bc=0 (smooth convex), equation (2.2.18) on page 112 gives the explicit rate: $f(x_k) - f^* \\leq \\frac{8L\\|x_0-x^*\\|^2}{3(k+1)^2}$, which is O(1/k\u00b2) compared to gradient descent's O(1/k) rate.",
       "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes functions with strong convexity parameter $\\mu \\geq 0$ and Lipschitz continuous gradient with constant $L$. When $\\mu = 0$, this reduces to $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, the class of smooth convex functions. The $O(1/k^2)$ convergence rate is provably optimal: Theorem 2.1.7 (pages 91-92) establishes a lower bound showing that no first-order method can achieve better than $O(1/k^2)$ convergence for this function class. Nesterov's accelerated method matches this lower bound up to constant factors, proving optimality. Constant Step Scheme III (page 114, equation 2.2.22) shows the classic momentum form: $x_{k+1} = y_k - \\frac{1}{L}\\nabla f(y_k)$, $y_{k+1} = x_{k+1} + \\frac{1-\\sqrt{q_f}}{1+\\sqrt{q_f}}(x_{k+1} - x_k)$ where $q_f = \\mu/L$. For smooth convex functions ($\\mu=0$), the method requires a different parameter choice to avoid division by zero, as shown in Constant Step Scheme II (page 113).",
       "proofPages": [
         "docs/references/extracted-pages/lectures_on_convex_optimization_page_0091.png",
@@ -87,8 +102,10 @@
       ],
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
-      "verificationNotes": "Verified Theorem 2.2.2 (pages 110-111, optimality claim), Constant Step Scheme III (2.2.22) on page 114 which is the classic Nesterov acceleration with momentum, and Theorem 2.1.7 (pages 91-92, lower complexity bound). The quote is from page 110 (Theorem 2.2.2). Visual verification confirmed the O(1/k²) rate for μ=0 (equation 2.2.18 on page 112) and the optimality proof which shows the method matches the information-theoretic lower bound. Pages 102-109 develop the estimating sequence framework (Definition 2.2.1, Lemmas 2.2.1-2.2.4) and general optimal method scheme (2.2.7). Pages 110-111 prove optimality. Pages 112-114 derive the simplified constant step schemes with explicit momentum coefficients.",
-      "usedIn": ["GdFixedTab"]
+      "verificationNotes": "Verified Theorem 2.2.2 (pages 110-111, optimality claim), Constant Step Scheme III (2.2.22) on page 114 which is the classic Nesterov acceleration with momentum, and Theorem 2.1.7 (pages 91-92, lower complexity bound). The quote is from page 110 (Theorem 2.2.2). Visual verification confirmed the O(1/k\u00b2) rate for \u03bc=0 (equation 2.2.18 on page 112) and the optimality proof which shows the method matches the information-theoretic lower bound. Pages 102-109 develop the estimating sequence framework (Definition 2.2.1, Lemmas 2.2.1-2.2.4) and general optimal method scheme (2.2.7). Pages 110-111 prove optimality. Pages 112-114 derive the simplified constant step schemes with explicit momentum coefficients.",
+      "usedIn": [
+        "GdFixedTab"
+      ]
     },
     "gd-convex-sublinear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -107,7 +124,9 @@
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Theorem 2.1.14 and Corollary 2.1.2 on page 81. The quote is extracted from visual verification of the PDF pages. The theorem provides convergence in terms of distance to optimum, while Corollary 2.1.2 provides the $O(1/k)$ sublinear rate in function values with optimal step size $h=1/L$. Page 62 provides Definition 2.1.2 for convex functions. Page 59 contains the beginning of Section 2.1.1 (Smooth Convex Functions) where the function class $\\mathscr{F}_L^{1,1}$ is introduced. Page 80 contains the beginning of Section 2.1.5 (The Gradient Method). The step size bound allows equality ($h \\leq 2/L$) which is a refinement from the 2004 edition's strict inequality.",
-      "usedIn": ["GdFixedTab"]
+      "usedIn": [
+        "GdFixedTab"
+      ]
     },
     "gd-smooth-descent-condition-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -127,7 +146,9 @@
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Theorem 2.1.14 on page 81 which states the gradient method convergence for smooth convex functions with step size bound $0 < h \\leq 2/L$. The theorem explicitly states convergence, and the descent property is implied by the proof which uses the fundamental inequality for L-smooth functions (Lemma 1.2.3 on page 23). Pages 59-60 provide context on Chapter 2 (Smooth Convex Optimization) structure. Page 62 contains Definition 2.1.2 for convex functions. Pages 80-81 contain Section 2.1.5 'The Gradient Method' where Theorem 2.1.14 appears. The step size condition $h \\leq 2/L$ (allowing equality) is explicitly stated in the theorem, which is a refinement from the 2004 edition's strict inequality $h < 2/L$.",
-      "usedIn": ["GdFixedTab"]
+      "usedIn": [
+        "GdFixedTab"
+      ]
     },
     "gd-descent-lemma-quadratic-upper-bound-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -145,7 +166,9 @@
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
       "verificationNotes": "Verified Lemma 1.2.3 on pages 45-46 (book page 25-26). The lemma provides both a bound on the error of the linear approximation and the geometric interpretation showing the quadratic upper bound. The quote is extracted from visual verification of the PDF pages. Page 44 provides the definition of the function class $C_L^{1,1}(\\mathbb{R}^n)$ (functions with Lipschitz continuous gradient). The upper bound inequality $f(y) \\leq f(x) + \\langle \\nabla f(x), y - x \\rangle + \\frac{L}{2}\\|y - x\\|^2$ follows directly from the lemma by rearranging the absolute value inequality.",
-      "usedIn": ["GdFixedTab"]
+      "usedIn": [
+        "GdFixedTab"
+      ]
     },
     "condition-number-definition-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -153,7 +176,7 @@
       "theorem": "Definition following Theorem 2.1.12, and Theorem 2.1.11",
       "claim": "The condition number $Q = L/\\mu$ for strongly convex smooth functions is equivalent to the ratio of largest to smallest Hessian eigenvalues $\\lambda_{\\text{max}}/\\lambda_{\\text{min}}$",
       "quote": "One of the most important functional classes is $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ (recall that the corresponding norm is standard Euclidean). This class is described by the following inequalities: $\\langle \\nabla f(x) - \\nabla f(y), x - y \\rangle \\geq \\mu \\| x - y \\|^2$, $\\| \\nabla f(x) - \\nabla f(y) \\| \\leq L \\| x - y \\|$. The value $Q_f = L/\\mu \\geq 1$ is called the condition number of the function $f$.",
-      "notes": "Internal: This citation documents the equivalence between the two definitions of condition number that appear in the codebase: (1) Q = L/μ based on function properties, and (2) κ = λ_max/λ_min based on Hessian eigenvalues. Theorem 2.1.11 on pages 95-96 establishes the connection: for twice continuously differentiable functions, f ∈ S^{1,1}_{μ,L} if and only if μI ⪯ ∇²f(x) ⪯ LI for all x, which means the Hessian eigenvalues satisfy μ ≤ λ_i ≤ L, making λ_min = μ and λ_max = L (for quadratic functions or locally near minima). The glossary entry for condition-number mentions both definitions and states they are equivalent.",
+      "notes": "Internal: This citation documents the equivalence between the two definitions of condition number that appear in the codebase: (1) Q = L/\u03bc based on function properties, and (2) \u03ba = \u03bb_max/\u03bb_min based on Hessian eigenvalues. Theorem 2.1.11 on pages 95-96 establishes the connection: for twice continuously differentiable functions, f \u2208 S^{1,1}_{\u03bc,L} if and only if \u03bcI \u2aaf \u2207\u00b2f(x) \u2aaf LI for all x, which means the Hessian eigenvalues satisfy \u03bc \u2264 \u03bb_i \u2264 L, making \u03bb_min = \u03bc and \u03bb_max = L (for quadratic functions or locally near minima). The glossary entry for condition-number mentions both definitions and states they are equivalent.",
       "readerNotes": "For smooth strongly convex functions (class $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$), the condition number can be defined two equivalent ways: (1) $Q = L/\\mu$ where $L$ is the Lipschitz constant of the gradient and $\\mu$ is the strong convexity parameter, or (2) $\\kappa = \\lambda_{\\text{max}}/\\lambda_{\\text{min}}$ where these are the largest and smallest eigenvalues of the Hessian. These are equivalent because Theorem 2.1.11 (pages 95-96) shows that $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ if and only if $\\mu I \\preceq \\nabla^2 f(x) \\preceq L I$ for all $x$, meaning all Hessian eigenvalues satisfy $\\mu \\leq \\lambda_i \\leq L$. For quadratic functions $f(x) = \\frac{1}{2}x^T A x$, the Hessian is constant ($\\nabla^2 f = A$), so $\\mu = \\lambda_{\\text{min}}(A)$ and $L = \\lambda_{\\text{max}}(A)$ exactly. For general strongly convex functions, these bounds hold throughout the domain, establishing the equivalence.",
       "proofPages": [
         "docs/references/extracted-pages/lectures_on_convex_optimization_page_0095.png",
@@ -162,8 +185,118 @@
       ],
       "verified": "2025-11-11",
       "verifiedBy": "claude-code-agent",
-      "verificationNotes": "Verified the definition of condition number Q_f = L/μ on page 97 (following Theorem 2.1.12). Verified Theorem 2.1.11 on pages 95-96 which establishes the second-order characterization showing f ∈ S^{2}_{μ,L}(Q, ‖·‖) if and only if ∇²f(x)h, h ≥ μ‖h‖² for all x ∈ intQ and h ∈ R^n. In the Euclidean norm case, this is equivalent to the matrix inequality ∇²f(x) ⪰ μI (equation 2.1.28 on page 96). Combined with inequality (2.1.31) which gives ‖∇f(x) - ∇f(y)‖ ≤ L‖x - y‖ (implying ∇²f(x) ⪯ LI), this establishes that μ and L bound the Hessian eigenvalues, making Q_f = L/μ equivalent to λ_max/λ_min for the Hessian.",
-      "usedIn": ["glossary"]
+      "verificationNotes": "Verified the definition of condition number Q_f = L/\u03bc on page 97 (following Theorem 2.1.12). Verified Theorem 2.1.11 on pages 95-96 which establishes the second-order characterization showing f \u2208 S^{2}_{\u03bc,L}(Q, \u2016\u00b7\u2016) if and only if \u2207\u00b2f(x)h, h \u2265 \u03bc\u2016h\u2016\u00b2 for all x \u2208 intQ and h \u2208 R^n. In the Euclidean norm case, this is equivalent to the matrix inequality \u2207\u00b2f(x) \u2ab0 \u03bcI (equation 2.1.28 on page 96). Combined with inequality (2.1.31) which gives \u2016\u2207f(x) - \u2207f(y)\u2016 \u2264 L\u2016x - y\u2016 (implying \u2207\u00b2f(x) \u2aaf LI), this establishes that \u03bc and L bound the Hessian eigenvalues, making Q_f = L/\u03bc equivalent to \u03bb_max/\u03bb_min for the Hessian.",
+      "usedIn": [
+        "glossary"
+      ]
+    },
+    "gd-linesearch-convex-sublinear-convergence-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "48-50, 81",
+      "theorem": "Equation (1.2.20) with Corollary 2.1.2",
+      "claim": "For convex, L-smooth functions, gradient descent with Armijo line search achieves sublinear convergence: $f(w_k) - f^* \\leq O(L\\|w_0 - w^*\\|^2/k)$. Line search automatically adapts the step size to achieve near-optimal constants without requiring knowledge of $L$",
+      "quote": "The Armijo rule: Find $x_{k+1} = x_k - h\\nabla f(x_k)$ with $h > 0$ such that $\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1})$, $\\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1})$, where $0 < \\alpha < \\beta < 1$ are some fixed parameters. [...] Thus, we have proved that in all cases we have $f(x_k) - f(x_{k+1}) \\geq \\frac{\\omega}{L} \\|\\nabla f(x_k)\\|^2$, where $\\omega$ is some positive constant. [...] For the Armijo rule, $\\omega = \\frac{2\\alpha(1-\\beta)}{L}$",
+      "notes": "Internal: Used in GdLineSearchTab to show that line search achieves the same O(1/k) convergence rate as fixed step size for convex smooth functions, but without requiring knowledge of L. The key insight from equation (1.2.20) is that all step size strategies (constant, full relaxation, Armijo) satisfy the same type of descent inequality: $f(x_k) - f(x_{k+1}) \\geq \\omega \\|\\nabla f(x_k)\\|^2$ for some positive constant $\\omega$. For Armijo rule with parameters $\\alpha, \\beta \\in (0,1)$, we get $h_k \\geq \\frac{2}{L}(1-\\beta)$ and thus $\\omega = \\frac{2\\alpha(1-\\beta)}{L}$. Applying the same argument as Corollary 2.1.2 (which uses the descent inequality for convex functions), this gives the O(1/k) rate. The advantage of line search is that it automatically finds a good step size without knowing L in advance, while achieving comparable convergence constants to the optimal fixed step size $h = 1/L$.",
+      "readerNotes": "The Armijo line search rule (also called backtracking line search) finds a step size $h_k$ at each iteration that satisfies two conditions: sufficient decrease $f(x_k) - f(x_{k+1}) \\geq \\alpha h_k \\|\\nabla f(x_k)\\|^2$ and an upper bound $f(x_k) - f(x_{k+1}) \\leq \\beta h_k \\|\\nabla f(x_k)\\|^2$, where $0 < \\alpha < \\beta < 1$ are parameters (typically $\\alpha \\approx 0.3$, $\\beta \\approx 0.7$). Nesterov shows (pages 48-50) that for smooth functions ($f \\in C_L^{1,1}$), the Armijo rule guarantees a step size of at least $h_k \\geq \\frac{2}{L}(1-\\beta)$, yielding the descent inequality $f(x_k) - f(x_{k+1}) \\geq \\frac{2\\alpha(1-\\beta)}{L} \\|\\nabla f(x_k)\\|^2$. This is the same type of inequality as with fixed step size $h = \\frac{2\\alpha}{L}$ (equation on page 50), showing that line search achieves comparable per-iteration progress. For convex smooth functions, this descent inequality leads to $O(1/k)$ convergence by the same argument as Corollary 2.1.2: summing over iterations gives $f(x_k) - f^* \\leq \\frac{L\\|x_0-x^*\\|^2}{2\\omega(k+1)}$. The key advantage of line search is **automatic step size selection**: it adapts to the local smoothness without requiring prior knowledge of $L$, achieving near-optimal convergence constants in practice.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0048.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0049.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0050.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0081.png"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified the Armijo rule definition (equation 1.2.16-1.2.17) on page 48-49, the unified descent inequality (equation 1.2.20) on page 50 showing $f(x_k) - f(x_{k+1}) \\geq \\frac{\\omega}{L}\\|\\nabla f(x_k)\\|^2$ for all step size strategies including Armijo, and the derivation showing Armijo achieves $\\omega = \\frac{2\\alpha(1-\\beta)}{L}$. Also verified Corollary 2.1.2 on page 81 which converts the descent inequality to the O(1/k) convergence rate for convex smooth functions. The Armijo rule analysis shows that $h_k \\geq \\frac{2}{L}(1-\\beta)$ (bottom of page 50), and combining with the sufficient decrease condition (equation 1.2.16) yields the stated bound. The quote is extracted from visual verification of pages 48 and 50. Note: Nesterov uses $h$ for step size; the notation $\\alpha$ is used here to denote step size in our implementation.",
+      "usedIn": [
+        "GdLineSearchTab"
+      ]
+    },
+    "wolfe-conditions-nocedal-wright-2006": {
+      "reference": "nocedal-wright-2006",
+      "pages": "33-36",
+      "theorem": "Equations (3.6) and (3.7)",
+      "claim": "The Wolfe conditions combine Armijo's sufficient decrease $f(x_k + \\alpha p_k) \\leq f(x_k) + c_1\\alpha\\nabla f_k^T p_k$ with a curvature condition $\\nabla f(x_k + \\alpha p_k)^T p_k \\geq c_2\\nabla f_k^T p_k$ (where $0 < c_1 < c_2 < 1$) to ensure steps are neither too small nor too large",
+      "quote": "The sufficient decrease and curvature conditions are known collectively as the Wolfe conditions. We illustrate them in Figure 3.5 and restate them here for future reference: $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $\\nabla f(x_k + \\alpha_k p_k)^T p_k \\geq c_2 \\nabla f_k^T p_k$, with $0 < c_1 < c_2 < 1$. [...] The strong Wolfe conditions require $\\alpha_k$ to satisfy $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $|\\nabla f(x_k + \\alpha_k p_k)^T p_k| \\leq c_2 |\\nabla f_k^T p_k|$, with $0 < c_1 < c_2 < 1$.",
+      "notes": "Internal: This is for background context only in GdLineSearchTab. The key insight is that Armijo (sufficient decrease) alone is satisfied by arbitrarily small steps (see Figure 3.3 on page 53), so the curvature condition is needed to prevent tiny steps. The curvature condition ensures the slope at the accepted point is not too negative (not much room for further decrease). Strong Wolfe adds an absolute value to also exclude points far from stationary points. Typical values: c1=1e-4, c2=0.9 (Newton/quasi-Newton) or 0.1 (conjugate gradient). We implement Armijo backtracking only, but mention Wolfe briefly to explain why pure Armijo can be inefficient without backtracking from a reasonable initial step.",
+      "readerNotes": "The Wolfe conditions consist of two parts: (1) The sufficient decrease (Armijo) condition $f(x_k + \\alpha p_k) \\leq f(x_k) + c_1\\alpha\\nabla f_k^T p_k$ ensures the step reduces the function value proportionally to the step size and directional derivative. However, this condition alone is satisfied by all sufficiently small steps (see Figure 3.3), which could lead to inefficiently tiny steps. (2) The curvature condition $\\nabla f(x_k + \\alpha p_k)^T p_k \\geq c_2\\nabla f_k^T p_k$ prevents arbitrarily small steps by requiring the slope at the accepted point to be at least $c_2$ times the initial slope. If the slope is still strongly negative ($\\ll c_2\\nabla f_k^T p_k$), we can reduce $f$ significantly by moving further, so the search continues. The strong Wolfe conditions use $|\\nabla f(x_k + \\alpha p_k)^T p_k| \\leq c_2 |\\nabla f_k^T p_k|$ to also exclude points with excessively positive slope, forcing steps to lie near stationary points of the line search function. Common parameter values are $c_1 = 10^{-4}$ and $c_2 = 0.9$ for Newton/quasi-Newton methods.",
+      "proofPages": [
+        "docs/references/extracted-pages/numericaloptimization2006_page_0052.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0053.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0054.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0055.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0056.png"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Wolfe conditions (3.6) on page 54 and strong Wolfe conditions (3.7) on page 54. The Armijo (sufficient decrease) condition is defined as equation (3.4) on page 53. The curvature condition is equation (3.5) on page 53. Figure 3.3 on page 53 illustrates how Armijo alone accepts arbitrarily small steps. Figure 3.4 on page 54 illustrates the curvature condition. Figure 3.5 on page 55 shows the combined Wolfe conditions. Page 52 provides context on why simple decrease is insufficient (Figure 3.2). The text explicitly states 'The sufficient decrease condition is not enough by itself to ensure that the algorithm makes reasonable progress because, as we see from Figure 3.3, it is satisfied for all sufficiently small values of \u03b1.' Lemma 3.1 (pages 55-56) proves that step lengths satisfying Wolfe conditions always exist for smooth functions bounded below.",
+      "usedIn": [
+        "GdLineSearchTab"
+      ]
+    },
+    "armijo-backtracking-termination-nocedal-wright-2006": {
+      "reference": "nocedal-wright-2006",
+      "pages": "37, 56-57",
+      "theorem": "Algorithm 3.1 (Backtracking Line Search)",
+      "claim": "For L-smooth functions, Armijo backtracking with geometric step reduction $\\alpha \\leftarrow \\tau\\alpha$ (where $\\tau \\in (0,1)$) terminates in finite steps. The backtracking procedure will find an acceptable step length after a finite number of trials.",
+      "quote": "Algorithm 3.1 (Backtracking Line Search). Choose $\\bar{\\alpha} > 0$, $\\rho \\in (0, 1)$, $c \\in (0, 1)$; Set $\\alpha \\leftarrow \\bar{\\alpha}$; repeat until $f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k$, $\\alpha \\leftarrow \\rho\\alpha$; end (repeat). Terminate with $\\alpha_k = \\alpha$. [...] An acceptable step length will be found after a finite number of trials, because $\\alpha_k$ will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3).",
+      "notes": "Internal: Used in GdLineSearchTab to explain backtracking line search termination. The book guarantees finite termination but does not provide an explicit bound on the number of backtracking iterations in terms of problem parameters. Page 37 contains the algorithm (PDF page 57), and page 37 contains the statement about finite termination. The sufficient decrease condition is also called the Armijo condition (page 33, PDF page 53). The notation: $\\bar{\\alpha}$ is initial step length (typically 1 for Newton/quasi-Newton), $\\rho$ is the contraction factor (reduction ratio), $c$ is the Armijo parameter (typically $10^{-4}$), $p_k$ is the search direction. The book uses $\\rho$ for the contraction factor; in the codebase this may be denoted $\\tau$.",
+      "readerNotes": "The Armijo backtracking algorithm guarantees that a step length satisfying the sufficient decrease condition $f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k$ will be found in finitely many iterations. At each iteration, the step length is reduced by the factor $\\rho$ (i.e., $\\alpha \\leftarrow \\rho\\alpha$). The algorithm terminates because the step length eventually becomes small enough that the sufficient decrease condition is satisfied. For L-smooth functions (Lipschitz continuous gradient with constant $L$), this is guaranteed by Lemma 1.2.3 in Nesterov 2018 (page 45/25), which shows that $f(y) \\leq f(x) + \\langle\\nabla f(x), y-x\\rangle + \\frac{L}{2}\\|y-x\\|^2$. However, the standard references do not provide an explicit bound on the number of backtracking iterations in terms of $L$, $c$, or $\\rho$; they only guarantee finite termination. The typical choice is $c = 10^{-4}$ (page 33) and $\\rho \\in [\\rho_{lo}, \\rho_{hi}]$ for some fixed $0 < \\rho_{lo} < \\rho_{hi} < 1$ (page 37).",
+      "proofPages": [
+        "docs/references/extracted-pages/numericaloptimization2006_page_0037.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0052.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0053.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0056.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0057.png"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Algorithm 3.1 (Backtracking Line Search) on page 37 (PDF page 57). Verified the statement about finite termination on page 37 (PDF page 57): 'An acceptable step length will be found after a finite number of trials, because \u03b1k will eventually become small enough that the sufficient decrease condition holds.' Also verified the Armijo condition definition on page 33 (PDF page 53): the sufficient decrease condition is referred to as 'the Armijo condition.' Page 32 (PDF page 52) shows Figure 3.3 illustrating the sufficient decrease condition. The book does not provide an explicit O(log(1/c)) bound on the number of backtracking iterations; it only guarantees finite termination. The contraction factor is denoted $\\rho$ in the algorithm statement.",
+      "usedIn": [
+        "GdLineSearchTab"
+      ]
+    },
+    "gd-linesearch-strongly-convex-linear-convergence-nesterov-2018": {
+      "reference": "nesterov-2018",
+      "pages": "53-55",
+      "theorem": "Theorem 1.2.4",
+      "claim": "For $\\mu$-strongly convex, $L$-smooth functions (locally, near a strict local minimum), gradient descent with Armijo line search or optimal step size $h^* = 2/(L+\\mu)$ achieves linear convergence: $\\|x_k - x^*\\|^2 \\leq \\rho^k \\|x_0 - x^*\\|^2$ where $\\rho = (1 - 2\\mu/(L+3\\mu))^2 < 1$ depends on the condition number $Q = L/\\mu$",
+      "quote": "Theorem 1.2.4 Let the function $f(\\cdot)$ satisfy our assumptions and let the starting point $x_0$ be close enough to a strict local minimum $x^*$: $r_0 = \\|x_0 - x^*\\| < \\bar{r} = 2\\mu/M$. Then the Gradient Method with step size $h^*_k = 2/(L+\\mu)$ converges as follows: $\\|x_k - x^*\\| \\leq \\frac{\\bar{r}r_0}{\\bar{r}-r_0}\\left(1 - \\frac{2\\mu}{L+3\\mu}\\right)^k$. This type of rate of convergence is called linear.",
+      "notes": "Internal: This is a LOCAL convergence result for gradient descent near a strict local minimum, not a global result. The assumptions are: (1) $f \\in C_M^{2,2}(\\mathbb{R}^n)$ (twice differentiable with Lipschitz continuous Hessian), (2) $x^*$ is a local minimum with positive definite Hessian bounded by $\\mu I \\preceq \\nabla^2 f(x^*) \\preceq LI$, and (3) starting point $x_0$ is close enough to $x^*$. The theorem shows linear convergence with the optimal step size $h^* = 2/(L+\\mu)$. The Armijo rule (pages 48-50, equations 1.2.16-1.2.17) is discussed as a practical line search strategy that guarantees sufficient decrease and is shown to give $f(x_k) - f(x_{k+1}) \\geq \\frac{\\alpha(1-\\beta)}{2L}\\|\\nabla f(x_k)\\|^2$ for parameters $0 < \\alpha < \\beta < 1$. This differs from the global results in Chapter 2 (Theorems 2.1.14 and 2.1.15) which apply to globally convex/strongly convex functions. Used in GdLineSearchTab.",
+      "readerNotes": "This theorem establishes linear convergence for gradient descent with line search in a LOCAL neighborhood of a strict minimum, not globally. The assumptions require: (1) twice differentiable function with Lipschitz continuous Hessian (constant $M$), (2) a strict local minimum $x^*$ where the Hessian satisfies $\\mu I \\preceq \\nabla^2 f(x^*) \\preceq LI$, and (3) initial point sufficiently close to $x^*$ (within radius $\\bar{r} = 2\\mu/M$). The convergence rate $\\rho = 1 - 2\\mu/(L+3\\mu)$ depends on the condition number $Q = L/\\mu$. The Armijo rule (equations 1.2.16-1.2.17, pages 48-50) is a practical line search that finds step size $h > 0$ satisfying $\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1}) \\leq \\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle$ for parameters $0 < \\alpha < \\beta < 1$, ensuring sufficient decrease. Note: Nesterov uses $h$ for step size; here we use $\\alpha$. This LOCAL result complements the GLOBAL results in Chapter 2: Theorem 2.1.15 (pages 101-102) for globally strongly convex functions requires the function to be strongly convex everywhere, not just near a minimum.",
+      "proofPages": [
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0048.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0049.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0050.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0053.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0054.png",
+        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0055.png"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 1.2.4 on pages 53-55 showing local linear convergence for gradient descent near a strict local minimum with step size $h^* = 2/(L+\\mu)$. The convergence rate is $\\|x_k - x^*\\| \\leq C(1 - 2\\mu/(L+3\\mu))^k$ where $C = \\bar{r}r_0/(\\bar{r}-r_0)$. Also verified the Armijo rule definition on pages 48-50 (equations 1.2.16-1.2.17) and the analysis showing that Armijo line search ensures decrease $f(x_k) - f(x_{k+1}) \\geq \\omega/L \\|\\nabla f(x_k)\\|^2$ for constant $\\omega = \\alpha(1-\\beta)/2$ (page 50, equation 1.2.20). This is a LOCAL convergence result requiring the initial point to be close to a local minimum where the Hessian is positive definite, distinct from the GLOBAL strongly convex results in Chapter 2.",
+      "usedIn": [
+        "GdLineSearchTab"
+      ]
+    },
+    "gd-linesearch-strongly-convex-linear-convergence-nocedal-wright-2006": {
+      "reference": "nocedal-wright-2006",
+      "pages": "62-64",
+      "theorem": "Theorem 3.3 and Theorem 3.4",
+      "claim": "For strongly convex quadratic functions and general smooth strongly convex functions, steepest descent with exact line search achieves linear convergence with rate determined by the condition number: $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$ where $\\kappa(Q) = \\lambda_n/\\lambda_1$ is the condition number",
+      "quote": "Theorem 3.3. When the steepest descent method with exact line searches is applied to the strongly convex quadratic function $f(x) = \\frac{1}{2}x^T Q x - b^T x$, the error norm satisfies $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$, where $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $Q$. [...] Theorem 3.4. Suppose that $f : \\mathbb{R}^n \\to \\mathbb{R}$ is twice continuously differentiable, and that the iterates generated by the steepest-descent method with exact line searches converge to a point $x^*$ at which the Hessian matrix $\\nabla^2 f(x^*)$ is positive definite. Let $r$ be any scalar satisfying $r \\in [(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1), 1]$, where $\\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $\\nabla^2 f(x^*)$. Then for all $k$ sufficiently large, we have $f(x_{k+1}) - f(x^*) \\leq r^2[f(x_k) - f(x^*)]$.",
+      "notes": "Internal: These theorems establish linear convergence for steepest descent (gradient descent) with exact line search on strongly convex functions. Theorem 3.3 gives the exact rate for quadratic functions, while Theorem 3.4 extends to general nonlinear functions (asymptotically, near the solution). The convergence rate depends on the condition number $\\kappa = \\lambda_n/\\lambda_1 = L/\\mu$. The rate $(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1) = (L-\\mu)/(L+\\mu) = (Q-1)/(Q+1)$ where $Q = L/\\mu$ is the condition number. This matches the result in Nesterov 2018 Theorem 2.1.15 for globally strongly convex functions. The exact line search minimizes $f(x_k - \\alpha \\nabla f(x_k))$ over $\\alpha > 0$. Used in GdLineSearchTab.",
+      "readerNotes": "These results show that steepest descent with exact line search achieves linear convergence on strongly convex functions, with the convergence rate determined by the condition number $\\kappa = \\lambda_n/\\lambda_1$. For quadratic functions $f(x) = \\frac{1}{2}x^T Q x - b^T x$, Theorem 3.3 gives the exact rate $(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1)$. For general smooth functions, Theorem 3.4 shows that near a solution $x^*$ where $\\nabla^2 f(x^*)$ is positive definite, the method achieves the same asymptotic rate based on the eigenvalues of the Hessian at $x^*$. The exact line search finds the step length $\\alpha_k$ that minimizes $f(x_k - \\alpha \\nabla f(x_k))$, given by $\\alpha_k = \\nabla f_k^T \\nabla f_k / (\\nabla f_k^T Q \\nabla f_k)$ for quadratic functions (equation 3.25, page 62). The convergence rate degrades as the condition number increases: when $\\kappa$ is large, the rate approaches 1 and convergence becomes very slow. The weighted norm $\\|x\\|_Q^2 = x^T Q x$ measures optimality gap: $\\frac{1}{2}\\|x - x^*\\|_Q^2 = f(x) - f(x^*)$ (equation 3.27).",
+      "proofPages": [
+        "docs/references/extracted-pages/numericaloptimization2006_page_0062.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0063.png",
+        "docs/references/extracted-pages/numericaloptimization2006_page_0064.png"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Verified Theorem 3.3 on pages 62-63 for strongly convex quadratic functions and Theorem 3.4 on page 64 for general smooth functions. Both theorems establish linear convergence with rate determined by condition number. The exact line search formula (equation 3.25) and the weighted norm definition (equation 3.27) are on page 62. Theorem 3.3 provides the exact convergence rate for quadratics, while Theorem 3.4 extends to nonlinear functions asymptotically. The rate $(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1)$ can be rewritten as $(Q-1)/(Q+1)$ where $Q = \\lambda_n/\\lambda_1 = L/\\mu$ is the condition number, matching Nesterov's results.",
+      "usedIn": [
+        "GdLineSearchTab"
+      ]
     }
   }
 }

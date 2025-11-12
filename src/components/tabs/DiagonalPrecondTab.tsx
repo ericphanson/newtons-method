@@ -264,7 +264,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
               <p className="font-semibold text-blue-900 mb-2">💡 Key Insight</p>
               <p className="text-sm text-blue-800">
-                Diagonal preconditioning is the simplest second-order method. It captures
+                Diagonal preconditioning is the simplest <GlossaryTooltip termKey="second-order-method" />. It captures
                 per-coordinate curvature but ignores coordinate coupling. Think of it as "Newton's method
                 if the world were axis-aligned."
               </p>

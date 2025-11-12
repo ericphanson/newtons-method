@@ -600,7 +600,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <li>Large-scale problems where Newton's method (<InlineMath>O(d^3)</InlineMath> cost) is prohibitively expensive</li>
               <li>Non-convex optimization near saddle points — L-BFGS only uses positive curvature (<InlineMath>{`s^T y > 0`}</InlineMath>), making it more robust than Newton</li>
               <li>Smooth, differentiable objectives</li>
-              <li>When gradient descent is too slow but full second-order methods are too expensive</li>
+              <li>When gradient descent is too slow but full <GlossaryTooltip termKey="second-order-method" /> are too expensive</li>
             </ul>
           </div>
 
@@ -1077,8 +1077,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong>Strongly convex:</strong> Superlinear convergence guaranteed
-                (between linear GD and quadratic Newton)
+                <strong>Strongly convex:</strong> <GlossaryTooltip termKey="superlinear-convergence" /> guaranteed
+                (between <GlossaryTooltip termKey="linear-convergence" /> and <GlossaryTooltip termKey="quadratic-convergence" />)
               </li>
               <li>
                 <strong>Convex:</strong> Converges to global minimum
@@ -1172,8 +1172,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             </p>
             <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
-              <li>Faster than linear convergence (gradient descent) but slower than quadratic (Newton's method)</li>
-              <li>Convergence rate depends on <InlineMath>\varM</InlineMath>: larger <InlineMath>\varM</InlineMath> → closer to Newton's quadratic rate</li>
+              <li>Faster than <GlossaryTooltip termKey="linear-convergence" /> (gradient descent) but slower than <GlossaryTooltip termKey="quadratic-convergence" /> (Newton's method)</li>
+              <li>Convergence rate depends on <InlineMath>\varM</InlineMath>: larger <InlineMath>\varM</InlineMath> → closer to Newton's <GlossaryTooltip termKey="quadratic-convergence" /></li>
               <li>Requires strong convexity for convergence guarantees; works well empirically on non-convex problems too</li>
             </ul>
           </div>

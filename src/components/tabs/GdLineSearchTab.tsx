@@ -4,6 +4,8 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { GlossaryTooltip } from '../GlossaryTooltip';
+import { Citation } from '../Citation';
+import { References } from '../References';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -169,17 +171,28 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       {/* Quick Start */}
       <CollapsibleSection
         title="Quick Start"
-        defaultExpanded={false}
+        defaultExpanded={true}
         storageKey="gd-ls-quick-start"
         id="quick-start"
       >
         <div className="space-y-4 text-gray-800">
           <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">The Core Idea</h3>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">What Is It?</h3>
             <p>
-              Instead of using a fixed step size <InlineMath>\varAlpha</InlineMath>, automatically
-              search for a good step size at each iteration. This makes the algorithm{' '}
-              <strong>robust and efficient</strong> across different problems.
+              Gradient descent with <strong>automatic step size selection</strong>. Instead of
+              picking a fixed <InlineMath>\varAlpha</InlineMath>, the algorithm searches for
+              a good step size at each iteration.
+            </p>
+          </div>
+
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4">
+            <p className="font-semibold text-amber-900 mb-2">
+              🎯 Key Advantage: No Manual Tuning
+            </p>
+            <p className="text-sm text-amber-800">
+              Line search automatically adapts to problem scaling, curvature changes,
+              and different regions of parameter space. You get robust convergence
+              without tweaking <InlineMath>\varAlpha</InlineMath>.
             </p>
           </div>
 
@@ -208,138 +221,27 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <>Initialize <InlineMath>\varW \leftarrow \varWZero</InlineMath> <Complexity>O(1)</Complexity></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <InlineMath>{String.raw`\varGrad = \nabla f(\varW)`}</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                <span className="ml-4">Compute gradient <InlineMath>\varGrad = \nabla f(\varW)</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
               </>,
               <>
-                <span className="ml-4">Set search direction <InlineMath>{String.raw`\varP \leftarrow -\varGrad`}</InlineMath> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4">Set direction <InlineMath>\varP \leftarrow -\varGrad</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><strong>Line search:</strong> find step size <InlineMath>\varAlpha</InlineMath> that decreases loss sufficiently <Complexity explanation="Backtracking">≈1-4 f evals</Complexity></span>
+                <span className="ml-4"><strong>Line search:</strong> find <InlineMath>\varAlpha</InlineMath> that decreases loss sufficiently <Complexity explanation="Backtracking">2-5 f evals</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><InlineMath>{String.raw`\varW \leftarrow \varW + \varAlpha \varP`}</InlineMath> <Complexity>O(d)</Complexity></span>
+                <span className="ml-4">Update <InlineMath>\varW \leftarrow \varW + \varAlpha \varP</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
               <><strong>return</strong> <InlineMath>\varW</InlineMath></>
             ]}
           />
 
-          <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">Key Advantage</h3>
+          <div className="text-sm text-gray-700 bg-gray-50 rounded p-3">
+            <p className="font-semibold mb-1">What to Try</p>
             <p>
-              <strong>No manual tuning</strong> of step size needed. The line search
-              automatically adapts to:
-            </p>
-            <ul className="list-disc ml-6 space-y-1">
-              <li>Problem scaling and curvature</li>
-              <li>Changes in landscape across iterations</li>
-              <li>Different regions of parameter space</li>
-            </ul>
-            <p className="text-sm mt-3 text-gray-700">
-              <strong>Note:</strong> Line search adapts <InlineMath>\varAlpha</InlineMath> iteration-by-iteration,
-              which prevents divergence and speeds up convergence. However, it's still <strong>one step size
-                for all directions</strong> at each iteration. On <GlossaryTooltip termKey="ill-conditioned" /> problems, this causes
-              zig-zagging (just less severe than fixed <InlineMath>\varAlpha</InlineMath>).
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">When to Use</h3>
-            <ul className="list-disc ml-6 space-y-1">
-              <li>When you want robust optimization without tuning</li>
-              <li>Problems with varying curvature</li>
-              <li>When step size selection is difficult</li>
-              <li>Production systems where reliability matters</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-100 rounded p-3">
-            <p className="font-bold text-sm">Tradeoff:</p>
-            <p className="text-sm">
-              Each iteration costs more (multiple gradient evaluations for line search),
-              but fewer total iterations needed. Usually worth it for reliable convergence.
-            </p>
-          </div>
-        </div>
-      </CollapsibleSection>
-
-      {/* Line Search Details */}
-      <CollapsibleSection
-        title="Line Search Details"
-        defaultExpanded={false}
-        storageKey="gd-ls-line-search-details"
-        id="line-search-details"
-      >
-        <div className="space-y-4 text-gray-800">
-          <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">Why Line Search for Gradient Descent</h3>
-            <p>
-              Fixed step size <InlineMath>\varAlpha</InlineMath> (where <InlineMath>\varAlpha</InlineMath> is the step size controlling how far we move along the gradient) fails when landscape has
-              varying curvature:
-            </p>
-            <ul className="list-disc ml-6 space-y-1 mt-2">
-              <li>
-                <strong>Steep regions:</strong> need small <InlineMath>\varAlpha</InlineMath> to
-                avoid overshooting
-              </li>
-              <li>
-                <strong>Flat regions:</strong> can use large <InlineMath>\varAlpha</InlineMath> for
-                faster progress
-              </li>
-              <li>
-                <strong>Curvature changes:</strong> optimal <InlineMath>\varAlpha</InlineMath> varies
-                across iterations
-              </li>
-            </ul>
-            <p className="text-sm mt-2">
-              <strong>Line search adapts automatically,</strong> making gradient descent both
-              robust and efficient.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">Current Method: Armijo Backtracking</h3>
-            <ArmijoLineSearch
-              color="teal"
-              initialAlpha="1 (or previous iteration's value)"
-              typicalFEvals="2-5"
-              c1Value={gdLSC1}
-              verdict={{
-                title: "Generally excellent tradeoff!",
-                description: "The extra f-evals per iteration are usually offset by needing 2-10× fewer iterations. Plus, you avoid the nightmare of manual α tuning for each problem."
-              }}
-              benefits={[
-                'Fewer total iterations: Good steps converge faster',
-                'Robustness: Works across problems without tuning α',
-                'Automatic adaptation: Large steps when safe, small steps when needed'
-              ]}
-              additionalNotes={
-                <div className="bg-teal-50 rounded p-3">
-                  <p className="font-semibold text-sm mb-2">Understanding <InlineMath>{String.raw`c_1`}</InlineMath> (Armijo parameter):</p>
-                  <ul className="text-sm list-disc ml-6">
-                    <li>
-                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> too small</strong> (e.g., 0.00001): accepts poor steps, wastes iterations
-                    </li>
-                    <li>
-                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> good</strong> (e.g., 0.0001): balances quality and efficiency
-                    </li>
-                    <li>
-                      <strong><InlineMath>{String.raw`c_1`}</InlineMath> too large</strong> (e.g., 0.5): too conservative, tiny steps
-                    </li>
-                  </ul>
-                </div>
-              }
-            />
-          </div>
-
-          <div className="bg-blue-100 rounded p-3 mt-3">
-            <p className="font-bold text-sm mb-2">Other Line Search Methods</p>
-            <p className="text-sm">
-              <strong>Wolfe conditions:</strong> Add curvature condition for better theoretical properties<br />
-              <strong>Goldstein conditions:</strong> Alternative sufficient decrease criterion<br />
-              <strong>Exact line search:</strong> Minimize along line (expensive, rarely used)
-            </p>
-            <p className="text-xs mt-2 italic">
-              Armijo backtracking is simple, fast, and works well in practice.
+              See the <strong>"Try This"</strong> section below for experiments showing
+              how line search adapts. For details on how it works, see{' '}
+              <strong>"How Line Search Works"</strong>.
             </p>
           </div>
         </div>
@@ -365,6 +267,87 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
         </div>
       </CollapsibleSection>
 
+      {/* How Line Search Works */}
+      <CollapsibleSection
+        title="How Line Search Works"
+        defaultExpanded={false}
+        storageKey="gd-ls-how-line-search-works"
+        id="how-line-search-works"
+      >
+        <div className="space-y-4 text-gray-800">
+          <div>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">The Problem: Fixed Step Size Fails</h3>
+            <p className="mb-2">
+              With fixed <InlineMath>\varAlpha</InlineMath>, gradient descent struggles on problems
+              with varying curvature. See the GD-Fixed tab for details on these issues.
+            </p>
+            <ul className="list-disc ml-6 space-y-1">
+              <li><strong>Steep regions:</strong> Large <InlineMath>\varAlpha</InlineMath> overshoots, causes divergence</li>
+              <li><strong>Flat regions:</strong> Small <InlineMath>\varAlpha</InlineMath> wastes iterations, slow progress</li>
+              <li><strong>Varying curvature:</strong> No single <InlineMath>\varAlpha</InlineMath> works well everywhere</li>
+            </ul>
+            <p className="text-sm mt-2">
+              <strong>Solution:</strong> Search for a good <InlineMath>\varAlpha</InlineMath> at each iteration,
+              adapting to local properties.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">Armijo Backtracking Algorithm</h3>
+            <ArmijoLineSearch
+              color="teal"
+              initialAlpha="1 (or previous iteration's value)"
+              typicalFEvals="2-5"
+              c1Value={gdLSC1}
+              verdict={{
+                title: "Excellent tradeoff",
+                description: "The extra f-evals per iteration are offset by fewer total iterations. Plus, you avoid manual α tuning for each problem."
+              }}
+              benefits={[
+                'Fewer total iterations: Good steps enable faster convergence',
+                'Robustness: Works across problems without knowing L or tuning α',
+                'Automatic adaptation: Large steps when safe, small steps near minima'
+              ]}
+              additionalNotes={null}
+            />
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">The Armijo Parameter c₁</h3>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
+              <p className="font-semibold text-blue-900 mb-2">
+                Theory: Any c₁ ∈ (0,1) Works
+              </p>
+              <p className="text-sm text-blue-800 mb-2">
+                The Armijo backtracking algorithm terminates in finite steps for <strong>any</strong> choice
+                of <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath>.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" /> The convergence
+                rate guarantees (O(1/k) for convex, linear for strongly convex) hold for any c₁ in this range.
+              </p>
+              <p className="text-sm text-blue-800 mb-2">
+                The choice of c₁ affects the <strong>constant</strong> in the convergence bound but not the asymptotic
+                rate. Smaller c₁ makes the sufficient decrease condition easier to satisfy (larger steps accepted),
+                while larger c₁ requires more decrease per step.
+              </p>
+              <p className="text-sm text-blue-800 mt-3">
+                <strong>Practice:</strong> The value c₁ = 10⁻⁴ is widely used based on empirical experience,
+                not theoretical optimization.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-indigo-100 rounded p-4 mt-4">
+            <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
+            <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+              <li>Line search makes gradient descent robust across problems with different scales and curvature</li>
+              <li>Armijo backtracking is simple: start with α=1, shrink until sufficient decrease is achieved</li>
+              <li>Cost: 2-5 f-evals per iteration, but fewer total iterations make up for it</li>
+              <li>No need to know L or manually tune step size</li>
+              <li>Still limited by gradient descent's first-order nature (zig-zagging on ill-conditioned problems)</li>
+            </ul>
+          </div>
+        </div>
+      </CollapsibleSection>
+
       {/* When Things Go Wrong */}
       <CollapsibleSection
         title="When Things Go Wrong"
@@ -380,8 +363,8 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <div>
                 <p className="font-semibold">❌ "Line search is always better than fixed step"</p>
                 <p className="text-sm ml-6">
-                  ✓ Costs more per iteration (multiple gradient evaluations)<br />
-                  ✓ For very cheap gradients, fixed step may be faster overall<br />
+                  ✓ Costs more per iteration (multiple function evaluations)<br />
+                  ✓ For very cheap functions, fixed step may be faster overall<br />
                   ✓ Tradeoff: fewer iterations vs cost per iteration
                 </p>
               </div>
@@ -390,53 +373,58 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
                 <p className="font-semibold">❌ "Line search guarantees fast convergence"</p>
                 <p className="text-sm ml-6">
                   ✓ Still subject to problem conditioning<br />
-                  ✓ Gradient descent is fundamentally first-order (doesn't use curvature)<br />
-                  ✓ Newton or L-BFGS will be faster for well-conditioned problems
+                  ✓ Gradient descent is fundamentally <GlossaryTooltip termKey="first-order-method" /> (doesn't use curvature)<br />
+                  ✓ Newton or L-BFGS will be faster on well-conditioned problems
                 </p>
               </div>
 
               <div>
-                <p className="font-semibold">❌ "Any line search condition works"</p>
+                <p className="font-semibold">❌ "Armijo line search prevents all failures"</p>
                 <p className="text-sm ml-6">
-                  ✓ Armijo alone doesn't prevent arbitrarily small steps<br />
-                  ✓ Wolfe conditions (Armijo + curvature) have better theory<br />
-                  ✓ In practice, Armijo backtracking works well for most problems
+                  ✓ Armijo doesn't prevent arbitrarily small steps theoretically<br />
+                  ✓ Wolfe conditions (Armijo + curvature) have better guarantees<br />
+                  ✓ In practice, Armijo backtracking works well for gradient descent
                 </p>
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
-            <p className="mb-2">Same convergence guarantees as fixed step gradient descent:</p>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold text-orange-800 mb-2">Convergence Guarantees</h3>
+            <p className="text-sm mb-2">
+              Line search achieves the same convergence <em>rates</em> as fixed step size
+              (see Mathematical Derivations), but with automatically optimized constants:
+            </p>
+            <ul className="space-y-1 text-sm">
               <li>
-                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence, line search improves the convergence constant
+                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> <GlossaryTooltip termKey="linear-convergence" />
               </li>
               <li>
-                <strong><GlossaryTooltip termKey="convex" />:</strong> Converges to global minimum
+                <strong><GlossaryTooltip termKey="convex" />:</strong> <GlossaryTooltip termKey="sublinear-convergence" /> (O(1/k))
               </li>
               <li>
-                <strong>Non-convex:</strong> May converge to local minima, line search helps stability
+                <strong>Non-convex:</strong> Gradient norm convergence, no global minimum guarantee
               </li>
             </ul>
+            <p className="text-xs mt-2 text-gray-600 italic">
+              See GD-Fixed tab for detailed convergence theory with fixed step sizes.
+            </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-yellow-800 mb-2">Troubleshooting</h3>
-            <ul className="list-disc ml-6 space-y-1">
+            <ul className="list-disc ml-6 space-y-2 text-sm">
               <li>
-                <strong>Too many backtracking steps</strong> → <InlineMath>{String.raw`c_1`}</InlineMath> too large, decrease it
+                <strong>Many backtracking steps:</strong> Problem may be poorly scaled or
+                gradient computation may be incorrect
               </li>
               <li>
-                <strong>Slow progress</strong> → <InlineMath>{String.raw`c_1`}</InlineMath> too small, increase it (or use better algorithm)
+                <strong>Slow progress:</strong> Problem is ill-conditioned. Consider
+                preconditioning or second-order methods (Newton, L-BFGS)
               </li>
               <li>
-                <strong>Still diverging</strong> → gradient computation bug, check implementation
-              </li>
-              <li>
-                <strong>Expensive per iteration</strong> → gradient evaluation is costly,
-                consider limited memory methods
+                <strong>Expensive iterations:</strong> Function evaluations are costly.
+                Consider methods that reuse gradient information (L-BFGS)
               </li>
             </ul>
           </div>
@@ -451,164 +439,128 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
         id="mathematical-derivations"
       >
         <div className="space-y-4 text-gray-800">
-          <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Armijo Condition Proof</h3>
-            <p>
-              Let <InlineMath>\varW</InlineMath> be the current parameters, <InlineMath>\varP</InlineMath> the search direction,
-              and <InlineMath>\varAlpha</InlineMath> the step size. The Armijo condition ensures sufficient decrease in
-              the objective function <InlineMath>\varF</InlineMath>:
-            </p>
-            <BlockMath>{String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}</BlockMath>
-            <p className="text-sm mt-2">
-              where <InlineMath>{String.raw`c_1 \in (0, 1)`}</InlineMath> is the Armijo parameter (typically 0.0001).
-            </p>
-            <p className="text-sm mt-2">
-              For descent direction <InlineMath>{String.raw`\varP = -\varGrad`}</InlineMath>, we have{' '}
-              <InlineMath>{String.raw`\varGrad^T \varP = -\|\varGrad\|^2 < 0`}</InlineMath>, so the right side decreases
-              linearly with <InlineMath>\varAlpha</InlineMath>.
-            </p>
-            <p className="text-sm mt-2">
-              <strong>Guarantees:</strong> Backtracking terminates in finite steps (by Taylor expansion, shown below).
-            </p>
-          </div>
+
+          <p className="text-sm italic text-gray-600">
+            <strong>Note:</strong> For the fundamental descent lemma and fixed step size convergence
+            theory, see the <strong>GD-Fixed tab</strong>. This section focuses on how line search
+            affects convergence analysis.
+          </p>
 
           <div>
-            <h3 className="text-lg font-bold text-indigo-800 mb-2">Descent Lemma</h3>
-            <p>
-              For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions (where <InlineMath>L</InlineMath> is the <GlossaryTooltip termKey="lipschitz-continuous" /> constant of the gradient):
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">The Armijo Condition</h3>
+            <p className="text-sm mb-2">
+              The Armijo condition ensures <strong>sufficient decrease</strong> at each step:<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
             </p>
             <BlockMath>
-              {String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + \varAlpha \varGrad^T \varP + \frac{L\varAlpha^2}{2}\|\varP\|^2`}
+              {String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}
             </BlockMath>
             <p className="text-sm mt-2">
-              This bounds how much <InlineMath>\varF</InlineMath> can increase along direction <InlineMath>\varP</InlineMath>, guaranteeing
-              backtracking finds an acceptable step.
+              where <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath>.
+              For descent direction <InlineMath>\varP = -\varGrad</InlineMath>, we have
+              <InlineMath>{String.raw`\varGrad^T \varP = -\|\varGrad\|^2 < 0`}</InlineMath>.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Why Backtracking Terminates</h3>
-            <p>By Taylor expansion around <InlineMath>\varW</InlineMath>:</p>
+            <p className="text-sm mb-2">
+              For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions,
+              backtracking with geometric step reduction <InlineMath>{String.raw`\varAlpha \leftarrow \rho\varAlpha`}</InlineMath> (where
+              <InlineMath>{String.raw`\rho \in (0,1)`}</InlineMath>) terminates in finite steps:<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
+            </p>
+            <p className="text-sm mb-2">
+              <strong>Proof sketch:</strong> By Taylor expansion:
+            </p>
             <BlockMath>
               {String.raw`f(\varW + \varAlpha \varP) = f(\varW) + \varAlpha \varGrad^T \varP + O(\varAlpha^2)`}
             </BlockMath>
             <p className="text-sm mt-2">
-              For small enough <InlineMath>\varAlpha</InlineMath>, the{' '}
-              <InlineMath>{String.raw`O(\varAlpha^2)`}</InlineMath> term is negligible, so:
+              For sufficiently small <InlineMath>\varAlpha</InlineMath>, the quadratic term is negligible:
             </p>
             <BlockMath>
               {String.raw`f(\varW + \varAlpha \varP) \approx f(\varW) + \varAlpha \varGrad^T \varP < f(\varW) + c_1 \varAlpha \varGrad^T \varP`}
             </BlockMath>
             <p className="text-sm mt-2">
-              Since <InlineMath>{String.raw`c_1 < 1`}</InlineMath> and{' '}
-              <InlineMath>{String.raw`\varGrad^T \varP < 0`}</InlineMath> (descent direction), the Armijo condition is satisfied.
-              This proves backtracking will always find an acceptable step size.
+              Since <InlineMath>{String.raw`c_1 < 1`}</InlineMath> and <InlineMath>{String.raw`\varGrad^T \varP < 0`}</InlineMath> (descent direction),
+              the Armijo condition is eventually satisfied. This guarantees finite termination.
             </p>
           </div>
-        </div>
-      </CollapsibleSection>
 
-      {/* Advanced Topics */}
-      <CollapsibleSection
-        title="Advanced Topics"
-        defaultExpanded={false}
-        storageKey="gd-ls-advanced"
-        id="advanced-topics"
-      >
-        <div className="space-y-4 text-gray-800">
           <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Wolfe Conditions</h3>
-            <p>Stronger than Armijo, adds a curvature condition to ensure steps aren't too small:</p>
-            <div className="mt-2">
-              <p className="font-semibold text-sm">1. Sufficient decrease (Armijo):</p>
-              <BlockMath>{String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}</BlockMath>
+            <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence with Line Search</h3>
+
+            <p className="text-sm mb-3">
+              Let <InlineMath>\varW^*</InlineMath> denote a global minimizer of
+              <InlineMath>f</InlineMath> and <InlineMath>{String.raw`f^* = f(\varW^*)`}</InlineMath>
+              the optimal function value. The existence and uniqueness of <InlineMath>\varW^*</InlineMath>
+              depends on the function class (as in GD-Fixed).
+            </p>
+
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
+              <p className="font-semibold text-blue-900 mb-2">💡 Key Insight</p>
+              <p className="text-sm text-blue-800">
+                Line search achieves the same convergence <em>rates</em> as optimal fixed
+                step sizes, but <strong>automatically</strong> adapts to achieve near-optimal
+                constants without knowing <InlineMath>L</InlineMath> or <InlineMath>\mu</InlineMath>.
+              </p>
             </div>
-            <div className="mt-2">
-              <p className="font-semibold text-sm">2. Curvature condition:</p>
-              <BlockMath>{String.raw`\nabla f(\varW + \varAlpha \varP)^T \varP \geq c_2 \varGrad^T \varP`}</BlockMath>
+
+            <div className="mt-4">
+              <p className="font-semibold text-sm mb-2">Strongly Convex Functions</p>
+              <p className="text-sm mb-2">
+                For <InlineMath>\mu</InlineMath>-<GlossaryTooltip termKey="strongly-convex" />, <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions
+                with Armijo line search, gradient descent achieves <GlossaryTooltip termKey="linear-convergence" />:<Citation citationKey="gd-linesearch-strongly-convex-linear-convergence-nesterov-2018" />
+              </p>
+              <BlockMath>
+                {String.raw`\|\varW_k - \varW^*\| \leq C\left(1 - \frac{2\mu}{L+3\mu}\right)^k`}
+              </BlockMath>
+              <p className="text-sm mt-2">
+                The convergence rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>.
+                Line search automatically achieves near-optimal step sizes without knowing <InlineMath>L</InlineMath> or <InlineMath>\mu</InlineMath>.
+              </p>
             </div>
-            <p className="text-sm mt-2">
-              Typical values: <InlineMath>{String.raw`c_1 = 0.0001`}</InlineMath>, <InlineMath>{String.raw`c_2 = 0.9`}</InlineMath>.
-              The curvature condition prevents accepting steps where the gradient hasn't decreased enough.
-            </p>
-          </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Strong Wolfe Conditions</h3>
-            <p>Replace curvature condition with an absolute value constraint:</p>
-            <BlockMath>{String.raw`\left|\nabla f(\varW + \varAlpha \varP)^T \varP\right| \leq c_2 \left|\varGrad^T \varP\right|`}</BlockMath>
-            <p className="text-sm mt-2">
-              Prevents steps where curvature increases too much. Used in quasi-Newton methods like L-BFGS.
-            </p>
-          </div>
+            <div className="mt-4">
+              <p className="font-semibold text-sm mb-2">Convex Functions</p>
+              <p className="text-sm mb-2">
+                For <GlossaryTooltip termKey="convex" />, <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions
+                with Armijo line search:<Citation citationKey="gd-linesearch-convex-sublinear-convergence-nesterov-2018" />
+              </p>
+              <BlockMath>
+                {String.raw`f(\varW_k) - f^* \leq O\left(\frac{L\|\varWZero - \varW^*\|^2}{k}\right)`}
+              </BlockMath>
+              <p className="text-sm mt-2">
+                <strong><GlossaryTooltip termKey="sublinear-convergence" />:</strong> Same <InlineMath>O(1/k)</InlineMath> rate
+                as optimal fixed step size (<InlineMath>{String.raw`\varAlpha = 1/L`}</InlineMath>), but line search
+                achieves this automatically without knowing <InlineMath>L</InlineMath>.
+              </p>
+            </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Goldstein Conditions</h3>
-            <p>Alternative to Armijo with upper and lower bounds on the decrease:</p>
-            <BlockMath>
-              {String.raw`f(\varW) + (1-c)\varAlpha \varGrad^T \varP \leq f(\varW + \varAlpha \varP) \leq f(\varW) + c\varAlpha \varGrad^T \varP`}
-            </BlockMath>
-            <p className="text-sm mt-2">
-              where <InlineMath>{String.raw`c \in (0, 1/2)`}</InlineMath>. Less commonly used than Wolfe conditions.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Line Search Method Comparison</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border">
-                <thead className="bg-purple-100">
-                  <tr>
-                    <th className="border p-2">Method</th>
-                    <th className="border p-2">Cost</th>
-                    <th className="border p-2">Theory</th>
-                    <th className="border p-2">Use Case</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border p-2"><strong>Armijo</strong></td>
-                    <td className="border p-2">Low</td>
-                    <td className="border p-2">Good</td>
-                    <td className="border p-2">General purpose</td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2"><strong>Wolfe</strong></td>
-                    <td className="border p-2">Medium</td>
-                    <td className="border p-2">Better</td>
-                    <td className="border p-2">Quasi-Newton methods</td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2"><strong>Strong Wolfe</strong></td>
-                    <td className="border p-2">Medium</td>
-                    <td className="border p-2">Best</td>
-                    <td className="border p-2">BFGS, L-BFGS</td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2"><strong>Exact</strong></td>
-                    <td className="border p-2">Very high</td>
-                    <td className="border p-2">Optimal</td>
-                    <td className="border p-2">Rarely practical</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="mt-4">
+              <p className="font-semibold text-sm mb-2">Non-Convex Functions</p>
+              <p className="text-sm mb-2">
+                For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> (possibly non-convex) functions,
+                line search guarantees gradient norm convergence but not global minimum.
+                See GD-Fixed tab for detailed non-convex convergence analysis.
+              </p>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-purple-800 mb-2">Computational Cost Analysis</h3>
-            <p className="mb-2"><strong>Per iteration cost:</strong></p>
-            <ul className="list-disc ml-6 space-y-1 text-sm">
-              <li>Fixed step: 1 gradient evaluation</li>
-              <li>Armijo backtracking: 1-10 gradient evaluations (average ~2-3)</li>
-              <li>Wolfe conditions: 2-15 gradient evaluations</li>
+          <div className="bg-indigo-100 rounded p-4 mt-4">
+            <p className="font-bold text-indigo-900 mb-2">Summary</p>
+            <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
+              <li>Armijo condition ensures sufficient decrease; backtracking terminates in finite steps</li>
+              <li>Line search achieves same <em>rates</em> as optimal fixed step sizes</li>
+              <li>Strongly convex → linear convergence, rate depends on Q = L/μ</li>
+              <li>Convex → sublinear O(1/k) convergence</li>
+              <li>Key advantage: automatic adaptation without knowing L or μ</li>
             </ul>
-            <p className="text-sm mt-2">
-              <strong>Total cost:</strong> Line search usually wins by reducing total iterations.
-            </p>
           </div>
+
         </div>
       </CollapsibleSection>
+
+      <References usedIn="GdLineSearchTab" />
 
     </>
   );
