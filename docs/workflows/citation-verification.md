@@ -19,6 +19,7 @@ Every citation in `docs/citations.json` should be independently verified to ensu
 - [Multiple Equation References](#step-2-read-the-proof-pages) - Citations referencing many equations
 - [Context Page Ranges](#step-3-check-context-and-prerequisites) - When to stop adding pages (with examples)
 - [OCR Chunk Navigation](#step-3-check-context-and-prerequisites) - Mapping pages to OCR files
+- [**Claim vs Quote Consistency**](#step-4-verify-the-claim) - **CRITICAL: Check claim matches quote** ⚠️
 - [Handling Discrepancies](#step-45-handle-discrepancies) - Strict inequalities, notation differences
 - [Troubleshooting](#troubleshooting-common-issues) - Common problems and solutions
 - [Batch Verification](#batch-verification) - Prioritization and parallel processing
@@ -64,6 +65,7 @@ Open each proof page image and verify:
 - [ ] If quote contains [...] ellipsis, verify each segment separately
 - [ ] Mathematical notation is correctly transcribed (verify against images, not just OCR)
 - [ ] The claim in `claim` field is supported by what's written
+- [ ] ⚠️ **CRITICAL**: The claim and quote are consistent (no formula mismatches, wrong exponents, etc.)
 
 **Quote Formatting Guidelines:**
 - **Ellipsis usage**: Use [...] to omit non-essential explanatory text between key statements
@@ -260,6 +262,32 @@ The `claim` field is the verifier's interpretation/application of the result. Ch
 - [ ] Important conditions are included (e.g., "when 0 < α < 2/(L+μ)")
 - [ ] The claim matches how it's used in the codebase
 - [ ] Any notation differences between source and claim are documented
+- [ ] **CRITICAL**: The claim is consistent with the quote
+
+**⚠️ Claim vs Quote Consistency Check:**
+
+This is a critical verification step that catches errors where the quote is correct but the claim misinterprets it.
+
+**Red flags indicating inconsistency:**
+- Claim states a formula with different exponents than the quote (e.g., claim says ρ², quote shows ρ)
+- Claim mentions conditions not present in the quote
+- Claim uses different constants than the quote (e.g., claim says L+3μ, quote shows L+μ)
+- Claim describes convergence rate differently than the quote states it
+
+**What to do if claim and quote disagree:**
+1. **Trust the quote** - It should be word-for-word from the source
+2. **Verify the quote** - Double-check it's actually correct against the source
+3. **Investigate the discrepancy** - Why do they differ?
+   - Was the claim written from memory?
+   - Is there a transcription error in the claim?
+   - Is the claim interpreting a different part of the theorem?
+4. **Fix the claim** - Update it to match what the quote actually says
+5. **Document in verificationNotes** - Note that claim was corrected for consistency
+
+**Example of caught error:**
+- **Quote**: "‖xₖ - x*‖ ≤ C(1 - 2μ/(L+3μ))^k"
+- **Claim**: "rate ρ = (1 - 2μ/(L+3μ))²" ← WRONG! Extra square!
+- **Fix**: "rate ρ = 1 - 2μ/(L+3μ)" ← Matches quote
 
 **Cross-reference with usage:**
 
@@ -510,6 +538,33 @@ When verifying citations as an agent:
 4. **Compare with usage** - read the actual code/docs that use this citation
 5. **Document everything** - if you extracted extra pages, add them to proofPages
 6. **Be conservative** - if something seems unclear, flag it for human review
+
+### Avoiding Edit Conflicts in Parallel Verification
+
+When multiple agents are verifying citations in parallel, they may race to update `citations.json` simultaneously, causing edit conflicts.
+
+**Solution**: If you encounter an edit conflict when updating `citations.json`:
+
+1. **Generate a random sleep duration** between 1-60 seconds
+2. **Wait for that duration** before retrying the edit
+3. **Re-read the file** to get the latest version
+4. **Retry your update**
+
+This desynchronizes agents and prevents repeated conflicts.
+
+**Example approach**:
+```python
+import random
+import time
+
+# On edit conflict:
+sleep_time = random.randint(1, 60)
+print(f"Edit conflict detected. Sleeping for {sleep_time} seconds to desync...")
+time.sleep(sleep_time)
+# Then retry reading and editing the file
+```
+
+**Important**: DO generate an actual random number (don't just pick one mentally). Use your language's random number generator to ensure true randomization.
 
 ### Verification Script Template
 
