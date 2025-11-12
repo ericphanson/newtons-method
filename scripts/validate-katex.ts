@@ -8,7 +8,6 @@ import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, extname } from 'path';
 import katex from 'katex';
 import { KATEX_MACROS } from '../src/variables.js';
-import { glossary } from '../src/lib/glossary.js';
 
 interface ValidationError {
   file: string;
@@ -154,12 +153,45 @@ function validateLatex(latex: string): string | null {
 }
 
 /**
+ * Get available glossary term keys by parsing the glossary.tsx file
+ * This avoids importing the file (which would fail due to CSS imports)
+ */
+function getAvailableGlossaryTerms(rootDir: string): string[] {
+  const glossaryPath = join(rootDir, 'src/lib/glossary.tsx');
+  const content = readFileSync(glossaryPath, 'utf-8');
+
+  // Extract keys from the glossary object definition
+  // Pattern: 'key': { or "key": {
+  const keyPattern = /['"]([^'"]+)['"]\s*:\s*\{/g;
+  const keys: string[] = [];
+  let match;
+
+  // Find the start of the glossary object
+  const glossaryStart = content.indexOf('export const glossary');
+  if (glossaryStart === -1) return keys;
+
+  const glossarySection = content.substring(glossaryStart);
+  const objectStart = glossarySection.indexOf('{');
+  const objectEnd = glossarySection.indexOf('} as const');
+
+  if (objectStart === -1 || objectEnd === -1) return keys;
+
+  const objectContent = glossarySection.substring(objectStart, objectEnd + 1);
+
+  while ((match = keyPattern.exec(objectContent)) !== null) {
+    keys.push(match[1]);
+  }
+
+  return keys;
+}
+
+/**
  * Validate all glossary terms in source files
  */
 function validateAllGlossaryTerms(rootDir: string): GlossaryValidationError[] {
   const errors: GlossaryValidationError[] = [];
   const files = findSourceFiles(rootDir);
-  const availableTerms = Object.keys(glossary);
+  const availableTerms = getAvailableGlossaryTerms(rootDir);
 
   console.log(`🔍 Scanning ${files.length} source files for glossary terms...\n`);
 

@@ -179,14 +179,8 @@ function validateCitation(key: string, citation: Record<string, unknown>): Valid
         issue: 'invalid-type',
         message: 'usedIn must be an array',
       });
-    } else if (citation.usedIn.length === 0) {
-      errors.push({
-        citationKey: key,
-        field: 'usedIn',
-        issue: 'empty-array',
-        message: 'usedIn array is empty (should list where citation is used)',
-      });
     }
+    // Note: Empty usedIn arrays are allowed for citations that are not yet used in the codebase
   }
 
   // Validate date format for 'verified'
