@@ -19,5 +19,25 @@
   "usedIn": [
     "GdLineSearchTab"
   ],
-  "pdfPages": "52-56"
+  "pdfPages": "52-56",
+  "formulaImages": [
+    {
+      "formula_id": "numericaloptimization2006_p54_wolfe_conditions",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_wolfe_conditions.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_wolfe_conditions.png",
+      "latex": "f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k, \\quad \\nabla f(x_k + \\alpha_k p_k)^T p_k \\geq c_2 \\nabla f_k^T p_k",
+      "verified": true,
+      "theorem": "Wolfe conditions",
+      "equation": "(3.6a)-(3.6b)"
+    },
+    {
+      "formula_id": "numericaloptimization2006_p54_strong_wolfe_conditions",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_strong_wolfe_conditions.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_strong_wolfe_conditions.png",
+      "latex": "f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k, \\quad |\\nabla f(x_k + \\alpha_k p_k)^T p_k| \\leq c_2 |\\nabla f_k^T p_k|",
+      "verified": true,
+      "theorem": "Strong Wolfe conditions",
+      "equation": "(3.7a)-(3.7b)"
+    }
+  ]
 }

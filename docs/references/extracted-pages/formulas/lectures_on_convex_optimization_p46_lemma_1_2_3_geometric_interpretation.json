@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 46,
+    "theorem": "Lemma 1.2.3 geometric interpretation",
+    "equation": "\u03c6\u2081 and \u03c6\u2082",
+    "description": "Quadratic upper and lower bounds (sandwich inequality)"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0046.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 32.0,
+      "right": 100,
+      "bottom": 62.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 888,
+      "right": 1831,
+      "bottom": 1721,
+      "width": 1831,
+      "height": 833
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\phi_1(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle - \\frac{L}{2} \\|x - x_0\\|^2, \\quad \\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2} \\|x - x_0\\|^2, \\quad \\phi_1(x) \\leq f(x) \\leq \\phi_2(x), \\forall x \\in \\mathbb{R}^n",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-12T23:10:00Z",
+    "notes": "Geometric interpretation: quadratic lower bound φ₁, upper bound φ₂, and sandwich inequality showing f lies between them"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-12T23:10:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T22:57:52.196049Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

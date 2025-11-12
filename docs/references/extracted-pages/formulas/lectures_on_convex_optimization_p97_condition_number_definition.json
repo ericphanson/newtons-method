@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p97_condition_number_definition",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 97,
+    "theorem": "Condition number definition",
+    "equation": "Q_f = L/\u03bc",
+    "description": "Condition number for strongly convex smooth functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0097.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p97_condition_number_definition.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 11.5,
+      "right": 100,
+      "bottom": 26.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 319,
+      "right": 1831,
+      "bottom": 721,
+      "width": 1831,
+      "height": 402
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\langle \\nabla f(x) - \\nabla f(y), x - y \\rangle \\geq \\mu \\|x - y\\|^2, \\quad \\|\\nabla f(x) - \\nabla f(y)\\| \\leq L \\|x - y\\|, \\quad Q_f = L/\\mu \\geq 1",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-12T23:15:00Z",
+    "notes": "Class S^{1,1}_{μ,L} definition with strong convexity (2.1.30), Lipschitz continuity (2.1.31), and condition number Q_f = L/μ"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-12T23:15:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T22:59:46.681793Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

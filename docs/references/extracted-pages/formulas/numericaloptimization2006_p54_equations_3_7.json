@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p54_equations_3_7",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 54,
+    "theorem": "Equations (3.7)",
+    "equation": "(3.7a)-(3.7b)",
+    "description": "Strong Wolfe conditions: sufficient decrease and strong curvature"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0054.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_equations_3_7.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 75.0,
+      "right": 100,
+      "bottom": 82.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2081,
+      "right": 2100,
+      "bottom": 2275,
+      "width": 2100,
+      "height": 194
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T22:52:10.398989Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

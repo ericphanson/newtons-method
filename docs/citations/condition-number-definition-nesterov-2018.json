@@ -17,5 +17,16 @@
   "usedIn": [
     "glossary"
   ],
-  "pdfPages": "95-97"
+  "pdfPages": "95-97",
+  "formulaImages": [
+    {
+      "formula_id": "lectures_on_convex_optimization_p97_condition_number_definition",
+      "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p97_condition_number_definition.json",
+      "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p97_condition_number_definition.png",
+      "latex": "\\langle \\nabla f(x) - \\nabla f(y), x - y \\rangle \\geq \\mu \\|x - y\\|^2, \\quad \\|\\nabla f(x) - \\nabla f(y)\\| \\leq L \\|x - y\\|, \\quad Q_f = L/\\mu \\geq 1",
+      "verified": true,
+      "theorem": "Condition number definition",
+      "equation": "Q_f = L/μ"
+    }
+  ]
 }

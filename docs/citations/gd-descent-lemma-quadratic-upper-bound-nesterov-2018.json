@@ -17,5 +17,25 @@
   "usedIn": [
     "GdFixedTab"
   ],
-  "pdfPages": "44-46"
+  "pdfPages": "44-46",
+  "formulaImages": [
+    {
+      "formula_id": "lectures_on_convex_optimization_p45_lemma_1_2_3",
+      "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p45_lemma_1_2_3.json",
+      "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p45_lemma_1_2_3.png",
+      "latex": "|f(y) - f(x) - \\langle \\nabla f(x), y - x \\rangle| \\leq \\frac{L}{2} \\|y - x\\|^2",
+      "verified": true,
+      "theorem": "Lemma 1.2.3",
+      "equation": "(1.2.11)"
+    },
+    {
+      "formula_id": "lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation",
+      "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.json",
+      "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.png",
+      "latex": "\\phi_1(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle - \\frac{L}{2} \\|x - x_0\\|^2, \\quad \\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2} \\|x - x_0\\|^2, \\quad \\phi_1(x) \\leq f(x) \\leq \\phi_2(x), \\forall x \\in \\mathbb{R}^n",
+      "verified": true,
+      "theorem": "Lemma 1.2.3 geometric interpretation",
+      "equation": "φ₁ and φ₂"
+    }
+  ]
 }

@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p54_wolfe_conditions",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 54,
+    "theorem": "Wolfe conditions",
+    "equation": "(3.6a)-(3.6b)",
+    "description": "Standard Wolfe conditions: sufficient decrease and curvature"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0054.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p54_wolfe_conditions.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 57.5,
+      "right": 100,
+      "bottom": 68.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1595,
+      "right": 2100,
+      "bottom": 1900,
+      "width": 2100,
+      "height": 305
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k, \\quad \\nabla f(x_k + \\alpha_k p_k)^T p_k \\geq c_2 \\nabla f_k^T p_k",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-12T23:00:00Z",
+    "notes": "Standard Wolfe conditions: (3.6a) sufficient decrease condition, (3.6b) curvature condition. Both conditions must hold with 0 < c_1 < c_2 < 1."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-12T23:00:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T22:53:51.426596Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}
