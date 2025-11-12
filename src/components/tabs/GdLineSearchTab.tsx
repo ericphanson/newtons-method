@@ -369,7 +369,9 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               </p>
               <p className="text-sm text-blue-800 mt-3">
                 <strong>Practice:</strong> The value c₁ = 10⁻⁴ is widely used based on empirical experience,
-                not theoretical optimization.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
+                not theoretical optimization.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" /> See
+                the <strong>"How c₁ Affects Convergence"</strong> visualization above to explore how different c₁ values
+                perform on the current problem.
               </p>
             </div>
           </div>
