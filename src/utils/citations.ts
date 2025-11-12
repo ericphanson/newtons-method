@@ -1,4 +1,4 @@
-import citationsData from '../../docs/citations.json';
+import referencesData from '../../docs/references.json';
 
 export interface Reference {
   title: string;
@@ -33,8 +33,31 @@ export interface CitationsData {
   citations: Record<string, Citation>;
 }
 
+// Load all citations from individual files using Vite's glob import
+// This works at build time, so it's compatible with the browser
+const citationModules = import.meta.glob('../../docs/citations/*.json', { eager: true });
+
+function loadCitations(): Record<string, Citation> {
+  const citations: Record<string, Citation> = {};
+
+  for (const path in citationModules) {
+    // Extract filename without extension from path like "../../docs/citations/foo.json"
+    const match = path.match(/\/([^/]+)\.json$/);
+    if (match) {
+      const citationKey = match[1];
+      const module = citationModules[path] as { default: Citation };
+      citations[citationKey] = module.default;
+    }
+  }
+
+  return citations;
+}
+
 // Load citations data
-export const citations: CitationsData = citationsData as CitationsData;
+export const citations: CitationsData = {
+  references: referencesData as Record<string, Reference>,
+  citations: loadCitations()
+};
 
 // Get a specific citation
 export function getCitation(key: string): Citation | undefined {

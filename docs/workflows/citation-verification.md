@@ -4,7 +4,7 @@ This document describes the process for verifying existing citations to ensure a
 
 ## Purpose
 
-Every citation in `docs/citations.json` should be independently verified to ensure:
+Every citation in `docs/citations/` should be independently verified to ensure:
 - The quote is accurate and properly attributed
 - The page numbers are correct
 - The claim matches what the source actually says

@@ -219,12 +219,26 @@ function renderCitation(citationId: string, citation: Citation, references: Reco
 }
 
 function main() {
-  const citationsPath = path.join(process.cwd(), 'docs/citations.json');
+  const referencesPath = path.join(process.cwd(), 'docs/references.json');
+  const citationsDir = path.join(process.cwd(), 'docs/citations');
   const outputDir = path.join(process.cwd(), 'docs/references/renders');
 
-  // Read citations file
-  console.log(`Reading citations from ${citationsPath}...`);
-  const data: CitationsData = JSON.parse(fs.readFileSync(citationsPath, 'utf-8'));
+  // Read references file
+  console.log(`Reading references from ${referencesPath}...`);
+  const references: Record<string, Reference> = JSON.parse(fs.readFileSync(referencesPath, 'utf-8'));
+
+  // Read all citation files
+  console.log(`Reading citations from ${citationsDir}...`);
+  const citations: Record<string, Citation> = {};
+  const citationFiles = fs.readdirSync(citationsDir).filter(f => f.endsWith('.json'));
+
+  for (const file of citationFiles) {
+    const citationKey = file.replace('.json', '');
+    const filePath = path.join(citationsDir, file);
+    citations[citationKey] = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  }
+
+  const data: CitationsData = { references, citations };
 
   // Ensure output directory exists
   if (!fs.existsSync(outputDir)) {

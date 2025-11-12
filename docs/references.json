@@ -1,0 +1,85 @@
+{
+  "nocedal-wright-2006": {
+    "title": "Numerical Optimization",
+    "authors": [
+      "Jorge Nocedal",
+      "Stephen J. Wright"
+    ],
+    "year": 2006,
+    "edition": "2nd",
+    "publisher": "Springer",
+    "file": "NumericalOptimization2006.pdf",
+    "pageOffset": 20
+  },
+  "boyd-vandenberghe-2004": {
+    "title": "Convex Optimization",
+    "authors": [
+      "Stephen Boyd",
+      "Lieven Vandenberghe"
+    ],
+    "year": 2004,
+    "publisher": "Cambridge University Press",
+    "file": "Boyd+Vandenberghe-2004-Convex_optimization.pdf"
+  },
+  "nesterov-2004": {
+    "title": "Introductory Lectures on Convex Optimization: A Basic Course",
+    "authors": [
+      "Yurii Nesterov"
+    ],
+    "year": 2004,
+    "publisher": "Kluwer Academic Publishers",
+    "file": "Introductory-Lectures-on-Convex-Programming-Yurii-Nesterov-2004.pdf"
+  },
+  "liu-nocedal-1989": {
+    "title": "On the Limited Memory BFGS Method for Large Scale Optimization",
+    "authors": [
+      "Dong C. Liu",
+      "Jorge Nocedal"
+    ],
+    "year": 1989,
+    "journal": "Mathematical Programming",
+    "volume": "45",
+    "pages": "503-528",
+    "file": "LiuNocedal1989.pdf",
+    "pageOffset": 1
+  },
+  "nesterov-2018": {
+    "title": "Lectures on Convex Optimization",
+    "authors": [
+      "Yurii Nesterov"
+    ],
+    "year": 2018,
+    "edition": "2nd",
+    "publisher": "Springer",
+    "file": "Lectures on Convex Optimization.pdf",
+    "pageOffset": 20
+  },
+  "rosenbrock-1960": {
+    "title": "An Automatic Method for Finding the Greatest or Least Value of a Function",
+    "authors": [
+      "H. H. Rosenbrock"
+    ],
+    "year": 1960,
+    "journal": "The Computer Journal",
+    "volume": "3",
+    "issue": "3",
+    "pages": "175-184",
+    "doi": "10.1093/comjnl/3.3.175",
+    "file": "rosenbrock1960.pdf",
+    "pageOffset": 174
+  },
+  "branin-1972": {
+    "title": "Widely Convergent Method for Finding Multiple Solutions of Simultaneous Nonlinear Equations",
+    "authors": [
+      "F. H. Branin"
+    ],
+    "year": 1972,
+    "journal": "IBM Journal of Research and Development",
+    "volume": "16",
+    "issue": "5",
+    "pages": "504-522",
+    "doi": "10.1147/rd.165.0504",
+    "file": "branin1972.pdf",
+    "pageOffset": 503
+  }
+}

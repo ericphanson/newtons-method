@@ -36,14 +36,18 @@ docs/
 │   ├── chunks/             #    Text extracted from PDFs (generated locally)
 │   ├── extracted-pages/    #    PNG images of pages (generated on-demand)
 │   └── chunk-index.json    #    Index of all chunks (generated locally)
-├── citations.json          # ✅ COMMITTED - verified citation registry
+├── references.json         # ✅ COMMITTED - reference metadata
+├── citations/              # ✅ COMMITTED - individual citation files
+│   ├── citation-key-1.json
+│   ├── citation-key-2.json
+│   └── ...
 └── CITATION_WORKFLOW.md    # ✅ COMMITTED - this documentation
 ```
 
 **Important**: The entire `docs/references/` directory is gitignored. This means:
 - You need the source PDFs locally to use this system
 - Run `python3 scripts/chunk-pdfs.py` after cloning to generate chunks
-- Only `citations.json` is committed to the repository
+- Only `references.json` and `citations/*.json` are committed to the repository
 
 ## Workflow
 
@@ -95,40 +99,41 @@ The extracted images will be saved to `docs/references/extracted-pages/` and can
 
 ### 3. Create Verified Citations
 
-Once you've verified the exact page and content, add the citation to `docs/citations.json` following this format:
+Once you've verified the exact page and content, add the citation as a new JSON file in `docs/citations/` with the citation key as the filename. Each citation file contains the citation data:
 
+**Example: `docs/citations/gd-strongly-convex-linear-convergence-nesterov-2018.json`**
 ```json
 {
-  "references": {
-    "nesterov-2018": {
-      "title": "Lectures on Convex Optimization",
-      "authors": ["Yurii Nesterov"],
-      "year": 2018,
-      "edition": "2nd",
-      "publisher": "Springer",
-      "file": "Lectures on Convex Optimization.pdf"
-    }
-  },
-  "citations": {
-    "gd-strongly-convex-linear-convergence-nesterov-2018": {
-      "reference": "nesterov-2018",
-      "pages": "101-102",
-      "theorem": "Theorem 2.1.15",
-      "claim": "Gradient descent with fixed step size achieves linear convergence...",
-      "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then...",
-      "notes": "Internal: Used in GdFixedTab. This is the 2018 edition result with refined notation.",
-      "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes strongly convex functions with strong convexity parameter $\\mu > 0$ and Lipschitz continuous gradient with constant $L$ (see Definition 2.1.3 on page 94). Note: Nesterov uses $h$ for step size; here we use $\\alpha$...",
-      "proofPages": [
-        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0093.png",
-        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0094.png",
-        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
-        "docs/references/extracted-pages/lectures_on_convex_optimization_page_0102.png"
-      ],
-      "verified": "2025-11-11",
-      "verifiedBy": "claude-code-agent",
-      "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94)...",
-      "usedIn": ["GdFixedTab"]
-    }
+  "reference": "nesterov-2018",
+  "pages": "101-102",
+  "theorem": "Theorem 2.1.15",
+  "claim": "Gradient descent with fixed step size achieves linear convergence...",
+  "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then...",
+  "notes": "Internal: Used in GdFixedTab. This is the 2018 edition result with refined notation.",
+  "readerNotes": "The notation $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ denotes strongly convex functions with strong convexity parameter $\\mu > 0$ and Lipschitz continuous gradient with constant $L$ (see Definition 2.1.3 on page 94). Note: Nesterov uses $h$ for step size; here we use $\\alpha$...",
+  "proofPages": [
+    "docs/references/extracted-pages/lectures_on_convex_optimization_page_0093.png",
+    "docs/references/extracted-pages/lectures_on_convex_optimization_page_0094.png",
+    "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "docs/references/extracted-pages/lectures_on_convex_optimization_page_0102.png"
+  ],
+  "verified": "2025-11-11",
+  "verifiedBy": "claude-code-agent",
+  "verificationNotes": "Verified Theorem 2.1.15 (pages 101-102) and Definition 2.1.3 (page 94)...",
+  "usedIn": ["GdFixedTab"]
+}
+```
+
+**Reference metadata** is stored in `docs/references.json`:
+```json
+{
+  "nesterov-2018": {
+    "title": "Lectures on Convex Optimization",
+    "authors": ["Yurii Nesterov"],
+    "year": 2018,
+    "edition": "2nd",
+    "publisher": "Springer",
+    "file": "Lectures on Convex Optimization.pdf"
   }
 }
 ```

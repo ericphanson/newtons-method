@@ -8,6 +8,7 @@ import json
 import re
 from pathlib import Path
 from collections import defaultdict
+from citations_utils import load_citations_data
 
 def extract_pdf_page_from_path(path):
     """Extract PDF page number from path like 'docs/.../file_page_0101.png'"""
@@ -48,10 +49,7 @@ def format_page_spec(pages):
     return ', '.join(ranges)
 
 def main():
-    citations_path = Path('docs/citations.json')
-    with open(citations_path, 'r') as f:
-        data = json.load(f)
-
+    data = load_citations_data()
     issues = []
 
     for citation_id, citation in data['citations'].items():

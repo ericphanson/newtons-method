@@ -10,6 +10,7 @@ import json
 import re
 from pathlib import Path
 from collections import defaultdict
+from citations_utils import load_citations_data
 
 def extract_pdf_page_from_filename(filename):
     """Extract PDF page number from filename like 'lectures_on_convex_optimization_page_0101.png'"""
@@ -19,9 +20,7 @@ def extract_pdf_page_from_filename(filename):
     return None
 
 def main():
-    citations_path = Path('docs/citations.json')
-    with open(citations_path, 'r') as f:
-        data = json.load(f)
+    data = load_citations_data()
 
     # Group proofPages by reference to sample one page per reference
     ref_samples = defaultdict(list)

@@ -1,0 +1,20 @@
+{
+  "reference": "branin-1972",
+  "pages": "17-18",
+  "claim": "",
+  "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Three-Hump Camel function, a multi-modal test problem introduced by F.H. Branin in this 1972 paper (Appendix C, Equation C15). Branin's original formulation defined a function with three MAXIMA. The standard Three-Hump Camel benchmark function negates this to create three MINIMA: f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y². The function has one global minimum at (0,0) with f=0 and two symmetric local minima. This citation is for attribution only - no specific theorem or claim is being cited.",
+  "readerNotes": "The Three-Hump Camel function was introduced by F.H. Branin in 1972 as a test problem for algorithms designed to find multiple solutions. Note: Branin's original equation (C15) was formulated for finding MAXIMA; the standard benchmark version for minimization negates his function, resulting in three local MINIMA (one global at the origin and two symmetric local minima). The function is particularly useful for demonstrating basin of convergence and the challenges of multi-modal optimization.",
+  "usedIn": [
+    "threeHumpCamelProblem",
+    "ProblemExplainer"
+  ],
+  "verified": "2025-11-12",
+  "verifiedBy": "adversarial-verification-agent-batch6-agent7",
+  "verificationNotes": "ADVERSARIAL VERIFICATION COMPLETED: Extracted all 19 pages of Branin 1972 paper. Found equation (C15) on page 521 (PDF page 18) with Figure C2 on page 520 (PDF page 17). CRITICAL FINDING: Branin's original formulation has three MAXIMA. The standard Three-Hump Camel benchmark NEGATES this function to create three MINIMA. Verified the implementation in threeHumpCamel.tsx correctly uses the negated form: 2x² - 1.05x⁴ + x⁶/6 + xy + y². Page numbers 504-522 confirmed correct (journal pagination). Function definition verified accurate.",
+  "quote": "f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴. (C15) This function has three maxima when a = -2, b = 1.05, c = -1/6, d = -1 and e = 0",
+  "proofPages": [
+    "docs/references/extracted-pages/branin1972_page_0017.png",
+    "docs/references/extracted-pages/branin1972_page_0018.png"
+  ],
+  "pdfPages": "17-18"
+}

@@ -210,5 +210,6 @@ docs/references/extracted-pages/lectures_on_convex_optimization_page_XXXX.png
 ## Related Resources
 
 - **Citation workflow:** [docs/workflows/citation-workflow.md](../workflows/citation-workflow.md)
-- **Citations registry:** [docs/citations.json](../citations.json)
+- **References registry:** [docs/references.json](../references.json)
+- **Citations directory:** [docs/citations/](../citations/)
 - **Chunk index:** [docs/references/chunk-index.json](chunk-index.json)

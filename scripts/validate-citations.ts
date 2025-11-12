@@ -2,7 +2,7 @@
 /**
  * Citation Validator
  *
- * Validates docs/citations.json to ensure all citations have required fields
+ * Validates citation files to ensure all citations have required fields
  * and no null values for required fields.
  *
  * Also validates KaTeX math expressions in citation fields using $...$ syntax.
@@ -10,7 +10,7 @@
  * This runs as part of the build and dev process to catch citation errors early.
  */
 
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import katex from 'katex';
 
@@ -211,22 +211,37 @@ function validateCitation(key: string, citation: Record<string, unknown>): Valid
 }
 
 function validateCitationsFile(): { valid: boolean; errors: ValidationError[] } {
-  const citationsPath = join(process.cwd(), 'docs', 'citations.json');
+  const referencesPath = join(process.cwd(), 'docs', 'references.json');
+  const citationsDir = join(process.cwd(), 'docs', 'citations');
 
   let data: CitationsFile;
 
   try {
-    const fileContent = readFileSync(citationsPath, 'utf-8');
-    data = JSON.parse(fileContent);
+    // Read references
+    const referencesContent = readFileSync(referencesPath, 'utf-8');
+    const references = JSON.parse(referencesContent);
+
+    // Read all citation files
+    const citations: Record<string, unknown> = {};
+    const citationFiles = readdirSync(citationsDir).filter((f: string) => f.endsWith('.json'));
+
+    for (const file of citationFiles) {
+      const citationKey = file.replace('.json', '');
+      const filePath = join(citationsDir, file);
+      const content = readFileSync(filePath, 'utf-8');
+      citations[citationKey] = JSON.parse(content);
+    }
+
+    data = { references, citations };
   } catch (error) {
-    console.error('❌ Failed to read or parse citations.json:');
+    console.error('❌ Failed to read or parse citation files:');
     console.error(error);
     return { valid: false, errors: [] };
   }
 
   // Validate structure
   if (!data.citations || typeof data.citations !== 'object') {
-    console.error('❌ citations.json must have a "citations" object');
+    console.error('❌ Citations must be a valid object');
     return { valid: false, errors: [] };
   }
 
@@ -252,10 +267,9 @@ function main() {
   const { valid, errors } = validateCitationsFile();
 
   if (valid) {
-    const citationsPath = join(process.cwd(), 'docs', 'citations.json');
-    const fileContent = readFileSync(citationsPath, 'utf-8');
-    const data = JSON.parse(fileContent);
-    const count = Object.keys(data.citations).length;
+    const citationsDir = join(process.cwd(), 'docs', 'citations');
+    const citationFiles = readdirSync(citationsDir).filter((f: string) => f.endsWith('.json'));
+    const count = citationFiles.length;
 
     console.log(`✅ All ${count} citation${count !== 1 ? 's' : ''} valid`);
     process.exit(0);
@@ -280,7 +294,7 @@ function main() {
       console.error('');
     }
 
-    console.error('Fix these errors in docs/citations.json before building.\n');
+    console.error('Fix these errors in the citation files (docs/citations/*.json) before building.\n');
     console.error('Required fields for all citations:');
     console.error('  ' + REQUIRED_FIELDS.join(', '));
     console.error('\nSee docs/workflows/citation-workflow.md for details.\n');

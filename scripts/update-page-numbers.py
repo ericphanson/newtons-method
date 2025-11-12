@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Update citations.json with both 'pages' (book pages) and 'pdfPages' (PDF pages).
+Update citation files with both 'pages' (book pages) and 'pdfPages' (PDF pages).
 Add pageOffset to references.
 
 Based on verified offsets:
@@ -13,6 +13,7 @@ Based on verified offsets:
 
 import json
 from pathlib import Path
+from citations_utils import load_citations_data, save_citation, save_references
 
 # Verified page offsets (PDF page - book page)
 PAGE_OFFSETS = {
@@ -73,16 +74,16 @@ def format_page_range(pages):
     return ', '.join(ranges)
 
 def main():
-    citations_path = Path('docs/citations.json')
-    with open(citations_path, 'r') as f:
-        data = json.load(f)
+    data = load_citations_data()
 
     # Update references with pageOffset
+    references_updated = False
     for ref_id, ref in data['references'].items():
         pdf_id = REFERENCE_TO_PDF_ID.get(ref_id)
         if pdf_id and pdf_id in PAGE_OFFSETS:
             ref['pageOffset'] = PAGE_OFFSETS[pdf_id]
             print(f"✓ Updated {ref_id}: pageOffset = {PAGE_OFFSETS[pdf_id]}")
+            references_updated = True
 
     # Update citations with pdfPages field and correct pages field
     for citation_id, citation in data['citations'].items():
@@ -118,11 +119,15 @@ def main():
         print(f"    pages (book): {citation['pages']}")
         print(f"    pdfPages: {citation['pdfPages']}")
 
-    # Write updated data
-    with open(citations_path, 'w') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    # Save updated references
+    if references_updated:
+        save_references(data['references'])
 
-    print(f"\n✅ Updated citations.json")
+    # Save updated citations
+    for citation_id, citation in data['citations'].items():
+        save_citation(citation_id, citation)
+
+    print(f"\n✅ Updated citation files")
 
 if __name__ == '__main__':
     main()

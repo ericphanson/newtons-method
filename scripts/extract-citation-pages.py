@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from citations_utils import load_citations_data
 
 def load_pdf_id_mapping():
     """Load chunk index and create a mapping from filename to PDF ID."""
@@ -28,10 +29,8 @@ def main():
     # Load PDF ID mapping
     filename_to_id = load_pdf_id_mapping()
 
-    # Read citations.json
-    citations_path = Path('docs/citations.json')
-    with open(citations_path, 'r') as f:
-        data = json.load(f)
+    # Load citations data
+    data = load_citations_data()
 
     # Collect all unique (pdf_id, page) pairs
     pages_to_extract = set()

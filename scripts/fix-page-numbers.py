@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Fix page numbers in citations.json to match proofPages.
+Fix page numbers in citation files to match proofPages.
 ProofPages are the source of truth since they show where theorems actually are.
 """
 
 import json
 import re
 from pathlib import Path
+from citations_utils import load_citations_data, save_citation
 
 def extract_pdf_page_from_path(path):
     """Extract PDF page number from path like 'docs/.../file_page_0101.png'"""
@@ -36,10 +37,7 @@ def format_page_spec(pages):
     return ', '.join(ranges)
 
 def main():
-    citations_path = Path('docs/citations.json')
-    with open(citations_path, 'r') as f:
-        data = json.load(f)
-
+    data = load_citations_data()
     updates = []
 
     for citation_id, citation in data['citations'].items():
@@ -102,9 +100,10 @@ def main():
         print("✅ No updates needed")
         return
 
-    # Write updated data
-    with open(citations_path, 'w') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    # Save each updated citation
+    for update in updates:
+        citation_id = update['citation']
+        save_citation(citation_id, data['citations'][citation_id])
 
     print(f"✅ Updated {len(updates)} citations:\n")
     for update in updates:
