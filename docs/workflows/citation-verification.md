@@ -15,7 +15,10 @@ Every citation in `docs/citations.json` should be independently verified to ensu
 
 **New to verification?** Follow the steps below in order. **Experienced verifier?** Jump to these sections:
 - [Page Numbering (PDF vs Book)](#step-2-read-the-proof-pages) - Understanding page number differences
-- [Quote Formatting & Ellipsis](#step-2-read-the-proof-pages) - When [...] is acceptable
+- [Quote Formatting & Ellipsis](#step-2-read-the-proof-pages) - When [...] is acceptable, algorithm linearization
+- [Multiple Equation References](#step-2-read-the-proof-pages) - Citations referencing many equations
+- [Context Page Ranges](#step-3-check-context-and-prerequisites) - When to stop adding pages (with examples)
+- [OCR Chunk Navigation](#step-3-check-context-and-prerequisites) - Mapping pages to OCR files
 - [Handling Discrepancies](#step-45-handle-discrepancies) - Strict inequalities, notation differences
 - [Troubleshooting](#troubleshooting-common-issues) - Common problems and solutions
 - [Batch Verification](#batch-verification) - Prioritization and parallel processing
@@ -69,12 +72,74 @@ Open each proof page image and verify:
 - **Rule**: Each segment before and after [...] should be word-for-word accurate
 - **Example**: "Theorem states: [equation] [...] The result holds for [conditions]." is acceptable if the omitted text is explanatory prose
 
+**Handling Algorithms and Boxed Content:**
+
+Algorithms are often presented in boxes with multi-line formatting. When quoting:
+
+1. **Preserve the algorithm steps**: Keep all steps and their logical structure
+2. **Linearize if needed**: Multi-line boxed algorithms can be converted to single-line format
+3. **Keep mathematical notation exact**: All variable names, subscripts, operations must match
+
+**Example:**
+
+*Source (boxed algorithm)*:
+```
+Algorithm 3.1 (Backtracking Line Search)
+Choose ᾱ > 0, ρ ∈ (0,1), c ∈ (0,1); Set α ← ᾱ
+repeat until f(xₖ + αpₖ) ≤ f(xₖ) + cα∇fₖᵀpₖ
+  α ← ρα
+end (repeat)
+Terminate with αₖ = α
+```
+
+*Acceptable linearized quote*:
+> "Choose ᾱ > 0, ρ ∈ (0,1), c ∈ (0,1); Set α ← ᾱ; repeat until f(xₖ + αpₖ) ≤ f(xₖ) + cα∇fₖᵀpₖ: α ← ρα; Terminate with αₖ = α"
+
+*What matters*:
+- ✅ All steps present in order
+- ✅ Mathematical notation identical
+- ✅ Logical flow preserved (repeat until condition)
+- ⚠️ Formatting differences are acceptable (boxes → text, indentation removed)
+
 **Equation Reference Format:**
 - Match the source's primary numbering (e.g., "Theorem 2.1.15", "Lemma 3.1")
 - For multi-part equations, choose based on clarity:
   - **Grouped**: "Equations (3.6) and (3.7)" - more readable, use for high-level references
   - **Explicit**: "Equations (3.6a-b, 3.7a-b)" - more precise, use when sub-parts matter
 - Document the exact sub-parts in `verificationNotes` if there's any ambiguity
+
+**Citations with Multiple Equation References:**
+
+Some citations reference many equations (e.g., main formula is equation 6.19, which uses definitions from 6.6, 6.7, 6.14, 6.17, and A.28). Follow this decision tree:
+
+1. **Primary equation** (the main result being cited):
+   - ✅ MUST be in `proofPages`
+   - ✅ Quote should include or describe it
+
+2. **Referenced equations in the same chapter/section** (e.g., 6.6, 6.7, 6.14, 6.17):
+   - ✅ Include in `proofPages` if they define notation or state prerequisites
+   - ✅ Mention in `notes` or `readerNotes` with brief explanation
+   - ❌ Don't need to extract if they're standard definitions already well-documented
+
+3. **Referenced equations in other chapters** (e.g., Theorem 2.4 referenced in Chapter 3):
+   - ⚠️ Generally DON'T include proof pages from other chapters
+   - ✅ Document the reference in `notes`: "Requires Theorem 2.4 (second-order sufficient conditions)"
+   - ✅ Only extract if critical to understanding (rare)
+
+4. **Appendix references** (e.g., equation A.28):
+   - ❌ Generally DON'T include appendix pages in `proofPages`
+   - ✅ Mention in `notes` what it is: "Uses Sherman-Morrison-Woodbury formula (A.28)"
+   - Exception: If the appendix formula is obscure and critical, consider including
+
+**Example verification approach:**
+```markdown
+Citation: "BFGS update formula" (Equation 6.19)
+References: 6.17 (inverse form), 6.6 (secant equation), 6.7 (curvature condition), A.28 (Sherman-Morrison-Woodbury)
+
+✅ Include in proofPages: Pages with equations 6.6, 6.7, 6.17, 6.19 (all in Chapter 6, pages 136-140)
+❌ Don't include: Appendix A page with equation A.28
+✅ Document in verificationNotes: "Verified equations 6.6, 6.7, 6.14, 6.17, 6.19. Equation A.28 (Sherman-Morrison-Woodbury) is referenced but standard formula."
+```
 
 ### Step 3: Check Context and Prerequisites
 
@@ -113,6 +178,19 @@ ls docs/references/chunks/
 grep -r "Wolfe conditions" docs/references/chunks/
 ```
 
+**Mapping Pages to OCR Chunks:**
+OCR files are named by page ranges. To find the right chunk:
+1. Book page 37 → PDF page 57 (if 20-page offset)
+2. PDF page 57 → Look for chunk containing 57: `pages_0051-0060.txt`
+3. Within the chunk, search for your content
+
+```bash
+# Quick way to find which chunk contains a PDF page
+# Example: Find chunk for PDF page 57
+ls docs/references/chunks/*.txt | grep -E "005[0-9]"
+# Returns: pages_0051-0060.txt
+```
+
 **Note:** Always verify mathematical notation visually against PDF images, as OCR can miss or misinterpret symbols.
 
 **Context Verification Checklist:**
@@ -134,6 +212,37 @@ grep -r "Wolfe conditions" docs/references/chunks/
 - Existence or uniqueness proofs (if referenced)
 - Prerequisites or assumptions stated nearby
 - Algorithm descriptions (if the theorem analyzes an algorithm)
+
+**When to STOP adding pages:**
+
+✅ **Include**:
+- Pages with notation used in the theorem (e.g., definition of $\mathscr{S}_{\mu,L}^{1,1}$)
+- Figures directly referenced (e.g., "see Figure 3.3")
+- Prerequisites stated in the theorem (e.g., "Theorem 2.4")
+- Algorithm the theorem analyzes
+
+❌ **Usually DON'T include**:
+- General chapter introductions (unless defining key terms)
+- Subsequent theorems building on the result (unless cited explicitly)
+- Exercises or examples applying the theorem
+- Proofs of related but separate results
+
+**Examples:**
+
+*Too few pages*:
+- Citation for Theorem 2.1.15 (pages 101-102) that uses $\mathscr{S}_{\mu,L}^{1,1}$ notation
+- Missing: Definition pages (93-94) needed to understand the notation
+- **Problem**: Reader can't understand what function class is being discussed
+
+*Just right*:
+- Citation for Theorem 2.1.15 includes pages 93-94 (notation definition) + 101-102 (theorem)
+- All notation is defined, theorem is complete
+- **Result**: Reader can fully understand the result
+
+*Too many pages*:
+- Citation includes pages 90-114 (entire section 2.1 and 2.2)
+- Includes unrelated theorems, examples, and exercises
+- **Problem**: Harder to find the relevant content, excessive context
 
 **Guidelines:**
 - When in doubt, include more context rather than less

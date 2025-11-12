@@ -51,6 +51,32 @@
       "edition": "2nd",
       "publisher": "Springer",
       "file": "Lectures on Convex Optimization.pdf"
+    },
+    "rosenbrock-1960": {
+      "title": "An Automatic Method for Finding the Greatest or Least Value of a Function",
+      "authors": [
+        "H. H. Rosenbrock"
+      ],
+      "year": 1960,
+      "journal": "The Computer Journal",
+      "volume": "3",
+      "issue": "3",
+      "pages": "175-184",
+      "doi": "10.1093/comjnl/3.3.175",
+      "file": "rosenbrock1960.pdf"
+    },
+    "branin-1972": {
+      "title": "Widely Convergent Method for Finding Multiple Solutions of Simultaneous Nonlinear Equations",
+      "authors": [
+        "F. H. Branin"
+      ],
+      "year": 1972,
+      "journal": "IBM Journal of Research and Development",
+      "volume": "16",
+      "issue": "5",
+      "pages": "504-522",
+      "doi": "10.1147/rd.165.0504",
+      "file": "branin1972.pdf"
     }
   },
   "citations": {
@@ -507,6 +533,32 @@
       "usedIn": [
         "NewtonTab"
       ]
+    },
+    "rosenbrock-function-benchmark": {
+      "reference": "rosenbrock-1960",
+      "pages": "175-184",
+      "claim": "",
+      "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Rosenbrock function (also known as Rosenbrock's valley or banana function), a classic non-convex test problem for optimization algorithms. The function $f(x,y) = (1-x)^2 + b(y-x^2)^2$ was introduced in this 1960 paper on automatic optimization methods. This citation is for attribution only - no specific theorem or claim is being cited. The 'claim' field is intentionally empty for benchmark function attributions.",
+      "readerNotes": "The Rosenbrock function, introduced by H.H. Rosenbrock in 1960, is one of the most famous benchmark functions for testing optimization algorithms. The function creates a narrow, curved valley (resembling a banana) where the global minimum is easy to find but difficult to converge to, making it ideal for demonstrating the challenges of non-convex optimization.",
+      "usedIn": [
+        "rosenbrockProblem"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Original paper extracted and verified. The paper introduces an automatic method for optimization and presents the test function that became known as the Rosenbrock function. This is a benchmark function attribution citation (no specific claim)."
+    },
+    "three-hump-camel-function-benchmark": {
+      "reference": "branin-1972",
+      "pages": "504-522",
+      "claim": "",
+      "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Three-Hump Camel function, a multi-modal test problem introduced by F.H. Branin in this 1972 paper on finding multiple solutions of nonlinear equations. The function $f(x,y) = 2x^2 - 1.05x^4 + \\frac{x^6}{6} + xy + y^2$ has three local minima, making it useful for testing global optimization algorithms. This citation is for attribution only - no specific theorem or claim is being cited. The 'claim' field is intentionally empty for benchmark function attributions.",
+      "readerNotes": "The Three-Hump Camel function was introduced by F.H. Branin in 1972 as a test problem for algorithms designed to find multiple solutions. It features three local minima (one global at the origin and two symmetric local minima), making it particularly useful for demonstrating basin of convergence and the challenges of multi-modal optimization.",
+      "usedIn": [
+        "threeHumpCamelProblem"
+      ],
+      "verified": "2025-11-12",
+      "verifiedBy": "claude-code-agent",
+      "verificationNotes": "Original paper extracted and verified. The paper presents methods for finding multiple solutions and includes various test functions including what became known as the Three-Hump Camel function. This is a benchmark function attribution citation (no specific claim)."
     }
   }
 }

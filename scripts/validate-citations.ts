@@ -40,8 +40,6 @@ const REQUIRED_FIELDS = [
   'reference',
   'pages',
   'claim',
-  'quote',
-  'proofPages',
   'verified',
   'verifiedBy',
   'verificationNotes',
@@ -88,6 +86,12 @@ function validateMathInText(
 function validateCitation(key: string, citation: Record<string, unknown>): ValidationError[] {
   const errors: ValidationError[] = [];
 
+  // Detect benchmark citations (attribution only, no theorem/claim)
+  const isBenchmarkCitation =
+    citation.claim === '' &&
+    typeof citation.notes === 'string' &&
+    citation.notes.includes('BENCHMARK FUNCTION ATTRIBUTION');
+
   // Check for missing required fields
   for (const field of REQUIRED_FIELDS) {
     if (!(field in citation)) {
@@ -112,11 +116,37 @@ function validateCitation(key: string, citation: Record<string, unknown>): Valid
         message: `Required field '${field}' is undefined`,
       });
     } else if (citation[field] === '') {
+      // Allow empty string for 'claim' field on benchmark citations
+      if (field === 'claim' && isBenchmarkCitation) {
+        // OK - benchmark citations don't have claims
+      } else {
+        errors.push({
+          citationKey: key,
+          field,
+          issue: 'null',
+          message: `Required field '${field}' is empty string`,
+        });
+      }
+    }
+  }
+
+  // Validate theorem citation fields (not required for benchmarks)
+  if (!isBenchmarkCitation) {
+    // These fields are only required for theorem/claim citations
+    if (!('quote' in citation) || citation.quote === '' || citation.quote === null) {
       errors.push({
         citationKey: key,
-        field,
-        issue: 'null',
-        message: `Required field '${field}' is empty string`,
+        field: 'quote',
+        issue: 'missing',
+        message: `Required field 'quote' is missing or empty (not required for benchmark citations)`,
+      });
+    }
+    if (!('proofPages' in citation)) {
+      errors.push({
+        citationKey: key,
+        field: 'proofPages',
+        issue: 'missing',
+        message: `Required field 'proofPages' is missing (not required for benchmark citations)`,
       });
     }
   }
@@ -130,12 +160,13 @@ function validateCitation(key: string, citation: Record<string, unknown>): Valid
         issue: 'invalid-type',
         message: 'proofPages must be an array',
       });
-    } else if (citation.proofPages.length === 0) {
+    } else if (citation.proofPages.length === 0 && !isBenchmarkCitation) {
+      // Benchmark citations don't need proofPages
       errors.push({
         citationKey: key,
         field: 'proofPages',
         issue: 'empty-array',
-        message: 'proofPages array is empty (must have at least one proof page)',
+        message: 'proofPages array is empty (must have at least one proof page for theorem citations)',
       });
     }
   }
