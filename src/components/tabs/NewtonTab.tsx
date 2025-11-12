@@ -9,6 +9,8 @@ import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
 import { Pseudocode, Complexity } from '../Pseudocode';
 import { ArmijoLineSearch } from '../ArmijoLineSearch';
+import { Citation } from '../Citation';
+import { References } from '../References';
 import type { ProblemFunctions } from '../../algorithms/types';
 import type { NewtonIteration } from '../../algorithms/newton';
 import type { ExperimentPreset } from '../../types/experiments';
@@ -49,6 +51,7 @@ interface NewtonTabProps {
   onLoadExperiment: (experiment: ExperimentPreset) => void;
   configurationExpanded?: boolean;
   onConfigurationExpandedChange?: (expanded: boolean) => void;
+  onNavigateToTab?: (tabId: string) => void;
 }
 
 export const NewtonTab: React.FC<NewtonTabProps> = ({
@@ -85,6 +88,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
   onLoadExperiment,
   configurationExpanded,
   onConfigurationExpandedChange,
+  onNavigateToTab,
 }) => {
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('newton'),
@@ -215,7 +219,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
       {/* Newton's Method - Quick Start */}
       <CollapsibleSection
         title="Quick Start"
-        defaultExpanded={false}
+        defaultExpanded={true}
         storageKey="newton-quick-start"
         id="quick-start"
       >
@@ -307,7 +311,8 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
               <InlineMath>\varGrad</InlineMath> and <InlineMath>\varH</InlineMath> transform in complementary ways,
               so <InlineMath>\varHInv\varGrad</InlineMath> stays invariant. The Newton step automatically
               adapts to different scales in different directions, eliminating the zig-zagging that plagues
-              gradient descent.
+              gradient descent. (Note: This coordinate invariance applies to pure Newton's method with <InlineMath>\varAlpha = 1</InlineMath>;
+              line search may introduce some scale dependence in practice.)
             </p>
             <p className="text-sm mt-1 text-gray-600">
               (When <InlineMath>\varLambdaDamp = 0</InlineMath>, this is pure Newton's method: <InlineMath>\varP = -\varHInv\varGrad</InlineMath>)
@@ -317,23 +322,20 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">When to Use</h3>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Small-medium problems (d &lt; 1000 parameters)</li>
-              <li><GlossaryTooltip termKey="smooth" />, twice-differentiable objectives</li>
-              <li>Near a local minimum (<GlossaryTooltip termKey="quadratic-convergence" />)</li>
-              <li>When you can afford O(d³) computation per iteration</li>
+              <li>When you can afford <InlineMath>O(d^3)</InlineMath> computation per iteration<Citation citationKey="newton-computational-complexity" /></li>
+              <li><GlossaryTooltip termKey="smooth" />, twice-differentiable objectives with <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" /></li>
+              <li>Near a strict local minimum where <GlossaryTooltip termKey="quadratic-convergence" /> applies<Citation citationKey="newton-quadratic-convergence" /></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-bold text-blue-800 mb-2">Hessian Damping Parameter</h3>
-            <p className="mb-2">
-              The damping parameter <InlineMath>\varLambdaDamp</InlineMath> (default 0.01) adds numerical stability.
-              Adjust when:
+            <p>
+              The damping parameter <InlineMath>\varLambdaDamp</InlineMath> adds numerical stability
+              by ensuring <InlineMath>H_d = \varH + \varLambdaDamp \cdot \varI</InlineMath> is <GlossaryTooltip termKey="positive-definite" />.
+              Larger <InlineMath>\varLambdaDamp</InlineMath> provides more stability but moves the method closer to
+              gradient descent. Experiment with this parameter to find the right balance for your problem.
             </p>
-            <ul className="list-disc ml-6 space-y-1">
-              <li>Lower to ~0 to see pure Newton's method behavior (may be unstable)</li>
-              <li>Increase to 0.1+ for very <GlossaryTooltip termKey="ill-conditioned" /> problems</li>
-            </ul>
           </div>
 
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-3">
@@ -392,7 +394,16 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <BlockMath>{String.raw`\varW_{\text{new}} = \varW_{\text{old}} - D \cdot \varGrad, \quad \text{where } D = \text{diag}(1/H_{00}, 1/H_{11}, \ldots, 1/H_{dd})`}</BlockMath>
 
             <p className="text-sm text-blue-800 mb-3 mt-3">
-              <strong>Good news:</strong> We've implemented this! See the <strong>Diagonal Preconditioning</strong> tab
+              <strong>Good news:</strong> We've implemented this! See the {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('diagonal-precond')}
+                  className="font-semibold text-blue-700 hover:text-blue-900 underline cursor-pointer"
+                >
+                  Diagonal Preconditioning
+                </button>
+              ) : (
+                <strong>Diagonal Preconditioning</strong>
+              )} tab
               to try it directly.
             </p>
 
@@ -426,13 +437,22 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </ul>
 
             <p className="text-sm mt-3 italic text-blue-800">
-              Try the Diagonal Preconditioning tab to see exactly when per-coordinate step sizes work!
+              Try the {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('diagonal-precond')}
+                  className="font-semibold text-blue-700 hover:text-blue-900 underline cursor-pointer"
+                >
+                  Diagonal Preconditioning tab
+                </button>
+              ) : (
+                <strong>Diagonal Preconditioning tab</strong>
+              )} to see exactly when per-coordinate step sizes work!
             </p>
           </div>
 
-          <div className="bg-blue-100 rounded p-3">
-            <p className="font-bold text-sm">Assumptions:</p>
-            <ul className="text-sm list-disc ml-6">
+          <div className="bg-blue-50 border-l-4 border-blue-500 rounded p-3">
+            <p className="font-bold text-sm text-blue-900">Assumptions:</p>
+            <ul className="text-sm list-disc ml-6 text-blue-800">
               <li>f is twice continuously differentiable</li>
               <li>Hessian damping ensures H_d is positive definite for numerical stability</li>
               <li>Line search used when far from minimum or in non-convex regions</li>
@@ -552,16 +572,18 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong><GlossaryTooltip termKey="strong-convexity" />:</strong>{' '}
-                <GlossaryTooltip termKey="quadratic-convergence" /> guaranteed,
-                <InlineMath>\varH</InlineMath> <GlossaryTooltip termKey="positive-definite" /> everywhere
+                <strong><GlossaryTooltip termKey="strongly-convex" /> with <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" />:</strong>{' '}
+                <GlossaryTooltip termKey="quadratic-convergence" /> when starting close to <InlineMath>x^*</InlineMath>,
+                <InlineMath>\varH</InlineMath> <GlossaryTooltip termKey="positive-definite" /> everywhere<Citation citationKey="newton-quadratic-convergence" />
               </li>
               <li>
-                <strong><GlossaryTooltip termKey="convex" />:</strong> <InlineMath>\varH</InlineMath> positive semidefinite, converges to global minimum
+                <strong><GlossaryTooltip termKey="convex" /> with Lipschitz continuous Hessian:</strong> Converges to global minimum
+                (may require cubic regularization if <InlineMath>\varH</InlineMath> not positive definite during iteration)<Citation citationKey="newton-convex-convergence" />
               </li>
               <li>
                 <strong>Non-convex:</strong> May converge to local minimum or saddle point,
-                <InlineMath>\varH</InlineMath> can have negative <GlossaryTooltip termKey="eigenvalue" />s
+                <InlineMath>\varH</InlineMath> can have negative <GlossaryTooltip termKey="eigenvalue" />s.
+                Line search and damping provide robustness.
               </li>
             </ul>
           </div>
@@ -576,10 +598,28 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
                 <strong>Slow convergence</strong> → may be far from minimum (quadratic approximation poor), or <InlineMath>\varLambdaDamp</InlineMath> too high (try lowering toward 0.01)
               </li>
               <li>
-                <strong>Numerical issues</strong> → Hessian severely <GlossaryTooltip termKey="ill-conditioned" />, increase <InlineMath>\varLambdaDamp</InlineMath> further or switch to L-BFGS
+                <strong>Numerical issues</strong> → Hessian severely <GlossaryTooltip termKey="ill-conditioned" />, increase <InlineMath>\varLambdaDamp</InlineMath> further or switch to {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('lbfgs')}
+                    className="font-semibold text-yellow-700 hover:text-yellow-900 underline cursor-pointer"
+                  >
+                    L-BFGS
+                  </button>
+                ) : (
+                  <strong>L-BFGS</strong>
+                )}
               </li>
               <li>
-                <strong>High cost</strong> → d too large, switch to L-BFGS
+                <strong>High cost</strong> → d too large, switch to {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('lbfgs')}
+                    className="font-semibold text-yellow-700 hover:text-yellow-900 underline cursor-pointer"
+                  >
+                    L-BFGS
+                  </button>
+                ) : (
+                  <strong>L-BFGS</strong>
+                )}
               </li>
             </ul>
           </div>
@@ -643,18 +683,19 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <p>
               <strong><GlossaryTooltip termKey="quadratic-convergence" />:</strong> Let <InlineMath>{String.raw`e_k = \|\varWK - \varWStar\|`}</InlineMath>
               be the error at iteration <InlineMath>k</InlineMath> (distance from optimal parameters <InlineMath>\varWStar</InlineMath>), and
-              <InlineMath>C</InlineMath> be a constant depending on the Hessian.
+              <InlineMath>C</InlineMath> be a constant depending on the Lipschitz constant of the Hessian.
             </p>
             <BlockMath>
               {String.raw`\|e_{k+1}\| \leq C\|e_k\|^2`}
             </BlockMath>
             <p className="text-sm mt-2">
-              Error <strong>squared</strong> at each iteration (very fast near solution).
+              Error <strong>squared</strong> at each iteration (very fast near solution). The number of correct digits
+              roughly doubles at each step.<Citation citationKey="newton-quadratic-convergence" />
             </p>
             <p className="text-sm mt-2">
               <strong>Requires:</strong>{' '}
-              <GlossaryTooltip termKey="strong-convexity" />
-              , <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" />,
+              Twice differentiable function, <GlossaryTooltip termKey="lipschitz-continuous" /> <GlossaryTooltip termKey="hessian" /> near <InlineMath>x^*</InlineMath>,
+              second-order sufficient conditions at <InlineMath>\varWStar</InlineMath> (i.e., <InlineMath>\nabla f(x^*) = 0</InlineMath> and <InlineMath>\varH(x^*)</InlineMath> positive definite),
               starting close enough to <InlineMath>\varWStar</InlineMath>
             </p>
           </div>
@@ -669,6 +710,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </ol>
             <p className="text-xs text-gray-600 mt-2">
               Full proof requires Lipschitz continuity of the Hessian and bounds on eigenvalues.
+              <Citation citationKey="newton-quadratic-convergence" />
             </p>
           </div>
 
@@ -722,7 +764,16 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             </ul>
             <p className="text-sm mt-2 italic">
               This is why Newton's method becomes impractical for large-scale problems,
-              motivating quasi-Newton methods like L-BFGS.
+              motivating quasi-Newton methods like {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('lbfgs')}
+                  className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  L-BFGS
+                </button>
+              ) : (
+                <strong>L-BFGS</strong>
+              )}.
             </p>
           </div>
 
@@ -798,12 +849,23 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <ul className="list-disc ml-6 space-y-1">
               <li>Quasi-Newton approximates <InlineMath>\varH</InlineMath> or <InlineMath>\varHInv</InlineMath> from gradients</li>
               <li>Builds up curvature information over iterations</li>
-              <li>Next algorithm: <strong>L-BFGS</strong> (Limited-memory BFGS)</li>
+              <li>Next algorithm: {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('lbfgs')}
+                  className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  L-BFGS
+                </button>
+              ) : (
+                <strong>L-BFGS</strong>
+              )} (Limited-memory BFGS)</li>
               <li>O(<InlineMath>\varM</InlineMath>d) cost instead of O(d³), where <InlineMath>\varM</InlineMath> ≈ 5-20 is memory size</li>
             </ul>
           </div>
         </div>
       </CollapsibleSection>
+
+      <References usedIn="NewtonTab" />
 
     </>
   );

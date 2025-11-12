@@ -608,9 +608,11 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               {String.raw`f(\varW + \varAlpha \varP) \leq f(\varW) + c_1 \varAlpha \varGrad^T \varP`}
             </BlockMath>
             <p className="text-sm mt-2">
-              where <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath>.
-              For descent direction <InlineMath>\varP = -\varGrad</InlineMath>, we have
-              <InlineMath>{String.raw`\varGrad^T \varP = -\|\varGrad\|^2 < 0`}</InlineMath>.
+              where <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath> is the <strong>Armijo parameter</strong> (typically <InlineMath>{String.raw`c_1 = 10^{-4}`}</InlineMath>).
+            </p>
+            <p className="text-sm mt-2">
+              <strong>For gradient descent,</strong> the search direction is <InlineMath>\varP = -\varGrad</InlineMath> (negative gradient).
+              This gives <InlineMath>{String.raw`\varGrad^T \varP = -\|\varGrad\|^2 < 0`}</InlineMath>, confirming we move downhill.
             </p>
           </div>
 
@@ -618,8 +620,9 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Why Backtracking Terminates</h3>
             <p className="text-sm mb-2">
               For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions,
-              backtracking with geometric step reduction <InlineMath>{String.raw`\varAlpha \leftarrow \rho\varAlpha`}</InlineMath> (where
-              <InlineMath>{String.raw`\rho \in (0,1)`}</InlineMath>) terminates in finite steps:<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
+              backtracking with geometric step reduction <InlineMath>{String.raw`\varAlpha \leftarrow \varRho\varAlpha`}</InlineMath> terminates in finite steps,
+              where <InlineMath>{String.raw`\varRho \in (0,1)`}</InlineMath> is the <strong>contraction factor</strong> (how much to shrink the step each backtracking iteration, e.g., <InlineMath>\varRho = 0.5</InlineMath>).<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />
+              Note: <InlineMath>\varRho</InlineMath> is distinct from <InlineMath>c_1</InlineMath> (the Armijo parameter for sufficient decrease).
             </p>
             <p className="text-sm mb-2">
               <strong>Proof sketch:</strong> By Taylor expansion:

@@ -91,7 +91,7 @@ export const quadraticExplainer = (
           {String.raw`H = R(\theta) \begin{bmatrix} Q & 0 \\ 0 & 1 \end{bmatrix} R(\theta)^T`}
         </BlockMath>
         <p className="text-sm mt-1">
-          Eigenvalues: <InlineMath>Q</InlineMath> and 1 (independent of rotation)
+          Eigenvalues: <InlineMath>Q</InlineMath> and <InlineMath>1</InlineMath> (independent of rotation)
         </p>
       </div>
 
@@ -108,40 +108,40 @@ export const quadraticExplainer = (
       </ul>
 
       <div className="bg-blue-50 rounded p-3 mt-2">
-        <p className="text-sm font-semibold mb-1">Understanding Q (Condition Number):</p>
+        <p className="text-sm font-semibold mb-1">Understanding <InlineMath>Q</InlineMath> (Condition Number):</p>
         <ul className="text-sm list-disc ml-5 space-y-1">
-          <li><strong>Q=1:</strong> Perfectly conditioned circle. All methods converge efficiently regardless of θ.</li>
-          <li><strong>Q=5-10:</strong> Mildly elongated. Good for demonstrating rotation effects without extreme conditioning.</li>
-          <li><strong>Q=100:</strong> Moderately <GlossaryTooltip termKey="ill-conditioned" />. Gradient descent shows clear slowdown and zig-zagging.</li>
-          <li><strong>Q=500:</strong> Extremely elongated. Gradient descent becomes nearly unusable.</li>
+          <li><strong><InlineMath>Q=1</InlineMath>:</strong> Perfectly conditioned circle. All methods converge efficiently regardless of <InlineMath>\theta</InlineMath>.</li>
+          <li><strong><InlineMath>Q=5</InlineMath>-<InlineMath>10</InlineMath>:</strong> Mildly elongated. Good for demonstrating rotation effects without extreme conditioning.</li>
+          <li><strong><InlineMath>Q=100</InlineMath>:</strong> Moderately <GlossaryTooltip termKey="ill-conditioned" />. Gradient descent shows clear slowdown and zig-zagging.</li>
+          <li><strong><InlineMath>Q=500</InlineMath>:</strong> Extremely elongated. Gradient descent becomes nearly unusable.</li>
         </ul>
       </div>
 
       <div className="bg-green-50 rounded p-3 mt-2">
-        <p className="text-sm font-semibold mb-1">Understanding θ (Rotation Angle):</p>
+        <p className="text-sm font-semibold mb-1">Understanding <InlineMath>\theta</InlineMath> (Rotation Angle):</p>
         <ul className="text-sm list-disc ml-5 space-y-1">
-          <li><strong>θ=0°:</strong> Axis-aligned quadratic. Gradient descent moves efficiently along coordinate axes. <em>Pure conditioning test.</em></li>
-          <li><strong>θ=45°:</strong> Maximum misalignment. Gradient steps zigzag badly between steep and shallow directions. <em>Pure rotation challenge.</em></li>
-          <li><strong>Newton & L-BFGS:</strong> Performance unchanged by θ! Second-order methods are rotation invariant.</li>
+          <li><strong><InlineMath>\theta=0°</InlineMath>:</strong> Axis-aligned quadratic. Gradient descent moves efficiently along coordinate axes. <em>Pure conditioning test.</em></li>
+          <li><strong><InlineMath>\theta=45°</InlineMath>:</strong> Maximum misalignment. Gradient steps zigzag badly between steep and shallow directions. <em>Pure rotation challenge.</em></li>
+          <li><strong>Newton & L-BFGS:</strong> Performance unchanged by <InlineMath>\theta</InlineMath>! Second-order methods are rotation invariant.</li>
         </ul>
       </div>
 
       <div className="bg-purple-50 rounded p-3 mt-2">
-        <p className="text-sm font-semibold mb-1">Algorithm Performance on High Q Problems:</p>
+        <p className="text-sm font-semibold mb-1">Algorithm Performance on High <InlineMath>Q</InlineMath> Problems:</p>
         <ul className="text-sm list-disc ml-5 space-y-1">
-          <li><strong>GD (fixed or line search):</strong> Iterations scale with Q. Heavy zig-zagging perpendicular to contours.</li>
-          <li><strong>Newton:</strong> ~5 iterations regardless of Q. Uses H⁻¹ to perfectly scale each direction.</li>
+          <li><strong>GD (fixed or line search):</strong> Iterations scale with <InlineMath>Q</InlineMath>. Heavy zig-zagging perpendicular to contours.</li>
+          <li><strong>Newton:</strong> ~5 iterations regardless of <InlineMath>Q</InlineMath>. Uses <InlineMath>H^{{-1}}</InlineMath> to perfectly scale each direction.</li>
           <li><strong>L-BFGS:</strong> Learns curvature from gradient history, adapts quickly to conditioning.</li>
-          <li><strong>Diagonal Preconditioner:</strong> Perfect for θ=0° (axis-aligned), struggles when θ≠0° (off-diagonal Hessian terms).</li>
+          <li><strong>Diagonal Preconditioner:</strong> Perfect for <InlineMath>\theta=0°</InlineMath> (axis-aligned), struggles when <InlineMath>\theta \neq 0°</InlineMath> (off-diagonal Hessian terms).</li>
         </ul>
       </div>
 
       <div className="bg-amber-50 rounded p-3 mt-2">
         <p className="text-sm font-semibold mb-1">Perfect for demonstrating:</p>
         <ul className="text-sm list-disc ml-5">
-          <li>The difference between intrinsic difficulty (Q) and coordinate system effects (θ)</li>
+          <li>The difference between intrinsic difficulty (<InlineMath>Q</InlineMath>) and coordinate system effects (<InlineMath>\theta</InlineMath>)</li>
           <li>Why per-coordinate step sizes (diagonal preconditioning) aren't enough for rotated problems</li>
-          <li>Rotation invariance: second-order methods handle any θ equally well</li>
+          <li>Rotation invariance: second-order methods handle any <InlineMath>\theta</InlineMath> equally well</li>
           <li>How condition number affects convergence speed for all algorithms</li>
         </ul>
       </div>

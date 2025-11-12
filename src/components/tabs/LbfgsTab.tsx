@@ -4,6 +4,8 @@ import { AlgorithmConfiguration } from '../AlgorithmConfiguration';
 import { IterationMetrics } from '../IterationMetrics';
 import { InlineMath, BlockMath } from '../Math';
 import { GlossaryTooltip } from '../GlossaryTooltip';
+import { Citation } from '../Citation';
+import { References } from '../References';
 import { resolveProblem, requiresDataset } from '../../problems/registry';
 import { getExperimentsForAlgorithm } from '../../experiments';
 import { ExperimentCardList } from '../ExperimentCardList';
@@ -46,6 +48,7 @@ interface LbfgsTabProps {
   onLoadExperiment: (experiment: ExperimentPreset) => void;
   configurationExpanded?: boolean;
   onConfigurationExpandedChange?: (expanded: boolean) => void;
+  onNavigateToTab?: (tabId: string) => void;
 }
 
 export const LbfgsTab: React.FC<LbfgsTabProps> = ({
@@ -77,6 +80,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
   onLoadExperiment,
   configurationExpanded,
   onConfigurationExpandedChange,
+  onNavigateToTab,
 }) => {
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('lbfgs'),
@@ -287,7 +291,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <p><strong>What it is:</strong> Instead of storing the full Hessian <InlineMath>\varH</InlineMath> (n×n matrix), we store only <InlineMath>\varM</InlineMath>={lbfgsM} recent (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs.</p>
           <p><InlineMath>\varS</InlineMath> = parameter change = <InlineMath>{String.raw`w_{\text{new}} - w_{\text{old}}`}</InlineMath> (where we moved)</p>
           <p><InlineMath>\varY</InlineMath> = gradient change = <InlineMath>{String.raw`\nabla f_{\text{new}} - \nabla f_{\text{old}}`}</InlineMath> (how the slope changed)</p>
-          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{String.raw`\varS^T \varY > 0`}</InlineMath> (positive curvature). This helps maintain positive definiteness of the approximate Hessian <InlineMath>\varB</InlineMath>, promoting descent directions even in non-convex regions where the true Hessian <InlineMath>\varH</InlineMath> may have negative eigenvalues.</p>
+          <p><strong>Acceptance criteria:</strong> L-BFGS only stores pairs where <InlineMath>{String.raw`\varS^T \varY > 0`}</InlineMath> (positive curvature).<Citation citationKey="bfgs-positive-definiteness-preservation-nocedal-wright-2006" /> This helps maintain positive definiteness of the approximate Hessian <InlineMath>\varB</InlineMath>, promoting descent directions even in non-convex regions where the true Hessian <InlineMath>\varH</InlineMath> may have negative eigenvalues.</p>
         </div>
 
         {/* Memory table */}
@@ -345,7 +349,16 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
         ) : (
           <div className="bg-amber-50 rounded-lg p-6 text-center">
             <p className="text-amber-800 font-semibold">No curvature pairs yet (Iteration 0)</p>
-            <p className="text-sm text-amber-700 mt-2">Curvature pairs will be computed starting from iteration 1. First iteration uses steepest descent direction.</p>
+            <p className="text-sm text-amber-700 mt-2">Curvature pairs will be computed starting from iteration 1. First iteration uses {onNavigateToTab ? (
+              <button
+                onClick={() => onNavigateToTab('gd-fixed')}
+                className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+              >
+                steepest descent
+              </button>
+            ) : (
+              <span>steepest descent</span>
+            )} direction.</p>
           </div>
         )}
       </div>
@@ -588,7 +601,16 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">What is L-BFGS?</h3>
             <p>
-              Newton's method uses the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var> for smarter steps,
+              {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('newton')}
+                  className="font-bold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  Newton's method
+                </button>
+              ) : (
+                <strong>Newton's method</strong>
+              )} uses the search direction <Var id="p" type="vector ℝᵈ"><InlineMath>{String.raw`H^{-1}\nabla f`}</InlineMath></Var> for smarter steps,
               but computing the Hessian <InlineMath>\varH</InlineMath> costs <InlineMath>O(d^3)</InlineMath> and storing it costs <InlineMath>O(d^2)</InlineMath>. <strong>L-BFGS approximates</strong> the same direction using only <InlineMath>\varM</InlineMath> recent gradient changes, requiring just <InlineMath>O(Md)</InlineMath> memory and <InlineMath>O(Md)</InlineMath> time per iteration.
               No Hessian matrix is ever formed or inverted!
             </p>
@@ -597,10 +619,37 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           <div>
             <h3 className="text-lg font-bold text-amber-800 mb-2">When to Use</h3>
             <ul className="list-disc ml-6 space-y-1">
-              <li>Large-scale problems where Newton's method (<InlineMath>O(d^3)</InlineMath> cost) is prohibitively expensive</li>
-              <li>Non-convex optimization near saddle points — L-BFGS only uses positive curvature (<InlineMath>{`s^T y > 0`}</InlineMath>), making it more robust than Newton</li>
+              <li>Large-scale problems where {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('newton')}
+                  className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  Newton's method
+                </button>
+              ) : (
+                <strong>Newton's method</strong>
+              )} (<InlineMath>O(d^3)</InlineMath> cost) is prohibitively expensive</li>
+              <li>Non-convex optimization near saddle points — L-BFGS only uses positive curvature (<InlineMath>{`s^T y > 0`}</InlineMath>), making it more robust than {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('newton')}
+                  className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  Newton
+                </button>
+              ) : (
+                <strong>Newton</strong>
+              )}</li>
               <li>Smooth, differentiable objectives</li>
-              <li>When gradient descent is too slow but full <GlossaryTooltip termKey="second-order-method" /> are too expensive</li>
+              <li>When {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('gd-fixed')}
+                  className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                >
+                  gradient descent
+                </button>
+              ) : (
+                <strong>gradient descent</strong>
+              )} is too slow but full <GlossaryTooltip termKey="second-order-method" /> are too expensive</li>
             </ul>
           </div>
 
@@ -729,7 +778,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <p className="font-semibold text-blue-900 mb-3">Why (s, y) pairs capture curvature:</p>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>1. Taylor expansion:</strong> The gradient at a new point relates to the old gradient via the Hessian <InlineMath>\varH</InlineMath>:<br/>
+                <strong>1. Taylor expansion:</strong> Consider two points in parameter space: <InlineMath>{String.raw`w_{\text{old}}`}</InlineMath> (current location) and <InlineMath>{String.raw`w_{\text{new}}`}</InlineMath> (next location). The gradient at the new point relates to the old gradient via the Hessian <InlineMath>\varH</InlineMath>:<br/>
                 <span className="ml-4 inline-block my-1">
                   <InlineMath>{String.raw`\nabla f(w_{\text{new}}) \approx \nabla f(w_{\text{old}}) + \varH \cdot \varS`}</InlineMath>
                 </span><br/>
@@ -751,24 +800,60 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
                   🛡️ Curvature Filtering: L-BFGS's Secret to Robustness
                 </p>
                 <p className="text-xs text-amber-800 mb-2">
-                  <strong>Key difference from Newton:</strong> L-BFGS <strong>only accepts pairs where s<sup>T</sup>y &gt; 0</strong> (positive curvature). Pairs with s<sup>T</sup>y ≤ 0 are rejected and never stored in memory.
+                  <strong>Key difference from {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton
+                    </button>
+                  ) : (
+                    <strong>Newton</strong>
+                  )}:</strong> L-BFGS <strong>only accepts pairs where s<sup>T</sup>y &gt; 0</strong> (positive curvature). Pairs with s<sup>T</sup>y ≤ 0 are rejected and never stored in memory.<Citation citationKey="bfgs-positive-definiteness-preservation-nocedal-wright-2006" />
                 </p>
                 <p className="text-xs text-amber-800 mb-2">
-                  <strong>Why this matters:</strong> Near saddle points or in non-convex regions, the true Hessian H may have negative eigenvalues. Newton's method uses this negative curvature and can converge to saddle points or maxima. By filtering out negative curvature, L-BFGS helps keep its approximate Hessian B positive definite, promoting valid descent directions.
+                  <strong>Why this matters:</strong> Near saddle points or in non-convex regions, the true Hessian H may have negative eigenvalues. {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton's method
+                    </button>
+                  ) : (
+                    <strong>Newton's method</strong>
+                  )} uses this negative curvature and can converge to saddle points or maxima. By filtering out negative curvature, L-BFGS helps keep its approximate Hessian B positive definite, promoting valid descent directions.
                 </p>
                 <p className="text-xs text-amber-800">
-                  <strong>Result:</strong> L-BFGS is more robust than Newton on non-convex problems like Himmelblau's function, where it successfully avoids saddle points that trap Newton. This selective memory trades perfect Hessian approximation for better robustness through curvature filtering.
+                  <strong>Result:</strong> L-BFGS is more robust than {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton
+                    </button>
+                  ) : (
+                    <strong>Newton</strong>
+                  )} on non-convex problems like Himmelblau's function, where it successfully avoids saddle points that trap {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton
+                    </button>
+                  ) : (
+                    <strong>Newton</strong>
+                  )}. This selective memory trades perfect Hessian approximation for better robustness through curvature filtering.
                 </p>
               </div>
 
               <p className="text-sm text-blue-800 mb-2">
-                <strong>4. BFGS update formula:</strong> Given a new pair (<InlineMath>\varS_k</InlineMath>, <InlineMath>\varY_k</InlineMath>), how do we update our approximate Hessian <InlineMath>\varBK</InlineMath> to satisfy the new secant equation? The BFGS update is:
+                <strong>4. BFGS update formula:</strong> Given a new pair (<InlineMath>\varS_k</InlineMath>, <InlineMath>\varY_k</InlineMath>) from iteration <InlineMath>k</InlineMath>, how do we update our approximate Hessian <InlineMath>\varBK</InlineMath> to satisfy the new secant equation? The BFGS update is:<Citation citationKey="bfgs-update-formula-nocedal-wright-2006" />
               </p>
               <div className="ml-4 my-2">
                 <BlockMath>{String.raw`\varB_{k+1} = (\varI - \varRho_k \varS_k \varY_k^T) \varBK (\varI - \varRho_k \varY_k \varS_k^T) + \varRho_k \varS_k \varS_k^T`}</BlockMath>
               </div>
               <p className="text-sm text-blue-800">
-                where <InlineMath>\varRho_k</InlineMath> is a scaling factor equal to <InlineMath>{String.raw`1/(\varS_k^T \varY_k)`}</InlineMath> (the reciprocal of the curvature).
+                where <InlineMath>k</InlineMath> is the iteration index and <InlineMath>\varRho_k</InlineMath> is a scaling factor equal to <InlineMath>{String.raw`1/(\varS_k^T \varY_k)`}</InlineMath> (the reciprocal of the curvature).
               </p>
 
               <div className="bg-blue-100 border border-blue-300 rounded p-3 my-2">
@@ -1045,7 +1130,16 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
             <div className="space-y-3">
               <div>
-                <p className="font-semibold">❌ "L-BFGS is always better than gradient descent"</p>
+                <p className="font-semibold">❌ "L-BFGS is always better than {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('gd-fixed')}
+                    className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                  >
+                    gradient descent
+                  </button>
+                ) : (
+                  <span>gradient descent</span>
+                )}"</p>
                 <p className="text-sm ml-6">
                   ✓ Requires smooth objectives and good line search<br />
                   ✓ Can fail on non-smooth problems (L1 regularization, ReLU, kinks)<br />
@@ -1054,9 +1148,27 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </div>
 
               <div>
-                <p className="font-semibold">❌ "L-BFGS equals Newton's method"</p>
+                <p className="font-semibold">❌ "L-BFGS equals {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('newton')}
+                    className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                  >
+                    Newton's method
+                  </button>
+                ) : (
+                  <span>Newton's method</span>
+                )}"</p>
                 <p className="text-sm ml-6">
-                  ✓ Only approximates Newton direction<br />
+                  ✓ Only approximates {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton
+                    </button>
+                  ) : (
+                    <span>Newton</span>
+                  )} direction<br />
                   ✓ Approximation quality depends on M and problem structure<br />
                   ✓ Superlinear vs quadratic convergence
                 </p>
@@ -1077,11 +1189,10 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong>Strongly convex:</strong> <GlossaryTooltip termKey="superlinear-convergence" /> guaranteed
-                (between <GlossaryTooltip termKey="linear-convergence" /> and <GlossaryTooltip termKey="quadratic-convergence" />)
+                <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> <GlossaryTooltip termKey="linear-convergence" /> (L-BFGS) or <GlossaryTooltip termKey="superlinear-convergence" /> (full BFGS)<Citation citationKey="bfgs-superlinear-convergence-nocedal-wright-2006" />
               </li>
               <li>
-                <strong>Convex:</strong> Converges to global minimum
+                <strong><GlossaryTooltip termKey="convex" />:</strong> Converges to global minimum
               </li>
               <li>
                 <strong>Non-convex:</strong> Can converge to local minima, no global
@@ -1091,11 +1202,29 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
             <div className="bg-green-50 border-l-4 border-green-500 p-3 mt-3">
               <p className="text-sm text-green-900 font-semibold mb-1">
-                ✓ Advantage over Newton in non-convex regions
+                ✓ Advantage over {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('newton')}
+                    className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                  >
+                    Newton
+                  </button>
+                ) : (
+                  <strong>Newton</strong>
+                )} in non-convex regions
               </p>
               <p className="text-sm text-green-800">
                 L-BFGS filters out negative curvature pairs (<InlineMath>{String.raw`\varS^T \varY \leq 0`}</InlineMath>), keeping its approximate Hessian <InlineMath>\varB</InlineMath> positive definite.
-                Newton's method uses the true Hessian <InlineMath>\varH</InlineMath>, which can have negative eigenvalues near saddle points, potentially causing convergence to saddles or maxima.
+                {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('newton')}
+                    className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                  >
+                    Newton's method
+                  </button>
+                ) : (
+                  <strong>Newton's method</strong>
+                )} uses the true Hessian <InlineMath>\varH</InlineMath>, which can have negative eigenvalues near saddle points, potentially causing convergence to saddles or maxima.
                 This makes L-BFGS more robust on non-convex problems like Himmelblau's function.
               </p>
             </div>
@@ -1107,10 +1236,37 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               <li>
                 <strong>Instability / Erratic steps:</strong> Watch the step sizes and loss values.
                 If steps are erratic, the Hessian approximation may be ill-conditioned.
-                The damping parameter adds regularization (moves toward gradient descent).
+                The damping parameter adds regularization (moves toward {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('gd-fixed')}
+                    className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                  >
+                    gradient descent
+                  </button>
+                ) : (
+                  <span>gradient descent</span>
+                )}).
               </li>
               <li>
-                <strong>Slow convergence:</strong> Compare iterations needed vs gradient descent or Newton.
+                <strong>Slow convergence:</strong> Compare iterations needed vs {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('gd-fixed')}
+                    className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                  >
+                    gradient descent
+                  </button>
+                ) : (
+                  <span>gradient descent</span>
+                )} or {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('newton')}
+                    className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                  >
+                    Newton
+                  </button>
+                ) : (
+                  <span>Newton</span>
+                )}.
                 Slow convergence suggests either: (a) <InlineMath>\varM</InlineMath> is too small to capture curvature, or (b) damping is too aggressive.
                 Trade-off: larger <InlineMath>\varM</InlineMath> improves approximation but increases cost (<InlineMath>O(Md)</InlineMath> per iteration).
               </li>
@@ -1152,7 +1308,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
               </li>
               <li>
                 <strong>L-BFGS:</strong> stores only <InlineMath>\varM</InlineMath> recent (<InlineMath>\varS</InlineMath>, <InlineMath>\varY</InlineMath>) pairs
-                → O(Md) memory, O(Md) computation
+                → O(Md) memory, O(Md) computation<Citation citationKey="lbfgs-computational-complexity-nocedal-wright-2006" />
               </li>
               <li>
                 <strong>Scaling advantage:</strong> L-BFGS memory and computation scale linearly with <InlineMath>d</InlineMath> instead of quadratically, making it practical for large-scale problems.
@@ -1166,15 +1322,19 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
 
           <div>
             <h3 className="text-lg font-bold text-indigo-800 mb-2">Convergence Rate</h3>
-            <p className="mb-2"><strong><GlossaryTooltip termKey="superlinear-convergence" />:</strong></p>
+            <p className="mb-2"><strong>L-BFGS: <GlossaryTooltip termKey="linear-convergence" /></strong></p>
             <p className="text-sm mb-2">
-              Let <InlineMath>\varWStar</InlineMath> denote the optimal parameters that minimize the objective function. Define the error at iteration <InlineMath>k</InlineMath> as <InlineMath>e_k = \|w_k - w^*\|</InlineMath> (distance from optimal parameters). L-BFGS exhibits superlinear convergence:
+              L-BFGS achieves <strong>linear convergence</strong> on <GlossaryTooltip termKey="strongly-convex" /> functions, not superlinear. The limited memory (only <InlineMath>\varM</InlineMath> recent pairs) prevents the Hessian approximation from fully converging to the true Hessian, which is necessary for superlinear convergence.<Citation citationKey="bfgs-superlinear-convergence-nocedal-wright-2006" />
+            </p>
+            <p className="text-sm mb-2">
+              In contrast, <strong>full BFGS</strong> (which stores the complete Hessian approximation) achieves superlinear convergence on strongly convex functions under specific conditions (twice continuously differentiable function, Lipschitz continuous Hessian at solution, and certain technical assumptions). Let <InlineMath>\varWStar</InlineMath> denote the optimal parameters and define the error <InlineMath>{String.raw`e_k = \|\varW_k - \varWStar\|`}</InlineMath> (distance from optimum, where <InlineMath>k</InlineMath> is the iteration index). Superlinear convergence means:
             </p>
             <BlockMath>{String.raw`\lim_{k \to \infty} \frac{\|e_{k+1}\|}{\|e_k\|} = 0`}</BlockMath>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
-              <li>Faster than <GlossaryTooltip termKey="linear-convergence" /> (gradient descent) but slower than <GlossaryTooltip termKey="quadratic-convergence" /> (Newton's method)</li>
-              <li>Convergence rate depends on <InlineMath>\varM</InlineMath>: larger <InlineMath>\varM</InlineMath> → closer to Newton's <GlossaryTooltip termKey="quadratic-convergence" /></li>
-              <li>Requires strong convexity for convergence guarantees; works well empirically on non-convex problems too</li>
+              <li>L-BFGS: <GlossaryTooltip termKey="linear-convergence" /> (geometric error decrease)</li>
+              <li>Full BFGS: <GlossaryTooltip termKey="superlinear-convergence" /> (faster than linear, slower than quadratic)</li>
+              <li>Newton's method: <GlossaryTooltip termKey="quadratic-convergence" /> (error squares each iteration near solution)</li>
+              <li>Trade-off: L-BFGS sacrifices superlinear convergence for <InlineMath>O(Md)</InlineMath> memory vs <InlineMath>O(d^2)</InlineMath> for full BFGS</li>
             </ul>
           </div>
 
@@ -1298,6 +1458,8 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
           </div>
         </div>
       </CollapsibleSection>
+
+      <References usedIn="LbfgsTab" />
     </>
   );
 };

@@ -1,6 +1,8 @@
 import { InlineMath, BlockMath } from './Math';
 import { CollapsibleSection } from './CollapsibleSection';
 import { GlossaryTooltip } from './GlossaryTooltip';
+import { Citation } from './Citation';
+import { References } from './References';
 
 /**
  * Educational component explaining all available optimization algorithms
@@ -43,14 +45,23 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Linear convergence for{' '}
-            <GlossaryTooltip termKey="strongly-convex" />{' '}
-            <GlossaryTooltip termKey="smooth" />{' '}
-            functions. Requires O(log(1/ε)) iterations to reach ε accuracy for strongly convex functions,
-            or O(1/ε) iterations for{' '}
-            <GlossaryTooltip termKey="convex" />{' '}
-            (but not strongly convex) smooth functions.
+            <strong>Convergence rate:</strong>
           </p>
+          <ul className="text-sm list-disc ml-5 space-y-1">
+            <li>
+              <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
+              (requires <GlossaryTooltip termKey="smooth" /> function and step size{' '}
+              <InlineMath>0 &lt; \alpha &lt; 2/(L+\mu)</InlineMath>, where <InlineMath>\mu</InlineMath> is the strong convexity parameter).
+              Requires <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy
+              <Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />.
+            </li>
+            <li>
+              <strong><GlossaryTooltip termKey="convex" /> (not strongly convex):</strong> Sublinear convergence
+              (requires smooth function and step size <InlineMath>0 &lt; \alpha \leq 1/L</InlineMath>).
+              Requires <InlineMath>O(1/\varepsilon)</InlineMath> iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy
+              <Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />.
+            </li>
+          </ul>
 
           <p>
             <strong>Cost per iteration:</strong> One gradient evaluation - very cheap!
@@ -69,8 +80,8 @@ export function AlgorithmExplainer() {
           <div className="bg-red-50 rounded p-3 mt-2">
             <p className="text-sm font-semibold mb-1">Weaknesses:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Choosing good step size α requires trial and error</li>
-              <li>Too large α → divergence; too small α → slow convergence</li>
+              <li>Choosing good step size <InlineMath>\alpha</InlineMath> requires trial and error</li>
+              <li>Too large <InlineMath>\alpha</InlineMath> → divergence; too small <InlineMath>\alpha</InlineMath> → slow convergence</li>
               <li>Struggles with ill-conditioned problems (zig-zagging)</li>
               <li>Doesn't adapt to local geometry</li>
             </ul>
@@ -115,7 +126,7 @@ export function AlgorithmExplainer() {
               {String.raw`f(w_k - \alpha_k \nabla f(w_k)) \leq f(w_k) - c \alpha_k \|\nabla f(w_k)\|^2`}
             </BlockMath>
             <p className="text-sm mt-1">
-              Start with α = 1, multiply by β = 0.5 until condition satisfied
+              Start with <InlineMath>\alpha = 1</InlineMath>, multiply by <InlineMath>\beta = 0.5</InlineMath> until condition satisfied
             </p>
           </div>
 
@@ -125,11 +136,11 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Linear convergence for{' '}
+            <strong>Convergence rate:</strong> Same as fixed-step gradient descent (linear for{' '}
             <GlossaryTooltip termKey="strongly-convex" />{' '}
             <GlossaryTooltip termKey="smooth" />{' '}
-            functions (same O(log(1/ε)) iteration complexity as fixed step), but with guaranteed descent at each step
-            and no need for manual step size tuning.
+            functions: <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations), but with guaranteed descent
+            at each step and no need for manual step size tuning.
           </p>
 
           <p>
@@ -195,7 +206,7 @@ export function AlgorithmExplainer() {
               {String.raw`D = \text{diag}(1/H_{00}, 1/H_{11}, ...)`}
             </BlockMath>
             <p className="text-sm mt-1">
-              Extracts diagonal from Hessian H and inverts it
+              Extracts diagonal from Hessian <InlineMath>H</InlineMath> and inverts it
             </p>
           </div>
 
@@ -263,11 +274,11 @@ export function AlgorithmExplainer() {
               <li>Gradient-based variants (Adam/RMSprop) avoid Hessian but are approximate</li>
             </ul>
             <p className="text-sm mt-2">
-              <strong>Why rotation hurts:</strong> Diagonal preconditioner uses D = diag(1/H₀₀, 1/H₁₁, ...),
-              which works perfectly when H is diagonal. But when rotated, H has off-diagonal terms that capture
-              coordinate coupling. The optimal inverse H⁻¹ also has off-diagonals, but D ignores them.
-              This means D applies the <strong>wrong scaling</strong> for coupled coordinates.
-              Example: At θ=45°, diagonal can't correct for coupling between w₀ and w₁, leading to inefficient zigzagging.
+              <strong>Why rotation hurts:</strong> Diagonal preconditioner uses <InlineMath>D = \text{{diag}}(1/H_{{00}}, 1/H_{{11}}, ...)</InlineMath>,
+              which works perfectly when <InlineMath>H</InlineMath> is diagonal. But when rotated, <InlineMath>H</InlineMath> has off-diagonal terms that capture
+              coordinate coupling. The optimal inverse <InlineMath>H^{{-1}}</InlineMath> also has off-diagonals, but <InlineMath>D</InlineMath> ignores them.
+              This means <InlineMath>D</InlineMath> applies the <strong>wrong scaling</strong> for coupled coordinates.
+              Example: At <InlineMath>\theta=45°</InlineMath>, diagonal can't correct for coupling between <InlineMath>w_0</InlineMath> and <InlineMath>w_1</InlineMath>, leading to inefficient zigzagging.
             </p>
           </div>
 
@@ -287,9 +298,9 @@ export function AlgorithmExplainer() {
               This algorithm demonstrates the critical limitation of diagonal methods:
             </p>
             <ul className="list-disc ml-6 space-y-1 text-sm mt-2">
-              <li><strong>θ=0° (aligned):</strong> H is diagonal → D=H⁻¹ exactly → 1-2 iterations!</li>
-              <li><strong>θ=45° (rotated):</strong> H has off-diagonals → D misses them → 40+ iterations</li>
-              <li><strong>Newton:</strong> Full H⁻¹ works identically at any angle → 2 iterations always</li>
+              <li><strong><InlineMath>\theta=0°</InlineMath> (aligned):</strong> <InlineMath>H</InlineMath> is diagonal → <InlineMath>D=H^{{-1}}</InlineMath> exactly → 1-2 iterations!</li>
+              <li><strong><InlineMath>\theta=45°</InlineMath> (rotated):</strong> <InlineMath>H</InlineMath> has off-diagonals → <InlineMath>D</InlineMath> misses them → 40+ iterations</li>
+              <li><strong>Newton:</strong> Full <InlineMath>H^{{-1}}</InlineMath> works identically at any angle → 2 iterations always</li>
             </ul>
             <p className="text-sm mt-2 font-semibold">
               Only Newton's full matrix achieves rotation invariance!
@@ -317,10 +328,8 @@ export function AlgorithmExplainer() {
             </BlockMath>
             <p className="text-sm mt-1">
               where <InlineMath>H(w_k)</InlineMath> is the Hessian at <InlineMath>w_k</InlineMath> (matrix of second derivatives),
-              and the entire damped matrix <InlineMath>{String.raw`[H(w_k) + \lambda_{\text{damp}} I]`}</InlineMath> is inverted
-            </p>
-            <p className="text-sm mt-1">
-              (with <InlineMath>{String.raw`\lambda_{\text{damp}} = 0.01`}</InlineMath> by default for numerical stability)
+              <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> is a damping parameter for numerical stability,
+              and the entire damped matrix is inverted
             </p>
           </div>
 
@@ -346,24 +355,24 @@ export function AlgorithmExplainer() {
                 making the linear system more numerically stable
               </li>
               <li>
-                <strong>Why it helps:</strong> Prevents huge Newton steps when H has tiny eigenvalues.
-                Example: Perceptron with λ=0.0001 → Hessian eigenvalues ≈ 0.0001 → direction magnitude ~10,000× gradient!
+                <strong>Why it helps:</strong> Prevents huge Newton steps when <InlineMath>H</InlineMath> has tiny eigenvalues.
+                Example: Perceptron with <InlineMath>\lambda=0.0001</InlineMath> → Hessian eigenvalues ≈ 0.0001 → direction magnitude ~10,000× gradient!
               </li>
               <li>
                 <strong>Connection to Levenberg-Marquardt:</strong> Classical LM is for nonlinear least-squares
-                and uses the Gauss-Newton Hessian approximation (J^T J) plus damping. Our implementation uses
+                and uses the Gauss-Newton Hessian approximation (<InlineMath>J^T J</InlineMath>) plus damping. Our implementation uses
                 the same damping principle but with the full Hessian for general optimization (also called
-                "damped Newton" or "regularized Newton"). Both interpolate between Newton's method (λ→0) and
-                gradient descent (λ→∞). Note: This is different from trust region methods, which dynamically
-                adjust λ based on a constraint radius.
+                "damped Newton" or "regularized Newton"). Both interpolate between Newton's method (<InlineMath>\lambda\to 0</InlineMath>) and
+                gradient descent (<InlineMath>\lambda\to\infty</InlineMath>). Note: This is different from trust region methods, which dynamically
+                adjust <InlineMath>\lambda</InlineMath> based on a constraint radius.
               </li>
               <li>
-                <strong>Trade-offs:</strong> Lower λ_damp = more faithful to the original problem but less stable;
-                Higher λ_damp = more stable but adds implicit regularization to your optimization
+                <strong>Trade-offs:</strong> Lower <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> = more faithful to the original problem but less stable;
+                Higher <InlineMath>\lambda_{{\text{{damp}}}}</InlineMath> = more stable but adds implicit regularization to your optimization
               </li>
               <li>
-                <strong>Spectrum of behavior:</strong> When λ_damp = 0, you get pure Newton's method;
-                as λ_damp → ∞, the method approaches gradient descent (H becomes dominated by λI)
+                <strong>Spectrum of behavior:</strong> When <InlineMath>\lambda_{{\text{{damp}}}} = 0</InlineMath>, you get pure Newton's method;
+                as <InlineMath>\lambda_{{\text{{damp}}}} \to \infty</InlineMath>, the method approaches gradient descent (<InlineMath>H</InlineMath> becomes dominated by <InlineMath>\lambda I</InlineMath>)
               </li>
             </ul>
           </div>
@@ -376,10 +385,14 @@ export function AlgorithmExplainer() {
 
           <p>
             <strong>Convergence rate:</strong>{' '}
-            <GlossaryTooltip termKey="quadratic-convergence" /> near the minimum
-            (requires starting close to solution with positive definite Hessian).
+            <GlossaryTooltip termKey="quadratic-convergence" /> near a local minimum
+            (requires starting close enough to the solution, with{' '}
+            <GlossaryTooltip termKey="positive-definite" /> Hessian, and{' '}
+            <GlossaryTooltip termKey="smooth" /> second derivatives)
+            <Citation citationKey="newton-quadratic-convergence" />.
             Once in the convergence region, doubles the digits of accuracy each iteration.
-            Can diverge if started far from the solution.
+            Requires <InlineMath>O(\log\log(1/\varepsilon))</InlineMath> iterations.
+            Can diverge if started far from the solution or at a saddle point.
           </p>
 
           <p>
@@ -392,7 +405,7 @@ export function AlgorithmExplainer() {
             <ul className="text-sm list-disc ml-5">
               <li>Quadratic convergence - extremely fast near solution</li>
               <li>Invariant to linear transformations (handles ill-conditioning)</li>
-              <li>For quadratic functions, finds optimum in 1 step!</li>
+              <li>Converges in one step on strictly convex quadratic functions (where the Hessian is constant)</li>
               <li>Uses full curvature information</li>
             </ul>
           </div>
@@ -410,7 +423,7 @@ export function AlgorithmExplainer() {
           <div className="bg-blue-50 rounded p-3 mt-2">
             <p className="text-sm font-semibold mb-1">Best for:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Small to medium dimension problems (n &lt; 1000)</li>
+              <li>Small to medium dimension problems where Hessian computation is feasible</li>
               <li>When you need high accuracy quickly</li>
               <li>Ill-conditioned problems where GD struggles</li>
               <li>When Hessian is available or cheap to compute</li>
@@ -444,7 +457,7 @@ export function AlgorithmExplainer() {
           <div>
             <p className="font-semibold">Key Idea:</p>
             <p className="text-sm">
-              Store the last M pairs of <InlineMath>(s_k, y_k)</InlineMath> where:
+              Store the last <InlineMath>M</InlineMath> pairs of <InlineMath>(s_k, y_k)</InlineMath> where:
             </p>
             <BlockMath>
               {String.raw`s_k = w_{k+1} - w_k, \quad y_k = \nabla f(w_{k+1}) - \nabla f(w_k)`}
@@ -460,20 +473,25 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> <GlossaryTooltip termKey="superlinear-convergence" /> - faster than linear,
-            slower than quadratic. Excellent practical performance.
+            <strong>Convergence rate:</strong> <GlossaryTooltip termKey="linear-convergence" /> on{' '}
+            <GlossaryTooltip termKey="strongly-convex" />{' '}
+            <GlossaryTooltip termKey="smooth" /> functions
+            <Citation citationKey="lbfgs-linear-convergence-liu-nocedal-1989" />.
+            The memory parameter <InlineMath>M</InlineMath> affects the convergence constant but not the convergence order.
+            Note: Full BFGS can achieve <GlossaryTooltip termKey="superlinear-convergence" />, but L-BFGS is limited to linear convergence
+            due to limited memory.
           </p>
 
           <p>
             <strong>Cost per iteration:</strong> One gradient + O(Mn) operations for
-            Hessian approximation. Typically M=5-20.
+            Hessian approximation (where M is the memory size).
           </p>
 
           <div className="bg-yellow-50 rounded p-3">
             <p className="text-sm font-semibold mb-1">Strengths:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Superlinear convergence without computing Hessian</li>
-              <li>Low memory: O(Mn) vs O(n²) for full Newton</li>
+              <li>Linear convergence (proven) without computing Hessian</li>
+              <li>Low memory: O(Mn) vs O(n²) for full Newton or full BFGS</li>
               <li>No manual tuning (works well with defaults)</li>
               <li>Excellent for large-scale optimization</li>
               <li>Industry standard for many ML problems</li>
@@ -484,29 +502,19 @@ export function AlgorithmExplainer() {
             <p className="text-sm font-semibold mb-1">Weaknesses:</p>
             <ul className="text-sm list-disc ml-5">
               <li>More complex implementation than GD</li>
-              <li>Needs M gradient pairs in memory</li>
+              <li>Needs <InlineMath>M</InlineMath> gradient pairs in memory</li>
               <li>Can struggle if gradients are noisy</li>
-              <li>Approximation quality depends on M</li>
+              <li>Approximation quality depends on <InlineMath>M</InlineMath></li>
             </ul>
           </div>
 
           <div className="bg-blue-50 rounded p-3 mt-2">
             <p className="text-sm font-semibold mb-1">Best for:</p>
             <ul className="text-sm list-disc ml-5">
-              <li>Large-scale smooth optimization (n &gt; 1000)</li>
+              <li>Large-scale smooth optimization</li>
               <li>When you want Newton-like performance without Hessian cost</li>
               <li>Most machine learning training tasks</li>
               <li>Production optimization systems</li>
-            </ul>
-          </div>
-
-          <div className="bg-purple-50 rounded p-3 mt-2">
-            <p className="text-sm font-semibold mb-1">Memory parameter M:</p>
-            <ul className="text-sm list-disc ml-5">
-              <li><strong>M=3-5:</strong> minimal memory, acceptable for well-conditioned problems</li>
-              <li><strong>M=5-10:</strong> good balance for most problems (recommended)</li>
-              <li><strong>M=10-20:</strong> better approximation, higher cost</li>
-              <li><strong>M&gt;50:</strong> rarely beneficial, diminishing returns</li>
             </ul>
           </div>
         </div>
@@ -552,7 +560,7 @@ export function AlgorithmExplainer() {
               </tr>
               <tr>
                 <td className="py-2 font-medium">L-BFGS</td>
-                <td className="py-2">Superlinear</td>
+                <td className="py-2">Linear*</td>
                 <td className="py-2">Low-Med (1 grad + O(Mn))</td>
                 <td className="py-2">Large-scale, production ML</td>
               </tr>
@@ -560,7 +568,8 @@ export function AlgorithmExplainer() {
           </table>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          *Quadratic convergence only on axis-aligned problems
+          *Diagonal: Quadratic convergence only on axis-aligned problems<br />
+          *L-BFGS: Proven linear convergence (full BFGS can achieve superlinear, but L-BFGS cannot due to limited memory)
         </p>
       </div>
 
@@ -592,6 +601,9 @@ export function AlgorithmExplainer() {
           </div>
         </div>
       </div>
+
+      {/* References */}
+      <References usedIn="AlgorithmExplainer" defaultExpanded={false} storageKey="algorithm-explainer-references" />
     </div>
   );
 }

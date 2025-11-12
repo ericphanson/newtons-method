@@ -82,12 +82,12 @@ export const rosenbrockExplainer = (
       </p>
 
       <p>
-        <strong>Adjusting b (valley steepness):</strong>
+        <strong>Adjusting <InlineMath>b</InlineMath> (valley steepness):</strong>
       </p>
       <ul className="text-sm list-disc ml-5 space-y-1">
-        <li><strong>b=10:</strong> Gentle valley walls. Gradient descent can navigate reasonably well.</li>
-        <li><strong>b=100:</strong> Moderately steep valley. First-order methods struggle but progress.</li>
-        <li><strong>b=1000:</strong> Extremely steep valley. First-order methods nearly trapped; second-order essential.</li>
+        <li><strong><InlineMath>b=10</InlineMath>:</strong> Gentle valley walls. Gradient descent can navigate reasonably well.</li>
+        <li><strong><InlineMath>b=100</InlineMath>:</strong> Moderately steep valley. First-order methods struggle but progress.</li>
+        <li><strong><InlineMath>b=1000</InlineMath>:</strong> Extremely steep valley. First-order methods nearly trapped; second-order essential.</li>
       </ul>
 
       <p>
@@ -102,7 +102,7 @@ export const rosenbrockExplainer = (
           <li>GD Line Search adapts to varying curvature</li>
           <li>Newton needs damping (line search) to stay stable</li>
           <li>L-BFGS builds curvature approximation over time</li>
-          <li>Higher b values: sharper turns, more challenging navigation</li>
+          <li>Higher <InlineMath>b</InlineMath> values: sharper turns, more challenging navigation</li>
         </ul>
       </div>
 

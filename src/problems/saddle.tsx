@@ -82,13 +82,13 @@ export const saddleExplainer = (
           {String.raw`H = \begin{bmatrix} 2 & 0 \\ 0 & -2 \end{bmatrix}`}
         </BlockMath>
         <p className="text-sm mt-1">
-          <GlossaryTooltip termKey="eigenvalue" />s: λ₁ = 2 (positive), λ₂ = -2 (negative)
+          <GlossaryTooltip termKey="eigenvalue" />s: <InlineMath>\lambda_1 = 2</InlineMath> (positive), <InlineMath>\lambda_2 = -2</InlineMath> (negative)
         </p>
       </div>
 
       <p>
-        <strong>What it does:</strong> Creates a saddle point at origin - minimum in w₀
-        direction, maximum in w₁ direction.
+        <strong>What it does:</strong> Creates a saddle point at origin - minimum in <InlineMath>w_0</InlineMath>{' '}
+        direction, maximum in <InlineMath>w_1</InlineMath> direction.
       </p>
 
       <p>
