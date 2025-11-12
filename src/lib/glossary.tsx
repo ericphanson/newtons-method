@@ -221,10 +221,12 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: 'condition number',
     definition: (
       <>
-        <strong>Condition number:</strong> For positive definite Hessian, the ratio of largest
-        to smallest eigenvalue: <InlineMath>{String.raw`Q = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath>. Equivalently, <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> where <InlineMath>L</InlineMath> is the Lipschitz
-        constant and <InlineMath>\mu</InlineMath> is the strong convexity parameter. Measures how "stretched" the problem
-        is. <InlineMath>{String.raw`Q \approx 1`}</InlineMath> means well-conditioned (easy); <InlineMath>{String.raw`Q \gg 1`}</InlineMath> means ill-conditioned (difficult for
+        <strong>Condition number:</strong> Two related concepts: (1) <em>Problem condition number</em>{' '}
+        <InlineMath>{String.raw`Q = L/\mu`}</InlineMath> for the optimization problem, where <InlineMath>L</InlineMath> is the Lipschitz
+        constant and <InlineMath>\mu</InlineMath> is the strong convexity parameter. (2) <em>Matrix condition number</em>{' '}
+        <InlineMath>{String.raw`\kappa(A) = \lambda_{\text{max}}/\lambda_{\text{min}}`}</InlineMath> for any matrix <InlineMath>A</InlineMath>.
+        For optimization, <InlineMath>Q</InlineMath> bounds <InlineMath>{String.raw`\kappa(H(x))`}</InlineMath> where <InlineMath>H</InlineMath> is the Hessian; for quadratic functions they're equal.
+        Measures how "stretched" the problem is. <InlineMath>{String.raw`Q \approx 1`}</InlineMath> means well-conditioned (easy); <InlineMath>{String.raw`Q \gg 1`}</InlineMath> means ill-conditioned (difficult for
         gradient descent).
       </>
     ),
