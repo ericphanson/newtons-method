@@ -397,7 +397,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> <GlossaryTooltip termKey="linear-convergence" /> to global minimum
-                (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with 0 &lt; <InlineMath>{String.raw`\varAlpha`}</InlineMath> &lt; 2/(L+μ))<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
+                (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with <InlineMath>{String.raw`0 < \varAlpha < 2/(L+\mu)`}</InlineMath>)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Convex:</strong> <GlossaryTooltip termKey="sublinear-convergence" /> to global minimum<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
