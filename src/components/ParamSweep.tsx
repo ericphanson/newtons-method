@@ -125,13 +125,7 @@ export const ParamSweep: React.FC<ParamSweepProps> = ({
     return p.iterations;
   }) || [];
 
-  // Series 2: Final gradient norm (log scale indicators)
-  const gradNormData = sweepData?.points.map(p => {
-    if (!isFinite(p.finalGradNorm)) return 1; // Diverged
-    return Math.max(1e-10, p.finalGradNorm); // Clamp for log scale
-  }) || [];
-
-  // Series 3: Line search trials (if applicable)
+  // Series 2: Line search trials (if applicable)
   const lineSearchData = sweepData?.points.map(p => p.avgLineSearchTrials || 0) || [];
   const hasLineSearchData = lineSearchData.some(v => v > 0);
 

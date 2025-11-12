@@ -18,11 +18,11 @@ interface ArmijoLineSearchProps {
   /** Custom verdict text for cost/benefit analysis */
   verdict: {
     title: string;
-    description: string;
+    description: React.ReactNode;
   };
 
   /** Optional custom benefits list */
-  benefits?: string[];
+  benefits?: React.ReactNode[];
 
   /** Optional additional notes to display */
   additionalNotes?: React.ReactNode;

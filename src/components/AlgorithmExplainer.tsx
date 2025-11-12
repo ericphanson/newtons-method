@@ -51,13 +51,13 @@ export function AlgorithmExplainer() {
             <li>
               <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> Linear convergence to global minimum
               (requires <GlossaryTooltip termKey="smooth" /> function and step size{' '}
-              <InlineMath>0 &lt; \alpha &lt; 2/(L+\mu)</InlineMath>, where <InlineMath>\mu</InlineMath> is the strong convexity parameter).
+              <InlineMath>{'0 < \\alpha < 2/(L+\\mu)'}</InlineMath>, where <InlineMath>\mu</InlineMath> is the strong convexity parameter).
               Requires <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy
               <Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />.
             </li>
             <li>
               <strong><GlossaryTooltip termKey="convex" /> (not strongly convex):</strong> Sublinear convergence
-              (requires smooth function and step size <InlineMath>0 &lt; \alpha \leq 1/L</InlineMath>).
+              (requires smooth function and step size <InlineMath>{'0 < \\alpha \\leq 1/L'}</InlineMath>).
               Requires <InlineMath>O(1/\varepsilon)</InlineMath> iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy
               <Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />.
             </li>
