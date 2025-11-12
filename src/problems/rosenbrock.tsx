@@ -1,6 +1,7 @@
 import { ProblemDefinition } from '../types/experiments';
 import { InlineMath, BlockMath } from '../components/Math';
 import { CollapsibleSection } from '../components/CollapsibleSection';
+import { Citation } from '../components/Citation';
 
 // Rosenbrock function: f(w) = (1-w0)^2 + b(w1-w0^2)^2
 // Non-convex, banana-shaped valley, classic optimization test
@@ -77,7 +78,8 @@ export const rosenbrockExplainer = (
       </p>
 
       <p>
-        <strong>Why it's interesting:</strong> Classic non-convex test function demonstrating curved ill-conditioning.
+        <strong>Why it's interesting:</strong> Classic non-convex test function demonstrating curved ill-conditioning
+        <Citation citationKey="rosenbrock-function-benchmark" />.
         The valley is easy to find but requires many iterations to navigate. Curvature changes dramatically along the path.
       </p>
 

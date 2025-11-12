@@ -2,6 +2,7 @@ import { ProblemDefinition } from '../types/experiments';
 import { InlineMath, BlockMath } from '../components/Math';
 import { GlossaryTooltip } from '../components/GlossaryTooltip';
 import { CollapsibleSection } from '../components/CollapsibleSection';
+import { Citation } from '../components/Citation';
 
 // Three-Hump Camel function: f(w) = 2w0^2 - 1.05w0^4 + w0^6/6 + w0·w1 + w1^2
 // Classic multimodal test function with three local minima (one global, two local)
@@ -103,7 +104,8 @@ export const threeHumpCamelExplainer = (
       </p>
 
       <p>
-        <strong>Why it's interesting:</strong> Demonstrates asymmetric{' '}
+        <strong>Why it's interesting:</strong> Classic multimodal benchmark function
+        <Citation citationKey="three-hump-camel-function-benchmark" /> demonstrating asymmetric{' '}
         <GlossaryTooltip termKey="basin-of-convergence" /> structure where the
         deeper global minimum has a larger basin than the shallow local minima.
         Shows how optimization quality (depth) relates to basin size.

@@ -603,7 +603,7 @@ export function AlgorithmExplainer() {
       </div>
 
       {/* References */}
-      <References usedIn="AlgorithmExplainer" defaultExpanded={false} storageKey="algorithm-explainer-references" />
+      <References usedIn="AlgorithmExplainer" />
     </div>
   );
 }

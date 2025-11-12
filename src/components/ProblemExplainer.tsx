@@ -1,5 +1,6 @@
 import React from 'react';
 import { problemRegistryV2, PROBLEM_ORDER } from '../problems/registry';
+import { References } from './References';
 
 /**
  * Educational component explaining all available optimization problems
@@ -60,6 +61,9 @@ export function ProblemExplainer() {
           </div>
         </div>
       </div>
+
+      {/* References section for all problem citations */}
+      <References usedIn="ProblemExplainer" />
     </div>
   );
 }
