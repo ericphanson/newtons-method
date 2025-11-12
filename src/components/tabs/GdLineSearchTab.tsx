@@ -41,6 +41,7 @@ interface GdLineSearchTabProps {
   lineSearchCanvasRef: React.RefObject<HTMLCanvasElement>;
   experimentLoading: boolean;
   onLoadExperiment: (experiment: ExperimentPreset) => void;
+  onNavigateToTab?: (tabId: string) => void;
 }
 
 export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
@@ -66,6 +67,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
   lineSearchCanvasRef,
   experimentLoading,
   onLoadExperiment,
+  onNavigateToTab,
 }) => {
   const experiments = React.useMemo(
     () => getExperimentsForAlgorithm('gd-linesearch'),
@@ -188,10 +190,10 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
       {iterations.length > 0 && (
         <div className="mb-6 bg-white rounded-lg shadow-md p-4">
           <h3 className="text-lg font-bold text-gray-900 mb-2">
-            How c₁ Affects Convergence
+            How <InlineMath>c_1</InlineMath> Affects Convergence
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Running the algorithm 10 times with different c₁ values on your current problem
+            Running the algorithm 10 times with different <InlineMath>c_1</InlineMath> values on your current problem
             from initial point [{initialW0.toFixed(2)}, {initialW1.toFixed(2)}].
           </p>
           <ParamSweep
@@ -260,13 +262,13 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <>Initialize <InlineMath>\varW \leftarrow \varWZero</InlineMath> <Complexity>O(1)</Complexity></>,
               <><strong>repeat</strong> until convergence:</>,
               <>
-                <span className="ml-4">Compute gradient <InlineMath>\varGrad = \nabla f(\varW)</InlineMath> <Complexity explanation="Problem-dependent">1 ∇f eval</Complexity></span>
+                <span className="ml-4">Compute gradient <InlineMath>\varGrad = \nabla f(\varW)</InlineMath> <Complexity explanation="Problem-dependent">1 <InlineMath>\nabla f</InlineMath> eval</Complexity></span>
               </>,
               <>
                 <span className="ml-4">Set direction <InlineMath>\varP \leftarrow -\varGrad</InlineMath> <Complexity>O(d)</Complexity></span>
               </>,
               <>
-                <span className="ml-4"><strong>Line search:</strong> find <InlineMath>\varAlpha</InlineMath> that decreases loss sufficiently <Complexity explanation="Backtracking">2-5 f evals</Complexity></span>
+                <span className="ml-4"><strong>Line search:</strong> find <InlineMath>\varAlpha</InlineMath> that decreases loss sufficiently <Complexity explanation="Backtracking">2-5 <InlineMath>f</InlineMath> evals</Complexity></span>
               </>,
               <>
                 <span className="ml-4">Update <InlineMath>\varW \leftarrow \varW + \varAlpha \varP</InlineMath> <Complexity>O(d)</Complexity></span>
@@ -318,7 +320,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             <h3 className="text-lg font-bold text-teal-800 mb-2">The Problem: Fixed Step Size Fails</h3>
             <p className="mb-2">
               With fixed <InlineMath>\varAlpha</InlineMath>, gradient descent struggles on problems
-              with varying curvature. See the GD-Fixed tab for details on these issues.
+              with varying curvature. See the {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('gd-fixed')}
+                  className="font-bold text-green-700 hover:text-green-900 underline cursor-pointer"
+                >
+                  GD (Fixed Step)
+                </button>
+              ) : (
+                <strong>GD (Fixed Step)</strong>
+              )} tab for details on these issues.
             </p>
             <ul className="list-disc ml-6 space-y-1">
               <li><strong>Steep regions:</strong> Large <InlineMath>\varAlpha</InlineMath> overshoots, causes divergence</li>
@@ -340,11 +351,11 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               c1Value={gdLSC1}
               verdict={{
                 title: "Excellent tradeoff",
-                description: "The extra f-evals per iteration are offset by fewer total iterations. Plus, you avoid manual α tuning for each problem."
+                description: <>The extra <InlineMath>f</InlineMath>-evals per iteration are offset by fewer total iterations. Plus, you avoid manual <InlineMath>\varAlpha</InlineMath> tuning for each problem.</>
               }}
               benefits={[
                 'Fewer total iterations: Good steps enable faster convergence',
-                'Robustness: Works across problems without knowing L or tuning α',
+                <>Robustness: Works across problems without knowing <InlineMath>L</InlineMath> or tuning <InlineMath>\varAlpha</InlineMath></>,
                 'Automatic adaptation: Large steps when safe, small steps near minima'
               ]}
               additionalNotes={null}
@@ -352,37 +363,66 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-teal-800 mb-2">The Armijo Parameter c₁</h3>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">The Armijo Parameter <InlineMath>c_1</InlineMath></h3>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
               <p className="font-semibold text-blue-900 mb-2">
-                Theory: Any c₁ ∈ (0,1) Works
+                Theory: Any <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath> Works
               </p>
               <p className="text-sm text-blue-800 mb-2">
                 The Armijo backtracking algorithm terminates in finite steps for <strong>any</strong> choice
                 of <InlineMath>{String.raw`c_1 \in (0,1)`}</InlineMath>.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" /> The convergence
-                rate guarantees (O(1/k) for convex, linear for strongly convex) hold for any c₁ in this range.
+                rate guarantees (O(1/k) for convex, linear for strongly convex) hold for any <InlineMath>c_1</InlineMath> in this range.
               </p>
               <p className="text-sm text-blue-800 mb-2">
-                The choice of c₁ affects the <strong>constant</strong> in the convergence bound but not the asymptotic
-                rate. Smaller c₁ is less strict, accepting steps more easily during backtracking. Larger c₁ is more demanding,
+                The choice of <InlineMath>c_1</InlineMath> affects the <strong>constant</strong> in the convergence bound but not the asymptotic
+                rate. Smaller <InlineMath>c_1</InlineMath> is less strict, accepting steps more easily during backtracking. Larger <InlineMath>c_1</InlineMath> is more demanding,
                 requiring greater actual decrease.
               </p>
               <p className="text-sm text-blue-800 mt-3">
-                <strong>Practice:</strong> The value c₁ = 10⁻⁴ is widely used based on empirical experience,
+                <strong>Practice:</strong> The value <InlineMath>{String.raw`c_1 = 10^{-4}`}</InlineMath> is widely used based on empirical experience,
                 not theoretical optimization.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" /> See
-                the <strong>"How c₁ Affects Convergence"</strong> visualization above to explore how different c₁ values
+                the <strong>"How <InlineMath>c_1</InlineMath> Affects Convergence"</strong> visualization above to explore how different <InlineMath>c_1</InlineMath> values
                 perform on the current problem.
               </p>
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-teal-800 mb-2">Alternative Line Search Strategies</h3>
+            <p className="text-sm mb-2">
+              Armijo backtracking is not the only line search method. Other strategies offer different tradeoffs:
+            </p>
+            <ul className="list-disc ml-6 space-y-2 text-sm">
+              <li>
+                <strong>Exact line search:</strong> Minimize <InlineMath>{String.raw`f(\varW - \varAlpha\varGrad)`}</InlineMath> exactly
+                over <InlineMath>{String.raw`\varAlpha > 0`}</InlineMath>. Finds the optimal step per iteration but
+                requires solving a 1D optimization problem, which can be expensive.
+              </li>
+              <li>
+                <strong>Wolfe conditions:</strong> Combine Armijo's sufficient decrease with a curvature
+                condition <InlineMath>{String.raw`\varGrad(\varW + \varAlpha\varP)^T\varP \geq c_2\varGrad^T\varP`}</InlineMath> (where <InlineMath>{String.raw`0 < c_1 < c_2 < 1`}</InlineMath>).
+                <Citation citationKey="wolfe-conditions-nocedal-wright-2006" /> This prevents
+                accepting inefficiently small steps. Common in quasi-Newton methods (BFGS, {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('lbfgs')}
+                    className="font-semibold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                  >
+                    L-BFGS
+                  </button>
+                ) : (
+                  <strong>L-BFGS</strong>
+                )}).
+              </li>
+            </ul>
           </div>
 
           <div className="bg-indigo-100 rounded p-4 mt-4">
             <p className="font-bold text-indigo-900 mb-2">Key Takeaways</p>
             <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
               <li>Line search makes gradient descent robust across problems with different scales and curvature</li>
-              <li>Armijo backtracking is simple: start with α=1, shrink until sufficient decrease is achieved</li>
-              <li>Cost: 2-5 f-evals per iteration, but fewer total iterations make up for it</li>
-              <li>No need to know L or manually tune step size</li>
+              <li>Armijo backtracking is simple: start with <InlineMath>\varAlpha=1</InlineMath>, shrink until sufficient decrease is achieved</li>
+              <li>Cost: 2-5 <InlineMath>f</InlineMath>-evals per iteration, but fewer total iterations make up for it</li>
+              <li>No need to know <InlineMath>L</InlineMath> or manually tune step size</li>
               <li>Still limited by gradient descent's first-order nature (zig-zagging on ill-conditioned problems)</li>
             </ul>
           </div>
@@ -415,7 +455,25 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
                 <p className="text-sm ml-6">
                   ✓ Still subject to problem conditioning<br />
                   ✓ Gradient descent is fundamentally <GlossaryTooltip termKey="first-order-method" /> (doesn't use curvature)<br />
-                  ✓ Newton or L-BFGS will be faster on well-conditioned problems
+                  ✓ {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('newton')}
+                      className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                    >
+                      Newton
+                    </button>
+                  ) : (
+                    <strong>Newton</strong>
+                  )} or {onNavigateToTab ? (
+                    <button
+                      onClick={() => onNavigateToTab('lbfgs')}
+                      className="font-semibold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                    >
+                      L-BFGS
+                    </button>
+                  ) : (
+                    <strong>L-BFGS</strong>
+                  )} will be faster on well-conditioned problems
                 </p>
               </div>
 
@@ -448,7 +506,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               </li>
             </ul>
             <p className="text-xs mt-2 text-gray-600 italic">
-              See GD-Fixed tab for detailed convergence theory with fixed step sizes.
+              See {onNavigateToTab ? (
+                <button
+                  onClick={() => onNavigateToTab('gd-fixed')}
+                  className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                >
+                  GD (Fixed Step)
+                </button>
+              ) : (
+                <strong>GD (Fixed Step)</strong>
+              )} tab for detailed convergence theory with fixed step sizes.
             </p>
           </div>
 
@@ -461,11 +528,47 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               </li>
               <li>
                 <strong>Slow progress:</strong> Problem is ill-conditioned. Consider
-                preconditioning or second-order methods (Newton, L-BFGS)
+                {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('diagonal-precond')}
+                    className="font-semibold text-teal-700 hover:text-teal-900 underline cursor-pointer ml-1"
+                  >
+                    preconditioning
+                  </button>
+                ) : (
+                  <> preconditioning</>
+                )} or second-order methods ({onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('newton')}
+                    className="font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                  >
+                    Newton
+                  </button>
+                ) : (
+                  <strong>Newton</strong>
+                )}, {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('lbfgs')}
+                    className="font-semibold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                  >
+                    L-BFGS
+                  </button>
+                ) : (
+                  <strong>L-BFGS</strong>
+                )})
               </li>
               <li>
                 <strong>Expensive iterations:</strong> Function evaluations are costly.
-                Consider methods that reuse gradient information (L-BFGS)
+                Consider methods that reuse gradient information ({onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('lbfgs')}
+                    className="font-semibold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                  >
+                    L-BFGS
+                  </button>
+                ) : (
+                  <strong>L-BFGS</strong>
+                )})
               </li>
             </ul>
           </div>
@@ -483,7 +586,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
 
           <p className="text-sm italic text-gray-600">
             <strong>Note:</strong> For the fundamental descent lemma and fixed step size convergence
-            theory, see the <strong>GD-Fixed tab</strong>. This section focuses on how line search
+            theory, see the {onNavigateToTab ? (
+              <button
+                onClick={() => onNavigateToTab('gd-fixed')}
+                className="font-bold text-green-700 hover:text-green-900 underline cursor-pointer"
+              >
+                GD (Fixed Step)
+              </button>
+            ) : (
+              <strong>GD (Fixed Step)</strong>
+            )} tab. This section focuses on how line search
             affects convergence analysis.
           </p>
 
@@ -582,7 +694,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <p className="text-sm mb-2">
                 For <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> (possibly non-convex) functions,
                 line search guarantees gradient norm convergence but not global minimum.
-                See GD-Fixed tab for detailed non-convex convergence analysis.
+                See {onNavigateToTab ? (
+                  <button
+                    onClick={() => onNavigateToTab('gd-fixed')}
+                    className="font-semibold text-green-700 hover:text-green-900 underline cursor-pointer"
+                  >
+                    GD (Fixed Step)
+                  </button>
+                ) : (
+                  <strong>GD (Fixed Step)</strong>
+                )} tab for detailed non-convex convergence analysis.
               </p>
             </div>
           </div>
@@ -592,9 +713,9 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             <ul className="text-sm list-disc ml-6 space-y-1 text-indigo-900">
               <li>Armijo condition ensures sufficient decrease; backtracking terminates in finite steps</li>
               <li>Line search achieves same <em>rates</em> as optimal fixed step sizes</li>
-              <li>Strongly convex → linear convergence, rate depends on Q = L/μ</li>
-              <li>Convex → sublinear O(1/k) convergence</li>
-              <li>Key advantage: automatic adaptation without knowing L or μ</li>
+              <li>Strongly convex → linear convergence, rate depends on <InlineMath>Q = L/\mu</InlineMath></li>
+              <li>Convex → sublinear O(1/<InlineMath>k</InlineMath>) convergence</li>
+              <li>Key advantage: automatic adaptation without knowing <InlineMath>L</InlineMath> or <InlineMath>\mu</InlineMath></li>
             </ul>
           </div>
 

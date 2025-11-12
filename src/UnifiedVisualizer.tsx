@@ -2049,6 +2049,7 @@ const UnifiedVisualizer = () => {
               lineSearchCanvasRef={gdLSLineSearchCanvasRef}
               experimentLoading={experimentLoading}
               onLoadExperiment={loadExperiment}
+              onNavigateToTab={handleTabChange}
             />
           )}
           {selectedTab === 'newton' && (
