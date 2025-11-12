@@ -14,9 +14,40 @@ Nesterov's accelerated gradient method achieves the optimal convergence rate $O(
 
 > Let us take in (2.2.7) $\gamma_0 = 3L + \mu$. Then this scheme generates a sequence $\{x_k\}_{k=0}^{\infty}$ such that $f(x_k) - f^* \leq \frac{2(4+q_f)L\|x_0-x^*\|^2}{3(k+1)^2}$. This means that method (2.2.7) is optimal for solving the unconstrained minimization problem (2.2.1) with $f \in \mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $\mu \geq 0$. If $\mu = 0$, then this method is optimal.
 
-**Pages:** 91-92, 102-114
+**Pages:** 71-72, 82-94
 
 **Theorem/Result:** Theorem 2.2.2, Theorem 2.1.7 (lower bound), Constant Step Scheme II (2.2.20) for μ=0, and Constant Step Scheme III (2.2.22) for μ>0
+
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Theorem 2.2.2 (2.2.13)
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p110_theorem_2_2_2](../extracted-pages/formulas/lectures_on_convex_optimization_p110_theorem_2_2_2.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k) - f^* \leq \frac{2(4+q_f)L\|x_0-x^*\|^2}{3(k+1)^2}
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k) - f^* \leq \frac{2(4+q_f)L\|x_0-x^*\|^2}{3(k+1)^2}
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p110_theorem_2_2_2.json](../extracted-pages/formulas/lectures_on_convex_optimization_p110_theorem_2_2_2.json)
+
+---
 
 ## Reader Notes
 

@@ -14,7 +14,7 @@ For smooth convex functions (Lipschitz continuous gradient with constant $L$), g
 
 > Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h \leq 2/L$. Then the Gradient Method generates a sequence $\{x_k\}$, which converges to some optimal point $x^*$.
 
-**Pages:** 81
+**Pages:** 61
 
 **Theorem/Result:** Theorem 2.1.14
 

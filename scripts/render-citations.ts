@@ -13,17 +13,31 @@ interface Reference {
   volume?: string;
   pages?: string;
   file?: string;
+  pageOffset?: number;  // PDF page - book page
+}
+
+interface FormulaImage {
+  formula_id: string;
+  metadata_path: string;
+  image_path: string;
+  latex: string;
+  verified: boolean;
+  theorem: string;
+  equation: string;
+  issues?: string[];
 }
 
 interface Citation {
   reference: string;
-  pages: string;
+  pages: string;  // Book page numbers (user-facing)
+  pdfPages?: string;  // PDF page numbers (for extraction)
   theorem?: string;
   claim: string;
   quote: string;
   notes?: string;
   readerNotes?: string;
   proofPages?: string[];
+  formulaImages?: FormulaImage[];
   verified?: string;
   verifiedBy?: string;
   verificationNotes?: string;
@@ -97,6 +111,57 @@ function renderCitation(citationId: string, citation: Citation, references: Reco
 
   if (citation.theorem) {
     md += `**Theorem/Result:** ${citation.theorem}\n\n`;
+  }
+
+  // Add formula images section (extracted formulas with crops)
+  if (citation.formulaImages && citation.formulaImages.length > 0) {
+    md += `## Extracted Formulas\n\n`;
+    md += `*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*\n\n`;
+
+    citation.formulaImages.forEach((formulaImg, index) => {
+      const num = index + 1;
+      md += `### Formula ${num}${formulaImg.theorem ? ` - ${formulaImg.theorem}` : ''}${formulaImg.equation ? ` ${formulaImg.equation}` : ''}\n\n`;
+
+      // Convert paths to relative from renders directory
+      const relativeImagePath = path.relative(
+        path.join(process.cwd(), 'docs/references/renders'),
+        path.join(process.cwd(), formulaImg.image_path)
+      );
+
+      const relativeMetadataPath = path.relative(
+        path.join(process.cwd(), 'docs/references/renders'),
+        path.join(process.cwd(), formulaImg.metadata_path)
+      );
+
+      // Show cropped formula image
+      md += `**Cropped Formula Image:**\n\n`;
+      md += `![${formulaImg.formula_id}](${relativeImagePath})\n\n`;
+
+      // Show extracted LaTeX (rendered as math)
+      md += `**Extracted LaTeX:**\n\n`;
+      md += `$$\n${formulaImg.latex}\n$$\n\n`;
+
+      // Show raw LaTeX source
+      md += `<details>\n<summary>LaTeX Source</summary>\n\n`;
+      md += `\`\`\`latex\n${formulaImg.latex}\n\`\`\`\n\n`;
+      md += `</details>\n\n`;
+
+      // Show verification status
+      md += `**Verification:** ${formulaImg.verified ? '✅ Verified' : '❌ Not Verified'}\n\n`;
+
+      // Show any issues
+      if (formulaImg.issues && formulaImg.issues.length > 0) {
+        md += `**Issues Found:**\n\n`;
+        formulaImg.issues.forEach(issue => {
+          md += `- ${issue}\n`;
+        });
+        md += `\n`;
+      }
+
+      // Link to metadata
+      md += `**Metadata:** [${formulaImg.formula_id}.json](${relativeMetadataPath})\n\n`;
+      md += `---\n\n`;
+    });
   }
 
   // Add reader notes if available

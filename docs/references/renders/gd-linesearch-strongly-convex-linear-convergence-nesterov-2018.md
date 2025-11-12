@@ -14,9 +14,40 @@ For $\mu$-strongly convex, $L$-smooth functions (locally, near a strict local mi
 
 > Theorem 1.2.4 Let the function $f(\cdot)$ satisfy our assumptions and let the starting point $x_0$ be close enough to a strict local minimum $x^*$: $r_0 = \|x_0 - x^*\| < \bar{r} = 2\mu/M$. Then the Gradient Method with step size $h^*_k = 2/(L+\mu)$ converges as follows: $\|x_k - x^*\| \leq \frac{\bar{r}r_0}{\bar{r}-r_0}\left(1 - \frac{2\mu}{L+3\mu}\right)^k$. This type of rate of convergence is called linear.
 
-**Pages:** 53-55
+**Pages:** 33-35
 
 **Theorem/Result:** Theorem 1.2.4
+
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Theorem 1.2.4
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p55_theorem_1_2_4](../extracted-pages/formulas/lectures_on_convex_optimization_p55_theorem_1_2_4.png)
+
+**Extracted LaTeX:**
+
+$$
+\|x_k - x^*\| \leq \frac{\bar{r}r_0}{\bar{r}-r_0}\left(1 - \frac{2\mu}{L+3\mu}\right)^k
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\|x_k - x^*\| \leq \frac{\bar{r}r_0}{\bar{r}-r_0}\left(1 - \frac{2\mu}{L+3\mu}\right)^k
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p55_theorem_1_2_4.json](../extracted-pages/formulas/lectures_on_convex_optimization_p55_theorem_1_2_4.json)
+
+---
 
 ## Reader Notes
 

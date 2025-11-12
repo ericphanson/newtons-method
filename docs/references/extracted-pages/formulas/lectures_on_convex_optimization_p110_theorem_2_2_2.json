@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p110_theorem_2_2_2",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 110,
+    "theorem": "Theorem 2.2.2",
+    "equation": "(2.2.13)",
+    "description": "Nesterov optimal convergence rate"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0110.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p110_theorem_2_2_2.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 48.0,
+      "right": 100,
+      "bottom": 61.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1332,
+      "right": 1831,
+      "bottom": 1707,
+      "width": 1831,
+      "height": 375
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x_k) - f^* \\leq \\frac{2(4+q_f)L\\|x_0-x^*\\|^2}{3(k+1)^2}",
+    "extracted_by": "latex-extraction-agent",
+    "extracted_date": "2025-11-12T18:10:00Z",
+    "notes": "Perfect extraction. Formula matches citation exactly. This is equation (2.2.13) showing the optimal O(1/k²) convergence rate."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "citation-verification-workflow",
+    "verified_date": "2025-11-12T18:10:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T18:09:36.072551Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

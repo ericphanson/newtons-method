@@ -14,7 +14,7 @@ L-BFGS converges R-linearly (not superlinearly) on uniformly convex problems. Th
 
 > In this section we show that the limited memory BFGS method is globally convergent on uniformly convex problems, and that its rate of convergence is R-linear... Then for any positive definite $B_0$, Algorithm 6.1 generates a sequence $\{x_k\}$ which converges to $x_*$. Moreover there is a constant $0 \leq r < 1$ such that $f_k - f_* \leq r^k[f_0 - f_*]$ which implies that $\{x_k\}$ converges R-linearly... R-linear convergence is the best we can expect.
 
-**Pages:** 20-23
+**Pages:** 19-22
 
 **Theorem/Result:** Theorem 6.1
 

@@ -1,0 +1,54 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p48_1_2_16_-_1_2_17",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 48,
+    "theorem": "",
+    "equation": "(1.2.16)-(1.2.17)",
+    "description": "Armijo line search rule"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0048.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 68.0,
+      "right": 100,
+      "bottom": 80.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1887,
+      "right": 1831,
+      "bottom": 2234,
+      "width": 1831,
+      "height": 347
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1}), \\quad \\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1}))",
+    "extracted_by": "latex-extraction-agent",
+    "extracted_date": "2025-11-12T18:01:00Z",
+    "notes": "NOTATION ISSUE: Nesterov's book uses PARENTHESES for inner products: (∇f(x_k), x_k - x_{k+1}), but citation uses angle brackets \\langle\\rangle. The formulas are mathematically equivalent but notation differs. Citation also references equation (1.2.20) which is a separate descent inequality on page 50."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "citation-verification-workflow",
+    "verified_date": "2025-11-12T18:01:00Z",
+    "issues": [
+      "NOTATION MISMATCH: Book uses parentheses ( , ) for inner products but citation uses \\langle\\rangle. Mathematically equivalent.",
+      "EQUATION NUMBER: Citation mentions (1.2.20) but Armijo rule is (1.2.16)-(1.2.17). Citation is composite of multiple equations."
+    ]
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T17:59:53.625740Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

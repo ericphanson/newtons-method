@@ -9,7 +9,8 @@
       "year": 2006,
       "edition": "2nd",
       "publisher": "Springer",
-      "file": "NumericalOptimization2006.pdf"
+      "file": "NumericalOptimization2006.pdf",
+      "pageOffset": 20
     },
     "boyd-vandenberghe-2004": {
       "title": "Convex Optimization",
@@ -40,7 +41,8 @@
       "journal": "Mathematical Programming",
       "volume": "45",
       "pages": "503-528",
-      "file": "LiuNocedal1989.pdf"
+      "file": "LiuNocedal1989.pdf",
+      "pageOffset": 1
     },
     "nesterov-2018": {
       "title": "Lectures on Convex Optimization",
@@ -50,7 +52,8 @@
       "year": 2018,
       "edition": "2nd",
       "publisher": "Springer",
-      "file": "Lectures on Convex Optimization.pdf"
+      "file": "Lectures on Convex Optimization.pdf",
+      "pageOffset": 20
     },
     "rosenbrock-1960": {
       "title": "An Automatic Method for Finding the Greatest or Least Value of a Function",
@@ -63,7 +66,8 @@
       "issue": "3",
       "pages": "175-184",
       "doi": "10.1093/comjnl/3.3.175",
-      "file": "rosenbrock1960.pdf"
+      "file": "rosenbrock1960.pdf",
+      "pageOffset": 174
     },
     "branin-1972": {
       "title": "Widely Convergent Method for Finding Multiple Solutions of Simultaneous Nonlinear Equations",
@@ -76,13 +80,14 @@
       "issue": "5",
       "pages": "504-522",
       "doi": "10.1147/rd.165.0504",
-      "file": "branin1972.pdf"
+      "file": "branin1972.pdf",
+      "pageOffset": 503
     }
   },
   "citations": {
     "gd-strongly-convex-linear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "101-102",
+      "pages": "81-82",
       "theorem": "Theorem 2.1.15",
       "claim": "Gradient descent with fixed step size achieves linear convergence to the global minimum on strongly convex smooth functions when $0 < \\alpha \\leq 2/(L+\\mu)$",
       "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then the Gradient Method generates a sequence $\\{x_k\\}$ such that $\\|x_k - x^*\\|^2 \\leq \\left(1 - \\frac{2h\\mu L}{\\mu+L}\\right)^k \\|x_0 - x^*\\|^2$",
@@ -99,11 +104,23 @@
       "verificationNotes": "INDEPENDENT VERIFICATION (2025-11-12): Verified quote is word-for-word accurate against Theorem 2.1.15 on page 101. Visual inspection confirms: (1) Theorem number is correct, (2) Page numbers 101-102 are accurate, (3) Quote matches source exactly including all mathematical notation. Verified claim matches theorem statement - linear convergence for strongly convex smooth functions with step size bound 0 < h ≤ 2/(μ+L). Cross-referenced usage in GdFixedTab.tsx lines 400 and 511 - both uses correctly state the step size condition and convergence rate. All proofPages are relevant: pages 93-94 provide Definition 2.1.3 of strongly convex functions, pages 101-102 contain Theorem 2.1.15. VERDICT: Citation is complete and accurate. No updates needed.",
       "usedIn": [
         "GdFixedTab"
-      ]
+      ],
+      "formulaImages": [
+        {
+          "formula_id": "lectures_on_convex_optimization_p101_theorem_2_1_15",
+          "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_15.json",
+          "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_15.png",
+          "latex": "\\|x_k - x^*\\|^2 \\leq \\left(1 - \\frac{2h\\mu L}{\\mu+L}\\right)^k \\|x_0 - x^*\\|^2",
+          "verified": true,
+          "theorem": "Theorem 2.1.15",
+          "equation": ""
+        }
+      ],
+      "pdfPages": "101-102"
     },
     "nesterov-accelerated-optimal-rate-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "91-92, 102-114",
+      "pages": "71-72, 82-94",
       "theorem": "Theorem 2.2.2, Theorem 2.1.7 (lower bound), Constant Step Scheme II (2.2.20) for μ=0, and Constant Step Scheme III (2.2.22) for μ>0",
       "claim": "Nesterov's accelerated gradient method achieves the optimal convergence rate $O(1/k^2)$ for smooth convex functions, which is provably optimal among all first-order methods",
       "quote": "Let us take in (2.2.7) $\\gamma_0 = 3L + \\mu$. Then this scheme generates a sequence $\\{x_k\\}_{k=0}^{\\infty}$ such that $f(x_k) - f^* \\leq \\frac{2(4+q_f)L\\|x_0-x^*\\|^2}{3(k+1)^2}$. This means that method (2.2.7) is optimal for solving the unconstrained minimization problem (2.2.1) with $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $\\mu \\geq 0$. If $\\mu = 0$, then this method is optimal.",
@@ -129,11 +146,23 @@
       "verified": "2025-11-12",
       "verifiedBy": "verification-agent",
       "verificationNotes": "ENHANCED VERIFICATION (adversarial testing): Independently verified all 15 proof pages. Quote is WORD-FOR-WORD accurate from Theorem 2.2.2 (page 110). The O(1/k²) rate is PROVEN (not just stated): equation (2.2.18) on page 112 gives explicit bound. Optimality is PROVEN: Theorem 2.1.7 (pages 91-92) establishes information-theoretic lower bound, and Theorem 2.2.2 proves the method matches this bound. All 15 pages are NECESSARY: pages 91-92 prove lower bound (required for optimality claim), pages 102-109 develop estimating sequence framework (mathematical foundation), pages 110-111 prove Theorem 2.2.2 (main optimality result), pages 112-114 derive concrete algorithmic schemes (Schemes II and III). CORRECTED: Updated theorem field to include both Scheme II (μ=0) and Scheme III (μ>0), as the original only mentioned Scheme III which is incomplete. Updated pages field to explicitly show 91-92, 102-114 structure. REMOVED 'GdFixedTab' from usedIn as grep verification showed the citation is not actually referenced in that file (this was an error in the original citation).",
-      "usedIn": []
+      "usedIn": [],
+      "formulaImages": [
+        {
+          "formula_id": "lectures_on_convex_optimization_p110_theorem_2_2_2",
+          "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p110_theorem_2_2_2.json",
+          "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p110_theorem_2_2_2.png",
+          "latex": "f(x_k) - f^* \\leq \\frac{2(4+q_f)L\\|x_0-x^*\\|^2}{3(k+1)^2}",
+          "verified": true,
+          "theorem": "Theorem 2.2.2",
+          "equation": "(2.2.13)"
+        }
+      ],
+      "pdfPages": "91-92, 102-114"
     },
     "gd-convex-sublinear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "80-81",
+      "pages": "60-61",
       "theorem": "Theorem 2.1.14 and Corollary 2.1.2",
       "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \\alpha \\leq 2/L$",
       "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{L}$. Then the Gradient Method generates a sequence of points $\\{x_k\\}$ with function values satisfying the inequality $f(x_k) - f^* \\leq \\frac{2L(f(x_0)-f^*)\\|x_0-x^*\\|^2}{2L\\|x_0-x^*\\|^2+k\\cdot(f(x_0)-f^*)}, k \\geq 0$. [Corollary 2.1.2] If $h = \\frac{1}{L}$ and $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, then $f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}$.",
@@ -149,11 +178,26 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION: Found major errors in original citation. (1) QUOTE WAS COMPLETELY WRONG: Original quote claimed '$\\|x_k - x^*\\|^2 \\leq q^k \\|x_0 - x^*\\|^2$, where $q = 1 - \\frac{h}{2}(2-hL)$' which does NOT appear in Theorem 2.1.14. The actual theorem gives convergence in function values with a different formula. (2) COROLLARY FORMULA WAS WRONG: Original claimed $\\frac{L\\|x_0-x^*\\|^2}{2(k+1)}$ but actual is $\\frac{2L\\|x_0-x^*\\|^2}{k+4}$. (3) WRONG PROOF PAGES: Original included pages 59, 62, 80, 81 (PDF pages) but Theorem 2.1.14 is on page 100 (book page 80). Corrected all errors, extracted proper pages, and transcribed correct formulas from visual verification of 2018 edition pages 100-101. Page 82 (book page 62) retained for Definition 2.1.2.",
       "usedIn": [
         "GdFixedTab"
-      ]
+      ],
+      "formulaImages": [
+        {
+          "formula_id": "lectures_on_convex_optimization_p100_theorem_2_1_14",
+          "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.json",
+          "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.png",
+          "latex": "f(x_k) - f^* \\leq \\frac{2(f(x_0) - f^*) \\|x_0 - x^*\\|^2}{2\\|x_0 - x^*\\|^2 + k \\cdot h(2 - Lh) \\cdot (f(x_0) - f^*)}, \\quad k \\geq 0",
+          "verified": true,
+          "theorem": "Theorem 2.1.14",
+          "equation": "",
+          "issues": [
+            "Citation has simplified form (h=1/L) but theorem states general form"
+          ]
+        }
+      ],
+      "pdfPages": "80-81"
     },
     "gd-smooth-descent-condition-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "81",
+      "pages": "61",
       "theorem": "Theorem 2.1.14",
       "claim": "For smooth convex functions (Lipschitz continuous gradient with constant $L$), gradient descent with step size $0 < h \\leq 2/L$ converges to an optimal point. The proof establishes monotonic descent: $f(x_{k+1}) \\leq f(x_k) - h(1 - \\frac{hL}{2})\\|\\nabla f(x_k)\\|^2$, which guarantees strict descent $f(x_{k+1}) < f(x_k)$ when $\\nabla f(x_k) \\neq 0$ and $h < 2/L$.",
       "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq 2/L$. Then the Gradient Method generates a sequence $\\{x_k\\}$, which converges to some optimal point $x^*$.",
@@ -173,11 +217,12 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION: Found claim-quote inconsistency. Original claim stated 'guarantees that f(w_{k+1}) < f(w_k)' (strict inequality) but Theorem 2.1.14 proves convergence with non-strict monotonic descent f(x_{k+1}) <= f(x_k). Corrected claim to accurately reflect theorem statement and proof (pages 82-83). Added proof pages 82-83. Quote is word-for-word accurate. Page numbers verified (book page 81 = PDF page 81). The descent property follows from Lemma 2.1.2 (page 82) which shows f(x_+) <= f(x) - (1/2L)||∇f(x)||^2. Note: Strict descent requires h < 2/L and ∇f ≠ 0; when h = 2/L or at stationary points, we get f(x_{k+1}) = f(x_k).",
       "usedIn": [
         "GdFixedTab"
-      ]
+      ],
+      "pdfPages": "81"
     },
     "gd-descent-lemma-quadratic-upper-bound-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "24-26",
+      "pages": "4-6",
       "lemma": "Lemma 1.2.3",
       "claim": "The quadratic upper bound for L-smooth functions: any function with Lipschitz continuous gradient can be upper-bounded by a quadratic approximation",
       "quote": "Let $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Then, for any $x, y$ from $\\mathbb{R}^n$, we have $|f(y) - f(x) - \\langle \\nabla f(x), y - x \\rangle| \\leq \\frac{L}{2} \\|y - x\\|^2$. [...] Geometrically, we have the following picture. Consider a function $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Let us fix a point $x_0 \\in \\mathbb{R}^n$, and define two quadratic functions $\\phi_1(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle - \\frac{L}{2} \\|x - x_0\\|^2$, $\\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2} \\|x - x_0\\|^2$. Then the graph of the function $f$ lies between the graphs of $\\phi_1$ and $\\phi_2$: $\\phi_1(x) \\leq f(x) \\leq \\phi_2(x)$, $\\forall x \\in \\mathbb{R}^n$.",
@@ -193,11 +238,12 @@
       "verificationNotes": "ENHANCED verification completed following adversarial test protocol. CRITICAL FIX: Corrected pages from '23' to '24-26' to match actual book page numbers visible in proof page headers (PDF pages 44-46). Added ellipsis [...] in quote to properly indicate omitted content (proof and examples) between Lemma 1.2.3 statement and geometric interpretation. The lemma field is correctly populated (Lemma 1.2.3); theorem: null is appropriate since this is a lemma, not a theorem. Quote verified word-for-word against visual proof pages - both the lemma statement (equation 1.2.11) and geometric sandwich inequality are accurate. All three proof pages verified: page 44 (book 24) defines C_L^{1,1} notation, page 45 (book 25) states Lemma 1.2.3 with proof, page 46 (book 26) provides geometric interpretation with φ₁ and φ₂. Claim appropriately captures the quadratic upper bound result without overstatement. Usage in GdFixedTab.tsx verified correct - cites lemma when introducing quadratic upper bound inequality.",
       "usedIn": [
         "GdFixedTab"
-      ]
+      ],
+      "pdfPages": "24-26"
     },
     "condition-number-definition-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "95-97",
+      "pages": "75-77",
       "theorem": "Definition on page 97 (following Theorem 2.1.12), Theorem 2.1.11, and Example 2.1.2",
       "claim": "The condition number $Q = L/\\mu$ for strongly convex smooth functions bounds the Hessian eigenvalues. For $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$, the Hessian satisfies $\\mu I \\preceq \\nabla^2 f(x) \\preceq LI$, meaning all eigenvalues satisfy $\\mu \\leq \\lambda_i \\leq L$. For quadratic functions where the Hessian eigenvalues exactly equal these bounds ($\\lambda_{\\min} = \\mu$, $\\lambda_{\\max} = L$), we have $Q = \\lambda_{\\max}/\\lambda_{\\min}$.",
       "quote": "One of the most important functional classes is $\\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ (recall that the corresponding norm is standard Euclidean). This class is described by the following inequalities: $\\langle \\nabla f(x) - \\nabla f(y), x - y \\rangle \\geq \\mu \\| x - y \\|^2$, $\\| \\nabla f(x) - \\nabla f(y) \\| \\leq L \\| x - y \\|$. The value $Q_f = L/\\mu \\geq 1$ is called the condition number of the function $f$.",
@@ -213,11 +259,12 @@
       "verificationNotes": "CORRECTED (Batch 4 adversarial flag, fixed in Batch 5): The original claim overstated the relationship as 'equivalent to' λ_max/λ_min, but the source (pages 95-97) actually shows Q = L/μ BOUNDS the Hessian eigenvalues, not that they are always equal. Theorem 2.1.11 (equation 2.1.28, page 96) establishes μI ⪯ ∇²f(x) ⪯ LI for f ∈ S^{1,1}_{μ,L}. Example 2.1.2 (page 96) shows that for quadratic functions f(x) = α + ⟨a,x⟩ + (1/2)⟨Ax,x⟩ where μI ⪯ A ⪯ LI, we have f ∈ S^{1,1}_{μ,L}. The definition Q_f = L/μ appears on page 97 after Theorem 2.1.12. For quadratic functions with tight eigenvalue bounds (λ_min = μ, λ_max = L), Q equals κ = λ_max/λ_min. For general smooth strongly convex functions, Q bounds the condition number of the Hessian but they may not be exactly equal. Updated claim, theorem field, and notes to reflect this more nuanced relationship.",
       "usedIn": [
         "glossary"
-      ]
+      ],
+      "pdfPages": "95-97"
     },
     "gd-linesearch-convex-sublinear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "28-30, 81",
+      "pages": "8-10, 61",
       "theorem": "Equation (1.2.20) with Corollary 2.1.2",
       "claim": "For convex, L-smooth functions, gradient descent with Armijo line search achieves sublinear convergence: $f(w_k) - f^* \\leq O(L\\|w_0 - w^*\\|^2/k)$. Line search automatically adapts the step size to achieve near-optimal constants without requiring knowledge of $L$",
       "quote": "The Armijo rule: Find $x_{k+1} = x_k - h\\nabla f(x_k)$ with $h > 0$ such that $\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1})$, $\\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1})$, where $0 < \\alpha < \\beta < 1$ are some fixed parameters. [...] Thus, we have proved that in all cases we have $f(x_k) - f(x_{k+1}) \\geq \\frac{\\omega}{L} \\|\\nabla f(x_k)\\|^2$, where $\\omega$ is some positive constant. [...] For the Armijo rule, $f(x_k) - f(x_{k+1}) \\geq \\frac{2}{L}\\alpha(1-\\beta) \\|\\nabla f(x_k)\\|^2$",
@@ -234,11 +281,27 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION (2025-11-12): Fixed critical errors: (1) Page numbers corrected from '48-50, 81' to '28-30, 81' (book page numbers, not PDF pages). PDF page 50 shows book page 30 in header. (2) Quote error corrected: removed incorrect statement 'ω = 2α(1-β)/L' and replaced with actual text from page 30: 'f(x_k) - f(x_{k+1}) ≥ (2/L)α(1-β)||∇f(x_k)||²'. From equation (1.2.20), ω/L = 2α(1-β)/L, thus ω = 2α(1-β), not ω = 2α(1-β)/L as previously stated. (3) Updated notes and readerNotes to reference correct page numbers (28-30 instead of 48-50). (4) Verified Corollary 2.1.2 on page 81 (PDF page 101) shows O(1/k) rate. Quote is now word-for-word accurate against source. All proofPages verified.",
       "usedIn": [
         "GdLineSearchTab"
-      ]
+      ],
+      "formulaImages": [
+        {
+          "formula_id": "lectures_on_convex_optimization_p48_1_2_16_-_1_2_17",
+          "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.json",
+          "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.png",
+          "latex": "\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1}), \\quad \\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1}))",
+          "verified": true,
+          "theorem": "",
+          "equation": "(1.2.16)-(1.2.17)",
+          "issues": [
+            "Book uses parentheses for inner products, citation uses angle brackets",
+            "Citation mentions (1.2.20) but Armijo rule is (1.2.16)-(1.2.17)"
+          ]
+        }
+      ],
+      "pdfPages": "28-30, 81"
     },
     "wolfe-conditions-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "33-36",
+      "pages": "13-16",
       "theorem": "Equations (3.6) and (3.7)",
       "claim": "The Wolfe conditions combine Armijo's sufficient decrease $f(x_k + \\alpha p_k) \\leq f(x_k) + c_1\\alpha\\nabla f_k^T p_k$ with a curvature condition $\\nabla f(x_k + \\alpha p_k)^T p_k \\geq c_2\\nabla f_k^T p_k$ (where $0 < c_1 < c_2 < 1$) to ensure steps are neither too small nor too large",
       "quote": "The sufficient decrease and curvature conditions are known collectively as the Wolfe conditions. We illustrate them in Figure 3.5 and restate them here for future reference: $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $\\nabla f(x_k + \\alpha_k p_k)^T p_k \\geq c_2 \\nabla f_k^T p_k$, with $0 < c_1 < c_2 < 1$. [...] The strong Wolfe conditions require $\\alpha_k$ to satisfy $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $|\\nabla f(x_k + \\alpha_k p_k)^T p_k| \\leq c_2 |\\nabla f_k^T p_k|$, with $0 < c_1 < c_2 < 1$.",
@@ -256,11 +319,12 @@
       "verificationNotes": "Independent verification completed 2025-11-12. Quote is word-for-word accurate from book page 34 (PDF page 54). Equations (3.6a)/(3.6b) for standard Wolfe conditions and (3.7a)/(3.7b) for strong Wolfe conditions verified. Page numbers: citation uses book pages 33-36, proof pages use PDF pages 52-56 (book pages 32-36). Core content: Wolfe conditions (3.6) and (3.7) appear on book page 34. Context pages verified: page 33 defines Armijo condition (3.4) and curvature condition (3.5); Figure 3.3 illustrates why Armijo alone accepts arbitrarily small steps; Figure 3.4 illustrates curvature condition; Figure 3.5 (page 35) shows combined Wolfe conditions; Lemma 3.1 (pages 35-36) proves existence of step lengths satisfying Wolfe conditions for smooth functions bounded below. Usage in GdLineSearchTab.tsx (line 402-404) verified: citation correctly explains Wolfe conditions as alternative to Armijo backtracking. Claim accurately summarizes the conditions and their purpose. Mathematical notation correctly transcribed. All quality standards met.",
       "usedIn": [
         "GdLineSearchTab"
-      ]
+      ],
+      "pdfPages": "33-36"
     },
     "armijo-backtracking-termination-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "37, 56-57",
+      "pages": "17, 36-37",
       "theorem": "Algorithm 3.1 (Backtracking Line Search)",
       "claim": "For L-smooth functions, Armijo backtracking with geometric step reduction $\\alpha \\leftarrow \\tau\\alpha$ (where $\\tau \\in (0,1)$) terminates in finite steps. The backtracking procedure will find an acceptable step length after a finite number of trials.",
       "quote": "Algorithm 3.1 (Backtracking Line Search). Choose $\\bar{\\alpha} > 0$, $\\rho \\in (0, 1)$, $c \\in (0, 1)$; Set $\\alpha \\leftarrow \\bar{\\alpha}$; repeat until $f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k$, $\\alpha \\leftarrow \\rho\\alpha$; end (repeat). Terminate with $\\alpha_k = \\alpha$. [...] An acceptable step length will be found after a finite number of trials, because $\\alpha_k$ will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3).",
@@ -278,11 +342,12 @@
       "verificationNotes": "INDEPENDENT VERIFICATION: Quote verified word-for-word against OCR text and PDF images. Algorithm 3.1 on page 37 (PDF page 57) accurately transcribed. The [...] ellipsis correctly omits explanatory prose between the algorithm statement and the termination guarantee. The termination statement \"An acceptable step length will be found after a finite number of trials, because αk will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3)\" is word-for-word accurate. Page numbers verified: book page 37 = PDF page 57 (algorithm), book page 33 = PDF page 53 (Armijo condition definition), book page 32 = PDF page 52 (Figure 3.3). Claim is accurate: finite termination is guaranteed but no explicit bound is provided in terms of problem parameters. The book uses ρ for contraction factor; code may use τ (correctly documented in notes). Usage in GdLineSearchTab.tsx verified at lines 373, 383, 605, 624 - all uses are appropriate and consistent with the source material.",
       "usedIn": [
         "GdLineSearchTab"
-      ]
+      ],
+      "pdfPages": "37, 56-57"
     },
     "gd-linesearch-strongly-convex-linear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "53-55",
+      "pages": "33-35",
       "theorem": "Theorem 1.2.4",
       "claim": "For $\\mu$-strongly convex, $L$-smooth functions (locally, near a strict local minimum), gradient descent with optimal step size $h^* = 2/(L+\\mu)$ achieves linear convergence: $\\|x_k - x^*\\| \\leq C(1 - 2\\mu/(L+3\\mu))^k$ where the convergence rate $\\rho = 1 - 2\\mu/(L+3\\mu) < 1$ depends on the condition number $Q = L/\\mu$. The constant $C = \\bar{r}r_0/(\\bar{r}-r_0)$ depends on how close the initial point is to the local minimum.",
       "quote": "Theorem 1.2.4 Let the function $f(\\cdot)$ satisfy our assumptions and let the starting point $x_0$ be close enough to a strict local minimum $x^*$: $r_0 = \\|x_0 - x^*\\| < \\bar{r} = 2\\mu/M$. Then the Gradient Method with step size $h^*_k = 2/(L+\\mu)$ converges as follows: $\\|x_k - x^*\\| \\leq \\frac{\\bar{r}r_0}{\\bar{r}-r_0}\\left(1 - \\frac{2\\mu}{L+3\\mu}\\right)^k$. This type of rate of convergence is called linear.",
@@ -301,11 +366,23 @@
       "verificationNotes": "ADVERSARIAL TEST RESULT: Found critical error in claim field. The original claim stated ρ = (1 - 2μ/(L+3μ))² (squared), but Theorem 1.2.4 on page 55 clearly shows the correct formula is ρ = 1 - 2μ/(L+3μ) (NOT squared). The convergence bound is ‖xₖ - x*‖ ≤ C(1 - 2μ/(L+3μ))^k where C = r̄r₀/(r̄-r₀). The quote field was actually correct all along. Also corrected the claim to show ‖xₖ - x*‖ (distance) not ‖xₖ - x*‖² (squared distance). Verified all 6 proof pages (48-50 for Armijo rule, 53-55 for Theorem 1.2.4). Step size formula h* = 2/(L+μ) is correct per equation 1.2.27 on page 54. Pages 53-55 are correct. Usage in GdLineSearchTab.tsx line 671 shows the correct formula (not squared).",
       "usedIn": [
         "GdLineSearchTab"
-      ]
+      ],
+      "formulaImages": [
+        {
+          "formula_id": "lectures_on_convex_optimization_p55_theorem_1_2_4",
+          "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p55_theorem_1_2_4.json",
+          "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p55_theorem_1_2_4.png",
+          "latex": "\\|x_k - x^*\\| \\leq \\frac{\\bar{r}r_0}{\\bar{r}-r_0}\\left(1 - \\frac{2\\mu}{L+3\\mu}\\right)^k",
+          "verified": true,
+          "theorem": "Theorem 1.2.4",
+          "equation": ""
+        }
+      ],
+      "pdfPages": "53-55"
     },
     "gd-linesearch-strongly-convex-linear-convergence-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "42-44",
+      "pages": "22-24",
       "theorem": "Theorem 3.3 and Theorem 3.4",
       "claim": "For strongly convex quadratic functions and general smooth strongly convex functions, steepest descent with exact line search achieves linear convergence with rate determined by the condition number: $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$ where $\\kappa(Q) = \\lambda_n/\\lambda_1$ is the condition number",
       "quote": "Theorem 3.3. When the steepest descent method with exact line searches is applied to the strongly convex quadratic function $f(x) = \\frac{1}{2}x^T Q x - b^T x$, the error norm satisfies $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$, where $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $Q$. [...] Theorem 3.4. Suppose that $f : \\mathbb{R}^n \\to \\mathbb{R}$ is twice continuously differentiable, and that the iterates generated by the steepest-descent method with exact line searches converge to a point $x^*$ at which the Hessian matrix $\\nabla^2 f(x^*)$ is positive definite. Let $r$ be any scalar satisfying $r \\in [(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1), 1]$, where $\\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $\\nabla^2 f(x^*)$. Then for all $k$ sufficiently large, we have $f(x_{k+1}) - f(x^*) \\leq r^2[f(x_k) - f(x^*)]$.",
@@ -321,11 +398,12 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION: Found and corrected page numbering error. The citation originally listed pages as \"62-64\" which are PDF page numbers, not book page numbers. The actual book pages are 42-44. The proof pages (PDF pages 62-64) are correct and contain the right content. Theorem 3.3 appears on book page 43 (PDF page 63), and Theorem 3.4 spans book pages 43-44 (PDF pages 63-64). The context pages showing equation 3.24 (quadratic function definition), equation 3.25 (exact line search formula), and equation 3.26 (steepest descent iteration) are on book page 42 (PDF page 62). Quote accuracy verified word-for-word against source. Claim is consistent with theorems - correctly states the squared convergence rate. Updated readerNotes to use correct book page numbers for equation references.",
       "usedIn": [
         "GdLineSearchTab"
-      ]
+      ],
+      "pdfPages": "42-44"
     },
     "bfgs-superlinear-convergence-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "157-160, 176",
+      "pages": "137-140, 156",
       "theorem": "Theorem 6.6",
       "claim": "BFGS (not L-BFGS) achieves superlinear convergence on strongly convex functions. L-BFGS achieves only linear convergence due to limited memory preventing full Hessian approximation",
       "quote": "Theorem 6.6. Suppose that $f$ is twice continuously differentiable and that the iterates generated by the BFGS algorithm converge to a minimizer $x^*$ at which Assumption 6.2 holds. Suppose also that (6.52) holds. Then $x_k$ converges to $x^*$ at a superlinear rate.",
@@ -347,11 +425,12 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION COMPLETED. Fixed critical page numbering errors: Changed pages from '177-180' (PDF pages) to '157-160, 176' (book pages). Added proof page for book page 176 (PDF page 196) containing the L-BFGS linear convergence statement. Verified quote is word-for-word accurate. The claim's distinction '(not L-BFGS)' is a valid inference from page 176 but not explicitly stated in Theorem 6.6 itself. Verified Assumption 6.2 (Lipschitz continuous Hessian) and condition (6.52) (Σ||x_k - x*|| < ∞). Usage in LbfgsTab is consistent with corrected citation.",
       "usedIn": [
         "LbfgsTab"
-      ]
+      ],
+      "pdfPages": "157-160, 176"
     },
     "bfgs-update-formula-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "136-140",
+      "pages": "116-120",
       "theorem": "Equation (6.19)",
       "claim": "The BFGS update formula maintains positive definiteness and satisfies the secant equation $B_{k+1} s_k = y_k$",
       "quote": "The update formula for $B_k$ is obtained by simply applying the Sherman–Morrison–Woodbury formula (A.28) to (6.17) to obtain $B_{k+1} = B_k - \\frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \\frac{y_k y_k^T}{y_k^T s_k}$ where $s_k = x_{k+1} - x_k = \\alpha_k p_k$ and $y_k = \\nabla f_{k+1} - \\nabla f_k$.",
@@ -369,11 +448,12 @@
       "verificationNotes": "VERIFIED: Quote is word-for-word accurate from page 140, lines 468-474 (equation 6.19). Visual verification of all proof pages (136-140) confirms correct content. Page numbers are correct (book page numbers, not PDF page numbers). The quote accurately captures the BFGS update formula for B_k, including the definitions of s_k and y_k. Cross-referenced equation (6.17) on page 140 (inverse Hessian form H_k), equation (6.6) on page 138 (secant equation), equation (6.7) on page 138 (curvature condition s_k^T y_k > 0), and equation (6.14) on page 139 (definition of ρ_k). Usage in LbfgsTab.tsx line 850 is correct - cited in explanation of BFGS update mechanism. Claim accurately states that the formula maintains positive definiteness (when curvature condition holds) and satisfies the secant equation. All context is properly documented in notes and readerNotes fields.",
       "usedIn": [
         "LbfgsTab"
-      ]
+      ],
+      "pdfPages": "136-140"
     },
     "lbfgs-computational-complexity-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "177-178, 197-198",
+      "pages": "157-158, 177-178",
       "algorithm": "Algorithm 7.4 (L-BFGS two-loop recursion)",
       "claim": "L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the memory size (number of stored curvature pairs) and $d$ is the dimension",
       "quote": "Without considering the multiplication $H_k^0 q$, the two-loop recursion scheme requires $4mn$ multiplications; if $H_k^0$ is diagonal, then $n$ additional multiplications are needed. [...] To circumvent this problem, we store a modified version of $H_k$ implicitly, by storing a certain number (say, $m$) of the vector pairs $\\{s_i, y_i\\}$ used in the formulas (7.16)–(7.18). The product $H_k \\nabla f_k$ can be obtained by performing a sequence of inner products and vector summations involving $\\nabla f_k$ and the pairs $\\{s_i, y_i\\}$.",
@@ -390,11 +470,12 @@
       "verificationNotes": "Independent verification completed 2025-11-12: (1) Both quotes verified word-for-word against OCR text from pages 177-178; (2) Algorithm 7.4 correctly identified on page 178; (3) Claim accurately reflects source material - O(Md) memory for storing M vector pairs of dimension d, and O(Md) time from 4mn multiplications in two-loop recursion; (4) Usage in LbfgsTab.tsx (line 1311) is correct and appropriate; (5) Page numbers correct (printed pages 177-178, which are PDF physical pages 197-198 due to ~20 page offset from frontmatter). Citation is complete, accurate, and properly contextualized.",
       "usedIn": [
         "LbfgsTab"
-      ]
+      ],
+      "pdfPages": "177-178, 197-198"
     },
     "bfgs-positive-definiteness-preservation-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "136-140, 156-161",
+      "pages": "116-120, 136-141",
       "theorem": "Section 6.1, equations (6.7), (6.8), positive definiteness argument (p. 161)",
       "claim": "BFGS/L-BFGS maintains positive definiteness of the approximate Hessian by only accepting curvature pairs where $s_k^T y_k > 0$ (positive curvature condition). If $H_k$ is positive definite and $s_k^T y_k > 0$, then $H_{k+1}$ computed by the BFGS update is positive definite. This makes BFGS more robust than Newton's method in non-convex regions where the true Hessian may have negative eigenvalues",
       "quote": "Note that the minimization problem (6.16) that gives rise to the BFGS update formula does not explicitly require the updated Hessian approximation to be positive definite. It is easy to show, however, that $H_{k+1}$ will be positive definite whenever $H_k$ is positive definite, by using the following argument. First, note from (6.8) that $y_k^T s_k$ is positive, so that the updating formula (6.17), (6.14) is well-defined. For any nonzero vector $z$, we have $z^T H_{k+1} z = w^T H_k w + \\rho_k (z^T s_k)^2 \\geq 0$, where we have defined $w = z - \\rho_k y_k (s_k^T z)$. The right hand side can be zero only if $s_k^T z = 0$, but in this case $w = z \\neq 0$, which implies that the first term is greater than zero. Therefore, $H_{k+1}$ is positive definite.",
@@ -418,11 +499,12 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION COMPLETE. Examined all 11 proof pages plus the 16-page gap (141-155). FINDINGS: (1) The 16-page gap is CORRECT and INTENTIONAL - pages 141-155 contain Chapter 5 material on Conjugate Gradient methods (Fletcher-Reeves, nonlinear CG, global convergence theorems, exercises) and Chapter 6 title page, all unrelated to BFGS positive definiteness. Pages 136-140 are end of Chapter 5 discussing preliminary quasi-Newton concepts. Pages 156-161 are from Chapter 6 (Quasi-Newton Methods) dedicated to BFGS theory. (2) Equations (6.7) and (6.8) CORRECTLY located on page 157. Eq (6.7) defines curvature condition $s_k^T y_k > 0$. Eq (6.8) proves this holds under Wolfe conditions: $y_k^T s_k \\geq (c_2 - 1)\\nabla f_k^T s_k > 0$. (3) The positive definiteness preservation is NOT a formal numbered theorem but an ARGUMENT on page 161. Citation correctly refers to 'Section 6.1' rather than claiming a theorem number. (4) Quote is WORD-FOR-WORD accurate from page 161, matching exactly including punctuation and mathematical notation. (5) Claim accurately reflects source without overstatement. (6) Usage in LbfgsTab.tsx correctly cites this for curvature filtering ($s^T y > 0$ acceptance criterion). VERDICT: Citation is accurate, appropriately scoped, and the non-contiguous page range is necessary and correct. The gap exists because pages 141-155 are irrelevant to BFGS positive definiteness.",
       "usedIn": [
         "LbfgsTab"
-      ]
+      ],
+      "pdfPages": "136-140, 156-161"
     },
     "newton-quadratic-convergence": {
       "reference": "nocedal-wright-2006",
-      "pages": "64-65",
+      "pages": "44-45",
       "theorem": "Theorem 3.5",
       "claim": "Newton's method achieves quadratic convergence on strongly convex functions with Lipschitz continuous Hessian, when starting close enough to the optimum",
       "quote": "Suppose that $f$ is twice differentiable and that the Hessian $\\nabla^2 f(x)$ is Lipschitz continuous in a neighborhood of a solution $x^*$ at which the sufficient conditions (Theorem 2.4) are satisfied. Consider the iteration $x_{k+1} = x_k + p_k$, where $p_k$ is given by (3.30). Then (i) if the starting point $x_0$ is sufficiently close to $x^*$, the sequence of iterates converges to $x^*$; (ii) the rate of convergence of $\\{x_k\\}$ is quadratic; and (iii) the sequence of gradient norms $\\{\\|\\nabla f_k\\|\\}$ converges quadratically to zero.",
@@ -437,11 +519,12 @@
       "verificationNotes": "INDEPENDENTLY VERIFIED following ENHANCED workflow (citation-verification.md): (1) QUOTE ACCURACY: Verified word-for-word against OCR (pages 61-70) and visual inspection of proof pages 64-65. Quote matches Theorem 3.5 exactly, including punctuation and mathematical notation. (2) PAGE NUMBERS: Confirmed pages 64-65 are correct - page 64 contains the theorem statement (lines 195-202 of OCR), page 65 contains the proof (lines 210-269). PDF pages match printed book pages. (3) THEOREM REFERENCE: Theorem 3.5 correctly identified. Equation (3.30) referenced in quote is defined on page 64 line 180 as $p_k^N = -\\nabla^2 f_k^{-1} \\nabla f_k$. Theorem 2.4 (second-order sufficient conditions) referenced in quote. (4) CLAIM CORRECTNESS: The claim accurately reflects the theorem. The claim says 'strongly convex functions with Lipschitz continuous Hessian' which is slightly stronger than what the theorem requires (theorem only requires Lipschitz continuous Hessian and second-order sufficient conditions at $x^*$), but this is acceptable as strongly convex functions satisfy these conditions. (5) USAGE IN CODE: Checked NewtonTab.tsx lines 327, 526, 642, 662 - all uses are contextually appropriate, explaining quadratic convergence rate near the solution. (6) PROOF VERIFICATION: The proof on page 65 shows the quadratic bound in equation (3.33): $\\|x_k + p_k^N - x^*\\| \\leq L\\|\\nabla^2 f(x^*)^{-1}\\|\\|x_k - x^*\\|^2$ where $\\tilde{L} = L\\|\\nabla^2 f(x^*)^{-1}\\|$ and $L$ is the Lipschitz constant. This establishes $\\|e_{k+1}\\| \\leq C\\|e_k\\|^2$ (quadratic convergence). The three parts of the theorem are: (i) convergence when starting close enough, (ii) quadratic rate, (iii) gradient norms converge quadratically to zero. All verified correct.",
       "usedIn": [
         "NewtonTab"
-      ]
+      ],
+      "pdfPages": "64-65"
     },
     "newton-convex-convergence": {
       "reference": "nesterov-2018",
-      "pages": "243-258",
+      "pages": "223-238",
       "theorem": "Theorem 4.1.2, Theorem 4.1.6, and Example 4.1.1",
       "claim": "For convex functions with Lipschitz continuous Hessian, Newton's method (with cubic regularization) converges to the global minimum. Specifically, the method finds stationary points satisfying $\\nabla f(x^*) = 0$ and $\\nabla^2 f(x^*) \\succeq 0$, which for convex functions are global minima.",
       "quote": "Theorem 4.1.2: Let the sequence $\\{x_i\\}$ be generated by method (4.1.16). Let us assume that for some $i \\geq 0$ the set $\\mathscr{L}(f(x_i))$ is bounded. Then there exists a limit $\\lim_{i\\to\\infty} f(x_i) = f^*$. The set $X^*$ of limit points of this sequence is non-empty. Moreover, this is a connected set such that for any $x^* \\in X^*$ we have $f(x^*) = f^*$, $\\nabla f(x^*) = 0$, $\\nabla^2 f(x^*) \\succeq 0$. [...] Example 4.1.1 (Convex Functions): Let $f$ be convex on $\\mathbb{R}^n$. Assume it achieves its minimum at point $x^*$. Then, for any $x \\in \\mathbb{R}^n$ with $\\|x - x^*\\| < R$, we have $f(x) - f(x^*) \\leq \\langle\\nabla f(x), x - x^*\\rangle \\leq \\|\\nabla f(x)\\| \\cdot R$. Thus, the function $f$ is a gradient dominated function of degree one. [...] Theorem 4.1.6: If $f(x_0) - f(x^*) \\leq \\gamma^2 \\hat{\\omega}$, then $f(x_k) - f(x^*) \\leq \\hat{\\omega} \\cdot \\frac{\\gamma^2}{(2 + k + \\frac{3}{2\\gamma})^2}$.",
@@ -470,11 +553,12 @@
       "verificationNotes": "VERIFIED (Batch 5 - Adversarial): FIXED page numbering from PDF pages to book pages (262-277 → 243-258). Added missing proof pages (268-270 for Theorem 4.1.2 continuation, 272-273 for connecting theorems). All 16 pages verified necessary: pages 262-267 (Assumption 4.1.1, Algorithm 4.1.16, supporting lemmas), pages 268-270 (Theorem 4.1.2 complete statement), pages 271-273 (connection to gradient dominated functions), pages 274-275 (Example 4.1.1 showing convex functions are gradient dominated), pages 276-277 (Theorem 4.1.6 convergence rate). Quote is accurate, claim correctly describes cubic regularized Newton's method converging to global minimum for convex functions with Lipschitz continuous Hessian. The 16-page range is justified.",
       "usedIn": [
         "NewtonTab"
-      ]
+      ],
+      "pdfPages": "243-258"
     },
     "newton-computational-complexity": {
       "reference": "nocedal-wright-2006",
-      "pages": "64, 627-628",
+      "pages": "44, 607-608",
       "theorem": "Section 3.3 (Newton's Method) and Appendix A.1 (Cholesky/LU Factorization)",
       "claim": "Solving the Newton system $H \\cdot p = -\\nabla f$ requires $O(d^3)$ operations using direct methods (Cholesky or LU decomposition)",
       "quote": "Newton's method: $p_k^N = -\\nabla^2 f_k^{-1} \\nabla f_k$ [...] The factorization (A.20) can be found by using Gaussian elimination with row partial pivoting, an algorithm that requires approximately $2n^3/3$ floating-point operations when $A$ is dense. [...] When $A \\in \\mathbb{R}^{n \\times n}$ is symmetric positive definite, it is possible to compute a similar but more specialized factorization at about half the cost—about $n^3/3$ operations. This factorization, known as the Cholesky factorization, produces a matrix $L$ such that $A = LL^T$.",
@@ -491,11 +575,12 @@
       "usedIn": [
         "NewtonTab",
         "DiagonalPrecondTab"
-      ]
+      ],
+      "pdfPages": "64, 627-628"
     },
     "lbfgs-linear-convergence-liu-nocedal-1989": {
       "reference": "liu-nocedal-1989",
-      "pages": "20-23",
+      "pages": "19-22",
       "theorem": "Theorem 6.1",
       "claim": "L-BFGS converges R-linearly (not superlinearly) on uniformly convex problems. The rate of convergence is linear, not superlinear. The paper explicitly states that 'R-linear convergence is the best we can expect' from L-BFGS.",
       "quote": "In this section we show that the limited memory BFGS method is globally convergent on uniformly convex problems, and that its rate of convergence is R-linear... Then for any positive definite $B_0$, Algorithm 6.1 generates a sequence $\\{x_k\\}$ which converges to $x_*$. Moreover there is a constant $0 \\leq r < 1$ such that $f_k - f_* \\leq r^k[f_0 - f_*]$ which implies that $\\{x_k\\}$ converges R-linearly... R-linear convergence is the best we can expect.",
@@ -512,11 +597,12 @@
       "verificationNotes": "ADVERSARIAL VERIFICATION - Corrected three errors: (1) Fixed page numbers from '21-24' to '20-23' (article pages, not PDF pages - this is a journal article); (2) Fixed notation in quote from $x^*$ and $f^*$ (superscript) to $x_*$ and $f_*$ (subscript) to match source exactly; (3) Removed unsupported claim about 'sufficient memory M approaching BFGS behavior' which is not explicitly stated in the theorem or surrounding text. Verified quote word-for-word against proof pages, confirmed theorem number, and verified all mathematical notation. All proof pages are present and show correct content.",
       "usedIn": [
         "AlgorithmExplainer"
-      ]
+      ],
+      "pdfPages": "20-23"
     },
     "inexact-newton-superlinear-convergence": {
       "reference": "nocedal-wright-2006",
-      "pages": "165-169",
+      "pages": "145-149",
       "theorem": "Theorem 7.2",
       "claim": "Inexact Newton methods solve the Newton system $\\nabla^2 f_k p_k = -\\nabla f_k$ approximately using iterative methods like conjugate gradient, reducing computational cost from $O(d^3)$ to $O(d^2)$ or better while maintaining superlinear convergence with appropriate forcing sequences",
       "quote": "In this section, we describe techniques for obtaining approximations to $p_k^N$ that are inexpensive to calculate but are good search directions or steps. These approaches are based on solving (7.1) by using the conjugate gradient (CG) method (see Chapter 5) or the Lanczos method, with modifications to handle negative curvature in the Hessian $\\nabla^2 f_k$... The use of iterative methods for (7.1) spares us from concerns about the expense of a direct factorization of the Hessian $\\nabla^2 f_k$ and the fill-in that may occur during this process... Theorem 7.2: Suppose that the conditions of Theorem 7.1 hold, and assume that the iterates $\\{x_k\\}$ generated by the inexact Newton method converge to $x^*$. Then the rate of convergence is superlinear if $\\eta_k \\to 0$. If in addition, $\\nabla^2 f(x)$ is Lipschitz continuous for $x$ near $x^*$ and if $\\eta_k = O(\\|\\nabla f_k\\|)$, then the convergence is quadratic.",
@@ -534,11 +620,12 @@
       "verificationNotes": "VERIFIED (Batch 5 - Adversarial): FIXED critical page numbering error. Original proofPages had PDF pages 0165-0169 which contained WRONG content (SR1 Method from Chapter 6). Corrected to PDF pages 0185-0189 (book pages 165-169) which contain Section 7.1 'Inexact Newton Methods'. The 20-page offset was not accounted for in original citation. Quote is word-for-word accurate. Theorem 7.1 (page 186) and Theorem 7.2 (page 188) verified. NOTE: The claim's 'O(d³) to O(d²)' complexity reduction is an INTERPRETATION - the source says 'spares us from concerns about the expense of a direct factorization' but doesn't explicitly state Big-O notation. This interpretation is correct and well-justified (direct factorization = O(d³), CG matrix-vector products = O(d²) for dense or O(d) for sparse).",
       "usedIn": [
         "NewtonTab"
-      ]
+      ],
+      "pdfPages": "165-169"
     },
     "rosenbrock-function-benchmark": {
       "reference": "rosenbrock-1960",
-      "pages": "175-184",
+      "pages": "1-10",
       "quote": "f(x,y) = 100(y - x²)² + (1 - x)²",
       "claim": "",
       "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Rosenbrock function (also known as Rosenbrock's valley or banana function), a classic non-convex test problem for optimization algorithms. The function f(x,y) = (1-x)² + 100(y-x²)² (equivalently written as 100(y-x²)² + (1-x)²) appears in Table 1 on page 178 as a test example. The parameter 100 is the coefficient b that controls the steepness of the valley. This citation is for attribution only - no specific theorem or claim is being cited. The 'claim' field is intentionally empty for benchmark function attributions.",
@@ -553,11 +640,12 @@
       ],
       "verified": "2025-11-12",
       "verifiedBy": "adversarial-verification-agent-batch6-agent6",
-      "verificationNotes": "ADVERSARIAL VERIFICATION: Extracted all 10 pages of the original 1960 paper. The Rosenbrock function f(x,y) = 100(y-x²)² + (1-x)² appears in Table 1 on page 178 (PDF page 4) as a test example for the optimization method. Added proofPages (page 1 for title/attribution, page 4 for function definition). Added quote showing the exact function form. Verified that the function form in the notes matches the actual paper (it does). Page numbers 175-184 are correct (printed page numbers match). The function definition is accurate."
+      "verificationNotes": "ADVERSARIAL VERIFICATION: Extracted all 10 pages of the original 1960 paper. The Rosenbrock function f(x,y) = 100(y-x²)² + (1-x)² appears in Table 1 on page 178 (PDF page 4) as a test example for the optimization method. Added proofPages (page 1 for title/attribution, page 4 for function definition). Added quote showing the exact function form. Verified that the function form in the notes matches the actual paper (it does). Page numbers 175-184 are correct (printed page numbers match). The function definition is accurate.",
+      "pdfPages": "175-184"
     },
     "three-hump-camel-function-benchmark": {
       "reference": "branin-1972",
-      "pages": "504-522",
+      "pages": "1-19",
       "claim": "",
       "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Three-Hump Camel function, a multi-modal test problem introduced by F.H. Branin in this 1972 paper (Appendix C, Equation C15). Branin's original formulation defined a function with three MAXIMA. The standard Three-Hump Camel benchmark function negates this to create three MINIMA: f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y². The function has one global minimum at (0,0) with f=0 and two symmetric local minima. This citation is for attribution only - no specific theorem or claim is being cited.",
       "readerNotes": "The Three-Hump Camel function was introduced by F.H. Branin in 1972 as a test problem for algorithms designed to find multiple solutions. Note: Branin's original equation (C15) was formulated for finding MAXIMA; the standard benchmark version for minimization negates his function, resulting in three local MINIMA (one global at the origin and two symmetric local minima). The function is particularly useful for demonstrating basin of convergence and the challenges of multi-modal optimization.",
@@ -572,7 +660,8 @@
       "proofPages": [
         "docs/references/extracted-pages/branin1972_page_0017.png",
         "docs/references/extracted-pages/branin1972_page_0018.png"
-      ]
+      ],
+      "pdfPages": "504-522"
     }
   }
 }

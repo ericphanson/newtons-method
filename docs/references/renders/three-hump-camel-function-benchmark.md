@@ -14,7 +14,7 @@ F. H. Branin. *Widely Convergent Method for Finding Multiple Solutions of Simult
 
 > f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴. (C15) This function has three maxima when a = -2, b = 1.05, c = -1/6, d = -1 and e = 0
 
-**Pages:** 504-522
+**Pages:** 1-19
 
 ## Reader Notes
 

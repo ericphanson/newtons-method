@@ -14,7 +14,7 @@ BFGS/L-BFGS maintains positive definiteness of the approximate Hessian by only a
 
 > Note that the minimization problem (6.16) that gives rise to the BFGS update formula does not explicitly require the updated Hessian approximation to be positive definite. It is easy to show, however, that $H_{k+1}$ will be positive definite whenever $H_k$ is positive definite, by using the following argument. First, note from (6.8) that $y_k^T s_k$ is positive, so that the updating formula (6.17), (6.14) is well-defined. For any nonzero vector $z$, we have $z^T H_{k+1} z = w^T H_k w + \rho_k (z^T s_k)^2 \geq 0$, where we have defined $w = z - \rho_k y_k (s_k^T z)$. The right hand side can be zero only if $s_k^T z = 0$, but in this case $w = z \neq 0$, which implies that the first term is greater than zero. Therefore, $H_{k+1}$ is positive definite.
 
-**Pages:** 136-140, 156-161
+**Pages:** 116-120, 136-141
 
 **Theorem/Result:** Section 6.1, equations (6.7), (6.8), positive definiteness argument (p. 161)
 

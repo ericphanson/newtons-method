@@ -14,7 +14,7 @@ The quadratic upper bound for L-smooth functions: any function with Lipschitz co
 
 > Let $f \in C_L^{1,1}(\mathbb{R}^n)$. Then, for any $x, y$ from $\mathbb{R}^n$, we have $|f(y) - f(x) - \langle \nabla f(x), y - x \rangle| \leq \frac{L}{2} \|y - x\|^2$. [...] Geometrically, we have the following picture. Consider a function $f \in C_L^{1,1}(\mathbb{R}^n)$. Let us fix a point $x_0 \in \mathbb{R}^n$, and define two quadratic functions $\phi_1(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle - \frac{L}{2} \|x - x_0\|^2$, $\phi_2(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle + \frac{L}{2} \|x - x_0\|^2$. Then the graph of the function $f$ lies between the graphs of $\phi_1$ and $\phi_2$: $\phi_1(x) \leq f(x) \leq \phi_2(x)$, $\forall x \in \mathbb{R}^n$.
 
-**Pages:** 24-26
+**Pages:** 4-6
 
 ## Reader Notes
 

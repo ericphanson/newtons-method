@@ -14,9 +14,44 @@ Gradient descent with fixed step size converges to the global minimum on convex 
 
 > Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h \leq \frac{2}{L}$. Then the Gradient Method generates a sequence of points $\{x_k\}$ with function values satisfying the inequality $f(x_k) - f^* \leq \frac{2L(f(x_0)-f^*)\|x_0-x^*\|^2}{2L\|x_0-x^*\|^2+k\cdot(f(x_0)-f^*)}, k \geq 0$. [Corollary 2.1.2] If $h = \frac{1}{L}$ and $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$, then $f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}$.
 
-**Pages:** 80-81
+**Pages:** 60-61
 
 **Theorem/Result:** Theorem 2.1.14 and Corollary 2.1.2
+
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Theorem 2.1.14
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p100_theorem_2_1_14](../extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k) - f^* \leq \frac{2(f(x_0) - f^*) \|x_0 - x^*\|^2}{2\|x_0 - x^*\|^2 + k \cdot h(2 - Lh) \cdot (f(x_0) - f^*)}, \quad k \geq 0
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k) - f^* \leq \frac{2(f(x_0) - f^*) \|x_0 - x^*\|^2}{2\|x_0 - x^*\|^2 + k \cdot h(2 - Lh) \cdot (f(x_0) - f^*)}, \quad k \geq 0
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Issues Found:**
+
+- Citation has simplified form (h=1/L) but theorem states general form
+
+**Metadata:** [lectures_on_convex_optimization_p100_theorem_2_1_14.json](../extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.json)
+
+---
 
 ## Reader Notes
 

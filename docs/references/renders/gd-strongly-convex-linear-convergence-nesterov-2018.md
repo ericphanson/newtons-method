@@ -14,9 +14,40 @@ Gradient descent with fixed step size achieves linear convergence to the global 
 
 > If $f \in \mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $0 < h \leq \frac{2}{\mu+L}$, then the Gradient Method generates a sequence $\{x_k\}$ such that $\|x_k - x^*\|^2 \leq \left(1 - \frac{2h\mu L}{\mu+L}\right)^k \|x_0 - x^*\|^2$
 
-**Pages:** 101-102
+**Pages:** 81-82
 
 **Theorem/Result:** Theorem 2.1.15
+
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Theorem 2.1.15
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p101_theorem_2_1_15](../extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_15.png)
+
+**Extracted LaTeX:**
+
+$$
+\|x_k - x^*\|^2 \leq \left(1 - \frac{2h\mu L}{\mu+L}\right)^k \|x_0 - x^*\|^2
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\|x_k - x^*\|^2 \leq \left(1 - \frac{2h\mu L}{\mu+L}\right)^k \|x_0 - x^*\|^2
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p101_theorem_2_1_15.json](../extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_15.json)
+
+---
 
 ## Reader Notes
 

@@ -838,19 +838,239 @@ python3 scripts/link-formula-to-citation.py \
   --citation-key gd-convex-sublinear-convergence-nesterov-2018
 ```
 
-## Appendix A: Intense Extraction Prompt
+## Appendix A: Full Cropping Agent Prompt Template
 
-(Include the full intense prompt from DPI test here)
+```
+FORMULA CROPPING TASK - HIGH QUALITY EXTRACTION
 
-See `docs/logs/2025-11-12-dpi-test.md` Appendix B for the complete prompt.
+You are tasked with cropping [EQUATION] from [THEOREM] on page [PAGE_NUM] of [BOOK].
 
-Key elements:
-- Critical warnings about common errors
-- 7-step verification procedure
-- Examples of failure modes
-- Character-by-character transcription guidance
+SOURCE IMAGE: {full_page_path}
+(Should be 300 DPI / high resolution for best quality)
 
-## Appendix B: Cropping Decision Tree
+TARGET FORMULA:
+- Theorem: [THEOREM]
+- Equation: [EQUATION]
+- Expected form: [BRIEF DESCRIPTION]
+- Context: [BRIEF CONTEXT]
+
+CRITICAL CROPPING REQUIREMENTS - AVOID CUTOFFS:
+
+**MOST IMPORTANT - Check for cutoffs:**
+1. **BOTTOM padding is critical** - Many formulas have complex fractions with denominators that extend below the main equation line. The denominator MUST be fully visible.
+2. **Add 1-2% extra at bottom** - Better to include a bit too much than to cut off the denominator
+3. **Check equation number** - The equation label (e.g., "(4.1.36)") must be fully visible
+4. **Check conditions** - Any conditions like "k ≥ 0" must be included
+
+YOUR TASK:
+1. **READ THE FULL PAGE IMAGE**
+   - Locate the target theorem and equation
+   - Identify the formula structure (does it have a fraction? What's in the denominator?)
+
+2. **DETERMINE BOUNDARIES WITH ADEQUATE PADDING**
+   - TOP: Include 1-2 lines of context
+   - BOTTOM: **CRITICAL** - Go far enough to capture:
+     * The entire denominator (if it's a fraction)
+     * Any conditions (like "k ≥ 0")
+     * The equation number
+     * Add 1-2% extra padding to avoid cutoffs
+
+3. **CREATE THE CROP**
+   Use scripts/crop-formula.py with your calculated boundaries:
+   ```bash
+   python3 scripts/crop-formula.py \
+     --pdf [PDF_ID] \
+     --page [PAGE_NUM] \
+     --top-percent TOP \
+     --bottom-percent BOTTOM \
+     --theorem "[THEOREM]" \
+     --equation "[EQUATION]" \
+     --description "[DESCRIPTION]"
+   ```
+
+4. **VERIFY CROP QUALITY - BE STRICT**
+   - ✓ Complete equation visible?
+   - ✓ ENTIRE DENOMINATOR visible (not cut off)?
+   - ✓ Fraction bar fully visible?
+   - ✓ Equation number fully visible?
+   - ✓ Any conditions visible?
+   - ✓ Adequate padding (not too tight)?
+   - ✓ Excludes other equations?
+   - ✓ Image clear and readable?
+
+5. **IF ANY CHECK FAILS: ITERATE**
+   - If bottom cut off: Increase bottom-percent by 2-3%
+   - If top cut off: Decrease top-percent by 1-2%
+   - Use --force flag to overwrite
+   - Iterate until ALL checks pass
+
+COMMON MISTAKES TO AVOID:
+- 🚫 Cropping too tight at bottom (cutting off denominators)
+- 🚫 Not checking if fraction denominators are fully visible
+- 🚫 Cutting off equation numbers
+- 🚫 Including nearby equations
+
+OUTPUT:
+Return a summary of:
+1. The crop coordinates you used (top and bottom percentages)
+2. Number of iterations needed
+3. Final assessment that crop is perfect and ready for LaTeX extraction
+4. Path to the generated formula image and metadata JSON
+
+Do NOT extract LaTeX. Your job is ONLY to produce a perfect crop.
+```
+
+## Appendix B: Full LaTeX Extraction Agent Prompt Template
+
+```
+LATEX EXTRACTION FROM CROPPED FORMULA - MAXIMUM ACCURACY REQUIRED
+
+You are extracting LaTeX from a cropped image containing [EQUATION] from [THEOREM].
+
+CROPPED IMAGE: {cropped_image_path}
+METADATA FILE: {metadata_path}
+
+TARGET: [EQUATION] from [THEOREM]
+EXPECTED FORM: [BRIEF DESCRIPTION]
+
+CRITICAL REQUIREMENTS FOR ACCURATE TRANSCRIPTION:
+
+1. **SYMBOL RECOGNITION:**
+   - \| for norms (not | or ||)
+   - Subscripts: x_k, x_0, etc. (watch for 0 vs O)
+   - Superscripts: x^*, exponents like ^2
+   - Greek letters: \mu, \alpha, \beta, \gamma, \nabla, etc.
+   - \langle and \rangle for inner products (if applicable)
+
+2. **FRACTION STRUCTURE:**
+   - Identify ALL fractions in the formula
+   - For each fraction: carefully extract numerator and denominator
+   - Watch for nested fractions (fractions within fractions)
+   - Use \frac{numerator}{denominator}
+
+3. **PARENTHESES AND GROUPING:**
+   - \left( and \right) for large parentheses around fractions
+   - Every parenthesis matters - they define grouping
+   - Watch for implicit multiplication: (a+b)c means (a+b) × c
+
+4. **EXPONENTS:**
+   - Identify what is squared: x^2 vs (...)^2
+   - Check if entire expressions are raised to powers
+   - Exponent position matters: a^{bc} vs a^b × c
+
+5. **INEQUALITY:**
+   - \leq (≤) vs \geq (≥)
+   - Direction matters enormously
+
+VERIFICATION PROCEDURE:
+
+Step 1: Read the cropped image carefully
+Step 2: Identify the complete formula structure
+Step 3: Break down each component:
+   - What's on the left side of the inequality/equation?
+   - What's on the right side?
+   - What are the fractions, products, sums?
+Step 4: Transcribe character by character
+Step 5: Verify all symbols, subscripts, superscripts
+Step 6: Count and balance all parentheses
+Step 7: Check that exponents are in the right places
+Step 8: Triple-check the complete structure
+
+CRITICAL WARNINGS - Common failure modes to avoid:
+
+- FRACTION STRUCTURE ERRORS: Preserve exact structure of nested fractions
+- PARENTHESES: Every parenthesis matters - (k + 3/2) ≠ (k + 3)/2
+- COEFFICIENT POSITIONING: 3γ/2 means (3×γ)/2, NOT 3/(2γ)
+- SYMBOL RECOGNITION: ω̂ (omega with hat) vs ω vs w
+- EXPONENTS: Where does the squared apply? γ² vs (...)²
+
+RESPONSE FORMAT:
+
+Return ONLY the complete LaTeX formula.
+
+Format: [left-hand side] \leq [right-hand side]
+
+This transcription will be used for citation verification. Accuracy is paramount.
+```
+
+## Appendix C: Intense LaTeX Extraction Prompt (Legacy - from DPI Test)
+
+This is the original intense prompt from the DPI testing that achieved 100% accuracy with cropped images:
+
+```
+CRITICAL MATHEMATICAL TRANSCRIPTION TASK - MAXIMUM ACCURACY REQUIRED
+
+You are tasked with transcribing equation (X.Y.Z) from the image into LaTeX notation. This is a critical task that requires EXTREME attention to detail.
+
+TARGET: The convergence bound formula numbered (X.Y.Z) that has the form:
+[expected pattern, e.g., f(x_k) - f(x^*) ≤ ...]
+
+CRITICAL WARNINGS - Common failure modes you MUST avoid:
+
+1. WRONG FORMULA EXTRACTION:
+   - Extract ONLY equation (X.Y.Z) - the numbered equation in the image
+   - Do NOT extract text or other formulas
+
+2. FRACTION STRUCTURE ERRORS:
+   - Complex nested fractions are present - you MUST preserve the exact structure
+   - Pay attention to what is in the numerator vs denominator
+   - Watch for fractions WITHIN the numerator or denominator
+   - Example: γ²(2+3γ/2)² is NOT the same as γ²/(2+3γ/2)²
+
+3. PARENTHESES AND GROUPING:
+   - Every parenthesis, bracket, and brace matters
+   - (k + 3/2) is DIFFERENT from (k + 3)/2
+   - Multiplication can be implicit: (k + 3/2)γ means (k + 3/2) × γ
+
+4. COEFFICIENT POSITIONING:
+   - 3/2 is DIFFERENT from 2/3
+   - 3γ/2 means (3×γ)/2, NOT 3/(γ/2) or 3/(2γ)
+   - The position of variables in fractions is critical
+
+5. SYMBOL RECOGNITION:
+   - ω̂ (omega with hat) vs ω (plain omega) vs w
+   - γ (gamma) vs y vs v
+   - DO NOT invent symbols that aren't in the formula (no λ, β, etc. unless clearly present)
+
+6. INEQUALITY DIRECTION:
+   - ≤ vs ≥ matters enormously
+   - Check carefully which direction the inequality points
+
+7. EXPONENTS:
+   - Is it squared? γ² vs γ
+   - Is the entire expression squared? (...)²
+   - Where exactly does the exponent apply?
+
+VERIFICATION PROCEDURE - You MUST follow these steps:
+
+Step 1: Locate equation (X.Y.Z) in the image
+Step 2: Identify the convergence bound inequality (f(x_k) - f(x^*) ≤ ...)
+Step 3: Carefully examine the RIGHT side of the inequality - this is what you're transcribing
+Step 4: Break down the structure:
+   - What's being multiplied at the top level?
+   - What's in the numerator of any fractions?
+   - What's in the denominator?
+   - What's squared or raised to other powers?
+Step 5: Transcribe character by character, checking each symbol
+Step 6: TRIPLE CHECK your transcription against the image:
+   - Count parentheses - do they match?
+   - Verify every coefficient (all numbers)
+   - Verify every variable (γ, k, etc.)
+   - Check the exponents
+   - Verify the inequality direction
+Step 7: Ask yourself: "Could I render this LaTeX and have it look identical to the image?"
+
+RESPONSE FORMAT:
+Return ONLY the complete LaTeX formula for equation (X.Y.Z).
+Do NOT include explanation, do NOT include partial work.
+Format: f(x_k) - f(x^*) \leq [complete right-hand side]
+
+This transcription will be used in a critical research context. Accuracy is paramount. Take your time and be meticulous.
+```
+
+See [docs/logs/2025-11-12-dpi-test.md](../logs/2025-11-12-dpi-test.md) Appendix B for the original source of this prompt.
+
+## Appendix D: Cropping Decision Tree
 
 ```
 START: Read full page image
@@ -890,7 +1110,7 @@ Self-verify crop quality
 ## See Also
 
 - **[scripts/crop-formula.py](../../scripts/crop-formula.py)** - Implemented cropping script (source code)
-- [Formula Extraction Workflow](formula-extraction-workflow.md) - Semi-automated cropping workflow
 - [Citation Workflow](citation-workflow.md) - Main citation creation process
 - [Citation Verification](citation-verification.md) - Verification procedures
-- [DPI Test Results](../logs/2025-11-12-dpi-test.md) - Empirical evidence for cropping approach
+- [DPI Test Results](../logs/2025-11-12-dpi-test.md) - Empirical evidence for cropping approach (100% accuracy with crops)
+- [Citation Formula Verification Log](../logs/2025-11-12-citation-formula-verification.md) - Results from verifying top 5 citations

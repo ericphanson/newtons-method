@@ -14,9 +14,45 @@ For convex, L-smooth functions, gradient descent with Armijo line search achieve
 
 > The Armijo rule: Find $x_{k+1} = x_k - h\nabla f(x_k)$ with $h > 0$ such that $\alpha\langle\nabla f(x_k), x_k - x_{k+1}\rangle \leq f(x_k) - f(x_{k+1})$, $\beta\langle\nabla f(x_k), x_k - x_{k+1}\rangle \geq f(x_k) - f(x_{k+1})$, where $0 < \alpha < \beta < 1$ are some fixed parameters. [...] Thus, we have proved that in all cases we have $f(x_k) - f(x_{k+1}) \geq \frac{\omega}{L} \|\nabla f(x_k)\|^2$, where $\omega$ is some positive constant. [...] For the Armijo rule, $f(x_k) - f(x_{k+1}) \geq \frac{2}{L}\alpha(1-\beta) \|\nabla f(x_k)\|^2$
 
-**Pages:** 28-30, 81
+**Pages:** 8-10, 61
 
 **Theorem/Result:** Equation (1.2.20) with Corollary 2.1.2
+
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 (1.2.16)-(1.2.17)
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p48_1_2_16_-_1_2_17](../extracted-pages/formulas/lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.png)
+
+**Extracted LaTeX:**
+
+$$
+\alpha\langle\nabla f(x_k), x_k - x_{k+1}\rangle \leq f(x_k) - f(x_{k+1}), \quad \beta\langle\nabla f(x_k), x_k - x_{k+1}\rangle \geq f(x_k) - f(x_{k+1}))
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\alpha\langle\nabla f(x_k), x_k - x_{k+1}\rangle \leq f(x_k) - f(x_{k+1}), \quad \beta\langle\nabla f(x_k), x_k - x_{k+1}\rangle \geq f(x_k) - f(x_{k+1}))
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Issues Found:**
+
+- Book uses parentheses for inner products, citation uses angle brackets
+- Citation mentions (1.2.20) but Armijo rule is (1.2.16)-(1.2.17)
+
+**Metadata:** [lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.json](../extracted-pages/formulas/lectures_on_convex_optimization_p48_1_2_16_-_1_2_17.json)
+
+---
 
 ## Reader Notes
 

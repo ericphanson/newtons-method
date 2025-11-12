@@ -14,7 +14,7 @@ The condition number $Q = L/\mu$ for strongly convex smooth functions bounds the
 
 > One of the most important functional classes is $\mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ (recall that the corresponding norm is standard Euclidean). This class is described by the following inequalities: $\langle \nabla f(x) - \nabla f(y), x - y \rangle \geq \mu \| x - y \|^2$, $\| \nabla f(x) - \nabla f(y) \| \leq L \| x - y \|$. The value $Q_f = L/\mu \geq 1$ is called the condition number of the function $f$.
 
-**Pages:** 95-97
+**Pages:** 75-77
 
 **Theorem/Result:** Definition on page 97 (following Theorem 2.1.12), Theorem 2.1.11, and Example 2.1.2
 

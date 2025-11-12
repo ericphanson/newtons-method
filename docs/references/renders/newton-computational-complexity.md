@@ -14,7 +14,7 @@ Solving the Newton system $H \cdot p = -\nabla f$ requires $O(d^3)$ operations u
 
 > Newton's method: $p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$ [...] The factorization (A.20) can be found by using Gaussian elimination with row partial pivoting, an algorithm that requires approximately $2n^3/3$ floating-point operations when $A$ is dense. [...] When $A \in \mathbb{R}^{n \times n}$ is symmetric positive definite, it is possible to compute a similar but more specialized factorization at about half the cost—about $n^3/3$ operations. This factorization, known as the Cholesky factorization, produces a matrix $L$ such that $A = LL^T$.
 
-**Pages:** 64, 627-628
+**Pages:** 44, 607-608
 
 **Theorem/Result:** Section 3.3 (Newton's Method) and Appendix A.1 (Cholesky/LU Factorization)
 

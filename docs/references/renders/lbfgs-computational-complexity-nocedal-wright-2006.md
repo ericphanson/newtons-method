@@ -14,7 +14,7 @@ L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the 
 
 > Without considering the multiplication $H_k^0 q$, the two-loop recursion scheme requires $4mn$ multiplications; if $H_k^0$ is diagonal, then $n$ additional multiplications are needed. [...] To circumvent this problem, we store a modified version of $H_k$ implicitly, by storing a certain number (say, $m$) of the vector pairs $\{s_i, y_i\}$ used in the formulas (7.16)–(7.18). The product $H_k \nabla f_k$ can be obtained by performing a sequence of inner products and vector summations involving $\nabla f_k$ and the pairs $\{s_i, y_i\}$.
 
-**Pages:** 177-178, 197-198
+**Pages:** 157-158, 177-178
 
 ## Reader Notes
 

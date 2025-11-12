@@ -14,7 +14,7 @@ The BFGS update formula maintains positive definiteness and satisfies the secant
 
 > The update formula for $B_k$ is obtained by simply applying the Sherman–Morrison–Woodbury formula (A.28) to (6.17) to obtain $B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}$ where $s_k = x_{k+1} - x_k = \alpha_k p_k$ and $y_k = \nabla f_{k+1} - \nabla f_k$.
 
-**Pages:** 136-140
+**Pages:** 116-120
 
 **Theorem/Result:** Equation (6.19)
 
