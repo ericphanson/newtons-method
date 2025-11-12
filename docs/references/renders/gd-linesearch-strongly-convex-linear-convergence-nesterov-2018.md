@@ -14,7 +14,7 @@ For $\mu$-strongly convex, $L$-smooth functions (locally, near a strict local mi
 
 > Theorem 1.2.4 Let the function $f(\cdot)$ satisfy our assumptions and let the starting point $x_0$ be close enough to a strict local minimum $x^*$: $r_0 = \|x_0 - x^*\| < \bar{r} = 2\mu/M$. Then the Gradient Method with step size $h^*_k = 2/(L+\mu)$ converges as follows: $\|x_k - x^*\| \leq \frac{\bar{r}r_0}{\bar{r}-r_0}\left(1 - \frac{2\mu}{L+3\mu}\right)^k$. This type of rate of convergence is called linear.
 
-**Pages:** 33-35
+**Pages:** 28-30, 33-35
 
 **Theorem/Result:** Theorem 1.2.4
 

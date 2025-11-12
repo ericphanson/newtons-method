@@ -14,7 +14,7 @@ H. H. Rosenbrock. *An Automatic Method for Finding the Greatest or Least Value o
 
 > f(x,y) = 100(y - x²)² + (1 - x)²
 
-**Pages:** 1-10
+**Pages:** 1, 4
 
 ## Reader Notes
 

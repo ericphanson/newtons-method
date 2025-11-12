@@ -14,7 +14,7 @@ For convex, L-smooth functions, gradient descent with Armijo line search achieve
 
 > The Armijo rule: Find $x_{k+1} = x_k - h\nabla f(x_k)$ with $h > 0$ such that $\alpha\langle\nabla f(x_k), x_k - x_{k+1}\rangle \leq f(x_k) - f(x_{k+1})$, $\beta\langle\nabla f(x_k), x_k - x_{k+1}\rangle \geq f(x_k) - f(x_{k+1})$, where $0 < \alpha < \beta < 1$ are some fixed parameters. [...] Thus, we have proved that in all cases we have $f(x_k) - f(x_{k+1}) \geq \frac{\omega}{L} \|\nabla f(x_k)\|^2$, where $\omega$ is some positive constant. [...] For the Armijo rule, $f(x_k) - f(x_{k+1}) \geq \frac{2}{L}\alpha(1-\beta) \|\nabla f(x_k)\|^2$
 
-**Pages:** 8-10, 61
+**Pages:** 28-30, 81
 
 **Theorem/Result:** Equation (1.2.20) with Corollary 2.1.2
 
@@ -57,6 +57,8 @@ $$
 ## Reader Notes
 
 The Armijo line search rule (also called backtracking line search) finds a step size $h_k$ at each iteration that satisfies two conditions: sufficient decrease $f(x_k) - f(x_{k+1}) \geq \alpha h_k \|\nabla f(x_k)\|^2$ and an upper bound $f(x_k) - f(x_{k+1}) \leq \beta h_k \|\nabla f(x_k)\|^2$, where $0 < \alpha < \beta < 1$ are parameters (typically $\alpha \approx 0.3$, $\beta \approx 0.7$). Nesterov shows (pages 28-30) that for smooth functions ($f \in C_L^{1,1}$), the Armijo rule guarantees a step size of at least $h_k \geq \frac{2}{L}(1-\beta)$, yielding the descent inequality $f(x_k) - f(x_{k+1}) \geq \frac{2\alpha(1-\beta)}{L} \|\nabla f(x_k)\|^2$. This is the same type of inequality as with fixed step size $h = \frac{2\alpha}{L}$ (equation on page 30), showing that line search achieves comparable per-iteration progress. For convex smooth functions, this descent inequality leads to $O(1/k)$ convergence by the same argument as Corollary 2.1.2: summing over iterations gives $f(x_k) - f^* \leq \frac{L\|x_0-x^*\|^2}{2\omega(k+1)}$. The key advantage of line search is **automatic step size selection**: it adapts to the local smoothness without requiring prior knowledge of $L$, achieving near-optimal convergence constants in practice.
+
+NOTATION: Nesterov uses parentheses notation (∇f, x) for inner products, but the extracted formula uses angle bracket notation ⟨∇f, x⟩. These are mathematically equivalent.
 
 ## Internal Notes
 

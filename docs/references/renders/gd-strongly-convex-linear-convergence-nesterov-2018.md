@@ -14,7 +14,7 @@ Gradient descent with fixed step size achieves linear convergence to the global 
 
 > If $f \in \mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $0 < h \leq \frac{2}{\mu+L}$, then the Gradient Method generates a sequence $\{x_k\}$ such that $\|x_k - x^*\|^2 \leq \left(1 - \frac{2h\mu L}{\mu+L}\right)^k \|x_0 - x^*\|^2$
 
-**Pages:** 81-82
+**Pages:** 73-74, 81-82
 
 **Theorem/Result:** Theorem 2.1.15
 

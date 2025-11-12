@@ -14,7 +14,7 @@ For L-smooth functions, Armijo backtracking with geometric step reduction $\alph
 
 > Algorithm 3.1 (Backtracking Line Search). Choose $\bar{\alpha} > 0$, $\rho \in (0, 1)$, $c \in (0, 1)$; Set $\alpha \leftarrow \bar{\alpha}$; repeat until $f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k$, $\alpha \leftarrow \rho\alpha$; end (repeat). Terminate with $\alpha_k = \alpha$. [...] An acceptable step length will be found after a finite number of trials, because $\alpha_k$ will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3).
 
-**Pages:** 17, 36-37
+**Pages:** 17, 32-33, 36-37
 
 **Theorem/Result:** Algorithm 3.1 (Backtracking Line Search)
 

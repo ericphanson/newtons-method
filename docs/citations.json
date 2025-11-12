@@ -87,7 +87,7 @@
   "citations": {
     "gd-strongly-convex-linear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "81-82",
+      "pages": "73-74, 81-82",
       "theorem": "Theorem 2.1.15",
       "claim": "Gradient descent with fixed step size achieves linear convergence to the global minimum on strongly convex smooth functions when $0 < \\alpha \\leq 2/(L+\\mu)$",
       "quote": "If $f \\in \\mathscr{S}_{\\mu,L}^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{\\mu+L}$, then the Gradient Method generates a sequence $\\{x_k\\}$ such that $\\|x_k - x^*\\|^2 \\leq \\left(1 - \\frac{2h\\mu L}{\\mu+L}\\right)^k \\|x_0 - x^*\\|^2$",
@@ -116,7 +116,7 @@
           "equation": ""
         }
       ],
-      "pdfPages": "101-102"
+      "pdfPages": "93-94, 101-102"
     },
     "nesterov-accelerated-optimal-rate-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -162,10 +162,10 @@
     },
     "gd-convex-sublinear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "60-61",
+      "pages": "62, 80-81",
       "theorem": "Theorem 2.1.14 and Corollary 2.1.2",
-      "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \\alpha \\leq 2/L$",
-      "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq \\frac{2}{L}$. Then the Gradient Method generates a sequence of points $\\{x_k\\}$ with function values satisfying the inequality $f(x_k) - f^* \\leq \\frac{2L(f(x_0)-f^*)\\|x_0-x^*\\|^2}{2L\\|x_0-x^*\\|^2+k\\cdot(f(x_0)-f^*)}, k \\geq 0$. [Corollary 2.1.2] If $h = \\frac{1}{L}$ and $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, then $f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}$.",
+      "claim": "Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \\alpha < 2/L$",
+      "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h < \\frac{2}{L}$. Then the Gradient Method generates a sequence of points $\\{x_k\\}$ with function values satisfying the inequality $f(x_k) - f^* \\leq \\frac{2L(f(x_0)-f^*)\\|x_0-x^*\\|^2}{2L\\|x_0-x^*\\|^2+k\\cdot(f(x_0)-f^*)}, k \\geq 0$. [Corollary 2.1.2] If $h = \\frac{1}{L}$ and $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$, then $f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}$.",
       "notes": "Internal: Used in GdFixedTab to explain convex (non-strongly) convergence. This is the 2018 edition update of the 2004 result, using calligraphic notation $\\mathscr{F}_L^{1,1}$ instead of $F_L^{1,1}$. The step size bound allows equality ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$) in the 2004 edition. This is the $\\mu=0$ case compared to Theorem 2.1.15. Theorem 2.1.14 provides a general convergence bound; Corollary 2.1.2 gives the cleaner $O(1/k)$ rate with optimal step size.",
       "readerNotes": "The notation $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (see Definition 2.1.2 on page 62). With optimal step size $\\alpha = 1/L$, the convergence rate is $O(1/k)$, which is sublinear convergence. Note: Nesterov uses $h$ for step size in the theorem statement; here we use $\\alpha$. This is much slower than the exponentially fast convergence for strongly convex functions (Theorem 2.1.15, with step size bound $2/(L+\\mu)$) - without strong convexity, gradient descent loses the geometric convergence rate and can only guarantee polynomial convergence.",
       "proofPages": [
@@ -193,11 +193,11 @@
           ]
         }
       ],
-      "pdfPages": "80-81"
+      "pdfPages": "82, 100-101"
     },
     "gd-smooth-descent-condition-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "61",
+      "pages": "39-40, 42, 60-63",
       "theorem": "Theorem 2.1.14",
       "claim": "For smooth convex functions (Lipschitz continuous gradient with constant $L$), gradient descent with step size $0 < h \\leq 2/L$ converges to an optimal point. The proof establishes monotonic descent: $f(x_{k+1}) \\leq f(x_k) - h(1 - \\frac{hL}{2})\\|\\nabla f(x_k)\\|^2$, which guarantees strict descent $f(x_{k+1}) < f(x_k)$ when $\\nabla f(x_k) \\neq 0$ and $h < 2/L$.",
       "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq 2/L$. Then the Gradient Method generates a sequence $\\{x_k\\}$, which converges to some optimal point $x^*$.",
@@ -218,11 +218,11 @@
       "usedIn": [
         "GdFixedTab"
       ],
-      "pdfPages": "81"
+      "pdfPages": "59-60, 62, 80-83"
     },
     "gd-descent-lemma-quadratic-upper-bound-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "4-6",
+      "pages": "24-26",
       "lemma": "Lemma 1.2.3",
       "claim": "The quadratic upper bound for L-smooth functions: any function with Lipschitz continuous gradient can be upper-bounded by a quadratic approximation",
       "quote": "Let $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Then, for any $x, y$ from $\\mathbb{R}^n$, we have $|f(y) - f(x) - \\langle \\nabla f(x), y - x \\rangle| \\leq \\frac{L}{2} \\|y - x\\|^2$. [...] Geometrically, we have the following picture. Consider a function $f \\in C_L^{1,1}(\\mathbb{R}^n)$. Let us fix a point $x_0 \\in \\mathbb{R}^n$, and define two quadratic functions $\\phi_1(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle - \\frac{L}{2} \\|x - x_0\\|^2$, $\\phi_2(x) = f(x_0) + \\langle \\nabla f(x_0), x - x_0 \\rangle + \\frac{L}{2} \\|x - x_0\\|^2$. Then the graph of the function $f$ lies between the graphs of $\\phi_1$ and $\\phi_2$: $\\phi_1(x) \\leq f(x) \\leq \\phi_2(x)$, $\\forall x \\in \\mathbb{R}^n$.",
@@ -239,7 +239,7 @@
       "usedIn": [
         "GdFixedTab"
       ],
-      "pdfPages": "24-26"
+      "pdfPages": "44-46"
     },
     "condition-number-definition-nesterov-2018": {
       "reference": "nesterov-2018",
@@ -264,12 +264,12 @@
     },
     "gd-linesearch-convex-sublinear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "8-10, 61",
+      "pages": "28-30, 81",
       "theorem": "Equation (1.2.20) with Corollary 2.1.2",
       "claim": "For convex, L-smooth functions, gradient descent with Armijo line search achieves sublinear convergence: $f(w_k) - f^* \\leq O(L\\|w_0 - w^*\\|^2/k)$. Line search automatically adapts the step size to achieve near-optimal constants without requiring knowledge of $L$",
       "quote": "The Armijo rule: Find $x_{k+1} = x_k - h\\nabla f(x_k)$ with $h > 0$ such that $\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1})$, $\\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1})$, where $0 < \\alpha < \\beta < 1$ are some fixed parameters. [...] Thus, we have proved that in all cases we have $f(x_k) - f(x_{k+1}) \\geq \\frac{\\omega}{L} \\|\\nabla f(x_k)\\|^2$, where $\\omega$ is some positive constant. [...] For the Armijo rule, $f(x_k) - f(x_{k+1}) \\geq \\frac{2}{L}\\alpha(1-\\beta) \\|\\nabla f(x_k)\\|^2$",
       "notes": "Internal: Used in GdLineSearchTab to show that line search achieves the same O(1/k) convergence rate as fixed step size for convex smooth functions, but without requiring knowledge of L. The key insight from equation (1.2.20) is that all step size strategies (constant, full relaxation, Armijo) satisfy the same type of descent inequality: $f(x_k) - f(x_{k+1}) \\geq \\frac{\\omega}{L} \\|\\nabla f(x_k)\\|^2$ for some positive constant $\\omega$. For Armijo rule with parameters $\\alpha, \\beta \\in (0,1)$, we get $h_k \\geq \\frac{2}{L}(1-\\beta)$ and thus $\\omega = 2\\alpha(1-\\beta)$. Applying the same argument as Corollary 2.1.2 (which uses the descent inequality for convex functions), this gives the O(1/k) rate. The advantage of line search is that it automatically finds a good step size without knowing L in advance, while achieving comparable convergence constants to the optimal fixed step size $h = 1/L$.",
-      "readerNotes": "The Armijo line search rule (also called backtracking line search) finds a step size $h_k$ at each iteration that satisfies two conditions: sufficient decrease $f(x_k) - f(x_{k+1}) \\geq \\alpha h_k \\|\\nabla f(x_k)\\|^2$ and an upper bound $f(x_k) - f(x_{k+1}) \\leq \\beta h_k \\|\\nabla f(x_k)\\|^2$, where $0 < \\alpha < \\beta < 1$ are parameters (typically $\\alpha \\approx 0.3$, $\\beta \\approx 0.7$). Nesterov shows (pages 28-30) that for smooth functions ($f \\in C_L^{1,1}$), the Armijo rule guarantees a step size of at least $h_k \\geq \\frac{2}{L}(1-\\beta)$, yielding the descent inequality $f(x_k) - f(x_{k+1}) \\geq \\frac{2\\alpha(1-\\beta)}{L} \\|\\nabla f(x_k)\\|^2$. This is the same type of inequality as with fixed step size $h = \\frac{2\\alpha}{L}$ (equation on page 30), showing that line search achieves comparable per-iteration progress. For convex smooth functions, this descent inequality leads to $O(1/k)$ convergence by the same argument as Corollary 2.1.2: summing over iterations gives $f(x_k) - f^* \\leq \\frac{L\\|x_0-x^*\\|^2}{2\\omega(k+1)}$. The key advantage of line search is **automatic step size selection**: it adapts to the local smoothness without requiring prior knowledge of $L$, achieving near-optimal convergence constants in practice.",
+      "readerNotes": "The Armijo line search rule (also called backtracking line search) finds a step size $h_k$ at each iteration that satisfies two conditions: sufficient decrease $f(x_k) - f(x_{k+1}) \\geq \\alpha h_k \\|\\nabla f(x_k)\\|^2$ and an upper bound $f(x_k) - f(x_{k+1}) \\leq \\beta h_k \\|\\nabla f(x_k)\\|^2$, where $0 < \\alpha < \\beta < 1$ are parameters (typically $\\alpha \\approx 0.3$, $\\beta \\approx 0.7$). Nesterov shows (pages 28-30) that for smooth functions ($f \\in C_L^{1,1}$), the Armijo rule guarantees a step size of at least $h_k \\geq \\frac{2}{L}(1-\\beta)$, yielding the descent inequality $f(x_k) - f(x_{k+1}) \\geq \\frac{2\\alpha(1-\\beta)}{L} \\|\\nabla f(x_k)\\|^2$. This is the same type of inequality as with fixed step size $h = \\frac{2\\alpha}{L}$ (equation on page 30), showing that line search achieves comparable per-iteration progress. For convex smooth functions, this descent inequality leads to $O(1/k)$ convergence by the same argument as Corollary 2.1.2: summing over iterations gives $f(x_k) - f^* \\leq \\frac{L\\|x_0-x^*\\|^2}{2\\omega(k+1)}$. The key advantage of line search is **automatic step size selection**: it adapts to the local smoothness without requiring prior knowledge of $L$, achieving near-optimal convergence constants in practice.\n\nNOTATION: Nesterov uses parentheses notation (∇f, x) for inner products, but the extracted formula uses angle bracket notation ⟨∇f, x⟩. These are mathematically equivalent.",
       "proofPages": [
         "docs/references/extracted-pages/lectures_on_convex_optimization_page_0048.png",
         "docs/references/extracted-pages/lectures_on_convex_optimization_page_0049.png",
@@ -297,11 +297,11 @@
           ]
         }
       ],
-      "pdfPages": "28-30, 81"
+      "pdfPages": "48-50, 101"
     },
     "wolfe-conditions-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "13-16",
+      "pages": "32-36",
       "theorem": "Equations (3.6) and (3.7)",
       "claim": "The Wolfe conditions combine Armijo's sufficient decrease $f(x_k + \\alpha p_k) \\leq f(x_k) + c_1\\alpha\\nabla f_k^T p_k$ with a curvature condition $\\nabla f(x_k + \\alpha p_k)^T p_k \\geq c_2\\nabla f_k^T p_k$ (where $0 < c_1 < c_2 < 1$) to ensure steps are neither too small nor too large",
       "quote": "The sufficient decrease and curvature conditions are known collectively as the Wolfe conditions. We illustrate them in Figure 3.5 and restate them here for future reference: $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $\\nabla f(x_k + \\alpha_k p_k)^T p_k \\geq c_2 \\nabla f_k^T p_k$, with $0 < c_1 < c_2 < 1$. [...] The strong Wolfe conditions require $\\alpha_k$ to satisfy $f(x_k + \\alpha_k p_k) \\leq f(x_k) + c_1 \\alpha_k \\nabla f_k^T p_k$, $|\\nabla f(x_k + \\alpha_k p_k)^T p_k| \\leq c_2 |\\nabla f_k^T p_k|$, with $0 < c_1 < c_2 < 1$.",
@@ -320,11 +320,11 @@
       "usedIn": [
         "GdLineSearchTab"
       ],
-      "pdfPages": "33-36"
+      "pdfPages": "52-56"
     },
     "armijo-backtracking-termination-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "17, 36-37",
+      "pages": "17, 32-33, 36-37",
       "theorem": "Algorithm 3.1 (Backtracking Line Search)",
       "claim": "For L-smooth functions, Armijo backtracking with geometric step reduction $\\alpha \\leftarrow \\tau\\alpha$ (where $\\tau \\in (0,1)$) terminates in finite steps. The backtracking procedure will find an acceptable step length after a finite number of trials.",
       "quote": "Algorithm 3.1 (Backtracking Line Search). Choose $\\bar{\\alpha} > 0$, $\\rho \\in (0, 1)$, $c \\in (0, 1)$; Set $\\alpha \\leftarrow \\bar{\\alpha}$; repeat until $f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k$, $\\alpha \\leftarrow \\rho\\alpha$; end (repeat). Terminate with $\\alpha_k = \\alpha$. [...] An acceptable step length will be found after a finite number of trials, because $\\alpha_k$ will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3).",
@@ -343,11 +343,11 @@
       "usedIn": [
         "GdLineSearchTab"
       ],
-      "pdfPages": "37, 56-57"
+      "pdfPages": "37, 52-53, 56-57"
     },
     "gd-linesearch-strongly-convex-linear-convergence-nesterov-2018": {
       "reference": "nesterov-2018",
-      "pages": "33-35",
+      "pages": "28-30, 33-35",
       "theorem": "Theorem 1.2.4",
       "claim": "For $\\mu$-strongly convex, $L$-smooth functions (locally, near a strict local minimum), gradient descent with optimal step size $h^* = 2/(L+\\mu)$ achieves linear convergence: $\\|x_k - x^*\\| \\leq C(1 - 2\\mu/(L+3\\mu))^k$ where the convergence rate $\\rho = 1 - 2\\mu/(L+3\\mu) < 1$ depends on the condition number $Q = L/\\mu$. The constant $C = \\bar{r}r_0/(\\bar{r}-r_0)$ depends on how close the initial point is to the local minimum.",
       "quote": "Theorem 1.2.4 Let the function $f(\\cdot)$ satisfy our assumptions and let the starting point $x_0$ be close enough to a strict local minimum $x^*$: $r_0 = \\|x_0 - x^*\\| < \\bar{r} = 2\\mu/M$. Then the Gradient Method with step size $h^*_k = 2/(L+\\mu)$ converges as follows: $\\|x_k - x^*\\| \\leq \\frac{\\bar{r}r_0}{\\bar{r}-r_0}\\left(1 - \\frac{2\\mu}{L+3\\mu}\\right)^k$. This type of rate of convergence is called linear.",
@@ -378,11 +378,11 @@
           "equation": ""
         }
       ],
-      "pdfPages": "53-55"
+      "pdfPages": "48-50, 53-55"
     },
     "gd-linesearch-strongly-convex-linear-convergence-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "22-24",
+      "pages": "42-44",
       "theorem": "Theorem 3.3 and Theorem 3.4",
       "claim": "For strongly convex quadratic functions and general smooth strongly convex functions, steepest descent with exact line search achieves linear convergence with rate determined by the condition number: $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$ where $\\kappa(Q) = \\lambda_n/\\lambda_1$ is the condition number",
       "quote": "Theorem 3.3. When the steepest descent method with exact line searches is applied to the strongly convex quadratic function $f(x) = \\frac{1}{2}x^T Q x - b^T x$, the error norm satisfies $\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2$, where $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $Q$. [...] Theorem 3.4. Suppose that $f : \\mathbb{R}^n \\to \\mathbb{R}$ is twice continuously differentiable, and that the iterates generated by the steepest-descent method with exact line searches converge to a point $x^*$ at which the Hessian matrix $\\nabla^2 f(x^*)$ is positive definite. Let $r$ be any scalar satisfying $r \\in [(\\lambda_n - \\lambda_1)/(\\lambda_n + \\lambda_1), 1]$, where $\\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $\\nabla^2 f(x^*)$. Then for all $k$ sufficiently large, we have $f(x_{k+1}) - f(x^*) \\leq r^2[f(x_k) - f(x^*)]$.",
@@ -399,11 +399,11 @@
       "usedIn": [
         "GdLineSearchTab"
       ],
-      "pdfPages": "42-44"
+      "pdfPages": "62-64"
     },
     "bfgs-superlinear-convergence-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
-      "pages": "137-140, 156",
+      "pages": "153-160, 176",
       "theorem": "Theorem 6.6",
       "claim": "BFGS (not L-BFGS) achieves superlinear convergence on strongly convex functions. L-BFGS achieves only linear convergence due to limited memory preventing full Hessian approximation",
       "quote": "Theorem 6.6. Suppose that $f$ is twice continuously differentiable and that the iterates generated by the BFGS algorithm converge to a minimizer $x^*$ at which Assumption 6.2 holds. Suppose also that (6.52) holds. Then $x_k$ converges to $x^*$ at a superlinear rate.",
@@ -426,7 +426,7 @@
       "usedIn": [
         "LbfgsTab"
       ],
-      "pdfPages": "157-160, 176"
+      "pdfPages": "173-180, 196"
     },
     "bfgs-update-formula-nocedal-wright-2006": {
       "reference": "nocedal-wright-2006",
@@ -524,7 +524,7 @@
     },
     "newton-convex-convergence": {
       "reference": "nesterov-2018",
-      "pages": "223-238",
+      "pages": "242-257",
       "theorem": "Theorem 4.1.2, Theorem 4.1.6, and Example 4.1.1",
       "claim": "For convex functions with Lipschitz continuous Hessian, Newton's method (with cubic regularization) converges to the global minimum. Specifically, the method finds stationary points satisfying $\\nabla f(x^*) = 0$ and $\\nabla^2 f(x^*) \\succeq 0$, which for convex functions are global minima.",
       "quote": "Theorem 4.1.2: Let the sequence $\\{x_i\\}$ be generated by method (4.1.16). Let us assume that for some $i \\geq 0$ the set $\\mathscr{L}(f(x_i))$ is bounded. Then there exists a limit $\\lim_{i\\to\\infty} f(x_i) = f^*$. The set $X^*$ of limit points of this sequence is non-empty. Moreover, this is a connected set such that for any $x^* \\in X^*$ we have $f(x^*) = f^*$, $\\nabla f(x^*) = 0$, $\\nabla^2 f(x^*) \\succeq 0$. [...] Example 4.1.1 (Convex Functions): Let $f$ be convex on $\\mathbb{R}^n$. Assume it achieves its minimum at point $x^*$. Then, for any $x \\in \\mathbb{R}^n$ with $\\|x - x^*\\| < R$, we have $f(x) - f(x^*) \\leq \\langle\\nabla f(x), x - x^*\\rangle \\leq \\|\\nabla f(x)\\| \\cdot R$. Thus, the function $f$ is a gradient dominated function of degree one. [...] Theorem 4.1.6: If $f(x_0) - f(x^*) \\leq \\gamma^2 \\hat{\\omega}$, then $f(x_k) - f(x^*) \\leq \\hat{\\omega} \\cdot \\frac{\\gamma^2}{(2 + k + \\frac{3}{2\\gamma})^2}$.",
@@ -554,7 +554,7 @@
       "usedIn": [
         "NewtonTab"
       ],
-      "pdfPages": "243-258"
+      "pdfPages": "262-277"
     },
     "newton-computational-complexity": {
       "reference": "nocedal-wright-2006",
@@ -580,7 +580,7 @@
     },
     "lbfgs-linear-convergence-liu-nocedal-1989": {
       "reference": "liu-nocedal-1989",
-      "pages": "19-22",
+      "pages": "20-23",
       "theorem": "Theorem 6.1",
       "claim": "L-BFGS converges R-linearly (not superlinearly) on uniformly convex problems. The rate of convergence is linear, not superlinear. The paper explicitly states that 'R-linear convergence is the best we can expect' from L-BFGS.",
       "quote": "In this section we show that the limited memory BFGS method is globally convergent on uniformly convex problems, and that its rate of convergence is R-linear... Then for any positive definite $B_0$, Algorithm 6.1 generates a sequence $\\{x_k\\}$ which converges to $x_*$. Moreover there is a constant $0 \\leq r < 1$ such that $f_k - f_* \\leq r^k[f_0 - f_*]$ which implies that $\\{x_k\\}$ converges R-linearly... R-linear convergence is the best we can expect.",
@@ -598,11 +598,11 @@
       "usedIn": [
         "AlgorithmExplainer"
       ],
-      "pdfPages": "20-23"
+      "pdfPages": "21-24"
     },
     "inexact-newton-superlinear-convergence": {
       "reference": "nocedal-wright-2006",
-      "pages": "145-149",
+      "pages": "165-169",
       "theorem": "Theorem 7.2",
       "claim": "Inexact Newton methods solve the Newton system $\\nabla^2 f_k p_k = -\\nabla f_k$ approximately using iterative methods like conjugate gradient, reducing computational cost from $O(d^3)$ to $O(d^2)$ or better while maintaining superlinear convergence with appropriate forcing sequences",
       "quote": "In this section, we describe techniques for obtaining approximations to $p_k^N$ that are inexpensive to calculate but are good search directions or steps. These approaches are based on solving (7.1) by using the conjugate gradient (CG) method (see Chapter 5) or the Lanczos method, with modifications to handle negative curvature in the Hessian $\\nabla^2 f_k$... The use of iterative methods for (7.1) spares us from concerns about the expense of a direct factorization of the Hessian $\\nabla^2 f_k$ and the fill-in that may occur during this process... Theorem 7.2: Suppose that the conditions of Theorem 7.1 hold, and assume that the iterates $\\{x_k\\}$ generated by the inexact Newton method converge to $x^*$. Then the rate of convergence is superlinear if $\\eta_k \\to 0$. If in addition, $\\nabla^2 f(x)$ is Lipschitz continuous for $x$ near $x^*$ and if $\\eta_k = O(\\|\\nabla f_k\\|)$, then the convergence is quadratic.",
@@ -621,11 +621,11 @@
       "usedIn": [
         "NewtonTab"
       ],
-      "pdfPages": "165-169"
+      "pdfPages": "185-189"
     },
     "rosenbrock-function-benchmark": {
       "reference": "rosenbrock-1960",
-      "pages": "1-10",
+      "pages": "1, 4",
       "quote": "f(x,y) = 100(y - x²)² + (1 - x)²",
       "claim": "",
       "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Rosenbrock function (also known as Rosenbrock's valley or banana function), a classic non-convex test problem for optimization algorithms. The function f(x,y) = (1-x)² + 100(y-x²)² (equivalently written as 100(y-x²)² + (1-x)²) appears in Table 1 on page 178 as a test example. The parameter 100 is the coefficient b that controls the steepness of the valley. This citation is for attribution only - no specific theorem or claim is being cited. The 'claim' field is intentionally empty for benchmark function attributions.",
@@ -641,11 +641,11 @@
       "verified": "2025-11-12",
       "verifiedBy": "adversarial-verification-agent-batch6-agent6",
       "verificationNotes": "ADVERSARIAL VERIFICATION: Extracted all 10 pages of the original 1960 paper. The Rosenbrock function f(x,y) = 100(y-x²)² + (1-x)² appears in Table 1 on page 178 (PDF page 4) as a test example for the optimization method. Added proofPages (page 1 for title/attribution, page 4 for function definition). Added quote showing the exact function form. Verified that the function form in the notes matches the actual paper (it does). Page numbers 175-184 are correct (printed page numbers match). The function definition is accurate.",
-      "pdfPages": "175-184"
+      "pdfPages": "1, 4"
     },
     "three-hump-camel-function-benchmark": {
       "reference": "branin-1972",
-      "pages": "1-19",
+      "pages": "17-18",
       "claim": "",
       "notes": "BENCHMARK FUNCTION ATTRIBUTION: This citation provides historical attribution for the Three-Hump Camel function, a multi-modal test problem introduced by F.H. Branin in this 1972 paper (Appendix C, Equation C15). Branin's original formulation defined a function with three MAXIMA. The standard Three-Hump Camel benchmark function negates this to create three MINIMA: f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y². The function has one global minimum at (0,0) with f=0 and two symmetric local minima. This citation is for attribution only - no specific theorem or claim is being cited.",
       "readerNotes": "The Three-Hump Camel function was introduced by F.H. Branin in 1972 as a test problem for algorithms designed to find multiple solutions. Note: Branin's original equation (C15) was formulated for finding MAXIMA; the standard benchmark version for minimization negates his function, resulting in three local MINIMA (one global at the origin and two symmetric local minima). The function is particularly useful for demonstrating basin of convergence and the challenges of multi-modal optimization.",
@@ -661,7 +661,7 @@
         "docs/references/extracted-pages/branin1972_page_0017.png",
         "docs/references/extracted-pages/branin1972_page_0018.png"
       ],
-      "pdfPages": "504-522"
+      "pdfPages": "17-18"
     }
   }
 }

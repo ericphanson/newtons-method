@@ -14,7 +14,7 @@ The Wolfe conditions combine Armijo's sufficient decrease $f(x_k + \alpha p_k) \
 
 > The sufficient decrease and curvature conditions are known collectively as the Wolfe conditions. We illustrate them in Figure 3.5 and restate them here for future reference: $f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k$, $\nabla f(x_k + \alpha_k p_k)^T p_k \geq c_2 \nabla f_k^T p_k$, with $0 < c_1 < c_2 < 1$. [...] The strong Wolfe conditions require $\alpha_k$ to satisfy $f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k$, $|\nabla f(x_k + \alpha_k p_k)^T p_k| \leq c_2 |\nabla f_k^T p_k|$, with $0 < c_1 < c_2 < 1$.
 
-**Pages:** 13-16
+**Pages:** 32-36
 
 **Theorem/Result:** Equations (3.6) and (3.7)
 

@@ -8,13 +8,13 @@ Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.
 
 ## Claim
 
-Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \alpha \leq 2/L$
+Gradient descent with fixed step size converges to the global minimum on convex smooth functions (possibly slowly with sublinear rate) when $0 < \alpha < 2/L$
 
 ## Quote
 
-> Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h \leq \frac{2}{L}$. Then the Gradient Method generates a sequence of points $\{x_k\}$ with function values satisfying the inequality $f(x_k) - f^* \leq \frac{2L(f(x_0)-f^*)\|x_0-x^*\|^2}{2L\|x_0-x^*\|^2+k\cdot(f(x_0)-f^*)}, k \geq 0$. [Corollary 2.1.2] If $h = \frac{1}{L}$ and $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$, then $f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}$.
+> Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h < \frac{2}{L}$. Then the Gradient Method generates a sequence of points $\{x_k\}$ with function values satisfying the inequality $f(x_k) - f^* \leq \frac{2L(f(x_0)-f^*)\|x_0-x^*\|^2}{2L\|x_0-x^*\|^2+k\cdot(f(x_0)-f^*)}, k \geq 0$. [Corollary 2.1.2] If $h = \frac{1}{L}$ and $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$, then $f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}$.
 
-**Pages:** 60-61
+**Pages:** 62, 80-81
 
 **Theorem/Result:** Theorem 2.1.14 and Corollary 2.1.2
 

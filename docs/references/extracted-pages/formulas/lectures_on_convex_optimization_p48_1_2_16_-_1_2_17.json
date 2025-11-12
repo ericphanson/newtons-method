@@ -31,7 +31,7 @@
     "dpi": 300
   },
   "latex": {
-    "formula": "\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1}), \\quad \\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1}))",
+    "formula": "\\alpha\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\leq f(x_k) - f(x_{k+1}), \\quad \\beta\\langle\\nabla f(x_k), x_k - x_{k+1}\\rangle \\geq f(x_k) - f(x_{k+1})",
     "extracted_by": "latex-extraction-agent",
     "extracted_date": "2025-11-12T18:01:00Z",
     "notes": "NOTATION ISSUE: Nesterov's book uses PARENTHESES for inner products: (∇f(x_k), x_k - x_{k+1}), but citation uses angle brackets \\langle\\rangle. The formulas are mathematically equivalent but notation differs. Citation also references equation (1.2.20) which is a separate descent inequality on page 50."

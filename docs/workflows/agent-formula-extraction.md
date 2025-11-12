@@ -1114,3 +1114,69 @@ Self-verify crop quality
 - [Citation Verification](citation-verification.md) - Verification procedures
 - [DPI Test Results](../logs/2025-11-12-dpi-test.md) - Empirical evidence for cropping approach (100% accuracy with crops)
 - [Citation Formula Verification Log](../logs/2025-11-12-citation-formula-verification.md) - Results from verifying top 5 citations
+
+## Safeguards to Prevent Errors
+
+### Page Number Consistency
+
+**CRITICAL**: When adding `proofPages` to a citation, you MUST update the `pages` and `pdfPages` fields to match.
+
+**Problem**: If `proofPages` shows different pages than `pages`/`pdfPages`, the citation references the wrong location.
+
+**Prevention**:
+
+1. **After extracting proofPages**, run the consistency checker:
+   ```bash
+   python3 scripts/verify-page-consistency.py
+   ```
+
+2. **If mismatches found**, fix automatically:
+   ```bash
+   python3 scripts/fix-page-numbers.py
+   ```
+
+3. **Verify the fixes** by regenerating reports:
+   ```bash
+   npx tsx scripts/render-citations.ts
+   ```
+
+### Quote and Formula Verification
+
+**When extracting formulas**, agents must verify:
+
+1. **Step size bounds**: Check for strict vs non-strict inequalities (< vs ≤)
+   - Theorem statement is authoritative
+   - Don't round strict inequalities to non-strict
+
+2. **Notation consistency**: 
+   - Use source notation (e.g., parentheses vs angle brackets for inner products)
+   - Document any notation changes in formula metadata
+
+3. **Formula completeness**:
+   - Check all terms, subscripts, superscripts
+   - Verify denominators aren't cut off in crops
+
+### Pre-Commit Checks
+
+Before committing changes to citations.json:
+
+```bash
+# 1. Check page consistency
+python3 scripts/verify-page-consistency.py
+
+# 2. Regenerate reports to verify formatting
+npx tsx scripts/render-citations.ts
+
+# 3. Review generated reports in docs/references/renders/
+```
+
+## Error Recovery
+
+If errors are found after the fact:
+
+1. **Identify source**: Check verification logs and agent reports
+2. **Fix root cause**: Update citations.json and formula metadata
+3. **Re-extract if needed**: Use correct page numbers
+4. **Regenerate**: Run render-citations.ts to update all reports
+5. **Document**: Add notes about what was fixed and why
+
