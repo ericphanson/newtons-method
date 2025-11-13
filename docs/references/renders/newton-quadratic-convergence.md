@@ -12,7 +12,7 @@ Newton's method achieves quadratic convergence on strongly convex functions with
 
 ## Quote
 
-> Suppose that $f$ is twice differentiable and that the Hessian $\nabla^2 f(x)$ is Lipschitz continuous in a neighborhood of a solution $x^*$ at which the sufficient conditions (Theorem 2.4) are satisfied. Consider the iteration $x_{k+1} = x_k + p_k$, where $p_k$ is given by (3.30). Then (i) if the starting point $x_0$ is sufficiently close to $x^*$, the sequence of iterates converges to $x^*$; (ii) the rate of convergence of $\{x_k\}$ is quadratic; and (iii) the sequence of gradient norms $\{\|\nabla f_k\|\}$ converges quadratically to zero.
+> Suppose that $f$ is twice differentiable and that the Hessian $\nabla^2 f(x)$ is Lipschitz continuous (see (A.42)) in a neighborhood of a solution $x^*$ at which the sufficient conditions (Theorem 2.4) are satisfied. Consider the iteration $x_{k+1} = x_k + p_k$, where $p_k$ is given by (3.30). Then (i) if the starting point $x_0$ is sufficiently close to $x^*$, the sequence of iterates converges to $x^*$; (ii) the rate of convergence of $\{x_k\}$ is quadratic; and (iii) the sequence of gradient norms $\{\|\nabla f_k\|\}$ converges quadratically to zero.
 
 **Pages:** 44-45
 

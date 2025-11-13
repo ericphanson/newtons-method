@@ -8,7 +8,7 @@ Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Spr
 
 ## Claim
 
-The BFGS method updates the Hessian approximation $B_k$ using a rank-two formula: $B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}$
+The BFGS method updates the Hessian approximation $B_k$ using a rank-two formula: $B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}$, where $s_k = x_{k+1} - x_k$ is the step and $y_k = \nabla f_{k+1} - \nabla f_k$ is the gradient change.
 
 ## Quote
 

@@ -8,7 +8,7 @@ Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Spr
 
 ## Claim
 
-For L-smooth functions, Armijo backtracking with geometric step reduction $\alpha \leftarrow \tau\alpha$ (where $\tau \in (0,1)$) terminates in finite steps. The backtracking procedure will find an acceptable step length after a finite number of trials.
+For L-smooth functions, Armijo backtracking with geometric step reduction $\alpha \leftarrow \rho\alpha$ (where $\rho \in (0,1)$) terminates in finite steps. The backtracking procedure will find an acceptable step length after a finite number of trials.
 
 ## Quote
 

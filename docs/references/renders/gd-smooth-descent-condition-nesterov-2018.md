@@ -8,13 +8,13 @@ Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.
 
 ## Claim
 
-For smooth convex functions (Lipschitz continuous gradient with constant $L$), gradient descent with step size $0 < h \leq 2/L$ converges to an optimal point. The proof establishes monotonic descent: $f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2$, which guarantees strict descent $f(x_{k+1}) < f(x_k)$ when $\nabla f(x_k) \neq 0$ and $h < 2/L$.
+For smooth convex functions (Lipschitz continuous gradient with constant $L$), gradient descent with step size $0 < h \leq 2/L$ converges to an optimal point. The proof establishes monotonic descent: $f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2$, which guarantees strict descent $f(x_{k+1}) < f(x_k)$ when $\nabla f(x_k) \neq 0$ and $h < 2/L$ (note: when $h = 2/L$ exactly, we still get non-strict descent).
 
 ## Quote
 
 > Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h \leq 2/L$. Then the Gradient Method generates a sequence $\{x_k\}$, which converges to some optimal point $x^*$.
 
-**Pages:** 39-40, 42, 60-63
+**Pages:** 80-83
 
 **Theorem/Result:** Theorem 2.1.14
 
@@ -57,7 +57,7 @@ Internal: Used in GdFixedTab to explain the sufficient condition for descent on 
 
 **Verified By:** adversarial-verification-agent-batch6-agent4
 
-**Verification Notes:** ADVERSARIAL VERIFICATION: Found claim-quote inconsistency. Original claim stated 'guarantees that f(w_{k+1}) < f(w_k)' (strict inequality) but Theorem 2.1.14 proves convergence with non-strict monotonic descent f(x_{k+1}) <= f(x_k). Corrected claim to accurately reflect theorem statement and proof (pages 82-83). Added proof pages 82-83. Quote is word-for-word accurate. Page numbers verified (book page 81 = PDF page 81). The descent property follows from Lemma 2.1.2 (page 82) which shows f(x_+) <= f(x) - (1/2L)||∇f(x)||^2. Note: Strict descent requires h < 2/L and ∇f ≠ 0; when h = 2/L or at stationary points, we get f(x_{k+1}) = f(x_k).
+**Verification Notes:** CRITICAL FIXES APPLIED (2025-11-13): (1) Corrected page numbers from incorrect '39-40, 42, 60-63' to correct '80-83' where Theorem 2.1.14 actually appears. (2) Verified quote matches Theorem 2.1.14 word-for-word on page 81. (3) Confirmed step size condition is '0 < h ≤ 2/L' (with ≤, not <) as stated in theorem. (4) Clarified that strict descent f(x_{k+1}) < f(x_k) requires h < 2/L AND ∇f ≠ 0; when h = 2/L exactly, we still get non-strict descent. The descent property follows from the proof on pages 82-83.
 
 ## Used In
 

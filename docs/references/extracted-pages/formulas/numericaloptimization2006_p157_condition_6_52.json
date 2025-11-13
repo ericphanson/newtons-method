@@ -31,16 +31,17 @@
     "dpi": 300
   },
   "latex": {
-    "formula": "\\sum_{k=0}^{\\infty} \\|\\mathbf{y}_k - \\mathbf{s}^T\\| < \\infty",
-    "extracted_by": null,
-    "extracted_date": null,
-    "notes": "Condition (6.52) requires that the sum of distances from iterates to minimizer converges, which is a regularity condition needed for superlinear convergence"
+    "formula": "\\sum_{k=0}^{\\infty} \\|x_k - x^*\\| < \\infty",
+    "extracted_by": "claude-code-critical-fix-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Condition (6.52) requires that the sum of distances from iterates to minimizer converges, which is a regularity condition needed for superlinear convergence. CORRECTED from wrong '\\sum ||y_k - s^T||' formula."
   },
   "verification": {
     "verified": true,
-    "verified_by": "adversarial-verification-agent-batch5-agent3",
-    "verified_date": "2025-11-12",
-    "issues": []
+    "verified_by": "claude-code-critical-fix-agent",
+    "verified_date": "2025-11-13",
+    "issues": [],
+    "notes": "CRITICAL FIX: Corrected LaTeX from wrong '\\sum ||y_k - s^T||' to correct '\\sum ||x_k - x*|| < ∞' based on visual verification of page 157"
   },
   "metadata": {
     "created_by": "agent",

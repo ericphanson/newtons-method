@@ -8,7 +8,7 @@ Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Spr
 
 ## Claim
 
-BFGS (not L-BFGS) achieves superlinear convergence on strongly convex functions. L-BFGS achieves only linear convergence due to limited memory preventing full Hessian approximation
+BFGS (not L-BFGS) achieves superlinear convergence when the iterates converge to a minimizer satisfying certain regularity conditions (Lipschitz continuous Hessian and $\sum_{k=0}^{\infty} \|x_k - x^*\| < \infty$). L-BFGS achieves only linear convergence due to limited memory preventing full Hessian approximation
 
 ## Quote
 
@@ -86,7 +86,7 @@ Internal: CRITICAL DISTINCTION - This theorem applies to full BFGS, NOT L-BFGS. 
 
 **Verified By:** adversarial-verification-agent-batch5-agent3
 
-**Verification Notes:** ADVERSARIAL VERIFICATION COMPLETED. Fixed critical page numbering errors: Changed pages from '177-180' (PDF pages) to '157-160, 176' (book pages). Added proof page for book page 176 (PDF page 196) containing the L-BFGS linear convergence statement. Verified quote is word-for-word accurate. The claim's distinction '(not L-BFGS)' is a valid inference from page 176 but not explicitly stated in Theorem 6.6 itself. Verified Assumption 6.2 (Lipschitz continuous Hessian) and condition (6.52) (Σ||x_k - x*|| < ∞). Usage in LbfgsTab is consistent with corrected citation.
+**Verification Notes:** ADVERSARIAL VERIFICATION COMPLETED. Fixed critical errors: (1) Removed incorrect 'strongly convex' claim - Theorem 6.6 does NOT require strong convexity, only twice continuous differentiability with Lipschitz continuous Hessian (Assumption 6.2) and condition (6.52). (2) Fixed formula LaTeX for condition (6.52) from wrong '\sum ||y_k - s^T||' to correct '\sum ||x_k - x*|| < ∞'. Changed pages from '177-180' (PDF pages) to '157-160, 176' (book pages). Verified quote is word-for-word accurate from page 158. The claim's distinction '(not L-BFGS)' is a valid inference from page 176.
 
 ## Used In
 

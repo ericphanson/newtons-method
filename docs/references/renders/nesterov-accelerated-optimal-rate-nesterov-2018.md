@@ -8,13 +8,13 @@ Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.
 
 ## Claim
 
-Nesterov's accelerated gradient method achieves the optimal convergence rate $O(1/k^2)$ for smooth convex functions, which is provably optimal among all first-order methods
+Nesterov's accelerated gradient method achieves the optimal convergence rate of order one over k-squared for smooth convex functions, which is provably optimal among all first-order methods
 
 ## Quote
 
 > Let us take in (2.2.7) $\gamma_0 = 3L + \mu$. Then this scheme generates a sequence $\{x_k\}_{k=0}^{\infty}$ such that $f(x_k) - f^* \leq \frac{2(4+q_f)L\|x_0-x^*\|^2}{3(k+1)^2}$. This means that method (2.2.7) is optimal for solving the unconstrained minimization problem (2.2.1) with $f \in \mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $\mu \geq 0$. If $\mu = 0$, then this method is optimal.
 
-**Pages:** 71-72, 82-94
+**Pages:** 71-72, 88-91
 
 **Theorem/Result:** Theorem 2.2.2, Theorem 2.1.7 (lower bound), Constant Step Scheme II (2.2.20) for μ=0, and Constant Step Scheme III (2.2.22) for μ>0
 
