@@ -476,7 +476,7 @@ export function AlgorithmExplainer() {
             <strong>Convergence rate:</strong> <GlossaryTooltip termKey="linear-convergence" /> on{' '}
             <GlossaryTooltip termKey="strongly-convex" />{' '}
             <GlossaryTooltip termKey="smooth" /> functions
-            <Citation citationKey="lbfgs-linear-convergence-liu-nocedal-1989" />.
+            <Citation citationKey="lbfgs-linear-convergence-nocedal-wright-2006" />.
             The memory parameter <InlineMath>M</InlineMath> affects the convergence constant but not the convergence order.
             Note: Full BFGS can achieve <GlossaryTooltip termKey="superlinear-convergence" />, but L-BFGS is limited to linear convergence
             due to limited memory.

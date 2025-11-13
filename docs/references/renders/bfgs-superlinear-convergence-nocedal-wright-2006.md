@@ -10,7 +10,7 @@ Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Spr
 
 ## Claim
 
-BFGS (not L-BFGS) achieves superlinear convergence when the iterates converge to a minimizer satisfying certain regularity conditions (Lipschitz continuous Hessian and $\sum_{k=0}^{\infty} \|x_k - x^*\| < \infty$). L-BFGS achieves only linear convergence due to limited memory preventing full Hessian approximation
+BFGS achieves superlinear convergence when the iterates converge to a minimizer satisfying certain regularity conditions: Lipschitz continuous Hessian (Assumption 6.2) and fast enough convergence such that $\sum_{k=1}^{\infty} \|x_k - x^*\| < \infty$ (condition 6.52)
 
 ## Quote
 
@@ -107,11 +107,11 @@ $$
 
 ## Reader Notes
 
-**Important:** This theorem establishes superlinear convergence for **full BFGS**, not L-BFGS. Nocedal & Wright (book page 176, Section 7.2) explicitly state that L-BFGS yields 'an acceptable (albeit **linear**) rate of convergence.' The distinction arises because L-BFGS uses limited memory (only the $M$ most recent correction pairs), preventing the Hessian approximation $B_k$ from fully converging to the true Hessian $\nabla^2 f(w^*)$. For L-BFGS in practice, the linear convergence rate is still effective, and the method's low memory requirements make it practical for large-scale problems where full BFGS would be infeasible.
+Theorem 6.6 establishes **superlinear convergence** for the BFGS quasi-Newton method under two key regularity conditions. **Assumption 6.2** requires the Hessian matrix to be Lipschitz continuous near the optimal point, meaning it doesn't change too rapidly: $\|G(x) - G(x^*)\| \leq L\|x - x^*\|$. **Condition (6.52)** requires the iterates to converge 'fast enough' that the sum of distances to the optimum is finite: $\sum_{k=1}^{\infty} \|x_k - x^*\| < \infty$. This second condition is automatically satisfied when convergence is faster than any geometric rate with ratio arbitrarily close to 1. Together, these conditions ensure BFGS achieves superlinear convergence, meaning the convergence rate improves as we get closer to the optimum.
 
 ## Internal Notes
 
-Internal: CRITICAL DISTINCTION - This theorem applies to full BFGS, NOT L-BFGS. Book page 176 (Section 7.2) explicitly states that L-BFGS yields 'an acceptable (albeit linear) rate of convergence.' The limited memory in L-BFGS prevents the Hessian approximation from fully converging to the true Hessian, degrading convergence from superlinear to linear. Used in LbfgsTab with this important caveat. Assumption 6.2 requires Lipschitz continuous Hessian at x*. Condition (6.52) requires sum of distances to converge: Σ||x_k - x*|| < ∞.
+Internal: Used in LbfgsTab to explain BFGS superlinear convergence. Theorem 6.6 establishes superlinear convergence under two key conditions: (1) Assumption 6.2 - Lipschitz continuous Hessian at x*, and (2) Condition (6.52) - fast enough convergence such that Σ||x_k - x*|| < ∞. Note: The summation in (6.52) starts at k=1, not k=0. For the contrast with L-BFGS linear convergence, see separate citation lbfgs-linear-convergence-nocedal-wright-2006.
 
 ## Verification
 
@@ -119,7 +119,7 @@ Internal: CRITICAL DISTINCTION - This theorem applies to full BFGS, NOT L-BFGS. 
 
 **Verified By:** adversarial-verification-agent-batch5-agent3
 
-**Verification Notes:** ADVERSARIAL VERIFICATION COMPLETED. Fixed critical errors: (1) Removed incorrect 'strongly convex' claim - Theorem 6.6 does NOT require strong convexity, only twice continuous differentiability with Lipschitz continuous Hessian (Assumption 6.2) and condition (6.52). (2) Fixed formula LaTeX for condition (6.52) from wrong '\sum ||y_k - s^T||' to correct '\sum ||x_k - x*|| < ∞'. Changed pages from '177-180' (PDF pages) to '157-160, 176' (book pages). Verified quote is word-for-word accurate from page 158. The claim's distinction '(not L-BFGS)' is a valid inference from page 176.
+**Verification Notes:** ADVERSARIAL VERIFICATION COMPLETED (2025-11-12). Fixed critical errors: (1) Removed incorrect 'strongly convex' claim - Theorem 6.6 does NOT require strong convexity, only twice continuous differentiability with Lipschitz continuous Hessian (Assumption 6.2) and condition (6.52). (2) Fixed formula LaTeX for condition (6.52) from wrong '\sum ||y_k - s^T||' to correct '\sum ||x_k - x*|| < ∞'. Changed pages from '177-180' (PDF pages) to '157-160, 176' (book pages). Verified quote is word-for-word accurate from page 158. UPDATE (2025-11-13): Removed L-BFGS references from claim - now covered by separate citation lbfgs-linear-convergence-nocedal-wright-2006. Added 3 formula images extracted at 300 DPI with verified LaTeX.
 
 ## Used In
 
