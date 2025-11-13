@@ -18,6 +18,31 @@ For smooth convex functions (Lipschitz continuous gradient with constant $L$), g
 
 **Theorem/Result:** Theorem 2.1.14
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Extracted LaTeX:**
+
+$$
+f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 The notation $\mathscr{F}_L^{1,1}(\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (the function class is defined in Section 2.1.1, pages 59-69; see Definition 2.1.2 on page 62 for convex functions). However, the descent property itself follows from the upper bound inequality for smooth functions (Lemma 1.2.3 on page 23), which holds for any function with Lipschitz continuous gradient, not just convex functions. The condition $\alpha \leq 2/L$ ensures that each gradient descent step decreases the function value. Note: Nesterov uses $h$ for step size; here we use $\alpha$. This is a more general result than convergence - it guarantees monotonic decrease at each step. The 2018 edition uses calligraphic script $\mathscr{F}$ for function classes instead of the regular $F$ used in the 2004 edition, and allows equality in the step size bound ($h \leq 2/L$) instead of strict inequality ($h < 2/L$).

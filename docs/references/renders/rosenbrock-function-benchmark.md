@@ -16,6 +16,31 @@ H. H. Rosenbrock. *An Automatic Method for Finding the Greatest or Least Value o
 
 **Pages:** 1, 4
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Extracted LaTeX:**
+
+$$
+f(x,y) = 100(y - x²)² + (1 - x)²
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x,y) = 100(y - x²)² + (1 - x)²
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 The Rosenbrock function, introduced by H.H. Rosenbrock in 1960, is one of the most famous benchmark functions for testing optimization algorithms. The function creates a narrow, curved valley (resembling a banana) where the global minimum is easy to find but difficult to converge to, making it ideal for demonstrating the challenges of non-convex optimization. The function is defined on variables x,y ranging from 0 to 1, with global minimum at (1,1).

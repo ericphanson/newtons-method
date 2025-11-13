@@ -18,6 +18,94 @@ Inexact Newton methods solve the Newton system $\nabla^2 f_k p_k = -\nabla f_k$ 
 
 **Theorem/Result:** Theorem 7.2
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Extracted LaTeX:**
+
+$$
+\eta_k \to 0
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\eta_k \to 0
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 2
+
+**Extracted LaTeX:**
+
+$$
+\eta_k = O(\|\nabla f_k\|)
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\eta_k = O(\|\nabla f_k\|)
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 3
+
+**Extracted LaTeX:**
+
+$$
+\|r_k\| \leq \eta_k \|\nabla f_k\|
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\|r_k\| \leq \eta_k \|\nabla f_k\|
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 4
+
+**Extracted LaTeX:**
+
+$$
+\eta_k = \min(0.5, \sqrt{\|\nabla f_k\|})
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\eta_k = \min(0.5, \sqrt{\|\nabla f_k\|})
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 Inexact Newton methods solve the Newton system $\nabla^2 f_k p_k = -\nabla f_k$ approximately rather than exactly. Instead of computing an exact factorization of the Hessian (which costs $O(d^3)$ operations), these methods use iterative linear solvers like conjugate gradient (CG) that terminate after achieving residual $\|r_k\| \leq \eta_k \|\nabla f_k\|$ for some tolerance $\eta_k \in (0,1)$. For sparse or structured problems, each CG iteration costs only $O(d^2)$ or even $O(d)$ operations (matrix-vector products), making the method practical for large-scale optimization. The forcing sequence $\{\eta_k\}$ controls the trade-off between per-iteration cost and convergence rate: (1) If $\eta_k \leq \eta < 1$ (constant), the method converges linearly (Theorem 7.1). (2) If $\eta_k \to 0$, the method converges superlinearly (Theorem 7.2). (3) If $\eta_k = O(\|\nabla f_k\|)$, the method converges quadratically (Theorem 7.2). A common practical choice is $\eta_k = \min(0.5, \sqrt{\|\nabla f_k\|})$ which achieves superlinear convergence while keeping early iterations cheap. The method can even be implemented in a 'Hessian-free' manner using finite differences to approximate Hessian-vector products $\nabla^2 f_k d \approx (\nabla f(x_k + hd) - \nabla f(x_k))/h$ (page 190, equation 7.10), requiring only gradient evaluations.

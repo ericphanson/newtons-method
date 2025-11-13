@@ -18,6 +18,37 @@ Newton's method achieves quadratic convergence on strongly convex functions with
 
 **Theorem/Result:** Theorem 3.5
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Theorem 3.5 (3.33)
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p65_equation_3_33](../extracted-pages/numericaloptimization2006_page_0065.png)
+
+**Extracted LaTeX:**
+
+$$
+\|x_{k+1} - x^*\| \leq \tilde{L}\|x_k - x^*\|^2
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\|x_{k+1} - x^*\| \leq \tilde{L}\|x_k - x^*\|^2
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p65_equation_3_33.json](../extracted-pages/numericaloptimization2006_page_0065.png)
+
+---
+
 ## Reader Notes
 
 Newton's method achieves quadratic convergence under three key conditions: (1) The Hessian $\nabla^2 f(x)$ must be Lipschitz continuous near the solution $x^*$, meaning $\|\nabla^2 f(x) - \nabla^2 f(y)\| \leq L\|x - y\|$ for some constant $L > 0$. This is stronger than just having a continuous Hessian. (2) The solution $x^*$ must satisfy second-order sufficient conditions: $\nabla f(x^*) = 0$ (first-order optimality) and $\nabla^2 f(x^*)$ is positive definite (second-order optimality). This means $x^*$ is a strict local minimum where the Hessian has all positive eigenvalues. (3) The starting point $x_0$ must be sufficiently close to $x^*$. The convergence rate is $\|x_{k+1} - x^*\| \leq \tilde{L}\|x_k - x^*\|^2$ where $\tilde{L} = L\|\nabla^2 f(x^*)^{-1}\|$, demonstrating that the error is squared at each iteration. This quadratic convergence means the number of correct digits roughly doubles at each step once the method is close enough to the solution. The Lipschitz continuous Hessian condition is crucial: it ensures the Hessian doesn't change too rapidly, allowing the quadratic model to be accurate. For strongly convex functions (where $\mu I \preceq \nabla^2 f(x) \preceq LI$ globally), these conditions are satisfied automatically once we're in the basin of attraction.

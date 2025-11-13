@@ -16,6 +16,52 @@ F. H. Branin. *Widely Convergent Method for Finding Multiple Solutions of Simult
 
 **Pages:** 17-18
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Extracted LaTeX:**
+
+$$
+f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 2
+
+**Extracted LaTeX:**
+
+$$
+f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 The Three-Hump Camel function was introduced by F.H. Branin in 1972 as a test problem for algorithms designed to find multiple solutions. Note: Branin's original equation (C15) was formulated for finding MAXIMA; the standard benchmark version for minimization negates his function, resulting in three local MINIMA (one global at the origin and two symmetric local minima). The function is particularly useful for demonstrating basin of convergence and the challenges of multi-modal optimization.

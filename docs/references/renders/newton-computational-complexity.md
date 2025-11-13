@@ -18,6 +18,94 @@ Solving the Newton system $H \cdot p = -\nabla f$ requires $O(d^3)$ operations u
 
 **Theorem/Result:** Section 3.3 (Newton's Method) and Appendix A.1 (Cholesky/LU Factorization)
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Extracted LaTeX:**
+
+$$
+$p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+$p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 2
+
+**Extracted LaTeX:**
+
+$$
+$2n^3/3$ floating-point operations
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+$2n^3/3$ floating-point operations
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 3
+
+**Extracted LaTeX:**
+
+$$
+$n^3/3$ operations
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+$n^3/3$ operations
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 4
+
+**Extracted LaTeX:**
+
+$$
+$A = LL^T$
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+$A = LL^T$
+```
+
+</details>
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 Newton's method computes the search direction by solving the linear system $H \cdot p = -\nabla f$ where $H = \nabla^2 f$ is the Hessian matrix (see equation 3.30 on page 64: $p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$). This requires solving a $d \times d$ linear system where $d$ is the number of optimization variables. For dense matrices, direct solution methods require $O(d^3)$ operations: **Gaussian elimination with LU decomposition** requires approximately $2d^3/3$ floating-point operations (page 627, Algorithm A.1), while **Cholesky factorization** (applicable when the Hessian is positive definite) requires about $d^3/3$ operations (page 628, Algorithm A.2). Both methods scale cubically with the problem dimension. In practice, once the factorization is computed, solving the system via forward- and back-substitution requires only $O(d^2)$ operations, so the dominant cost is the $O(d^3)$ factorization step. For large-scale problems, this cubic cost motivates the use of quasi-Newton methods (like BFGS or L-BFGS) which avoid computing and factorizing the full Hessian.

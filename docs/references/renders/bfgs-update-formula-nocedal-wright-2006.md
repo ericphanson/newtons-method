@@ -8,7 +8,7 @@ Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Spr
 
 ## Claim
 
-The BFGS update formula maintains positive definiteness and satisfies the secant equation $B_{k+1} s_k = y_k$
+The BFGS method updates the Hessian approximation $B_k$ using a rank-two formula: $B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}$
 
 ## Quote
 
@@ -63,7 +63,7 @@ Internal: This is the BFGS update formula (6.19) for the Hessian approximation $
 
 **Verified By:** claude-sonnet-4-5
 
-**Verification Notes:** CORRECTED (2025-11-13): Previous citation had CRITICAL ERRORS: (1) PAGE NUMBERS WRONG - listed pages 116-120 (PDF 136-140) which are Chapter 5 (Conjugate Gradient), but equation (6.19) is on page 140 (PDF 160) in Chapter 6 (Quasi-Newton). (2) COMPOSITE QUOTE - original quote included 'where s_k = x_{k+1} - x_k = \alpha_k p_k and y_k = \nabla f_{k+1} - \nabla f_k' but this text does NOT appear after equation (6.19); these definitions appear in Algorithm 6.1 earlier on the same page. CORRECTED QUOTE is now verbatim from source. Formula extraction verified against PDF page 160 (book page 140). The extracted formula image confirms equation (6.19) exactly matches the quote. All cross-references verified: equation (6.17) for H_k form appears on same page, equation (6.14) defines ρ_k. Updated proofPages to correct PDF page 160.
+**Verification Notes:** CORRECTED (2025-11-13): Previous citation had CRITICAL ERRORS: (1) PAGE NUMBERS WRONG - listed pages 116-120 (PDF 136-140) which are Chapter 5 (Conjugate Gradient), but equation (6.19) is on page 140 (PDF 160) in Chapter 6 (Quasi-Newton). (2) COMPOSITE QUOTE - original quote included 'where s_k = x_{k+1} - x_k = \alpha_k p_k and y_k = \nabla f_{k+1} - \nabla f_k' but this text does NOT appear after equation (6.19); these definitions appear in Algorithm 6.1 earlier on the same page. (3) CLAIM MISMATCH - original claim stated formula 'maintains positive definiteness and satisfies the secant equation' but the quote only gives the formula derivation, not proofs of those properties. CORRECTED: Quote is now verbatim from source. Claim now matches quote (formula derivation only). Formula extraction verified against PDF page 160 (book page 140). The extracted formula image confirms equation (6.19) exactly matches the quote. NOTE: Properties mentioned in readerNotes (secant equation 6.6, positive definiteness via curvature condition 6.7) need separate citations if we want to make claims about them. Updated proofPages to correct PDF page 160.
 
 ## Used In
 

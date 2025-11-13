@@ -18,6 +18,60 @@ BFGS (not L-BFGS) achieves superlinear convergence on strongly convex functions.
 
 **Theorem/Result:** Theorem 6.6
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p158_theorem_6_6](../extracted-pages/formulas/numericaloptimization2006_p158_theorem_6_6.png)
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 2
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p157_assumption_6_2](../extracted-pages/formulas/numericaloptimization2006_p157_assumption_6_2.png)
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 3
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p157_condition_6_52](../extracted-pages/formulas/numericaloptimization2006_p157_condition_6_52.png)
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 4
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p176_lbfgs_linear_convergence](../extracted-pages/formulas/numericaloptimization2006_p176_lbfgs_linear_convergence.png)
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 5
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p160_bfgs_update_formula_complete](../extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula_complete.png)
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 **Important:** This theorem establishes superlinear convergence for **full BFGS**, not L-BFGS. Nocedal & Wright (book page 176, Section 7.2) explicitly state that L-BFGS yields 'an acceptable (albeit **linear**) rate of convergence.' The distinction arises because L-BFGS uses limited memory (only the $M$ most recent correction pairs), preventing the Hessian approximation $B_k$ from fully converging to the true Hessian $\nabla^2 f(w^*)$. For L-BFGS in practice, the linear convergence rate is still effective, and the method's low memory requirements make it practical for large-scale problems where full BFGS would be infeasible.

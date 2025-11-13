@@ -16,6 +16,28 @@ L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the 
 
 **Pages:** 157-158, 177-178
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 2
+
+**Verification:** ❌ Not Verified
+
+---
+
+### Formula 3
+
+**Verification:** ❌ Not Verified
+
+---
+
 ## Reader Notes
 
 L-BFGS achieves its efficiency through compact storage: instead of storing a dense $d \times d$ approximate Hessian (requiring $O(d^2)$ memory), it stores only $M$ vector pairs $\{s_k, y_k\}$ of dimension $d$, requiring $O(Md)$ memory. The two-loop recursion (Algorithm 7.4) computes the search direction efficiently using these stored pairs. The algorithm performs two passes through the $M$ stored pairs, with each loop iteration performing $O(d)$ operations (inner products and vector additions), yielding $O(Md)$ total time per optimization iteration. The quote states that the recursion requires $4mn$ scalar multiplications (where $m = M$ and $n = d$), plus $n$ more if the initial approximation $H_k^0$ is diagonal.

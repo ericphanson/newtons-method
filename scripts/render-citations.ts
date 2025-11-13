@@ -17,13 +17,17 @@ interface Reference {
 }
 
 interface FormulaImage {
-  formula_id: string;
-  metadata_path: string;
-  image_path: string;
-  latex: string;
+  id: string;
+  formula_id?: string;
+  metadataPath?: string;
+  metadata_path?: string;
+  imagePath?: string;
+  image_path?: string;
+  latex?: string;
+  formula?: string;
   verified: boolean;
-  theorem: string;
-  equation: string;
+  theorem?: string;
+  equation?: string;
   issues?: string[];
 }
 
@@ -120,31 +124,35 @@ function renderCitation(citationId: string, citation: Citation, references: Reco
 
     citation.formulaImages.forEach((formulaImg, index) => {
       const num = index + 1;
+      const formulaId = formulaImg.id || formulaImg.formula_id;
+      const imagePath = formulaImg.imagePath || formulaImg.image_path;
+      const metadataPath = formulaImg.metadataPath || formulaImg.metadata_path;
+      const latex = formulaImg.latex || formulaImg.formula;
+
       md += `### Formula ${num}${formulaImg.theorem ? ` - ${formulaImg.theorem}` : ''}${formulaImg.equation ? ` ${formulaImg.equation}` : ''}\n\n`;
 
-      // Convert paths to relative from renders directory
-      const relativeImagePath = path.relative(
-        path.join(process.cwd(), 'docs/references/renders'),
-        path.join(process.cwd(), formulaImg.image_path)
-      );
+      // Convert paths to relative from renders directory (if paths exist)
+      if (imagePath) {
+        const relativeImagePath = path.relative(
+          path.join(process.cwd(), 'docs/references/renders'),
+          path.join(process.cwd(), imagePath)
+        );
 
-      const relativeMetadataPath = path.relative(
-        path.join(process.cwd(), 'docs/references/renders'),
-        path.join(process.cwd(), formulaImg.metadata_path)
-      );
-
-      // Show cropped formula image
-      md += `**Cropped Formula Image:**\n\n`;
-      md += `![${formulaImg.formula_id}](${relativeImagePath})\n\n`;
+        // Show cropped formula image
+        md += `**Cropped Formula Image:**\n\n`;
+        md += `![${formulaId}](${relativeImagePath})\n\n`;
+      }
 
       // Show extracted LaTeX (rendered as math)
-      md += `**Extracted LaTeX:**\n\n`;
-      md += `$$\n${formulaImg.latex}\n$$\n\n`;
+      if (latex) {
+        md += `**Extracted LaTeX:**\n\n`;
+        md += `$$\n${latex}\n$$\n\n`;
 
-      // Show raw LaTeX source
-      md += `<details>\n<summary>LaTeX Source</summary>\n\n`;
-      md += `\`\`\`latex\n${formulaImg.latex}\n\`\`\`\n\n`;
-      md += `</details>\n\n`;
+        // Show raw LaTeX source
+        md += `<details>\n<summary>LaTeX Source</summary>\n\n`;
+        md += `\`\`\`latex\n${latex}\n\`\`\`\n\n`;
+        md += `</details>\n\n`;
+      }
 
       // Show verification status
       md += `**Verification:** ${formulaImg.verified ? '✅ Verified' : '❌ Not Verified'}\n\n`;
@@ -158,8 +166,15 @@ function renderCitation(citationId: string, citation: Citation, references: Reco
         md += `\n`;
       }
 
-      // Link to metadata
-      md += `**Metadata:** [${formulaImg.formula_id}.json](${relativeMetadataPath})\n\n`;
+      // Link to metadata (if path exists)
+      if (metadataPath) {
+        const relativeMetadataPath = path.relative(
+          path.join(process.cwd(), 'docs/references/renders'),
+          path.join(process.cwd(), metadataPath)
+        );
+        md += `**Metadata:** [${formulaId}.json](${relativeMetadataPath})\n\n`;
+      }
+
       md += `---\n\n`;
     });
   }
