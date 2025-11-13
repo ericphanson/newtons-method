@@ -18,6 +18,37 @@ The condition number $Q = L/\mu$ for strongly convex smooth functions bounds the
 
 **Theorem/Result:** Definition on page 97 (following Theorem 2.1.12), Theorem 2.1.11, and Example 2.1.2
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Condition number definition Q_f = L/μ
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p97_condition_number_definition](../extracted-pages/formulas/lectures_on_convex_optimization_p97_condition_number_definition.png)
+
+**Extracted LaTeX:**
+
+$$
+\langle \nabla f(x) - \nabla f(y), x - y \rangle \geq \mu \|x - y\|^2, \quad \|\nabla f(x) - \nabla f(y)\| \leq L \|x - y\|, \quad Q_f = L/\mu \geq 1
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\langle \nabla f(x) - \nabla f(y), x - y \rangle \geq \mu \|x - y\|^2, \quad \|\nabla f(x) - \nabla f(y)\| \leq L \|x - y\|, \quad Q_f = L/\mu \geq 1
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p97_condition_number_definition.json](../extracted-pages/formulas/lectures_on_convex_optimization_p97_condition_number_definition.json)
+
+---
+
 ## Reader Notes
 
 For smooth strongly convex functions (class $\mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$), the condition number can be defined two equivalent ways: (1) $Q = L/\mu$ where $L$ is the Lipschitz constant of the gradient and $\mu$ is the strong convexity parameter, or (2) $\kappa = \lambda_{\text{max}}/\lambda_{\text{min}}$ where these are the largest and smallest eigenvalues of the Hessian. These are equivalent because Theorem 2.1.11 (pages 95-96) shows that $f \in \mathscr{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ if and only if $\mu I \preceq \nabla^2 f(x) \preceq L I$ for all $x$, meaning all Hessian eigenvalues satisfy $\mu \leq \lambda_i \leq L$. For quadratic functions $f(x) = \frac{1}{2}x^T A x$, the Hessian is constant ($\nabla^2 f = A$), so $\mu = \lambda_{\text{min}}(A)$ and $L = \lambda_{\text{max}}(A)$ exactly. For general strongly convex functions, these bounds hold throughout the domain, establishing the equivalence.

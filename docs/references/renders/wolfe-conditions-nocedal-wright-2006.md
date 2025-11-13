@@ -18,6 +18,64 @@ The Wolfe conditions combine Armijo's sufficient decrease $f(x_k + \alpha p_k) \
 
 **Theorem/Result:** Equations (3.6) and (3.7)
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Wolfe conditions (3.6a)-(3.6b)
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p54_wolfe_conditions](../extracted-pages/formulas/numericaloptimization2006_p54_wolfe_conditions.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k, \quad \nabla f(x_k + \alpha_k p_k)^T p_k \geq c_2 \nabla f_k^T p_k
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k, \quad \nabla f(x_k + \alpha_k p_k)^T p_k \geq c_2 \nabla f_k^T p_k
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p54_wolfe_conditions.json](../extracted-pages/formulas/numericaloptimization2006_p54_wolfe_conditions.json)
+
+---
+
+### Formula 2 - Strong Wolfe conditions (3.7a)-(3.7b)
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p54_strong_wolfe_conditions](../extracted-pages/formulas/numericaloptimization2006_p54_strong_wolfe_conditions.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k, \quad |\nabla f(x_k + \alpha_k p_k)^T p_k| \leq c_2 |\nabla f_k^T p_k|
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k + \alpha_k p_k) \leq f(x_k) + c_1 \alpha_k \nabla f_k^T p_k, \quad |\nabla f(x_k + \alpha_k p_k)^T p_k| \leq c_2 |\nabla f_k^T p_k|
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p54_strong_wolfe_conditions.json](../extracted-pages/formulas/numericaloptimization2006_p54_strong_wolfe_conditions.json)
+
+---
+
 ## Reader Notes
 
 The Wolfe conditions consist of two parts: (1) The sufficient decrease (Armijo) condition $f(x_k + \alpha p_k) \leq f(x_k) + c_1\alpha\nabla f_k^T p_k$ ensures the step reduces the function value proportionally to the step size and directional derivative. However, this condition alone is satisfied by all sufficiently small steps (see Figure 3.3), which could lead to inefficiently tiny steps. (2) The curvature condition $\nabla f(x_k + \alpha p_k)^T p_k \geq c_2\nabla f_k^T p_k$ prevents arbitrarily small steps by requiring the slope at the accepted point to be at least $c_2$ times the initial slope. If the slope is still strongly negative ($\ll c_2\nabla f_k^T p_k$), we can reduce $f$ significantly by moving further, so the search continues. The strong Wolfe conditions use $|\nabla f(x_k + \alpha p_k)^T p_k| \leq c_2 |\nabla f_k^T p_k|$ to also exclude points with excessively positive slope, forcing steps to lie near stationary points of the line search function. Common parameter values are $c_1 = 10^{-4}$ and $c_2 = 0.9$ for Newton/quasi-Newton methods.

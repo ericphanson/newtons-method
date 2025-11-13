@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p160_bfgs_update_formula",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 160,
+    "theorem": "BFGS update formula",
+    "equation": "(6.19)",
+    "description": "BFGS update with variable definitions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0160.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 82.0,
+      "right": 100,
+      "bottom": 97.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2275,
+      "right": 2100,
+      "bottom": 2691,
+      "width": 2100,
+      "height": 416
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "B_{k+1} = B_k - \\frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \\frac{y_k y_k^T}{y_k^T s_k}",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13",
+    "notes": "BFGS formula (6.19) obtained by applying Sherman-Morrison-Woodbury formula (A.28) to (6.17). Note: definitions of s_k and y_k appear in Algorithm 6.1, not in the text surrounding this equation."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T23:38:37.021698Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

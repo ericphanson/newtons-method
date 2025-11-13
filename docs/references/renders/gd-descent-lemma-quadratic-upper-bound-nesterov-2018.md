@@ -16,6 +16,64 @@ The quadratic upper bound for L-smooth functions: any function with Lipschitz co
 
 **Pages:** 24-26
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Lemma 1.2.3 (1.2.11)
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p45_lemma_1_2_3](../extracted-pages/formulas/lectures_on_convex_optimization_p45_lemma_1_2_3.png)
+
+**Extracted LaTeX:**
+
+$$
+|f(y) - f(x) - \langle \nabla f(x), y - x \rangle| \leq \frac{L}{2} \|y - x\|^2
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+|f(y) - f(x) - \langle \nabla f(x), y - x \rangle| \leq \frac{L}{2} \|y - x\|^2
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p45_lemma_1_2_3.json](../extracted-pages/formulas/lectures_on_convex_optimization_p45_lemma_1_2_3.json)
+
+---
+
+### Formula 2 - Lemma 1.2.3 geometric interpretation φ₁ and φ₂
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation](../extracted-pages/formulas/lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.png)
+
+**Extracted LaTeX:**
+
+$$
+\phi_1(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle - \frac{L}{2} \|x - x_0\|^2, \quad \phi_2(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle + \frac{L}{2} \|x - x_0\|^2, \quad \phi_1(x) \leq f(x) \leq \phi_2(x), \forall x \in \mathbb{R}^n
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\phi_1(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle - \frac{L}{2} \|x - x_0\|^2, \quad \phi_2(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle + \frac{L}{2} \|x - x_0\|^2, \quad \phi_1(x) \leq f(x) \leq \phi_2(x), \forall x \in \mathbb{R}^n
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.json](../extracted-pages/formulas/lectures_on_convex_optimization_p46_lemma_1_2_3_geometric_interpretation.json)
+
+---
+
 ## Reader Notes
 
 The notation $C_L^{1,1}(\mathbb{R}^n)$ denotes the class of functions with Lipschitz continuous gradient with constant $L$ (see page 24). This lemma is fundamental for analyzing gradient descent: it shows that any L-smooth function can be upper-bounded by a quadratic function. The upper bound $\phi_2(x) = f(x_0) + \langle \nabla f(x_0), x - x_0 \rangle + \frac{L}{2}\|x - x_0\|^2$ is the quadratic upper bound used to prove that gradient descent decreases the function value at each iteration. When we take a gradient step $y = x - \alpha \nabla f(x)$, this bound guarantees descent when $\alpha \leq 2/L$.
