@@ -1,5 +1,7 @@
 # gd-strongly-convex-linear-convergence-nesterov-2018
 
+**Source:** [gd-strongly-convex-linear-convergence-nesterov-2018.json](../../citations/gd-strongly-convex-linear-convergence-nesterov-2018.json)
+
 ## Reference
 
 Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.

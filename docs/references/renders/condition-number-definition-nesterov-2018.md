@@ -1,5 +1,7 @@
 # condition-number-definition-nesterov-2018
 
+**Source:** [condition-number-definition-nesterov-2018.json](../../citations/condition-number-definition-nesterov-2018.json)
+
 ## Reference
 
 Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.

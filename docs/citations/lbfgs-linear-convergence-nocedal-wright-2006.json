@@ -1,0 +1,32 @@
+{
+  "reference": "nocedal-wright-2006",
+  "pages": "176",
+  "pdfPages": "196",
+  "theorem": "Section 7.2",
+  "claim": "L-BFGS achieves linear convergence (not superlinear) due to limited memory preventing the Hessian approximation from fully converging to the true Hessian",
+  "quote": "Limited-memory quasi-Newton methods are useful for solving large problems whose Hessian matrices cannot be computed at a reasonable cost or are not sparse. These methods maintain simple and compact approximations of Hessian matrices: Instead of storing fully dense $n \\times n$ approximations, they save only a few vectors of length $n$ that represent the approximations implicitly. Despite these modest storage requirements, they often yield an acceptable (albeit linear) rate of convergence. Various limited-memory methods have been proposed, but we mainly focus on an algorithm known as L-BFGS, which, as its name suggests, is based on the BFGS updating formula.",
+  "notes": "Internal: Used in LbfgsTab to explain why L-BFGS achieves only linear convergence compared to full BFGS which achieves superlinear convergence (Theorem 6.6). The key phrase is 'an acceptable (albeit linear) rate of convergence' which explicitly states the linear convergence rate. The limited memory (storing only m recent correction pairs) prevents the Hessian approximation from fully converging to the true Hessian, which is what allows full BFGS to achieve superlinear convergence.",
+  "readerNotes": "This statement from Section 7.2 explicitly confirms that L-BFGS achieves **linear** convergence, in contrast to full BFGS which achieves **superlinear** convergence (Theorem 6.6, pages 153-160). The parenthetical '(albeit linear)' indicates that while linear convergence is slower than superlinear, it is still 'acceptable' in practice. The fundamental reason is that L-BFGS uses limited memory—it stores only the $m$ most recent correction pairs $(s_k, y_k)$—which prevents the Hessian approximation $B_k$ from fully converging to the true Hessian $\\nabla^2 f(x^*)$. This trade-off makes L-BFGS practical for large-scale problems where storing a full $n \\times n$ matrix would be infeasible.",
+  "proofPages": [
+    "docs/references/extracted-pages/numericaloptimization2006_page_0196.png"
+  ],
+  "formulaImages": [
+    {
+      "id": "numericaloptimization2006_p196_linear_convergence",
+      "description": "L-BFGS linear convergence statement",
+      "formula": "Despite these modest storage requirements, they often yield an acceptable (albeit linear) rate of convergence.",
+      "page": 176,
+      "pdfPage": 196,
+      "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p196.png",
+      "metadataPath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p196.json",
+      "verified": true,
+      "verificationDate": "2025-11-13",
+      "extractionMethod": "cropped at 300 DPI then text extracted from crop",
+      "notes": "Key statement explicitly stating L-BFGS achieves linear (not superlinear) convergence despite limited memory"
+    }
+  ],
+  "verified": "2025-11-13",
+  "verifiedBy": "claude-code-agent",
+  "verificationNotes": "Verified quote is verbatim from book page 176 (PDF page 196), Section 7.2 'Limited-Memory Quasi-Newton Methods'. The key phrase 'an acceptable (albeit linear) rate of convergence' explicitly states that L-BFGS achieves linear convergence. This contrasts with Theorem 6.6 which establishes superlinear convergence for full BFGS. The quote is from the opening paragraph of Section 7.2 which introduces limited-memory methods. Page number verified: book page header shows 176, and with pageOffset of 20, PDF page is 196 (176 + 20 = 196).",
+  "usedIn": ["LbfgsTab"]
+}

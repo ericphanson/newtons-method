@@ -1,5 +1,7 @@
 # gd-smooth-descent-condition-nesterov-2018
 
+**Source:** [gd-smooth-descent-condition-nesterov-2018.json](../../citations/gd-smooth-descent-condition-nesterov-2018.json)
+
 ## Reference
 
 Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.

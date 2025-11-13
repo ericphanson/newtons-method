@@ -1,5 +1,7 @@
 # newton-computational-complexity
 
+**Source:** [newton-computational-complexity.json](../../citations/newton-computational-complexity.json)
+
 ## Reference
 
 Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.

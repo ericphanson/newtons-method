@@ -1,5 +1,7 @@
 # bfgs-positive-definiteness-preservation-nocedal-wright-2006
 
+**Source:** [bfgs-positive-definiteness-preservation-nocedal-wright-2006.json](../../citations/bfgs-positive-definiteness-preservation-nocedal-wright-2006.json)
+
 ## Reference
 
 Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.
@@ -44,36 +46,6 @@ B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T
 </details>
 
 **Verification:** ✅ Verified
-
----
-
-### Formula 2
-
-**Cropped Formula Image:**
-
-![numericaloptimization2006_p160_bfgs_update_formula_complete](../extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula_complete.png)
-
-**Verification:** ❌ Not Verified
-
----
-
-### Formula 3
-
-**Cropped Formula Image:**
-
-![numericaloptimization2006_p160_s_k_and_y_k_definitions](../extracted-pages/formulas/numericaloptimization2006_p160_s_k_and_y_k_definitions.png)
-
-**Verification:** ❌ Not Verified
-
----
-
-### Formula 4
-
-**Cropped Formula Image:**
-
-![numericaloptimization2006_p140_bfgs_update_formula](../extracted-pages/formulas/numericaloptimization2006_p140_bfgs_update_formula.png)
-
-**Verification:** ❌ Not Verified
 
 ---
 

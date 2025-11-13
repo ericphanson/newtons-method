@@ -1,5 +1,7 @@
 # newton-convex-convergence
 
+**Source:** [newton-convex-convergence.json](../../citations/newton-convex-convergence.json)
+
 ## Reference
 
 Yurii Nesterov. *Lectures on Convex Optimization* (2nd edition). Springer, 2018.

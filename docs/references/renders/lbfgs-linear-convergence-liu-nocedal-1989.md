@@ -1,5 +1,7 @@
 # lbfgs-linear-convergence-liu-nocedal-1989
 
+**Source:** [lbfgs-linear-convergence-liu-nocedal-1989.json](../../citations/lbfgs-linear-convergence-liu-nocedal-1989.json)
+
 ## Reference
 
 Dong C. Liu and Jorge Nocedal. *On the Limited Memory BFGS Method for Large Scale Optimization*. Mathematical Programming, 45:503-528, 1989.

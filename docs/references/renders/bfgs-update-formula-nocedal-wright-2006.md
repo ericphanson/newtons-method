@@ -1,5 +1,7 @@
 # bfgs-update-formula-nocedal-wright-2006
 
+**Source:** [bfgs-update-formula-nocedal-wright-2006.json](../../citations/bfgs-update-formula-nocedal-wright-2006.json)
+
 ## Reference
 
 Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.

@@ -1,5 +1,7 @@
 # rosenbrock-function-benchmark
 
+**Source:** [rosenbrock-function-benchmark.json](../../citations/rosenbrock-function-benchmark.json)
+
 ## Reference
 
 H. H. Rosenbrock. *An Automatic Method for Finding the Greatest or Least Value of a Function*. The Computer Journal, 3:175-184, 1960.

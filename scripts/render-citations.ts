@@ -92,6 +92,10 @@ function renderCitation(citationId: string, citation: Citation, references: Reco
 
   let md = `# ${citationId}\n\n`;
 
+  // Add link to source citation JSON
+  const citationJsonPath = `../../citations/${citationId}.json`;
+  md += `**Source:** [${citationId}.json](${citationJsonPath})\n\n`;
+
   // Add reference information
   if (ref) {
     md += `## Reference\n\n`;

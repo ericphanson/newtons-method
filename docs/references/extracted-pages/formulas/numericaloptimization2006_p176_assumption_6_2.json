@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p176_assumption_6_2",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 176,
+    "theorem": "Assumption 6.2",
+    "equation": "",
+    "description": "Lipschitz continuous Hessian"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0176.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p176_assumption_6_2.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 75.0,
+      "right": 100,
+      "bottom": 92.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2081,
+      "right": 2100,
+      "bottom": 2553,
+      "width": 2100,
+      "height": 472
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T15:22:35.016445Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

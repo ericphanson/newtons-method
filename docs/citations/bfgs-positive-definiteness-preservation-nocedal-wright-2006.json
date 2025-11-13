@@ -44,31 +44,6 @@
       "verified": true,
       "verificationDate": "2025-11-13",
       "notes": "BFGS formula (6.19) obtained by applying Sherman-Morrison-Woodbury formula (A.28) to (6.17)"
-    },
-    {
-      "id": "numericaloptimization2006_p160_bfgs_update_formula_complete",
-      "description": "BFGS formula with variable definitions",
-      "page": 160,
-      "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula_complete.png",
-      "verified": false,
-      "notes": "Shows formula (6.19) including definitions of s_k and y_k"
-    },
-    {
-      "id": "numericaloptimization2006_p160_s_k_and_y_k_definitions",
-      "description": "Definitions of step and gradient change vectors",
-      "variables": ["s_k = x_{k+1} - x_k", "y_k = \\nabla f_{k+1} - \\nabla f_k"],
-      "page": 160,
-      "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_s_k_and_y_k_definitions.png",
-      "verified": false,
-      "notes": "Variable definitions from Algorithm 6.1"
-    },
-    {
-      "id": "numericaloptimization2006_p140_bfgs_update_formula",
-      "description": "BFGS Hessian approximation update (preliminary)",
-      "page": 140,
-      "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p140_bfgs_update_formula.png",
-      "verified": false,
-      "notes": "BFGS update formula from Chapter 5 quasi-Newton introduction"
     }
   ],
   "notes": "Internal: This citation establishes the key robustness property of BFGS - it maintains positive definiteness through curvature filtering. The curvature condition $s_k^T y_k > 0$ (equation 6.7, page 157) is guaranteed by the Wolfe line search conditions as shown in equation (6.8, page 157). The positive definiteness preservation argument on page 161 shows that if $H_k$ is positive definite, then $H_{k+1}$ from BFGS update is also positive definite. NOTE: Pages 136-140 are from Chapter 5 (Conjugate Gradient Methods) discussing preliminary quasi-Newton concepts. Pages 156-161 are from Chapter 6 (Quasi-Newton Methods) which is dedicated to BFGS. The 16-page gap (141-155) contains unrelated material: end of Chapter 5 (Fletcher-Reeves, nonlinear CG), exercises, and Chapter 6 title page. The non-contiguous page range is intentional and correct.",

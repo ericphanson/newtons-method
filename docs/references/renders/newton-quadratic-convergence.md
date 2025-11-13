@@ -1,5 +1,7 @@
 # newton-quadratic-convergence
 
+**Source:** [newton-quadratic-convergence.json](../../citations/newton-quadratic-convergence.json)
+
 ## Reference
 
 Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.

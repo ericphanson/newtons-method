@@ -1,5 +1,7 @@
 # three-hump-camel-function-benchmark
 
+**Source:** [three-hump-camel-function-benchmark.json](../../citations/three-hump-camel-function-benchmark.json)
+
 ## Reference
 
 F. H. Branin. *Widely Convergent Method for Finding Multiple Solutions of Simultaneous Nonlinear Equations*. IBM Journal of Research and Development, 16:504-522, 1972.

@@ -1,5 +1,7 @@
 # inexact-newton-superlinear-convergence
 
+**Source:** [inexact-newton-superlinear-convergence.json](../../citations/inexact-newton-superlinear-convergence.json)
+
 ## Reference
 
 Jorge Nocedal and Stephen J. Wright. *Numerical Optimization* (2nd edition). Springer, 2006.
