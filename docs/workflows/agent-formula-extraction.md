@@ -1170,6 +1170,404 @@ npx tsx scripts/render-citations.ts
 # 3. Review generated reports in docs/references/renders/
 ```
 
+## Page Number Verification Protocol
+
+**CRITICAL**: Page numbers must be consistent across all citation fields. Many citation errors stem from incorrect page number mappings.
+
+### Page Number Mapping Formula
+
+```
+PDF Page = Book Page + pageOffset
+```
+
+The `pageOffset` is defined in `docs/references/references.json` for each reference.
+
+**Example** (Nocedal & Wright 2006):
+```json
+{
+  "nocedal-wright-2006": {
+    "pageOffset": 20
+  }
+}
+```
+
+So for book page 140:
+```
+PDF Page = 140 + 20 = 160
+```
+
+### Verification Checklist
+
+When processing a citation, verify:
+
+1. **Book pages match content**: Read the extracted page images and check page headers
+   - If citation says "pages: 140" but image shows page 116, pages are wrong
+
+2. **PDF pages match book pages**:
+   - Calculate: `book page + pageOffset = PDF page`
+   - If calculation doesn't match listed `pdfPages`, one is wrong
+
+3. **proofPages match pdfPages**:
+   - `proofPages` should list images matching the `pdfPages` range
+   - Example: `pdfPages: "160"` → `proofPages: ["numericaloptimization2006_page_0160.png"]`
+
+4. **Formula locations match citation pages**:
+   - If extracting formulas, verify they're on the pages listed in citation
+   - Formula metadata `page` field should match citation pages
+
+### Common Page Number Errors
+
+**Error 1: Wrong chapter/section referenced**
+```json
+// WRONG - Listed pages 116-120 (Chapter 5) but equation is in Chapter 6
+{
+  "pages": "116-120",
+  "pdfPages": "136-140",
+  "theorem": "Equation (6.19)"  // Chapter 6 equation!
+}
+
+// CORRECT - Updated to actual location
+{
+  "pages": "140",
+  "pdfPages": "160",
+  "theorem": "Equation (6.19)"
+}
+```
+
+**Error 2: pageOffset applied backwards**
+```json
+// If pages seem off by ~20, check if offset is applied backwards
+// Try: actual_pdf_page = book_page + offset
+// Or: actual_pdf_page = book_page - offset
+```
+
+**Error 3: Inconsistent page ranges**
+```json
+// WRONG - pages and pdfPages don't match via offset
+{
+  "pages": "42-44",
+  "pdfPages": "136-140"  // Should be 62-64 (42+20 to 44+20)
+}
+```
+
+### Page Verification Script
+
+When processing citations, verify page numbers:
+
+```bash
+# Check that book page + offset = PDF page for all citations
+# (Script to be implemented)
+python3 scripts/verify-citation-pages.py
+```
+
+## Quote Verification Protocol
+
+**CRITICAL**: Quotes must be verbatim from the source. Common errors include composite quotes and incorrect expansion of equation references.
+
+### Quote Requirements
+
+1. **Verbatim text**: Quote must match source word-for-word
+   - No paraphrasing
+   - No combining text from multiple locations
+   - Preserve original notation and symbols
+
+2. **Equation references preserved**: Keep equation references as-is
+   ```latex
+   // CORRECT - Preserve equation reference
+   "the formula (3.24) shows..."
+
+   // WRONG - Expanding equation reference
+   "the formula $f(x) = \frac{1}{2}x^T Q x - b^T x$ shows..."
+   ```
+
+3. **Composite quotes flagged**: If combining text from different locations, use `[...]`
+   ```latex
+   "Theorem 3.3. [...] Theorem 3.4. [...]"  // OK - shows text is combined
+   ```
+
+4. **Mathematical notation**: Use source notation exactly
+   - `$\mathscr{F}_L^{1,1}$` if that's what the source uses (2018 Nesterov)
+   - `$F_L^{1,1}$` if that's what the source uses (2004 Nesterov)
+   - Don't "standardize" notation across different editions
+
+### Common Quote Errors
+
+**Error 1: Composite quote without indication**
+```json
+// WRONG - Combined equation definition with theorem statement
+{
+  "quote": "The update formula for $B_k$ is... where $s_k = x_{k+1} - x_k$ and $y_k = g_{k+1} - g_k$."
+}
+// The "where" clause was from a different paragraph!
+
+// CORRECT - Quote only the contiguous text
+{
+  "quote": "The update formula for $B_k$ is obtained by simply applying the Sherman–Morrison–Woodbury formula (A.28) to (6.17) to obtain $B_{k+1} = ...$"
+}
+```
+
+**Error 2: Expanding equation references**
+```json
+// WRONG - Expanded "(3.24)" to full formula
+{
+  "quote": "...applied to the strongly convex quadratic function $f(x) = \\frac{1}{2}x^T Q x - b^T x$..."
+}
+
+// CORRECT - Preserved equation reference
+{
+  "quote": "...applied to the strongly convex quadratic function (3.24)..."
+}
+```
+
+**Error 3: Mathematical notation errors**
+```json
+// WRONG - Used closed interval
+{
+  "quote": "...satisfying $r \\in [\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}, 1]$..."
+}
+
+// CORRECT - Source uses half-open interval (r < 1, not r ≤ 1)
+{
+  "quote": "...satisfying $r \\in \\left[\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}, 1\\right)$..."
+}
+```
+This is mathematically significant - closed vs open intervals affect theorem validity.
+
+### Quote Verification Procedure
+
+When processing a citation:
+
+1. **Read the source pages** specified in `proofPages`
+2. **Locate the quoted text** on those pages
+3. **Compare character-by-character**:
+   - All words match?
+   - All symbols match ($\leq$ vs $\geq$)?
+   - All equation references preserved?
+   - Interval notation correct ([ vs ( and ] vs ))?
+4. **If quote is wrong**: Fix it and document in `verificationNotes`
+5. **If quote changes**: Update related `claim` and pedagogical text
+
+## Claim Requirements
+
+**CRITICAL**: Claims must be standalone statements about what we're asserting on the website. Claims cannot reference equations by number.
+
+### Claim vs Quote
+
+- **Claim**: What we assert on the website (must be standalone)
+- **Quote**: Evidence from source material backing up the claim
+
+### Claim Requirements
+
+1. **Standalone**: Reader should understand claim without reading other equations
+   ```
+   // WRONG - References other equations
+   "The BFGS update is obtained by applying Sherman-Morrison-Woodbury to equation (6.17)"
+
+   // CORRECT - Standalone statement with formula
+   "The BFGS method updates the Hessian approximation $B_k$ using a rank-two formula: $B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T s_k}$"
+   ```
+
+2. **Match what quote proves**: Don't claim properties not proven in the quote
+   ```json
+   // WRONG - Quote only gives formula, not proofs of properties
+   {
+     "claim": "The BFGS update formula maintains positive definiteness and satisfies the secant equation",
+     "quote": "The update formula for $B_k$ is obtained by... $B_{k+1} = ...$"
+   }
+
+   // CORRECT - Claim only what quote shows
+   {
+     "claim": "The BFGS method updates the Hessian approximation using a rank-two formula: [formula]",
+     "quote": "The update formula for $B_k$ is obtained by... $B_{k+1} = ...$"
+   }
+   ```
+
+3. **Concise**: Focus on the key assertion, avoid excessive context
+   ```
+   // TOO LONG
+   "When the steepest descent method with exact line searches (3.26) is applied to strongly convex quadratic functions (3.24), with error norm (3.27), it achieves linear convergence"
+
+   // BETTER
+   "Steepest descent with exact line search achieves linear convergence on strongly convex functions, with rate determined by the Hessian eigenvalues"
+   ```
+
+### Separating Claims from Equations
+
+If you want to claim properties about a formula:
+
+1. **Citation 1**: Formula definition (what we did)
+   - Claim: "The BFGS update formula is: [formula]"
+   - Quote: Source giving the formula
+
+2. **Citation 2**: Positive definiteness property (would need separate citation)
+   - Claim: "The BFGS update maintains positive definiteness when..."
+   - Quote: Source proving this property (e.g., Theorem 6.2)
+
+3. **Citation 3**: Secant equation property (would need separate citation)
+   - Claim: "The BFGS update satisfies the secant equation..."
+   - Quote: Source proving this property
+
+## Common Citation Errors and Fixes
+
+Based on processing 22 citations, here are critical errors found and how they were fixed:
+
+### Error 1: Wrong Page Numbers
+**Citation**: bfgs-update-formula-nocedal-wright-2006
+**Error**: Listed pages 116-120 (Chapter 5) but equation (6.19) is in Chapter 6, page 140
+**Root cause**: Incorrect book pages pointing to wrong chapter
+**Fix**: Updated pages to 140, pdfPages to 160 (140 + 20 offset)
+**Verification**: Extracted page 160, confirmed equation (6.19) present
+
+### Error 2: Composite Quotes
+**Citation**: bfgs-update-formula-nocedal-wright-2006
+**Error**: Quote included "where $s_k = ...$" clause not appearing contiguously after the formula
+**Root cause**: Agent combined text from different locations
+**Fix**: Removed "where" clause, quoted only contiguous text
+**Verification**: Checked source page, confirmed quote is now verbatim
+
+### Error 3: Expanded Equation References
+**Citation**: gd-linesearch-strongly-convex-linear-convergence-nocedal-wright-2006
+**Error**: Quote expanded "(3.24)" to full formula "$f(x) = \frac{1}{2}x^T Q x - b^T x$"
+**Root cause**: Agent "helpfully" expanded equation reference
+**Fix**: Preserved equation reference as "(3.24)"
+**Verification**: Checked source, confirmed reference not expanded
+
+### Error 4: Interval Notation Error
+**Citation**: gd-linesearch-strongly-convex-linear-convergence-nocedal-wright-2006
+**Error**: Used closed bracket `[..., 1]` instead of half-open interval `[..., 1)`
+**Root cause**: Agent didn't distinguish between ) and ]
+**Significance**: Mathematically significant - affects whether r=1 is allowed
+**Fix**: Corrected to `\left[..., 1\right)` with parenthesis
+**Verification**: Checked source image, confirmed half-open interval
+
+### Error 5: Claims Referencing Equations
+**Citation**: bfgs-update-formula-nocedal-wright-2006
+**Error**: Claim stated "obtained by applying Sherman–Morrison–Woodbury formula to equation (6.17)"
+**Root cause**: Claim copied theorem derivation text
+**Fix**: Made claim standalone: "The BFGS method updates the Hessian approximation using a rank-two formula: [formula]"
+**Principle**: Claims must be standalone statements for website
+
+### Error 6: Claims Not Matching Quotes
+**Citation**: bfgs-update-formula-nocedal-wright-2006
+**Error**: Claim asserted formula "maintains positive definiteness and satisfies secant equation" but quote only gave formula derivation
+**Root cause**: Claimed properties not proven in the quoted theorem
+**Fix**: Updated claim to only state what quote proves (the formula itself), noted that properties need separate citations
+**Principle**: Don't overstate what the quote proves
+
+### Error 7: Field Naming Inconsistency
+**Citation**: lbfgs-linear-convergence-liu-nocedal-1989
+**Error**: Agent created "formulas" array instead of "formulaImages" array
+**Root cause**: Agent used inconsistent field naming
+**Fix**: Renamed field to "formulaImages" to match other citations
+**Verification**: Confirmed all other citations use "formulaImages"
+
+## Agent Processing at Scale
+
+### Parallel Agent Execution
+
+When processing multiple citations, launch agents in parallel for efficiency:
+
+```typescript
+// Launch 10 agents in parallel
+// Each agent processes one citation independently
+Task([
+  { agent: "process-citation-1", citation: "newton-quadratic-convergence" },
+  { agent: "process-citation-2", citation: "inexact-newton-superlinear" },
+  { agent: "process-citation-3", citation: "gd-smooth-descent" },
+  // ... up to 10 parallel agents
+], { parallel: true })
+```
+
+**Benefits**:
+- 10x faster than sequential processing
+- Each agent has independent context
+- Failures isolated to individual citations
+
+**Considerations**:
+- Use `haiku` model for efficiency on straightforward tasks
+- Use `sonnet` for complex verification tasks
+- Maximum ~10 parallel agents to avoid rate limits
+
+### Agent Task Structure
+
+Each agent should:
+
+1. **Read citation file** to understand current state
+2. **Read proof page images** to verify content
+3. **Extract formula images** using crop-formula.py
+4. **Extract LaTeX** from formula images
+5. **Verify** quote matches source, claim matches quote
+6. **Fix errors** found during verification
+7. **Update citation file** with formulaImages array
+8. **Report results** with summary of changes
+
+### Agent Prompt Template
+
+```
+CITATION FORMULA EXTRACTION AND VERIFICATION
+
+You are processing citation: {citation_key}
+
+TASKS:
+1. Read citation file: docs/citations/{citation_key}.json
+2. Read proof pages listed in proofPages array
+3. For each formula in the quote:
+   a. Extract formula image using crop-formula.py
+   b. Extract LaTeX from formula image
+   c. Add to formulaImages array
+4. Verify:
+   - Pages are correct (check page headers)
+   - Quote is verbatim from source
+   - Claim is standalone (no equation references)
+   - Claim matches what quote proves
+5. Fix any errors found
+6. Update citation file with all changes
+7. Report what you did
+
+CRITICAL CHECKS:
+- Book page + pageOffset = PDF page
+- Quote is verbatim (no composite quotes)
+- Equation references preserved in quotes
+- Claim doesn't reference other equations
+- Claim doesn't overstate what quote proves
+
+OUTPUT:
+Provide a summary of:
+- Formulas extracted (count and equation numbers)
+- Errors found and fixed
+- Verification status
+```
+
+### Field Naming Standards
+
+**Always use these field names** (consistent across all citations):
+
+- `formulaImages` - Array of formula metadata (NOT "formulas")
+- `proofPages` - Array of page image paths (NOT "proof_pages")
+- `pdfPages` - String with PDF page range (NOT "pdf_pages")
+- `verificationNotes` - String with notes (NOT "verification_notes")
+
+### Agent Quality Checks
+
+After agent completes:
+
+1. **Check field names**: All match standards?
+2. **Check formulaImages structure**: All have required fields?
+   ```json
+   {
+     "formula_id": "...",
+     "metadata_path": "...",
+     "image_path": "...",
+     "latex": "...",
+     "verified": true,
+     "theorem": "...",
+     "equation": "..."
+   }
+   ```
+3. **Check page consistency**: Book page + offset = PDF page?
+4. **Check quote**: Verbatim from source?
+5. **Check claim**: Standalone and matches quote?
+
 ## Error Recovery
 
 If errors are found after the fact:
