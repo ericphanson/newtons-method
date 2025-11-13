@@ -19,27 +19,5 @@
   "usedIn": [
     "GdLineSearchTab"
   ],
-  "pdfPages": "37, 52-53, 56-57",
-  "formulaImages": [
-    {
-      "formula_id": "numericaloptimization2006_p37_armijo_sufficient_decrease",
-      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.json",
-      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.png",
-      "latex": "f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k",
-      "verified": true,
-      "theorem": "Algorithm 3.1 - Armijo sufficient decrease condition",
-      "equation": "Armijo condition",
-      "description": "The sufficient decrease condition (Armijo condition) that the backtracking line search must satisfy"
-    },
-    {
-      "formula_id": "numericaloptimization2006_p37_step_reduction",
-      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.json",
-      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.png",
-      "latex": "\\alpha \\leftarrow \\rho\\alpha",
-      "verified": true,
-      "theorem": "Algorithm 3.1 - Step size reduction",
-      "equation": "Step reduction rule",
-      "description": "The geometric step size reduction rule used in backtracking, where rho is the contraction factor"
-    }
-  ]
+  "pdfPages": "37, 52-53, 56-57"
 }

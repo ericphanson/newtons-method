@@ -12,7 +12,7 @@ Gradient descent with fixed step size converges to the global minimum on convex 
 
 ## Quote
 
-> Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h < \frac{2}{L}$. Then the Gradient Method generates a sequence of points $\{x_k\}$ with function values satisfying the inequality $f(x_k) - f^* \leq \frac{2(f(x_0) - f^*) \|x_0 - x^*\|^2}{2\|x_0 - x^*\|^2 + k \cdot h(2 - Lh) \cdot (f(x_0) - f^*)}, k \geq 0$. [Theorem 2.1.14] [Corollary 2.1.2] If $h = \frac{1}{L}$ and $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$, then [with this substitution] $f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}$.
+> Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h < \frac{2}{L}$. Then the Gradient Method generates a sequence of points $\{x_k\}$ with function values satisfying the inequality $f(x_k) - f^* \leq \frac{2(f(x_0) - f^*) \|x_0 - x^*\|^2}{2\|x_0 - x^*\|^2 + k \cdot h(2 - Lh) \cdot (f(x_0) - f^*)}, k \geq 0$. [...] If $h = \frac{1}{L}$ and $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$, then $f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}$.
 
 **Pages:** 62, 80-81
 

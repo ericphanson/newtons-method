@@ -12,9 +12,9 @@ L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the 
 
 ## Quote
 
-> Without considering the multiplication $H_k^0 q$, the two-loop recursion scheme requires $4mn$ multiplications; if $H_k^0$ is diagonal, then $n$ additional multiplications are needed. [...] To circumvent this problem, we store a modified version of $H_k$ implicitly, by storing a certain number (say, $m$) of the vector pairs $\{s_i, y_i\}$ used in the formulas (7.16)–(7.18). The product $H_k \nabla f_k$ can be obtained by performing a sequence of inner products and vector summations involving $\nabla f_k$ and the pairs $\{s_i, y_i\}$.
+> To circumvent this problem, we store a modified version of $H_k$ implicitly, by storing a certain number (say, $m$) of the vector pairs $\{s_i, y_i\}$ used in the formulas (7.16)–(7.18). The product $H_k \nabla f_k$ can be obtained by performing a sequence of inner products and vector summations involving $\nabla f_k$ and the pairs $\{s_i, y_i\}$. [...] Without considering the multiplication $H_k^0 q$, the two-loop recursion scheme requires $4mn$ multiplications; if $H_k^0$ is diagonal, then $n$ additional multiplications are needed.
 
-**Pages:** 157-158, 177-178
+**Pages:** 177-178
 
 ## Extracted Formulas
 
@@ -62,17 +62,9 @@ Internal: The complexity analysis appears on page 178 following Algorithm 7.4. T
 
 ### Page 1
 
-![Proof page 1](../extracted-pages/numericaloptimization2006_page_0177.png)
+![Proof page 1](../extracted-pages/numericaloptimization2006_page_0197.png)
 
 ### Page 2
 
-![Proof page 2](../extracted-pages/numericaloptimization2006_page_0178.png)
-
-### Page 3
-
-![Proof page 3](../extracted-pages/numericaloptimization2006_page_0197.png)
-
-### Page 4
-
-![Proof page 4](../extracted-pages/numericaloptimization2006_page_0198.png)
+![Proof page 2](../extracted-pages/numericaloptimization2006_page_0198.png)
 
