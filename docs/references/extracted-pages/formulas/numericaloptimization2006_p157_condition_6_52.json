@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p157_condition_6_52",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 157,
+    "theorem": "Condition (6.52)",
+    "equation": "(6.52)",
+    "description": "Condition (6.52): Convergence requirement on distances to minimizer"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0176.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p157_condition_6_52.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 42.0,
+      "right": 100,
+      "bottom": 48.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1164,
+      "right": 2100,
+      "bottom": 1332,
+      "width": 2100,
+      "height": 168
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\sum_{k=0}^{\\infty} \\|\\mathbf{y}_k - \\mathbf{s}^T\\| < \\infty",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": "Condition (6.52) requires that the sum of distances from iterates to minimizer converges, which is a regularity condition needed for superlinear convergence"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "adversarial-verification-agent-batch5-agent3",
+    "verified_date": "2025-11-12",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:00:00Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

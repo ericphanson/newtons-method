@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p140_bfgs_update_formula",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 140,
+    "theorem": "BFGS update formula",
+    "equation": "(6.19)",
+    "description": "BFGS Hessian approximation update"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0140.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p140_bfgs_update_formula.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 84.0,
+      "right": 100,
+      "bottom": 96.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2331,
+      "right": 2100,
+      "bottom": 2664,
+      "width": 2100,
+      "height": 333
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T23:34:54.123977Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

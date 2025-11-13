@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p65_theorem_3_5",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 65,
+    "theorem": "Theorem 3.5",
+    "equation": "(3.33)",
+    "description": "Newton quadratic convergence bound"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0065.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p65_theorem_3_5.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 72.0,
+      "right": 100,
+      "bottom": 80.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1998,
+      "right": 2100,
+      "bottom": 2220,
+      "width": 2100,
+      "height": 222
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:29:26.080051Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

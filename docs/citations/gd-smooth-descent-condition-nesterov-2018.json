@@ -6,6 +6,14 @@
   "quote": "Let $f \\in \\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ and $0 < h \\leq 2/L$. Then the Gradient Method generates a sequence $\\{x_k\\}$, which converges to some optimal point $x^*$.",
   "notes": "Internal: Used in GdFixedTab to explain the sufficient condition for descent on smooth functions. This is the 2018 edition version using calligraphic notation $\\mathscr{F}_L^{1,1}$ instead of $F_L^{1,1}$ from the 2004 edition. The step size bound allows equality ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$). The descent property follows from the fundamental inequality for smooth functions (see Lemma 1.2.3 on page 23 which shows $f(y) \\leq f(x) + \\langle \\nabla f(x), y-x \\rangle + \\frac{L}{2}\\|y-x\\|^2$ for L-smooth functions), which combined with the gradient step yields descent when $h \\leq 2/L$.",
   "readerNotes": "The notation $\\mathscr{F}_L^{1,1}(\\mathbb{R}^n)$ denotes convex functions with Lipschitz continuous gradient with constant $L$ (the function class is defined in Section 2.1.1, pages 59-69; see Definition 2.1.2 on page 62 for convex functions). However, the descent property itself follows from the upper bound inequality for smooth functions (Lemma 1.2.3 on page 23), which holds for any function with Lipschitz continuous gradient, not just convex functions. The condition $\\alpha \\leq 2/L$ ensures that each gradient descent step decreases the function value. Note: Nesterov uses $h$ for step size; here we use $\\alpha$. This is a more general result than convergence - it guarantees monotonic decrease at each step. The 2018 edition uses calligraphic script $\\mathscr{F}$ for function classes instead of the regular $F$ used in the 2004 edition, and allows equality in the step size bound ($h \\leq 2/L$) instead of strict inequality ($h < 2/L$).",
+  "formulaImages": [
+    {
+      "formula": "f(x_{k+1}) \\leq f(x_k) - h(1 - \\frac{hL}{2})\\|\\nabla f(x_k)\\|^2",
+      "description": "Monotonic descent inequality for gradient descent on smooth convex functions",
+      "location": "pages 82-83",
+      "type": "convergence_theorem"
+    }
+  ],
   "proofPages": [
     "docs/references/extracted-pages/lectures_on_convex_optimization_page_0059.png",
     "docs/references/extracted-pages/lectures_on_convex_optimization_page_0060.png",

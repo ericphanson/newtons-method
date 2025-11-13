@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p63",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 63,
+    "theorem": "",
+    "equation": "",
+    "description": "Eigenvalue ordering for Theorem 3.3"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0063.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p63.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 58.0,
+      "right": 100,
+      "bottom": 60.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1609,
+      "right": 2100,
+      "bottom": 1665,
+      "width": 2100,
+      "height": 56
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "where $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ are the eigenvalues of $Q$.",
+    "extracted_by": "agent",
+    "extracted_date": "2025-11-13T00:16:00Z",
+    "notes": "Eigenvalue ordering for positive definite matrix Q in Theorem 3.3. This fragment is already included in the main Theorem 3.3 extraction."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "agent",
+    "verified_date": "2025-11-13T00:16:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:10:15.950459Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

@@ -18,5 +18,28 @@
   "usedIn": [
     "LbfgsTab"
   ],
-  "pdfPages": "177-178, 197-198"
+  "pdfPages": "177-178, 197-198",
+  "formulaImages": [
+    {
+      "id": "numericaloptimization2006_p177_equations_7_16_7_17_7_18",
+      "description": "Equations 7.16-7.18: L-BFGS Vector Pair Definitions (s_i, y_i)",
+      "page": 177,
+      "type": "formulas",
+      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p177_equations_7_16_7_17_7_18.json"
+    },
+    {
+      "id": "numericaloptimization2006_p178_algorithm_7_4_two_loop_recursion",
+      "description": "Algorithm 7.4: L-BFGS Two-Loop Recursion (O(md) time computation)",
+      "page": 178,
+      "type": "algorithm",
+      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p178_algorithm_7_4_two_loop_recursion.json"
+    },
+    {
+      "id": "numericaloptimization2006_p178_complexity_analysis",
+      "description": "Complexity Analysis: O(md) memory and O(md) time per iteration",
+      "page": 178,
+      "type": "analysis",
+      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p178_complexity_analysis.json"
+    }
+  ]
 }

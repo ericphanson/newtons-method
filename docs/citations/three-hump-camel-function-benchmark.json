@@ -12,6 +12,29 @@
   "verifiedBy": "adversarial-verification-agent-batch6-agent7",
   "verificationNotes": "ADVERSARIAL VERIFICATION COMPLETED: Extracted all 19 pages of Branin 1972 paper. Found equation (C15) on page 521 (PDF page 18) with Figure C2 on page 520 (PDF page 17). CRITICAL FINDING: Branin's original formulation has three MAXIMA. The standard Three-Hump Camel benchmark NEGATES this function to create three MINIMA. Verified the implementation in threeHumpCamel.tsx correctly uses the negated form: 2x² - 1.05x⁴ + x⁶/6 + xy + y². Page numbers 504-522 confirmed correct (journal pagination). Function definition verified accurate.",
   "quote": "f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴. (C15) This function has three maxima when a = -2, b = 1.05, c = -1/6, d = -1 and e = 0",
+  "formulaImages": [
+    {
+      "formula": "f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴",
+      "parameters": {
+        "a": -2,
+        "b": 1.05,
+        "c": -0.167,
+        "d": -1,
+        "e": 0
+      },
+      "description": "Branin's original formulation (three maxima)",
+      "reference": "(C15)"
+    },
+    {
+      "formula": "f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²",
+      "description": "Standard Three-Hump Camel benchmark (negated for three minima)",
+      "globalMinimum": {
+        "location": "(0, 0)",
+        "value": 0
+      },
+      "localMinima": "Two symmetric local minima"
+    }
+  ],
   "proofPages": [
     "docs/references/extracted-pages/branin1972_page_0017.png",
     "docs/references/extracted-pages/branin1972_page_0018.png"

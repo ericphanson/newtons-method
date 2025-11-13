@@ -1,0 +1,30 @@
+{
+  "citation": "lbfgs-computational-complexity-nocedal-wright-2006",
+  "source": "Nocedal, J. and Wright, S. J. (2006). Numerical Optimization (2nd ed.). Springer.",
+  "page": 178,
+  "formulaType": "Complexity Analysis",
+  "description": "Following Algorithm 7.4 on page 178, the complexity analysis shows that L-BFGS achieves O(md) time complexity per iteration using the two-loop recursion scheme.",
+  "complexityStatements": [
+    {
+      "component": "Memory",
+      "complexity": "O(md)",
+      "explanation": "Storage of m vector pairs {s_i, y_i}, each of dimension d",
+      "comparison": "Full BFGS requires O(d²) memory"
+    },
+    {
+      "component": "Time per iteration (two-loop recursion)",
+      "complexity": "O(md)",
+      "breakdown": "4md scalar multiplications in the two loops + d for initial Hessian approximation",
+      "explanation": "Forward loop: m iterations × d operations; Backward loop: m iterations × d operations"
+    },
+    {
+      "component": "Asymptotic behavior",
+      "formula": "Total time ≈ 4mn + n",
+      "notes": "where m is number of stored pairs, n is dimension (our notation: m→M, n→d)"
+    }
+  ],
+  "keyInsight": "The two-loop recursion in Algorithm 7.4 avoids the O(d²) cost of explicitly forming and multiplying with the Hessian approximation. Instead, it computes the product H_k * ∇f_k using O(md) operations by performing two passes through the m stored vector pairs.",
+  "quotedText": "Without considering the multiplication H_k^0 q, the two-loop recursion scheme requires 4mn multiplications; if H_k^0 is diagonal, then n additional multiplications are needed.",
+  "relevantPageRanges": [178],
+  "verified": "2025-11-13"
+}

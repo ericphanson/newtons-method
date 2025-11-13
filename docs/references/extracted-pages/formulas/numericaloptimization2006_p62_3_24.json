@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p62_3_24",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 62,
+    "theorem": "",
+    "equation": "(3.24)",
+    "description": "Strongly convex quadratic function definition"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0062.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p62_3_24.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 45.0,
+      "right": 100,
+      "bottom": 50.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1248,
+      "right": 2100,
+      "bottom": 1387,
+      "width": 2100,
+      "height": 139
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x) = \\frac{1}{2}x^T Q x - b^T x",
+    "extracted_by": "agent",
+    "extracted_date": "2025-11-13T00:20:00Z",
+    "notes": "Strongly convex quadratic function definition. Q is symmetric and positive definite."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "agent",
+    "verified_date": "2025-11-13T00:20:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:13:33.292831Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

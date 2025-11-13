@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p160_bfgs_update_formula_complete",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 160,
+    "theorem": "BFGS update formula complete",
+    "equation": "(6.19)",
+    "description": "BFGS formula with definitions of s_k and y_k"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0160.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula_complete.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 82.0,
+      "right": 100,
+      "bottom": 100.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2275,
+      "right": 2100,
+      "bottom": 2775,
+      "width": 2100,
+      "height": 500
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T23:37:43.225863Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

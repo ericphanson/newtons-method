@@ -1,0 +1,47 @@
+{
+  "citation": "lbfgs-computational-complexity-nocedal-wright-2006",
+  "source": "Nocedal, J. and Wright, S. J. (2006). Numerical Optimization (2nd ed.). Springer.",
+  "page": 178,
+  "formulaType": "Algorithm",
+  "algorithmName": "Algorithm 7.4: L-BFGS Two-Loop Recursion",
+  "description": "Algorithm 7.4 shows the two-loop recursion for computing H_k * ∇f_k without explicitly forming the Hessian matrix. This is the core computational kernel of L-BFGS that achieves O(md) time complexity per iteration.",
+  "algorithmSteps": [
+    {
+      "step": 1,
+      "description": "Forward loop through stored pairs",
+      "pseudocode": "for i = k-1, k-2, ..., k-m: α_i = ρ_i * s_i^T * q",
+      "complexity": "O(d) per iteration, O(m*d) total"
+    },
+    {
+      "step": 2,
+      "description": "Apply initial Hessian approximation",
+      "pseudocode": "r = H_k^0 * q",
+      "complexity": "O(d) if H_k^0 is diagonal"
+    },
+    {
+      "step": 3,
+      "description": "Backward loop through stored pairs",
+      "pseudocode": "for i = k-m, ..., k-2, k-1: β_i = ρ_i * y_i^T * r; r = r + (α_i - β_i) * y_i",
+      "complexity": "O(d) per iteration, O(m*d) total"
+    },
+    {
+      "step": 4,
+      "description": "Return product",
+      "pseudocode": "return r as H_k * ∇f_k",
+      "complexity": "O(1)"
+    }
+  ],
+  "totalComplexity": {
+    "description": "Total complexity per iteration",
+    "value": "O(md)",
+    "breakdown": "4md scalar multiplications (2 loops × m iterations × d operations each) + d for initial Hessian"
+  },
+  "context": "This algorithm avoids storing the d×d Hessian approximation by computing H_k * v implicitly using only the m stored (s_i, y_i) pairs. The forward loop extracts information about how the stored steps match the query vector, while the backward loop applies corrections using the gradient difference vectors.",
+  "relevantPageRanges": [178],
+  "formulaReferences": {
+    "vectors": "Equations 7.16-7.18 (s_i and y_i definitions)",
+    "scalars": "ρ_i = 1/(y_i^T * s_i)",
+    "initialHessian": "H_k^0 (typically diagonal or identity)"
+  },
+  "verified": "2025-11-13"
+}

@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p160_s_k_and_y_k_definitions",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 160,
+    "theorem": "s_k and y_k definitions",
+    "equation": "variable definitions",
+    "description": "Definitions of s_k and y_k for BFGS"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0160.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_s_k_and_y_k_definitions.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 92.0,
+      "right": 100,
+      "bottom": 100.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2553,
+      "right": 2100,
+      "bottom": 2775,
+      "width": 2100,
+      "height": 222
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T23:38:20.697924Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

@@ -13,11 +13,33 @@
     "docs/references/extracted-pages/numericaloptimization2006_page_0056.png",
     "docs/references/extracted-pages/numericaloptimization2006_page_0057.png"
   ],
-  "verified": "2025-11-12",
-  "verifiedBy": "verification-agent",
-  "verificationNotes": "INDEPENDENT VERIFICATION: Quote verified word-for-word against OCR text and PDF images. Algorithm 3.1 on page 37 (PDF page 57) accurately transcribed. The [...] ellipsis correctly omits explanatory prose between the algorithm statement and the termination guarantee. The termination statement \"An acceptable step length will be found after a finite number of trials, because αk will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3)\" is word-for-word accurate. Page numbers verified: book page 37 = PDF page 57 (algorithm), book page 33 = PDF page 53 (Armijo condition definition), book page 32 = PDF page 52 (Figure 3.3). Claim is accurate: finite termination is guaranteed but no explicit bound is provided in terms of problem parameters. The book uses ρ for contraction factor; code may use τ (correctly documented in notes). Usage in GdLineSearchTab.tsx verified at lines 373, 383, 605, 624 - all uses are appropriate and consistent with the source material.",
+  "verified": "2025-11-13",
+  "verifiedBy": "claude-sonnet-4-5",
+  "verificationNotes": "INDEPENDENT VERIFICATION: Quote verified word-for-word against OCR text and PDF images. Algorithm 3.1 on page 37 (PDF page 57) accurately transcribed. The [...] ellipsis correctly omits explanatory prose between the algorithm statement and the termination guarantee. The termination statement \"An acceptable step length will be found after a finite number of trials, because αk will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3)\" is word-for-word accurate. Page numbers verified: book page 37 = PDF page 57 (algorithm), book page 33 = PDF page 53 (Armijo condition definition), book page 32 = PDF page 52 (Figure 3.3). Claim is accurate: finite termination is guaranteed but no explicit bound is provided in terms of problem parameters. The book uses ρ for contraction factor; code may use τ (correctly documented in notes). Usage in GdLineSearchTab.tsx verified at lines 373, 383, 605, 624 - all uses are appropriate and consistent with the source material. UPDATED 2025-11-13: Added formulaImages with the two key formulas from the citation.",
   "usedIn": [
     "GdLineSearchTab"
   ],
-  "pdfPages": "37, 52-53, 56-57"
+  "pdfPages": "37, 52-53, 56-57",
+  "formulaImages": [
+    {
+      "formula_id": "numericaloptimization2006_p37_armijo_sufficient_decrease",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.png",
+      "latex": "f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k",
+      "verified": true,
+      "theorem": "Algorithm 3.1 - Armijo sufficient decrease condition",
+      "equation": "Armijo condition",
+      "description": "The sufficient decrease condition (Armijo condition) that the backtracking line search must satisfy"
+    },
+    {
+      "formula_id": "numericaloptimization2006_p37_step_reduction",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.png",
+      "latex": "\\alpha \\leftarrow \\rho\\alpha",
+      "verified": true,
+      "theorem": "Algorithm 3.1 - Step size reduction",
+      "equation": "Step reduction rule",
+      "description": "The geometric step size reduction rule used in backtracking, where rho is the contraction factor"
+    }
+  ]
 }

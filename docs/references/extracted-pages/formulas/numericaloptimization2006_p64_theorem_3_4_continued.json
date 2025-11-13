@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p64_theorem_3_4_continued",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 64,
+    "theorem": "Theorem 3.4 (continued)",
+    "equation": "",
+    "description": "Linear convergence of steepest descent - complete with convergence inequality"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0064.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p64_theorem_3_4_continued.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 5.0,
+      "right": 100,
+      "bottom": 26.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 138,
+      "right": 2100,
+      "bottom": 721,
+      "width": 2100,
+      "height": 583
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\textit{which the Hessian matrix} $\\nabla^2 f(x^*)$ \\textit{is positive definite. Let} $r$ \\textit{be any scalar satisfying}\n\n\\[r \\in \\left[\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}, 1\\right),\\]\n\n\\textit{where} $\\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ \\textit{are the eigenvalues of} $\\nabla^2 f(x^*)$. \\textit{Then for all} $k$ \\textit{sufficiently large, we have}\n\n\\[f(x_{k+1}) - f(x^*) \\leq r^2[f(x_k) - f(x^*)].\\]",
+    "extracted_by": "agent",
+    "extracted_date": "2025-11-13T00:18:00Z",
+    "notes": "Continuation and conclusion of Theorem 3.4 from page 64. Contains the convergence rate bound and the convergence inequality. Note: the interval notation uses a closing parenthesis for 1, not a bracket, indicating r < 1."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "agent",
+    "verified_date": "2025-11-13T00:18:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:11:10.546436Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

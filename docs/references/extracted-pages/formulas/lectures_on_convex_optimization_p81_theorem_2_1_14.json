@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p81_theorem_2_1_14",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 81,
+    "theorem": "Theorem 2.1.14",
+    "equation": "",
+    "description": "GD convergence for smooth convex functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0081.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p81_theorem_2_1_14.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 48.0,
+      "right": 100,
+      "bottom": 56.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1332,
+      "right": 1831,
+      "bottom": 1554,
+      "width": 1831,
+      "height": 222
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:29:18.580330Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

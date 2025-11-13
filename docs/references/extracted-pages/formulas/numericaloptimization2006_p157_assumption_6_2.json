@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p157_assumption_6_2",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 157,
+    "theorem": "Assumption 6.2",
+    "equation": "",
+    "description": "Assumption 6.2: Lipschitz continuous Hessian requirement"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0177.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p157_assumption_6_2.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 85.0,
+      "right": 100,
+      "bottom": 100.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2356,
+      "right": 2100,
+      "bottom": 2775,
+      "width": 2100,
+      "height": 419
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\text{Assumption 6.2. The Hessian matrix } G \\text{ is Lipschitz continuous at } x^*, \\text{ that is, } \\|G(x) - G(x^*)\\| \\leq L \\|x - x^*\\| \\text{ for all } x \\text{ near } x^*, \\text{ where } L \\text{ is a positive constant.}",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": "Lipschitz continuity of Hessian is required for Theorem 6.6"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "adversarial-verification-agent-batch5-agent3",
+    "verified_date": "2025-11-12",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:00:00Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

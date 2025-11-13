@@ -1,0 +1,27 @@
+{
+  "citation": "lbfgs-computational-complexity-nocedal-wright-2006",
+  "source": "Nocedal, J. and Wright, S. J. (2006). Numerical Optimization (2nd ed.). Springer.",
+  "page": 177,
+  "formulaType": "Key L-BFGS Vector Pair Definitions",
+  "description": "Equations 7.16-7.18 define the vector pair updates (s_i, y_i) that are stored in L-BFGS. These pairs represent the step and gradient difference vectors used in the compact representation of the Hessian approximation.",
+  "formulas": [
+    {
+      "number": "7.16",
+      "description": "s_i definition: step vector",
+      "latex": "s_i = x_{i+1} - x_i"
+    },
+    {
+      "number": "7.17",
+      "description": "y_i definition: gradient difference vector",
+      "latex": "y_i = \\nabla f(x_{i+1}) - \\nabla f(x_i)"
+    },
+    {
+      "number": "7.18",
+      "description": "Alternative notation for y_i",
+      "latex": "y_i = \\nabla f_{i+1} - \\nabla f_i"
+    }
+  ],
+  "context": "These formulas define the compact representation used by L-BFGS. Instead of storing a full d×d Hessian approximation, L-BFGS stores only m pairs of (s_i, y_i) vectors. Each vector has dimension d, so the total storage is O(md) instead of O(d²).",
+  "relevantPageRanges": [177, 178],
+  "verified": "2025-11-13"
+}

@@ -13,6 +13,36 @@
     "docs/references/extracted-pages/numericaloptimization2006_page_0188.png",
     "docs/references/extracted-pages/numericaloptimization2006_page_0189.png"
   ],
+  "formulaImages": [
+    {
+      "description": "Superlinear convergence condition for inexact Newton methods",
+      "formula": "\\eta_k \\to 0",
+      "context": "Theorem 7.2 - The rate of convergence is superlinear if $\\eta_k \\to 0$",
+      "source": "Nocedal & Wright (2006), Theorem 7.2, page 188",
+      "significance": "Central condition for superlinear convergence; forcing sequence must decay to zero where $\\eta_k$ is the residual tolerance parameter in the inexact Newton system solve"
+    },
+    {
+      "description": "Quadratic convergence condition with Lipschitz continuous Hessian",
+      "formula": "\\eta_k = O(\\|\\nabla f_k\\|)",
+      "context": "Theorem 7.2 - If in addition $\\nabla^2 f(x)$ is Lipschitz continuous near $x^*$ and $\\eta_k = O(\\|\\nabla f_k\\|)$, then convergence is quadratic",
+      "source": "Nocedal & Wright (2006), Theorem 7.2, page 188",
+      "significance": "Sufficient condition for quadratic convergence; forcing sequence decay proportional to gradient norm enables rapid convergence"
+    },
+    {
+      "description": "Residual tolerance in inexact Newton system",
+      "formula": "\\|r_k\\| \\leq \\eta_k \\|\\nabla f_k\\|",
+      "context": "The linear system is solved to residual tolerance proportional to gradient norm",
+      "source": "Nocedal & Wright (2006), Section 7.1, pages 165-169",
+      "significance": "Standard termination criterion for iterative solvers like CG; balances per-iteration cost against convergence rate"
+    },
+    {
+      "description": "Practical forcing sequence for superlinear convergence",
+      "formula": "\\eta_k = \\min(0.5, \\sqrt{\\|\\nabla f_k\\|})",
+      "context": "Common practical choice that achieves superlinear convergence while keeping early iterations cheap",
+      "source": "Nocedal & Wright (2006), Section 7.1",
+      "significance": "Widely used heuristic combining constant threshold with gradient-norm decay for good practical performance"
+    }
+  ],
   "verified": "2025-11-12",
   "verifiedBy": "verification-agent",
   "verificationNotes": "VERIFIED (Batch 5 - Adversarial): FIXED critical page numbering error. Original proofPages had PDF pages 0165-0169 which contained WRONG content (SR1 Method from Chapter 6). Corrected to PDF pages 0185-0189 (book pages 165-169) which contain Section 7.1 'Inexact Newton Methods'. The 20-page offset was not accounted for in original citation. Quote is word-for-word accurate. Theorem 7.1 (page 186) and Theorem 7.2 (page 188) verified. NOTE: The claim's 'O(d³) to O(d²)' complexity reduction is an INTERPRETATION - the source says 'spares us from concerns about the expense of a direct factorization' but doesn't explicitly state Big-O notation. This interpretation is correct and well-justified (direct factorization = O(d³), CG matrix-vector products = O(d²) for dense or O(d) for sparse).",

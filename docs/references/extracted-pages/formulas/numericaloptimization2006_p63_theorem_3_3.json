@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p63_theorem_3_3",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 63,
+    "theorem": "Theorem 3.3",
+    "equation": "",
+    "description": "Linear convergence of steepest descent with exact line search on strongly convex quadratic functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0063.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p63_theorem_3_3.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 45.5,
+      "right": 100,
+      "bottom": 58.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1262,
+      "right": 2100,
+      "bottom": 1609,
+      "width": 2100,
+      "height": 347
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\textbf{Theorem 3.3.}\n\n\\textit{When the steepest descent method with exact line searches (3.26) is applied to the strongly convex quadratic function (3.24), the error norm (3.27) satisfies}\n\n\\[\\|x_{k+1} - x^*\\|_Q^2 \\leq \\left(\\frac{\\lambda_n - \\lambda_1}{\\lambda_n + \\lambda_1}\\right)^2 \\|x_k - x^*\\|_Q^2,\\]\n\n\\textit{where} $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\leq \\lambda_n$ \\textit{are the eigenvalues of} $Q$.",
+    "extracted_by": "agent",
+    "extracted_date": "2025-11-13T00:15:00Z",
+    "notes": "Main convergence theorem for steepest descent on quadratic functions. Equation number (3.29) omitted from LaTeX as it's a label."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "agent",
+    "verified_date": "2025-11-13T00:15:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T00:10:06.978847Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p160_algorithm_6_1_-_variable_definitions",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 160,
+    "theorem": "Algorithm 6.1 - variable definitions",
+    "equation": "s_k and y_k definitions",
+    "description": "BFGS algorithm variable definitions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0160.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_algorithm_6_1_-_variable_definitions.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 25.0,
+      "right": 100,
+      "bottom": 35.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 693,
+      "right": 2100,
+      "bottom": 971,
+      "width": 2100,
+      "height": 278
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-12T23:39:30.891328Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

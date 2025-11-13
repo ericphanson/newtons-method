@@ -18,6 +18,64 @@ For L-smooth functions, Armijo backtracking with geometric step reduction $\alph
 
 **Theorem/Result:** Algorithm 3.1 (Backtracking Line Search)
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Algorithm 3.1 - Armijo sufficient decrease condition Armijo condition
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p37_armijo_sufficient_decrease](../extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p37_armijo_sufficient_decrease.json](../extracted-pages/formulas/numericaloptimization2006_p37_armijo_sufficient_decrease.json)
+
+---
+
+### Formula 2 - Algorithm 3.1 - Step size reduction Step reduction rule
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p37_step_reduction](../extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.png)
+
+**Extracted LaTeX:**
+
+$$
+\alpha \leftarrow \rho\alpha
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\alpha \leftarrow \rho\alpha
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p37_step_reduction.json](../extracted-pages/formulas/numericaloptimization2006_p37_step_reduction.json)
+
+---
+
 ## Reader Notes
 
 The Armijo backtracking algorithm guarantees that a step length satisfying the sufficient decrease condition $f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k$ will be found in finitely many iterations. At each iteration, the step length is reduced by the factor $\rho$ (i.e., $\alpha \leftarrow \rho\alpha$). The algorithm terminates because the step length eventually becomes small enough that the sufficient decrease condition is satisfied. For L-smooth functions (Lipschitz continuous gradient with constant $L$), this is guaranteed by Lemma 1.2.3 in Nesterov 2018 (page 45/25), which shows that $f(y) \leq f(x) + \langle\nabla f(x), y-x\rangle + \frac{L}{2}\|y-x\|^2$. However, the standard references do not provide an explicit bound on the number of backtracking iterations in terms of $L$, $c$, or $\rho$; they only guarantee finite termination. The typical choice is $c = 10^{-4}$ (page 33) and $\rho \in [\rho_{lo}, \rho_{hi}]$ for some fixed $0 < \rho_{lo} < \rho_{hi} < 1$ (page 37).
@@ -28,11 +86,11 @@ Internal: Used in GdLineSearchTab to explain backtracking line search terminatio
 
 ## Verification
 
-**Verified:** 2025-11-12
+**Verified:** 2025-11-13
 
-**Verified By:** verification-agent
+**Verified By:** claude-sonnet-4-5
 
-**Verification Notes:** INDEPENDENT VERIFICATION: Quote verified word-for-word against OCR text and PDF images. Algorithm 3.1 on page 37 (PDF page 57) accurately transcribed. The [...] ellipsis correctly omits explanatory prose between the algorithm statement and the termination guarantee. The termination statement "An acceptable step length will be found after a finite number of trials, because αk will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3)" is word-for-word accurate. Page numbers verified: book page 37 = PDF page 57 (algorithm), book page 33 = PDF page 53 (Armijo condition definition), book page 32 = PDF page 52 (Figure 3.3). Claim is accurate: finite termination is guaranteed but no explicit bound is provided in terms of problem parameters. The book uses ρ for contraction factor; code may use τ (correctly documented in notes). Usage in GdLineSearchTab.tsx verified at lines 373, 383, 605, 624 - all uses are appropriate and consistent with the source material.
+**Verification Notes:** INDEPENDENT VERIFICATION: Quote verified word-for-word against OCR text and PDF images. Algorithm 3.1 on page 37 (PDF page 57) accurately transcribed. The [...] ellipsis correctly omits explanatory prose between the algorithm statement and the termination guarantee. The termination statement "An acceptable step length will be found after a finite number of trials, because αk will eventually become small enough that the sufficient decrease condition holds (see Figure 3.3)" is word-for-word accurate. Page numbers verified: book page 37 = PDF page 57 (algorithm), book page 33 = PDF page 53 (Armijo condition definition), book page 32 = PDF page 52 (Figure 3.3). Claim is accurate: finite termination is guaranteed but no explicit bound is provided in terms of problem parameters. The book uses ρ for contraction factor; code may use τ (correctly documented in notes). Usage in GdLineSearchTab.tsx verified at lines 373, 383, 605, 624 - all uses are appropriate and consistent with the source material. UPDATED 2025-11-13: Added formulaImages with the two key formulas from the citation.
 
 ## Used In
 
