@@ -28,26 +28,26 @@ Newton's method achieves quadratic convergence on strongly convex functions with
 
 **Cropped Formula Image:**
 
-![numericaloptimization2006_p65_equation_3_33](../extracted-pages/numericaloptimization2006_page_0065.png)
+![numericaloptimization2006_p65_theorem_3_5](../extracted-pages/formulas/numericaloptimization2006_p65_theorem_3_5.png)
 
 **Extracted LaTeX:**
 
 $$
-\|x_{k+1} - x^*\| \leq \tilde{L}\|x_k - x^*\|^2
+\|x_k + p_k^N - x^*\| \leq L\|\nabla^2 f(x^*)^{-1}\|\|x_k - x^*\|^2 = \tilde{L}\|x_k - x^*\|^2.
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-\|x_{k+1} - x^*\| \leq \tilde{L}\|x_k - x^*\|^2
+\|x_k + p_k^N - x^*\| \leq L\|\nabla^2 f(x^*)^{-1}\|\|x_k - x^*\|^2 = \tilde{L}\|x_k - x^*\|^2.
 ```
 
 </details>
 
 **Verification:** ✅ Verified
 
-**Metadata:** [numericaloptimization2006_p65_equation_3_33.json](../extracted-pages/numericaloptimization2006_page_0065.png)
+**Metadata:** [numericaloptimization2006_p65_theorem_3_5.json](../extracted-pages/formulas/numericaloptimization2006_p65_theorem_3_5.json)
 
 ---
 

@@ -24,30 +24,30 @@ For convex functions with Lipschitz continuous Hessian, Newton's method (with cu
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1 - Algorithm 4.1.16 Cubic regularization of Newton's method
+### Formula 1 - Algorithm (4.1.5) (4.1.5)
 
 **Cropped Formula Image:**
 
-![lectures_on_convex_optimization_p262_cubic_regularization_algorithm](../extracted-pages/formulas/lectures_on_convex_optimization_p262_cubic_regularization_algorithm.png)
+![lectures_on_convex_optimization_p262_algorithm_4_1_5](../extracted-pages/formulas/lectures_on_convex_optimization_p262_algorithm_4_1_5.png)
 
 **Extracted LaTeX:**
 
 $$
-x_{k+1} = \arg\min_{x \in \mathbb{R}^n} \left[ \nabla f(x_k)^T(x - x_k) + \frac{1}{2}(x - x_k)^T\nabla^2 f(x_k)(x - x_k) + \frac{M}{6}\|x - x_k\|^3 \right]
+\min_y \left[ \langle \nabla f(x), y - x \rangle + \frac{1}{2}\langle \nabla^2 f(x)(y - x), y - x \rangle + \frac{M}{6}\|y - x\|^3 \right]
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-x_{k+1} = \arg\min_{x \in \mathbb{R}^n} \left[ \nabla f(x_k)^T(x - x_k) + \frac{1}{2}(x - x_k)^T\nabla^2 f(x_k)(x - x_k) + \frac{M}{6}\|x - x_k\|^3 \right]
+\min_y \left[ \langle \nabla f(x), y - x \rangle + \frac{1}{2}\langle \nabla^2 f(x)(y - x), y - x \rangle + \frac{M}{6}\|y - x\|^3 \right]
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
-**Metadata:** [lectures_on_convex_optimization_p262_cubic_regularization_algorithm.json](../extracted-pages/formulas/lectures_on_convex_optimization_p262_cubic_regularization_algorithm.json)
+**Metadata:** [lectures_on_convex_optimization_p262_algorithm_4_1_5.json](../extracted-pages/formulas/lectures_on_convex_optimization_p262_algorithm_4_1_5.json)
 
 ---
 
@@ -55,107 +55,107 @@ x_{k+1} = \arg\min_{x \in \mathbb{R}^n} \left[ \nabla f(x_k)^T(x - x_k) + \frac{
 
 **Cropped Formula Image:**
 
-![lectures_on_convex_optimization_p268_theorem_4_1_2_stationary_conditions](../extracted-pages/formulas/lectures_on_convex_optimization_p268_theorem_4_1_2_stationary_conditions.png)
+![lectures_on_convex_optimization_p267_theorem_4_1_2](../extracted-pages/formulas/lectures_on_convex_optimization_p267_theorem_4_1_2.png)
 
 **Extracted LaTeX:**
 
 $$
-\lim_{i\to\infty} f(x_i) = f^*, \quad \nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succeq 0
+\lim_{i \to \infty} f(x_i) = f^*, \quad f(x^*) = f^*, \quad \nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succeq 0
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-\lim_{i\to\infty} f(x_i) = f^*, \quad \nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succeq 0
+\lim_{i \to \infty} f(x_i) = f^*, \quad f(x^*) = f^*, \quad \nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succeq 0
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
-**Metadata:** [lectures_on_convex_optimization_p268_theorem_4_1_2_stationary_conditions.json](../extracted-pages/formulas/lectures_on_convex_optimization_p268_theorem_4_1_2_stationary_conditions.json)
+**Metadata:** [lectures_on_convex_optimization_p267_theorem_4_1_2.json](../extracted-pages/formulas/lectures_on_convex_optimization_p267_theorem_4_1_2.json)
 
 ---
 
-### Formula 3 - Definition 4.1.3 Gradient-dominated function of degree p
+### Formula 3 - Definition 4.1.3 (4.1.31)
 
 **Cropped Formula Image:**
 
-![lectures_on_convex_optimization_p274_gradient_dominated_definition](../extracted-pages/formulas/lectures_on_convex_optimization_p274_gradient_dominated_definition.png)
+![lectures_on_convex_optimization_p274_definition_4_1_3](../extracted-pages/formulas/lectures_on_convex_optimization_p274_definition_4_1_3.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x) - f(x^*) \leq \tau_1 |\nabla f(x)|^p
+f(x) - f(x^*) \leq \tau_f \|\nabla f(x)\|^p
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x) - f(x^*) \leq \tau_1 |\nabla f(x)|^p
+f(x) - f(x^*) \leq \tau_f \|\nabla f(x)\|^p
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
-**Metadata:** [lectures_on_convex_optimization_p274_gradient_dominated_definition.json](../extracted-pages/formulas/lectures_on_convex_optimization_p274_gradient_dominated_definition.json)
+**Metadata:** [lectures_on_convex_optimization_p274_definition_4_1_3.json](../extracted-pages/formulas/lectures_on_convex_optimization_p274_definition_4_1_3.json)
 
 ---
 
-### Formula 4 - Example 4.1.2 Convex functions as gradient-dominated degree 1
+### Formula 4 - Example 4.1.2 (4.1.32)
 
 **Cropped Formula Image:**
 
-![lectures_on_convex_optimization_p275_example_4_1_2_convex_gradient_dominated](../extracted-pages/formulas/lectures_on_convex_optimization_p275_example_4_1_2_convex_gradient_dominated.png)
+![lectures_on_convex_optimization_p275_example_4_1_2](../extracted-pages/formulas/lectures_on_convex_optimization_p275_example_4_1_2.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x) - f(x^*) \leq \left\langle \nabla f(x), x - x^* \right\rangle \leq \|\nabla f(x)\| \cdot R, \quad \|x - x^*\| < R
+f(y) \geq f(x) + \langle \nabla f(x), y - x \rangle + \frac{1}{2}\mu \|y - x\|^2
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x) - f(x^*) \leq \left\langle \nabla f(x), x - x^* \right\rangle \leq \|\nabla f(x)\| \cdot R, \quad \|x - x^*\| < R
+f(y) \geq f(x) + \langle \nabla f(x), y - x \rangle + \frac{1}{2}\mu \|y - x\|^2
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
-**Metadata:** [lectures_on_convex_optimization_p275_example_4_1_2_convex_gradient_dominated.json](../extracted-pages/formulas/lectures_on_convex_optimization_p275_example_4_1_2_convex_gradient_dominated.json)
+**Metadata:** [lectures_on_convex_optimization_p275_example_4_1_2.json](../extracted-pages/formulas/lectures_on_convex_optimization_p275_example_4_1_2.json)
 
 ---
 
-### Formula 5 - Theorem 4.1.6 4.1.36
+### Formula 5 - Theorem 4.1.6 (4.1.36)
 
 **Cropped Formula Image:**
 
-![lectures_on_convex_optimization_p276_theorem_4_1_6_convergence_rate](../extracted-pages/formulas/lectures_on_convex_optimization_p276_theorem_4_1_6_convergence_rate.png)
+![lectures_on_convex_optimization_p276_theorem_4_1_6](../extracted-pages/formulas/lectures_on_convex_optimization_p276_theorem_4_1_6.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x_k) - f(x^*) \leq \hat{\omega} \cdot \frac{\gamma^2}{\left(2 + k + \frac{3}{2\gamma}\right)^2}
+f(x_k) - f(x^*) \leq \hat{\omega} \cdot \frac{\gamma^2\left(2+\frac{3}{2}\gamma\right)^2}{\left(2+\left(k+\frac{3}{2}\right)\cdot\gamma\right)^2}
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x_k) - f(x^*) \leq \hat{\omega} \cdot \frac{\gamma^2}{\left(2 + k + \frac{3}{2\gamma}\right)^2}
+f(x_k) - f(x^*) \leq \hat{\omega} \cdot \frac{\gamma^2\left(2+\frac{3}{2}\gamma\right)^2}{\left(2+\left(k+\frac{3}{2}\right)\cdot\gamma\right)^2}
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
-**Metadata:** [lectures_on_convex_optimization_p276_theorem_4_1_6_convergence_rate.json](../extracted-pages/formulas/lectures_on_convex_optimization_p276_theorem_4_1_6_convergence_rate.json)
+**Metadata:** [lectures_on_convex_optimization_p276_theorem_4_1_6.json](../extracted-pages/formulas/lectures_on_convex_optimization_p276_theorem_4_1_6.json)
 
 ---
 
@@ -173,7 +173,7 @@ Internal: This citation addresses Newton's method convergence on convex function
 
 **Verified By:** verification-agent
 
-**Verification Notes:** VERIFIED (Batch 5 - Adversarial): FIXED page numbering from PDF pages to book pages (262-277 → 243-258). Added missing proof pages (268-270 for Theorem 4.1.2 continuation, 272-273 for connecting theorems). All 16 pages verified necessary: pages 262-267 (Assumption 4.1.1, Algorithm 4.1.16, supporting lemmas), pages 268-270 (Theorem 4.1.2 complete statement), pages 271-273 (connection to gradient dominated functions), pages 274-275 (Example 4.1.1 showing convex functions are gradient dominated), pages 276-277 (Theorem 4.1.6 convergence rate). Quote is accurate, claim correctly describes cubic regularized Newton's method converging to global minimum for convex functions with Lipschitz continuous Hessian. The 16-page range is justified.
+**Verification Notes:** COMPLETE (2025-11-13): All 5 formulas extracted and verified at 300 DPI. (1) Algorithm 4.1.5 page 262 - cubic regularization subproblem. (2) Theorem 4.1.2 page 267 - limit point characterization with stationary conditions. (3) Definition 4.1.3 page 274 - gradient-dominated function of degree p. (4) Example 4.1.2 page 275 - strongly convex inequality (equation 4.1.32). (5) Theorem 4.1.6 page 276 - convergence bound for gradient-dominated functions (CRITICAL FIX from Batch 5: corrected missing numerator factor). All formulas follow 3-checkpoint verification workflow with no cutoffs.
 
 ## Used In
 

@@ -36,14 +36,13 @@
   },
   "formulaImages": [
     {
-      "id": "numericaloptimization2006_p160_bfgs_update_formula",
-      "description": "BFGS update formula (6.19)",
-      "formula": "B_{k+1} = B_k - \\frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \\frac{y_k y_k^T}{y_k^T s_k}",
-      "page": 160,
-      "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula.png",
+      "formula_id": "numericaloptimization2006_p160_bfgs_update_formula",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula.png",
+      "latex": "B_{k+1} = B_k - \\frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \\frac{y_k y_k^T}{y_k^T s_k}",
       "verified": true,
-      "verificationDate": "2025-11-13",
-      "notes": "BFGS formula (6.19) obtained by applying Sherman-Morrison-Woodbury formula (A.28) to (6.17)"
+      "theorem": "Section 6.1",
+      "equation": "(6.19)"
     }
   ],
   "notes": "Internal: This citation establishes the key robustness property of BFGS - it maintains positive definiteness through curvature filtering. The curvature condition $s_k^T y_k > 0$ (equation 6.7, page 157) is guaranteed by the Wolfe line search conditions as shown in equation (6.8, page 157). The positive definiteness preservation argument on page 161 shows that if $H_k$ is positive definite, then $H_{k+1}$ from BFGS update is also positive definite. NOTE: Pages 136-140 are from Chapter 5 (Conjugate Gradient Methods) discussing preliminary quasi-Newton concepts. Pages 156-161 are from Chapter 6 (Quasi-Newton Methods) which is dedicated to BFGS. The 16-page gap (141-155) contains unrelated material: end of Chapter 5 (Fletcher-Reeves, nonlinear CG), exercises, and Chapter 6 title page. The non-contiguous page range is intentional and correct.",

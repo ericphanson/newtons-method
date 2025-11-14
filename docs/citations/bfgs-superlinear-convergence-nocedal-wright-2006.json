@@ -45,7 +45,7 @@
       "id": "numericaloptimization2006_p176_assumption_6_2",
       "description": "Assumption 6.2 - Lipschitz Continuous Hessian",
       "formula": "\\|G(x) - G(x^*)\\| \\leq L\\|x - x^*\\|",
-      "fullStatement": "\\textbf{Assumption 6.2.} \\textit{The Hessian matrix } G \\textit{ is Lipschitz continuous at } x^*, \\textit{ that is,} \\|G(x) - G(x^*)\\| \\leq L\\|x - x^*\\|, \\textit{for all } x \\textit{ near } x^*, \\textit{ where } L \\textit{ is a positive constant.}",
+      "fullStatement": "\\textbf{Assumption 6.2.} \\textit{The Hessian matrix } G \\textit{ is Lipschitz continuous at } x^*, \\textit{ that is, } \\|G(x) - G(x^*)\\| \\leq L\\|x - x^*\\|, \\textit{ for all } x \\textit{ near } x^*, \\textit{ where } L \\textit{ is a positive constant.}",
       "page": 156,
       "pdfPage": 176,
       "imagePath": "docs/references/extracted-pages/formulas/numericaloptimization2006_p176_assumption_6_2.png",
@@ -53,7 +53,7 @@
       "verified": true,
       "verificationDate": "2025-11-13",
       "extractionMethod": "cropped at 300 DPI then LaTeX extracted from crop",
-      "notes": "Regularity condition required for superlinear convergence - ensures Hessian doesn't change too rapidly near the optimum"
+      "notes": "Regularity condition required for superlinear convergence - ensures Hessian doesn't change too rapidly near the optimum. Re-cropped on 2025-11-13 to include complete statement with 'for all x near x*, where L is a positive constant.'"
     },
     {
       "id": "numericaloptimization2006_p176_6_52",

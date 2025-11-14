@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p198_algorithm_7_4",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 198,
+    "theorem": "Algorithm 7.4",
+    "equation": "L-BFGS two-loop recursion",
+    "description": "L-BFGS two-loop recursion algorithm"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0198.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_algorithm_7_4.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 27.0,
+      "right": 100,
+      "bottom": 62.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 749,
+      "right": 2100,
+      "bottom": 1720,
+      "width": 2100,
+      "height": 971
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\begin{algorithm}\n\\caption{Algorithm 7.4 (L-BFGS two-loop recursion)}\n\\begin{algorithmic}\n\\State $q \\gets \\nabla f_k$\n\\For{$i = k-1, k-2, \\ldots, k-m$}\n  \\State $\\alpha_i \\gets \\rho_i s_i^T q$\n  \\State $q \\gets q - \\alpha_i y_i$\n\\EndFor\n\\State $r \\gets H_k^0 q$\n\\For{$i = k-m, k-m+1, \\ldots, k-1$}\n  \\State $\\beta \\gets \\rho_i y_i^T r$\n  \\State $r \\gets r + s_i(\\alpha_i - \\beta)$\n\\EndFor\n\\State \\textbf{stop with result} $H_k \\nabla f_k = r$\n\\end{algorithmic}\n\\end{algorithm}",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13",
+    "notes": "Algorithm 7.4 showing L-BFGS two-loop recursion for computing H_k * grad(f_k) in O(md) time. Includes complexity statement at bottom."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:12:55.520484Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

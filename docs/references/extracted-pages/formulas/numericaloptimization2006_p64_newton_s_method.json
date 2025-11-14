@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p64_newton_s_method",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 64,
+    "theorem": "Newton's Method",
+    "equation": "(3.30)",
+    "description": "Newton's method search direction"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0064.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p64_newton_s_method.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 46.5,
+      "right": 100,
+      "bottom": 49.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1290,
+      "right": 2100,
+      "bottom": 1373,
+      "width": 2100,
+      "height": 83
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "p_k^N = -\\nabla^2 f_k^{-1} \\nabla f_k",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13T18:15:00Z",
+    "notes": "Newton's method search direction formula (equation 3.30)"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13T18:15:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:12:30.836615Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

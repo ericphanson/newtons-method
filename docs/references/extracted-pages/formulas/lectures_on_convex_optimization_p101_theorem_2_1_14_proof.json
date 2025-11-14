@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p101_theorem_2_1_14_proof",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 101,
+    "theorem": "Theorem 2.1.14 proof",
+    "equation": "omega definition",
+    "description": "Definition of omega parameter in descent inequality"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_14_proof.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 8.0,
+      "right": 100,
+      "bottom": 10.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 222,
+      "right": 1831,
+      "bottom": 291,
+      "width": 1831,
+      "height": 69
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:14:34.310732Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

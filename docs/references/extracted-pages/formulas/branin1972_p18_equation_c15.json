@@ -1,0 +1,51 @@
+{
+  "formula_id": "branin1972_p18_equation_c15",
+  "source": {
+    "pdf_id": "branin1972",
+    "page": 18,
+    "theorem": "Equation C15",
+    "equation": "(C15)",
+    "description": "Three-hump camel function original formulation"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/branin1972_page_0018.png",
+    "output_image": "docs/references/extracted-pages/formulas/branin1972_p18_equation_c15.png",
+    "source_dimensions": {
+      "width": 2550,
+      "height": 3300
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 60.5,
+      "right": 100,
+      "bottom": 68.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1996,
+      "right": 2550,
+      "bottom": 2244,
+      "width": 2550,
+      "height": 248
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:11:42.235462Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

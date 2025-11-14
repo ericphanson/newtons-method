@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p267_theorem_4_1_2",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 267,
+    "theorem": "Theorem 4.1.2",
+    "equation": "",
+    "description": "Limit point characterization - stationary conditions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0267.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p267_theorem_4_1_2.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 35.0,
+      "right": 100,
+      "bottom": 53.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 971,
+      "right": 1831,
+      "bottom": 1471,
+      "width": 1831,
+      "height": 500
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\lim_{i \\to \\infty} f(x_i) = f^*, \\quad f(x^*) = f^*, \\quad \\nabla f(x^*) = 0, \\quad \\nabla^2 f(x^*) \\succeq 0",
+    "extracted_by": "claude-code-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Theorem 4.1.2 - limit point characterization: sequence converges to optimal value, and limit points are stationary with positive semidefinite Hessian"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-code-agent",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T22:57:07.160515Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

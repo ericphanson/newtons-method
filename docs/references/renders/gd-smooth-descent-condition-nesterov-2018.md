@@ -16,7 +16,7 @@ For smooth convex functions (Lipschitz continuous gradient with constant $L$), g
 
 > Let $f \in \mathscr{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h \leq 2/L$. Then the Gradient Method generates a sequence $\{x_k\}$, which converges to some optimal point $x^*$.
 
-**Pages:** 80-83
+**Pages:** 100-101
 
 **Theorem/Result:** Theorem 2.1.14
 
@@ -24,24 +24,57 @@ For smooth convex functions (Lipschitz continuous gradient with constant $L$), g
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Theorem 2.1.14 descent inequality
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p100_theorem_2_1_14_proof](../extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14_proof.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2
+f(x_{k+1}) \leq f(x_k) + \langle \nabla f(x_k), x_{k+1} - x_k \rangle + \frac{L}{2} \| x_{k+1} - x_k \|^2 = f(x_k) - \omega \| \nabla f(x_k) \|^2
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x_{k+1}) \leq f(x_k) - h(1 - \frac{hL}{2})\|\nabla f(x_k)\|^2
+f(x_{k+1}) \leq f(x_k) + \langle \nabla f(x_k), x_{k+1} - x_k \rangle + \frac{L}{2} \| x_{k+1} - x_k \|^2 = f(x_k) - \omega \| \nabla f(x_k) \|^2
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p100_theorem_2_1_14_proof.json](../extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14_proof.json)
+
+---
+
+### Formula 2 - Theorem 2.1.14 omega definition
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p101_theorem_2_1_14_proof](../extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_14_proof.png)
+
+**Extracted LaTeX:**
+
+$$
+\omega = h(1 - \frac{L}{2}h)
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\omega = h(1 - \frac{L}{2}h)
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p101_theorem_2_1_14_proof.json](../extracted-pages/formulas/lectures_on_convex_optimization_p101_theorem_2_1_14_proof.json)
 
 ---
 
@@ -59,7 +92,7 @@ Internal: Used in GdFixedTab to explain the sufficient condition for descent on 
 
 **Verified By:** adversarial-verification-agent-batch6-agent4
 
-**Verification Notes:** CRITICAL FIXES APPLIED (2025-11-13): (1) Corrected page numbers from incorrect '39-40, 42, 60-63' to correct '80-83' where Theorem 2.1.14 actually appears. (2) Verified quote matches Theorem 2.1.14 word-for-word on page 81. (3) Confirmed step size condition is '0 < h ≤ 2/L' (with ≤, not <) as stated in theorem. (4) Clarified that strict descent f(x_{k+1}) < f(x_k) requires h < 2/L AND ∇f ≠ 0; when h = 2/L exactly, we still get non-strict descent. The descent property follows from the proof on pages 82-83.
+**Verification Notes:** CRITICAL FIXES APPLIED (2025-11-13 BATCH 3): (1) CORRECTED PAGE NUMBERS AGAIN - Previous fix used '80-83' (book pages) but listed wrong PDF pages. Theorem 2.1.14 is on PDF pages 100-101 (book pages 80-81 shown in headers). (2) Extracted formula images showing descent inequality f(x_{k+1}) ≤ f(x_k) - ω||∇f(x_k)||² where ω = h(1 - Lh/2). (3) Updated proofPages to correct PDF pages 100-101. (4) Verified quote matches Theorem 2.1.14 statement on page 100. (5) Confirmed formulaImages show complete formulas with no cutoffs.
 
 ## Used In
 
@@ -69,29 +102,9 @@ Internal: Used in GdFixedTab to explain the sufficient condition for descent on 
 
 ### Page 1
 
-![Proof page 1](../extracted-pages/lectures_on_convex_optimization_page_0059.png)
+![Proof page 1](../extracted-pages/lectures_on_convex_optimization_page_0100.png)
 
 ### Page 2
 
-![Proof page 2](../extracted-pages/lectures_on_convex_optimization_page_0060.png)
-
-### Page 3
-
-![Proof page 3](../extracted-pages/lectures_on_convex_optimization_page_0062.png)
-
-### Page 4
-
-![Proof page 4](../extracted-pages/lectures_on_convex_optimization_page_0080.png)
-
-### Page 5
-
-![Proof page 5](../extracted-pages/lectures_on_convex_optimization_page_0081.png)
-
-### Page 6
-
-![Proof page 6](../extracted-pages/lectures_on_convex_optimization_page_0082.png)
-
-### Page 7
-
-![Proof page 7](../extracted-pages/lectures_on_convex_optimization_page_0083.png)
+![Proof page 2](../extracted-pages/lectures_on_convex_optimization_page_0101.png)
 

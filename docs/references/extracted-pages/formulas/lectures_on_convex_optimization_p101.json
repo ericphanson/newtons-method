@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p101",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 101,
+    "theorem": "",
+    "equation": "",
+    "description": "Convergence rate f(x_k) - f* <= 2L||x_0-x*||^2/k for h=1/L"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 54.0,
+      "right": 100,
+      "bottom": 60.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1499,
+      "right": 1831,
+      "bottom": 1665,
+      "width": 1831,
+      "height": 166
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T17:25:47.667538Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

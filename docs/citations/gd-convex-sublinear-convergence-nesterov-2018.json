@@ -25,10 +25,16 @@
       "latex": "f(x_k) - f^* \\leq \\frac{2(f(x_0) - f^*) \\|x_0 - x^*\\|^2}{2\\|x_0 - x^*\\|^2 + k \\cdot h(2 - Lh) \\cdot (f(x_0) - f^*)}, \\quad k \\geq 0",
       "verified": true,
       "theorem": "Theorem 2.1.14",
-      "equation": "",
-      "issues": [
-        "Citation has simplified form (h=1/L) but theorem states general form"
-      ]
+      "equation": ""
+    },
+    {
+      "formula_id": "lectures_on_convex_optimization_p101_corollary_2_1_2",
+      "metadata_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_corollary_2_1_2.json",
+      "image_path": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_corollary_2_1_2.png",
+      "latex": "f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}.",
+      "verified": true,
+      "theorem": "Corollary 2.1.2",
+      "equation": "(2.1.39)"
     }
   ],
   "pdfPages": "82, 100-101"

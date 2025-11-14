@@ -24,87 +24,84 @@ Solving the Newton system $H \cdot p = -\nabla f$ requires $O(d^3)$ operations u
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Newton's Method (3.30)
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p64_newton_s_method](../extracted-pages/formulas/numericaloptimization2006_p64_newton_s_method.png)
 
 **Extracted LaTeX:**
 
 $$
-$p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$
+p_k^N = -\nabla^2 f_k^{-1} \nabla f_k
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-$p_k^N = -\nabla^2 f_k^{-1} \nabla f_k$
+p_k^N = -\nabla^2 f_k^{-1} \nabla f_k
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p64_newton_s_method.json](../extracted-pages/formulas/numericaloptimization2006_p64_newton_s_method.json)
 
 ---
 
-### Formula 2
+### Formula 2 - Algorithm A.1 complexity 2n³/3 ops
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p627_algorithm_a_1_complexity](../extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1_complexity.png)
 
 **Extracted LaTeX:**
 
 $$
-$2n^3/3$ floating-point operations
+2n^3/3 \text{ floating-point operations}
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-$2n^3/3$ floating-point operations
+2n^3/3 \text{ floating-point operations}
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p627_algorithm_a_1_complexity.json](../extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1_complexity.json)
 
 ---
 
-### Formula 3
+### Formula 3 - Algorithm A.2 complexity n³/3 ops
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p628_algorithm_a_2_complexity](../extracted-pages/formulas/numericaloptimization2006_p628_algorithm_a_2_complexity.png)
 
 **Extracted LaTeX:**
 
 $$
-$n^3/3$ operations
+n^3/3 \text{ operations}
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-$n^3/3$ operations
+n^3/3 \text{ operations}
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
----
-
-### Formula 4
-
-**Extracted LaTeX:**
-
-$$
-$A = LL^T$
-$$
-
-<details>
-<summary>LaTeX Source</summary>
-
-```latex
-$A = LL^T$
-```
-
-</details>
-
-**Verification:** ❌ Not Verified
+**Metadata:** [numericaloptimization2006_p628_algorithm_a_2_complexity.json](../extracted-pages/formulas/numericaloptimization2006_p628_algorithm_a_2_complexity.json)
 
 ---
 

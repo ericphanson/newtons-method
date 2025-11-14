@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p198_complexity_analysis",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 198,
+    "theorem": "Complexity Analysis",
+    "equation": "O(md) complexity statement",
+    "description": "L-BFGS two-loop recursion complexity"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0198.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_complexity_analysis.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 60.5,
+      "right": 100,
+      "bottom": 75.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1678,
+      "right": 2100,
+      "bottom": 2081,
+      "width": 2100,
+      "height": 403
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\text{Without considering the multiplication } H_k^0 q, \\text{ the two-loop recursion scheme requires } 4mn \\text{ multiplications; if } H_k^0 \\text{ is diagonal, then } n \\text{ additional multiplications are needed.}",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13",
+    "notes": "Complexity statement showing O(md) time complexity where m is number of stored pairs and n is dimension (d in our notation)"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:13:36.936547Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

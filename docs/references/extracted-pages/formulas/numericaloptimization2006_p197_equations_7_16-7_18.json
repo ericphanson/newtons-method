@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p197_equations_7_16-7_18",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 197,
+    "theorem": "Equations 7.16-7.18",
+    "equation": "(7.16)-(7.18)",
+    "description": "L-BFGS vector pair definitions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0197.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p197_equations_7_16-7_18.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 37.0,
+      "right": 100,
+      "bottom": 62.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1026,
+      "right": 2100,
+      "bottom": 1720,
+      "width": 2100,
+      "height": 694
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "H_{k+1} = V_k^T H_k V_k + \\rho_k s_k s_k^T \\quad (7.16)\n\n\\text{where } \\rho_k = \\frac{1}{y_k^T s_k}, \\quad V_k = I - \\rho_k y_k s_k^T \\quad (7.17)\n\n\\text{and } s_k = x_{k+1} - x_k, \\quad y_k = \\nabla f_{k+1} - \\nabla f_k \\quad (7.18)",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13",
+    "notes": "Complete extraction of equations 7.16-7.18 showing L-BFGS Hessian update formula and vector pair definitions"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:12:20.211586Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

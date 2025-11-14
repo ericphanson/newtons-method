@@ -5,7 +5,7 @@
     "page": 65,
     "theorem": "Theorem 3.5",
     "equation": "(3.33)",
-    "description": "Newton quadratic convergence bound"
+    "description": "Quadratic convergence bound for Newton's method"
   },
   "extraction": {
     "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0065.png",
@@ -16,36 +16,36 @@
     },
     "crop_coordinates_percent": {
       "left": 0,
-      "top": 72.0,
+      "top": 55.5,
       "right": 100,
-      "bottom": 80.0
+      "bottom": 58.5
     },
     "crop_coordinates_pixels": {
       "left": 0,
-      "top": 1998,
+      "top": 1540,
       "right": 2100,
-      "bottom": 2220,
+      "bottom": 1623,
       "width": 2100,
-      "height": 222
+      "height": 83
     },
     "dpi": 300
   },
   "latex": {
-    "formula": "",
-    "extracted_by": null,
-    "extracted_date": null,
-    "notes": ""
+    "formula": "\\|x_k + p_k^N - x^*\\| \\leq L\\|\\nabla^2 f(x^*)^{-1}\\|\\|x_k - x^*\\|^2 = \\tilde{L}\\|x_k - x^*\\|^2.",
+    "extracted_by": "claude-code-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Equation (3.33) - quadratic convergence bound for Newton's method where L is Lipschitz constant of Hessian and tilde{L} = L||∇²f(x*)^{-1}||"
   },
   "verification": {
-    "verified": false,
-    "verified_by": null,
-    "verified_date": null,
+    "verified": true,
+    "verified_by": "claude-code-agent",
+    "verified_date": "2025-11-13",
     "issues": []
   },
   "metadata": {
     "created_by": "agent",
-    "created_date": "2025-11-13T00:29:26.080051Z",
-    "status": "extracted",
+    "created_date": "2025-11-13T18:12:12.979278Z",
+    "status": "verified",
     "version": "1.0"
   }
 }

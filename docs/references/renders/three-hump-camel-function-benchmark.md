@@ -22,45 +22,30 @@ F. H. Branin. *Widely Convergent Method for Finding Multiple Solutions of Simult
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Equation C15 (C15)
+
+**Cropped Formula Image:**
+
+![branin1972_p18_equation_c15](../extracted-pages/formulas/branin1972_p18_equation_c15.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴
+f(x_1,x_2) = ax_1^2 + bx_1^4 + cx_1^6 - x_1x_2 + dx_2^2 + ex_2^4
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴
+f(x_1,x_2) = ax_1^2 + bx_1^4 + cx_1^6 - x_1x_2 + dx_2^2 + ex_2^4
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
----
-
-### Formula 2
-
-**Extracted LaTeX:**
-
-$$
-f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²
-$$
-
-<details>
-<summary>LaTeX Source</summary>
-
-```latex
-f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²
-```
-
-</details>
-
-**Verification:** ❌ Not Verified
+**Metadata:** [branin1972_p18_equation_c15.json](../extracted-pages/formulas/branin1972_p18_equation_c15.json)
 
 ---
 

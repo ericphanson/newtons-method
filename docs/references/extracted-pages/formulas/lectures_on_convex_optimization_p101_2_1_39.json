@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p101_2_1_39",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 101,
+    "theorem": "",
+    "equation": "(2.1.39)",
+    "description": "O(1/k) convergence rate bound"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_2_1_39.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 50.0,
+      "right": 100,
+      "bottom": 54.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1388,
+      "right": 1831,
+      "bottom": 1499,
+      "width": 1831,
+      "height": 111
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T17:17:32.115360Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

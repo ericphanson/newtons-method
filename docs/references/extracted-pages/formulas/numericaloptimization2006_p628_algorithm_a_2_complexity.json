@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p628_algorithm_a_2_complexity",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 628,
+    "theorem": "Algorithm A.2 complexity",
+    "equation": "n\u00b3/3 ops",
+    "description": "Cholesky factorization requires about n\u00b3/3 operations"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0628.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p628_algorithm_a_2_complexity.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 23.0,
+      "right": 100,
+      "bottom": 28.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 638,
+      "right": 2100,
+      "bottom": 777,
+      "width": 2100,
+      "height": 139
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "n^3/3 \\text{ operations}",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13T18:19:00Z",
+    "notes": "Complexity of Cholesky factorization for symmetric positive definite matrices - about half the cost of LU"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13T18:19:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:14:05.732963Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

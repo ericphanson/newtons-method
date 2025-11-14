@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p100_theorem_2_1_14_proof",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 100,
+    "theorem": "Theorem 2.1.14 proof",
+    "equation": "descent inequality",
+    "description": "Descent condition for gradient method on smooth functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0100.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14_proof.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 82.5,
+      "right": 100,
+      "bottom": 91.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 2290,
+      "right": 1831,
+      "bottom": 2540,
+      "width": 1831,
+      "height": 250
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:14:13.872139Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

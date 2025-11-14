@@ -14,7 +14,13 @@
   "quote": "f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴. (C15) This function has three maxima when a = -2, b = 1.05, c = -1/6, d = -1 and e = 0",
   "formulaImages": [
     {
-      "formula": "f(x₁,x₂) = ax₁² + bx₁⁴ + cx₁⁶ - x₁x₂ + dx₂² + ex₂⁴",
+      "formula_id": "branin1972_p18_equation_c15",
+      "metadata_path": "docs/references/extracted-pages/formulas/branin1972_p18_equation_c15.json",
+      "image_path": "docs/references/extracted-pages/formulas/branin1972_p18_equation_c15.png",
+      "latex": "f(x_1,x_2) = ax_1^2 + bx_1^4 + cx_1^6 - x_1x_2 + dx_2^2 + ex_2^4",
+      "verified": true,
+      "theorem": "Equation C15",
+      "equation": "(C15)",
       "parameters": {
         "a": -2,
         "b": 1.05,
@@ -22,17 +28,7 @@
         "d": -1,
         "e": 0
       },
-      "description": "Branin's original formulation (three maxima)",
-      "reference": "(C15)"
-    },
-    {
-      "formula": "f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²",
-      "description": "Standard Three-Hump Camel benchmark (negated for three minima)",
-      "globalMinimum": {
-        "location": "(0, 0)",
-        "value": 0
-      },
-      "localMinima": "Two symmetric local minima"
+      "notes": "Branin's original formulation has three MAXIMA. The standard Three-Hump Camel benchmark negates this to create three MINIMA: f(x,y) = 2x² - 1.05x⁴ + x⁶/6 + xy + y²"
     }
   ],
   "proofPages": [

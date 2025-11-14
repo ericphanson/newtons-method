@@ -1,0 +1,51 @@
+{
+  "formula_id": "rosenbrock1960_p4_table_1",
+  "source": {
+    "pdf_id": "rosenbrock1960",
+    "page": 4,
+    "theorem": "Table 1",
+    "equation": "Rosenbrock function",
+    "description": "Rosenbrock function definition from Table 1"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/rosenbrock1960_page_0004.png",
+    "output_image": "docs/references/extracted-pages/formulas/rosenbrock1960_p4_table_1.png",
+    "source_dimensions": {
+      "width": 2525,
+      "height": 3246
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 5.0,
+      "right": 100,
+      "bottom": 15.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 162,
+      "right": 2525,
+      "bottom": 486,
+      "width": 2525,
+      "height": 324
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x,y) = 100(y - x^2)^2 + (1 - x)^2",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13T18:25:00Z",
+    "notes": "Rosenbrock function (banana function) from 1960 paper - classic non-convex benchmark"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13T18:25:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:15:04.632403Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

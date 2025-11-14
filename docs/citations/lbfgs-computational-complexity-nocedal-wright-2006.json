@@ -19,25 +19,34 @@
   "pdfPages": "197-198",
   "formulaImages": [
     {
-      "id": "numericaloptimization2006_p177_equations_7_16_7_17_7_18",
-      "description": "Equations 7.16-7.18: L-BFGS Vector Pair Definitions (s_i, y_i)",
-      "page": 177,
-      "type": "formulas",
-      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p177_equations_7_16_7_17_7_18.json"
+      "formula_id": "numericaloptimization2006_p197_equations_7_16-7_18",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p197_equations_7_16-7_18.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p197_equations_7_16-7_18.png",
+      "latex": "H_{k+1} = V_k^T H_k V_k + \\rho_k s_k s_k^T \\quad (7.16)\n\n\\text{where } \\rho_k = \\frac{1}{y_k^T s_k}, \\quad V_k = I - \\rho_k y_k s_k^T \\quad (7.17)\n\n\\text{and } s_k = x_{k+1} - x_k, \\quad y_k = \\nabla f_{k+1} - \\nabla f_k \\quad (7.18)",
+      "verified": true,
+      "theorem": "Equations 7.16-7.18",
+      "equation": "(7.16)-(7.18)",
+      "page": 197
     },
     {
-      "id": "numericaloptimization2006_p178_algorithm_7_4_two_loop_recursion",
-      "description": "Algorithm 7.4: L-BFGS Two-Loop Recursion (O(md) time computation)",
-      "page": 178,
-      "type": "algorithm",
-      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p178_algorithm_7_4_two_loop_recursion.json"
+      "formula_id": "numericaloptimization2006_p198_algorithm_7_4",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_algorithm_7_4.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_algorithm_7_4.png",
+      "latex": "\\begin{algorithm}\n\\caption{Algorithm 7.4 (L-BFGS two-loop recursion)}\n\\begin{algorithmic}\n\\State $q \\gets \\nabla f_k$\n\\For{$i = k-1, k-2, \\ldots, k-m$}\n  \\State $\\alpha_i \\gets \\rho_i s_i^T q$\n  \\State $q \\gets q - \\alpha_i y_i$\n\\EndFor\n\\State $r \\gets H_k^0 q$\n\\For{$i = k-m, k-m+1, \\ldots, k-1$}\n  \\State $\\beta \\gets \\rho_i y_i^T r$\n  \\State $r \\gets r + s_i(\\alpha_i - \\beta)$\n\\EndFor\n\\State \\textbf{stop with result} $H_k \\nabla f_k = r$\n\\end{algorithmic}\n\\end{algorithm}",
+      "verified": true,
+      "theorem": "Algorithm 7.4",
+      "equation": "L-BFGS two-loop recursion",
+      "page": 198
     },
     {
-      "id": "numericaloptimization2006_p178_complexity_analysis",
-      "description": "Complexity Analysis: O(md) memory and O(md) time per iteration",
-      "page": 178,
-      "type": "analysis",
-      "metadataFile": "docs/references/extracted-pages/formulas/numericaloptimization2006_p178_complexity_analysis.json"
+      "formula_id": "numericaloptimization2006_p198_complexity_analysis",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_complexity_analysis.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p198_complexity_analysis.png",
+      "latex": "\\text{Without considering the multiplication } H_k^0 q, \\text{ the two-loop recursion scheme requires } 4mn \\text{ multiplications; if } H_k^0 \\text{ is diagonal, then } n \\text{ additional multiplications are needed.}",
+      "verified": true,
+      "theorem": "Complexity Analysis",
+      "equation": "O(md) complexity statement",
+      "page": 198
     }
   ]
 }

@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p274_definition_4_1_3",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 274,
+    "theorem": "Definition 4.1.3",
+    "equation": "(4.1.31)",
+    "description": "Gradient-dominated function of degree p"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0274.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p274_definition_4_1_3.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 48.0,
+      "right": 100,
+      "bottom": 63.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1332,
+      "right": 1831,
+      "bottom": 1748,
+      "width": 1831,
+      "height": 416
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x) - f(x^*) \\leq \\tau_f \\|\\nabla f(x)\\|^p",
+    "extracted_by": "claude-code-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Definition 4.1.3 - gradient-dominated function of degree p ∈ [1,2]. The parameter τ_f is a positive constant and p is the degree of domination"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-code-agent",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T22:58:10.849693Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

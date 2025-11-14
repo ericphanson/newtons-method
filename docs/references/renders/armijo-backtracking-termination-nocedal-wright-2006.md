@@ -20,6 +20,72 @@ For L-smooth functions, Armijo backtracking with geometric step reduction $\alph
 
 **Theorem/Result:** Algorithm 3.1 (Backtracking Line Search)
 
+## Extracted Formulas
+
+*These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
+
+### Formula 1 - Algorithm 3.1 Backtracking Line Search
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p57_algorithm_3_1](../extracted-pages/formulas/numericaloptimization2006_p57_algorithm_3_1.png)
+
+**Extracted LaTeX:**
+
+$$
+\text{Algorithm 3.1 (Backtracking Line Search).}
+\text{Choose } \bar{\alpha} > 0, \rho \in (0, 1), c \in (0, 1); \text{ Set } \alpha \leftarrow \bar{\alpha};
+\text{repeat until } f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k
+\quad \alpha \leftarrow \rho\alpha;
+\text{end (repeat)}
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\text{Algorithm 3.1 (Backtracking Line Search).}
+\text{Choose } \bar{\alpha} > 0, \rho \in (0, 1), c \in (0, 1); \text{ Set } \alpha \leftarrow \bar{\alpha};
+\text{repeat until } f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k
+\quad \alpha \leftarrow \rho\alpha;
+\text{end (repeat)}
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p57_algorithm_3_1.json](../extracted-pages/formulas/numericaloptimization2006_p57_algorithm_3_1.json)
+
+---
+
+### Formula 2 - Sufficient Decrease Condition (3.4)
+
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p53_sufficient_decrease_condition](../extracted-pages/formulas/numericaloptimization2006_p53_sufficient_decrease_condition.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k + \alpha p_k) \leq f(x_k) + c_1\alpha\nabla f_k^T p_k
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k + \alpha p_k) \leq f(x_k) + c_1\alpha\nabla f_k^T p_k
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p53_sufficient_decrease_condition.json](../extracted-pages/formulas/numericaloptimization2006_p53_sufficient_decrease_condition.json)
+
+---
+
 ## Reader Notes
 
 The Armijo backtracking algorithm guarantees that a step length satisfying the sufficient decrease condition $f(x_k + \alpha p_k) \leq f(x_k) + c\alpha\nabla f_k^T p_k$ will be found in finitely many iterations. At each iteration, the step length is reduced by the factor $\rho$ (i.e., $\alpha \leftarrow \rho\alpha$). The algorithm terminates because the step length eventually becomes small enough that the sufficient decrease condition is satisfied. For L-smooth functions (Lipschitz continuous gradient with constant $L$), this is guaranteed by Lemma 1.2.3 in Nesterov 2018 (page 45/25), which shows that $f(y) \leq f(x) + \langle\nabla f(x), y-x\rangle + \frac{L}{2}\|y-x\|^2$. However, the standard references do not provide an explicit bound on the number of backtracking iterations in terms of $L$, $c$, or $\rho$; they only guarantee finite termination. The typical choice is $c = 10^{-4}$ (page 33) and $\rho \in [\rho_{lo}, \rho_{hi}]$ for some fixed $0 < \rho_{lo} < \rho_{hi} < 1$ (page 37).

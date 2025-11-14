@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p276_theorem_4_1_6",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 276,
+    "theorem": "Theorem 4.1.6",
+    "equation": "(4.1.36)",
+    "description": "Convergence rate for gradient-dominated functions"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0276.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p276_theorem_4_1_6.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 62.0,
+      "right": 100,
+      "bottom": 70.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1721,
+      "right": 1831,
+      "bottom": 1957,
+      "width": 1831,
+      "height": 236
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x_k) - f(x^*) \\leq \\hat{\\omega} \\cdot \\frac{\\gamma^2\\left(2+\\frac{3}{2}\\gamma\\right)^2}{\\left(2+\\left(k+\\frac{3}{2}\\right)\\cdot\\gamma\\right)^2}, \\quad k \\geq 0. \\quad (4.1.36)",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13",
+    "notes": "CRITICAL FIX: Citation had incomplete formula - missing numerator factor (2+3gamma/2)^2. Corrected to match source."
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13",
+    "issues": ["Citation LaTeX was incomplete - missing numerator"]
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:14:58.651647Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

@@ -325,6 +325,12 @@ Before adding a citation, verify:
 - [ ] Page numbers are exact and verified from PDF images
 - [ ] Quote is word-for-word accurate (copy from PDF if possible)
 - [ ] Mathematical notation is correct (verified visually)
+- [ ] **Formula images are complete** (see [Formula Extraction Workflow](agent-formula-extraction.md)):
+  - [ ] All denominators fully visible (including terms like "+4", "+1")
+  - [ ] Equation numbers not clipped
+  - [ ] Subscripts and superscripts complete
+  - [ ] No formula content cut off at edges
+  - [ ] **Always read the extracted image to verify before finalizing**
 - [ ] Any notation translations are documented in `notes`
 - [ ] Prerequisites and assumptions are noted
 - [ ] The theorem/result actually supports your claim

@@ -59,10 +59,13 @@ An iterative, agent-driven workflow for extracting mathematical formulas from PD
 
 ## Quick Start for Agents
 
-**You are a cropping agent and need to extract a formula?** Here's what to do:
+**You are extracting a formula?** Follow this **3-checkpoint workflow**:
+
+### Checkpoint 1: Cropping Phase
 
 1. **Read the full page image** to locate the target formula visually
 2. **Determine crop boundaries** as percentages of page height (0-100%)
+   - Add extra padding for fractions: 1.5-2.5% at bottom
 3. **Run the crop script**:
    ```bash
    python3 scripts/crop-formula.py \
@@ -74,8 +77,31 @@ An iterative, agent-driven workflow for extracting mathematical formulas from PD
      --equation "(X.Y.Z)" \
      --description "Brief description"
    ```
-4. **Verify the crop** by reading the generated image
-5. **If not satisfied**, adjust coordinates and re-run with `--force`
+4. **✓ CHECKPOINT 1: Verify the crop** by reading the generated image
+   - Is the denominator complete? (check for "+4", "+1", etc.)
+   - Is the equation number visible?
+   - Are all subscripts/superscripts present?
+   - **If NO to any: Re-crop with `--force` and adjusted boundaries**
+   - **If YES to all: Proceed to LaTeX extraction**
+
+### Checkpoint 2: LaTeX Extraction Phase
+
+5. **Extract LaTeX from the crop** (not from the full page!)
+6. **✓ CHECKPOINT 2: Verify formula is complete in crop**
+   - Can you see the full formula to extract LaTeX?
+   - Is anything cut off that prevents accurate LaTeX extraction?
+   - **If crop is incomplete: STOP - Go back to Checkpoint 1 and re-crop**
+   - **If crop is complete: Proceed with LaTeX extraction**
+
+### Checkpoint 3: Final Verification Phase
+
+7. **Compare extracted LaTeX character-by-character against the crop**
+8. **✓ CHECKPOINT 3: Verify LaTeX matches complete formula**
+   - Does the crop show the complete formula?
+   - Does the LaTeX match what's visible in the crop?
+   - **If crop is incomplete: STOP - Go back to Checkpoint 1**
+   - **If LaTeX has errors but crop is complete: Fix LaTeX only**
+   - **If both are correct: Formula extraction complete!**
 
 **Example** (extracting Theorem 4.1.6):
 ```bash
@@ -136,15 +162,42 @@ python3 scripts/extract-pdf-pages.py lectures_on_convex_optimization 276 --dpi 3
 ### Cropping Guidelines
 
 **Avoiding cutoffs** (most common issue):
-- Add 1-2% extra padding at the bottom for complex fractions
-- Always verify denominators are fully visible
-- Check that equation numbers aren't clipped
-- Include any conditions (k ≥ 0, etc.)
+- **CRITICAL: Always verify the crop by reading the image before finalizing**
+  - Don't trust the crop boundaries - actually look at the extracted image
+  - Check denominators, subscripts, equation numbers, conditions
+  - Use `--force` to re-crop if anything is cut off
+- **Add generous padding for fractions**: 1.5-2% extra at the bottom minimum
+  - Example: A formula `f(x) ≤ 2L||x||²/(k+4)` needs room for the "+4"
+  - Single-character denominators: add ~1-1.5% bottom padding
+  - Multi-character denominators (like "k+4"): add ~2-2.5% bottom padding
+  - Multi-line denominators: add ~3-4% bottom padding
+- **Verification checklist after each crop**:
+  - ✓ Full denominator visible (including all terms like "+4", "+1", etc.)
+  - ✓ Equation number not clipped
+  - ✓ Subscripts/superscripts complete
+  - ✓ Any conditions (k ≥ 0, etc.) included
+  - ✓ No formula content touching bottom edge
+
+**Real example from citation work**:
+```bash
+# ❌ BAD: First attempt cut off "+4" in denominator k+4
+--bottom-percent 67.0  # Too tight!
+
+# ✅ GOOD: Extended to show complete denominator
+--bottom-percent 68.5  # Includes "+4"
+```
+
+**Iterative cropping workflow**:
+1. Make initial crop with generous bottom padding
+2. Read the extracted image to verify completeness
+3. If anything is cut off, use `--force` and adjust boundaries
+4. Repeat until crop is perfect - don't settle for "good enough"
 
 **Context balance**:
 - Include 1-2 lines of context above the formula
 - Don't include other equations or excessive prose
 - Full page width is usually best for formulas
+- Context text above helps readers understand the formula
 
 ## Metadata Schema
 
@@ -1578,3 +1631,100 @@ If errors are found after the fact:
 4. **Regenerate**: Run render-citations.ts to update all reports
 5. **Document**: Add notes about what was fixed and why
 
+## Common Errors and How to Avoid Them
+
+### Error 1: Cut Off Denominators
+
+**Problem**: The most common and critical error. Fraction denominators get clipped, losing mathematical content.
+
+**Example from real citation work**:
+```
+Formula: f(x_k) - f^* ≤ 2L||x_0-x*||²/(k+4)
+❌ First crop showed: .../(k      ["+4" cut off!]
+✅ After fix showed: .../(k+4).   [Complete!]
+```
+
+**Impact**:
+- Quote becomes inaccurate (said "k" but source says "k+4")
+- Citation verification fails
+- Misleading information in published citation
+
+**Prevention**:
+1. **Always add 1.5-2.5% extra bottom padding** for formulas with fractions
+2. **Verify by reading the image** - don't trust the crop coordinates
+3. **Use iterative approach**: First crop → verify → adjust if needed → verify again
+4. **Check for multi-term denominators**: Look for "+", "-", parentheses in denominators
+
+**Fix if found**:
+```bash
+# Re-crop with more bottom padding
+python3 scripts/crop-formula.py \
+  --pdf [pdf_id] \
+  --page [page] \
+  --top-percent [top] \
+  --bottom-percent [old_bottom + 1.5]  # Add 1.5-2% more
+  --force
+```
+
+### Error 2: Clipped Equation Numbers
+
+**Problem**: The equation reference number (like "(2.1.39)") is partially or fully cut off.
+
+**Prevention**:
+- Check right margin - equation numbers often appear at right edge
+- Add ~2% padding on the right if equation number is visible
+- Verify equation number is complete in the cropped image
+
+### Error 3: Missing Subscripts/Superscripts
+
+**Problem**: Small subscript or superscript characters get clipped at bottom or top.
+
+**Prevention**:
+- Check formulas with nested subscripts (like $x_{k+1}$)
+- Verify superscripts on tall expressions (like $e^{-L||x||^2}$)
+- Add padding top and bottom for complex expressions
+
+### Error 4: Not Verifying Extractions
+
+**Problem**: Assuming the crop worked without actually looking at the result.
+
+**Prevention**:
+- **ALWAYS** use the Read tool to view the extracted image
+- Check every formula image before moving to the next step
+- Use `--force` to re-crop if anything looks wrong
+- Don't trust coordinates - trust what you see
+
+**Workflow**:
+```bash
+# 1. Crop
+python3 scripts/crop-formula.py --pdf ... --page ...
+
+# 2. CRITICAL: Verify by reading
+Read: docs/references/extracted-pages/formulas/[formula].png
+
+# 3. If incomplete, re-crop with --force
+python3 scripts/crop-formula.py ... --force
+
+# 4. Verify again
+Read: docs/references/extracted-pages/formulas/[formula].png
+```
+
+### Error 5: LaTeX Doesn't Match Image
+
+**Problem**: LaTeX extraction has typos or doesn't match the cropped formula.
+
+**Prevention**:
+- Extract LaTeX **from the crop**, not from OCR of full page
+- Compare LaTeX character-by-character against the image
+- Pay special attention to: +/-, subscripts, exponents, parentheses
+- Example: "k" vs "k+4" - easy to miss the "+4"
+
+**Verification**:
+```json
+{
+  "latex": {
+    "formula": "f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}.",
+    // ✓ Matches image: denominator is "k+4"
+  }
+}
+```

@@ -22,24 +22,30 @@ H. H. Rosenbrock. *An Automatic Method for Finding the Greatest or Least Value o
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Rosenbrock function Table 1
+
+**Cropped Formula Image:**
+
+![rosenbrock1960_p4_table_1](../extracted-pages/formulas/rosenbrock1960_p4_table_1.png)
 
 **Extracted LaTeX:**
 
 $$
-f(x,y) = 100(y - x²)² + (1 - x)²
+f(x,y) = 100(y - x^2)^2 + (1 - x)^2
 $$
 
 <details>
 <summary>LaTeX Source</summary>
 
 ```latex
-f(x,y) = 100(y - x²)² + (1 - x)²
+f(x,y) = 100(y - x^2)^2 + (1 - x)^2
 ```
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
+
+**Metadata:** [rosenbrock1960_p4_table_1.json](../extracted-pages/formulas/rosenbrock1960_p4_table_1.json)
 
 ---
 

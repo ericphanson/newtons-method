@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p101_corollary_2_1_2",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 101,
+    "theorem": "Corollary 2.1.2",
+    "equation": "(2.1.39)",
+    "description": "Convergence rate f(x_k)-f* <= 2L||x_0-x*||^2/k"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0101.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p101_corollary_2_1_2.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 59.0,
+      "right": 100,
+      "bottom": 68.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1637,
+      "right": 1831,
+      "bottom": 1901,
+      "width": 1831,
+      "height": 264
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "f(x_k) - f^* \\leq \\frac{2L\\|x_0-x^*\\|^2}{k+4}.",
+    "extracted_by": "claude-code-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Corollary 2.1.2 - convergence rate for gradient descent with optimal step size h=1/L. Note: denominator is k+4, not just k"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-code-agent",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T17:51:18.480041Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

@@ -24,7 +24,7 @@ BFGS/L-BFGS maintains positive definiteness of the approximate Hessian by only a
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Section 6.1 (6.19)
 
 **Cropped Formula Image:**
 
@@ -46,6 +46,8 @@ B_{k+1} = B_k - \frac{B_k s_k s_k^T B_k}{s_k^T B_k s_k} + \frac{y_k y_k^T}{y_k^T
 </details>
 
 **Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p160_bfgs_update_formula.json](../extracted-pages/formulas/numericaloptimization2006_p160_bfgs_update_formula.json)
 
 ---
 

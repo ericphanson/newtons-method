@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p627_algorithm_a_1_complexity",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 627,
+    "theorem": "Algorithm A.1 complexity",
+    "equation": "2n\u00b3/3 ops",
+    "description": "LU decomposition requires approximately 2n\u00b3/3 floating-point operations"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0627.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1_complexity.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 14.0,
+      "right": 100,
+      "bottom": 19.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 388,
+      "right": 2100,
+      "bottom": 541,
+      "width": 2100,
+      "height": 153
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "2n^3/3 \\text{ floating-point operations}",
+    "extracted_by": "claude-sonnet-4-5",
+    "extracted_date": "2025-11-13T18:17:00Z",
+    "notes": "Complexity of Gaussian elimination with row partial pivoting for LU factorization"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-sonnet-4-5",
+    "verified_date": "2025-11-13T18:17:00Z",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:13:33.188557Z",
+    "status": "verified",
+    "version": "1.0"
+  }
+}

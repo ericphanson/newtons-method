@@ -1,0 +1,51 @@
+{
+  "formula_id": "lectures_on_convex_optimization_p262_algorithm_4_1_5",
+  "source": {
+    "pdf_id": "lectures_on_convex_optimization",
+    "page": 262,
+    "theorem": "Algorithm (4.1.5)",
+    "equation": "(4.1.5)",
+    "description": "Cubic regularization of Newton's method subproblem"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/lectures_on_convex_optimization_page_0262.png",
+    "output_image": "docs/references/extracted-pages/formulas/lectures_on_convex_optimization_p262_algorithm_4_1_5.png",
+    "source_dimensions": {
+      "width": 1831,
+      "height": 2776
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 52.0,
+      "right": 100,
+      "bottom": 62.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1443,
+      "right": 1831,
+      "bottom": 1721,
+      "width": 1831,
+      "height": 278
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "\\min_y \\left[ \\langle \\nabla f(x), y - x \\rangle + \\frac{1}{2}\\langle \\nabla^2 f(x)(y - x), y - x \\rangle + \\frac{M}{6}\\|y - x\\|^3 \\right]",
+    "extracted_by": "claude-code-agent",
+    "extracted_date": "2025-11-13",
+    "notes": "Cubic regularization subproblem (4.1.5) - adds cubic term M/6||y-x||³ to quadratic approximation"
+  },
+  "verification": {
+    "verified": true,
+    "verified_by": "claude-code-agent",
+    "verified_date": "2025-11-13",
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T22:55:55.074248Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

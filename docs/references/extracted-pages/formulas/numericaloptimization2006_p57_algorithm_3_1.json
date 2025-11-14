@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p57_algorithm_3_1",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 57,
+    "theorem": "Algorithm 3.1",
+    "equation": "Backtracking Line Search",
+    "description": "Backtracking line search algorithm"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0057.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p57_algorithm_3_1.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 24.5,
+      "right": 100,
+      "bottom": 38.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 679,
+      "right": 2100,
+      "bottom": 1054,
+      "width": 2100,
+      "height": 375
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:12:22.262969Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

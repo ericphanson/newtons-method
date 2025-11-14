@@ -1,0 +1,51 @@
+{
+  "formula_id": "rosenbrock1960_p4_rosenbrock_function_definition",
+  "source": {
+    "pdf_id": "rosenbrock1960",
+    "page": 4,
+    "theorem": "Rosenbrock function definition",
+    "equation": "f(x,y)",
+    "description": "Rosenbrock function as stated in the text"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/rosenbrock1960_page_0004.png",
+    "output_image": "docs/references/extracted-pages/formulas/rosenbrock1960_p4_rosenbrock_function_definition.png",
+    "source_dimensions": {
+      "width": 2525,
+      "height": 3246
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 42.0,
+      "right": 100,
+      "bottom": 49.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1363,
+      "right": 2525,
+      "bottom": 1590,
+      "width": 2525,
+      "height": 227
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:15:23.195286Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

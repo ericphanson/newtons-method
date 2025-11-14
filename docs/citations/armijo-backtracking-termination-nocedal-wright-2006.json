@@ -19,5 +19,25 @@
   "usedIn": [
     "GdLineSearchTab"
   ],
-  "pdfPages": "37, 52-53, 56-57"
+  "pdfPages": "37, 52-53, 56-57",
+  "formulaImages": [
+    {
+      "formula_id": "numericaloptimization2006_p57_algorithm_3_1",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p57_algorithm_3_1.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p57_algorithm_3_1.png",
+      "latex": "\\text{Algorithm 3.1 (Backtracking Line Search).}\n\\text{Choose } \\bar{\\alpha} > 0, \\rho \\in (0, 1), c \\in (0, 1); \\text{ Set } \\alpha \\leftarrow \\bar{\\alpha};\n\\text{repeat until } f(x_k + \\alpha p_k) \\leq f(x_k) + c\\alpha\\nabla f_k^T p_k\n\\quad \\alpha \\leftarrow \\rho\\alpha;\n\\text{end (repeat)}",
+      "verified": true,
+      "theorem": "Algorithm 3.1",
+      "equation": "Backtracking Line Search"
+    },
+    {
+      "formula_id": "numericaloptimization2006_p53_sufficient_decrease_condition",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p53_sufficient_decrease_condition.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p53_sufficient_decrease_condition.png",
+      "latex": "f(x_k + \\alpha p_k) \\leq f(x_k) + c_1\\alpha\\nabla f_k^T p_k",
+      "verified": true,
+      "theorem": "Sufficient Decrease Condition",
+      "equation": "(3.4)"
+    }
+  ]
 }

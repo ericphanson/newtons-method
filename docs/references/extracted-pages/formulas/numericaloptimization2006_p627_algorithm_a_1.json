@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p627_algorithm_a_1",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 627,
+    "theorem": "Algorithm A.1",
+    "equation": "(A.20)",
+    "description": "LU decomposition complexity via Gaussian elimination"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0627.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 36.0,
+      "right": 100,
+      "bottom": 40.0
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 999,
+      "right": 2100,
+      "bottom": 1110,
+      "width": 2100,
+      "height": 111
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:13:12.936841Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

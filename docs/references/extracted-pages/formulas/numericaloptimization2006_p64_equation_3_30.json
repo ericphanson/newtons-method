@@ -1,0 +1,51 @@
+{
+  "formula_id": "numericaloptimization2006_p64_equation_3_30",
+  "source": {
+    "pdf_id": "numericaloptimization2006",
+    "page": 64,
+    "theorem": "Equation 3.30",
+    "equation": "(3.30)",
+    "description": "Newton's method search direction"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/numericaloptimization2006_page_0064.png",
+    "output_image": "docs/references/extracted-pages/formulas/numericaloptimization2006_p64_equation_3_30.png",
+    "source_dimensions": {
+      "width": 2100,
+      "height": 2775
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 57.5,
+      "right": 100,
+      "bottom": 61.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 1595,
+      "right": 2100,
+      "bottom": 1706,
+      "width": 2100,
+      "height": 111
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-13T18:12:12.871842Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

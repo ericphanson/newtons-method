@@ -47,11 +47,34 @@ f(x_k) - f^* \leq \frac{2(f(x_0) - f^*) \|x_0 - x^*\|^2}{2\|x_0 - x^*\|^2 + k \c
 
 **Verification:** ✅ Verified
 
-**Issues Found:**
-
-- Citation has simplified form (h=1/L) but theorem states general form
-
 **Metadata:** [lectures_on_convex_optimization_p100_theorem_2_1_14.json](../extracted-pages/formulas/lectures_on_convex_optimization_p100_theorem_2_1_14.json)
+
+---
+
+### Formula 2 - Corollary 2.1.2 (2.1.39)
+
+**Cropped Formula Image:**
+
+![lectures_on_convex_optimization_p101_corollary_2_1_2](../extracted-pages/formulas/lectures_on_convex_optimization_p101_corollary_2_1_2.png)
+
+**Extracted LaTeX:**
+
+$$
+f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}.
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+f(x_k) - f^* \leq \frac{2L\|x_0-x^*\|^2}{k+4}.
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [lectures_on_convex_optimization_p101_corollary_2_1_2.json](../extracted-pages/formulas/lectures_on_convex_optimization_p101_corollary_2_1_2.json)
 
 ---
 

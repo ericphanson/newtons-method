@@ -21,28 +21,31 @@
   "pdfPages": "64, 627-628",
   "formulaImages": [
     {
-      "formula": "$p_k^N = -\\nabla^2 f_k^{-1} \\nabla f_k$",
-      "description": "Newton's method search direction (Equation 3.30)",
-      "page": 64,
-      "imageRef": "docs/references/extracted-pages/numericaloptimization2006_page_0064.png"
+      "formula_id": "numericaloptimization2006_p64_newton_s_method",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p64_newton_s_method.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p64_newton_s_method.png",
+      "latex": "p_k^N = -\\nabla^2 f_k^{-1} \\nabla f_k",
+      "verified": true,
+      "theorem": "Newton's Method",
+      "equation": "(3.30)"
     },
     {
-      "formula": "$2n^3/3$ floating-point operations",
-      "description": "LU decomposition complexity via Gaussian elimination with partial pivoting (Equation A.20, Algorithm A.1)",
-      "page": 627,
-      "imageRef": "docs/references/extracted-pages/numericaloptimization2006_page_0627.png"
+      "formula_id": "numericaloptimization2006_p627_algorithm_a_1_complexity",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1_complexity.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p627_algorithm_a_1_complexity.png",
+      "latex": "2n^3/3 \\text{ floating-point operations}",
+      "verified": true,
+      "theorem": "Algorithm A.1 complexity",
+      "equation": "2n³/3 ops"
     },
     {
-      "formula": "$n^3/3$ operations",
-      "description": "Cholesky factorization complexity for symmetric positive definite matrices (Equation A.23, Algorithm A.2)",
-      "page": 628,
-      "imageRef": "docs/references/extracted-pages/numericaloptimization2006_page_0628.png"
-    },
-    {
-      "formula": "$A = LL^T$",
-      "description": "Cholesky factorization result (Equation A.23)",
-      "page": 628,
-      "imageRef": "docs/references/extracted-pages/numericaloptimization2006_page_0628.png"
+      "formula_id": "numericaloptimization2006_p628_algorithm_a_2_complexity",
+      "metadata_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p628_algorithm_a_2_complexity.json",
+      "image_path": "docs/references/extracted-pages/formulas/numericaloptimization2006_p628_algorithm_a_2_complexity.png",
+      "latex": "n^3/3 \\text{ operations}",
+      "verified": true,
+      "theorem": "Algorithm A.2 complexity",
+      "equation": "n³/3 ops"
     }
   ]
 }

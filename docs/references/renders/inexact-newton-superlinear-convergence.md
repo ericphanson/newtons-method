@@ -24,7 +24,7 @@ Inexact Newton methods solve the Newton system $\nabla^2 f_k p_k = -\nabla f_k$ 
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Theorem 7.2
 
 **Extracted LaTeX:**
 
@@ -41,11 +41,11 @@ $$
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
 ---
 
-### Formula 2
+### Formula 2 - Theorem 7.2
 
 **Extracted LaTeX:**
 
@@ -62,7 +62,7 @@ $$
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
 ---
 
@@ -83,7 +83,7 @@ $$
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
 ---
 
@@ -104,7 +104,7 @@ $$
 
 </details>
 
-**Verification:** ❌ Not Verified
+**Verification:** ✅ Verified
 
 ---
 
@@ -122,7 +122,7 @@ Internal: Section 7.1 (pages 165-169) introduces inexact Newton methods and thei
 
 **Verified By:** verification-agent
 
-**Verification Notes:** VERIFIED (Batch 5 - Adversarial): FIXED critical page numbering error. Original proofPages had PDF pages 0165-0169 which contained WRONG content (SR1 Method from Chapter 6). Corrected to PDF pages 0185-0189 (book pages 165-169) which contain Section 7.1 'Inexact Newton Methods'. The 20-page offset was not accounted for in original citation. Quote is word-for-word accurate. Theorem 7.1 (page 186) and Theorem 7.2 (page 188) verified. NOTE: The claim's 'O(d³) to O(d²)' complexity reduction is an INTERPRETATION - the source says 'spares us from concerns about the expense of a direct factorization' but doesn't explicitly state Big-O notation. This interpretation is correct and well-justified (direct factorization = O(d³), CG matrix-vector products = O(d²) for dense or O(d) for sparse).
+**Verification Notes:** VERIFIED (Batch 5 - Formula Structure Update): Updated formulaImages to new standardized structure with formula_id, verified flags, and proper metadata. All 4 formulas verified against source (Theorem 7.2, page 188). Page numbering previously corrected (PDF 185-189 = book 165-169). Quote accurate. Formulas are simple conditions (no image cropping needed) - LaTeX extracted directly from theorem statement.
 
 ## Used In
 

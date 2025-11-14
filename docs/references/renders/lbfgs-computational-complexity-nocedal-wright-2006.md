@@ -22,21 +22,122 @@ L-BFGS requires $O(Md)$ memory and $O(Md)$ time per iteration, where $M$ is the 
 
 *These formulas were extracted using the cropping workflow (see [agent-formula-extraction.md](../workflows/agent-formula-extraction.md)) for verification.*
 
-### Formula 1
+### Formula 1 - Equations 7.16-7.18 (7.16)-(7.18)
 
-**Verification:** ❌ Not Verified
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p197_equations_7_16-7_18](../extracted-pages/formulas/numericaloptimization2006_p197_equations_7_16-7_18.png)
+
+**Extracted LaTeX:**
+
+$$
+H_{k+1} = V_k^T H_k V_k + \rho_k s_k s_k^T \quad (7.16)
+
+\text{where } \rho_k = \frac{1}{y_k^T s_k}, \quad V_k = I - \rho_k y_k s_k^T \quad (7.17)
+
+\text{and } s_k = x_{k+1} - x_k, \quad y_k = \nabla f_{k+1} - \nabla f_k \quad (7.18)
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+H_{k+1} = V_k^T H_k V_k + \rho_k s_k s_k^T \quad (7.16)
+
+\text{where } \rho_k = \frac{1}{y_k^T s_k}, \quad V_k = I - \rho_k y_k s_k^T \quad (7.17)
+
+\text{and } s_k = x_{k+1} - x_k, \quad y_k = \nabla f_{k+1} - \nabla f_k \quad (7.18)
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p197_equations_7_16-7_18.json](../extracted-pages/formulas/numericaloptimization2006_p197_equations_7_16-7_18.json)
 
 ---
 
-### Formula 2
+### Formula 2 - Algorithm 7.4 L-BFGS two-loop recursion
 
-**Verification:** ❌ Not Verified
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p198_algorithm_7_4](../extracted-pages/formulas/numericaloptimization2006_p198_algorithm_7_4.png)
+
+**Extracted LaTeX:**
+
+$$
+\begin{algorithm}
+\caption{Algorithm 7.4 (L-BFGS two-loop recursion)}
+\begin{algorithmic}
+\State $q \gets \nabla f_k$
+\For{$i = k-1, k-2, \ldots, k-m$}
+  \State $\alpha_i \gets \rho_i s_i^T q$
+  \State $q \gets q - \alpha_i y_i$
+\EndFor
+\State $r \gets H_k^0 q$
+\For{$i = k-m, k-m+1, \ldots, k-1$}
+  \State $\beta \gets \rho_i y_i^T r$
+  \State $r \gets r + s_i(\alpha_i - \beta)$
+\EndFor
+\State \textbf{stop with result} $H_k \nabla f_k = r$
+\end{algorithmic}
+\end{algorithm}
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\begin{algorithm}
+\caption{Algorithm 7.4 (L-BFGS two-loop recursion)}
+\begin{algorithmic}
+\State $q \gets \nabla f_k$
+\For{$i = k-1, k-2, \ldots, k-m$}
+  \State $\alpha_i \gets \rho_i s_i^T q$
+  \State $q \gets q - \alpha_i y_i$
+\EndFor
+\State $r \gets H_k^0 q$
+\For{$i = k-m, k-m+1, \ldots, k-1$}
+  \State $\beta \gets \rho_i y_i^T r$
+  \State $r \gets r + s_i(\alpha_i - \beta)$
+\EndFor
+\State \textbf{stop with result} $H_k \nabla f_k = r$
+\end{algorithmic}
+\end{algorithm}
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p198_algorithm_7_4.json](../extracted-pages/formulas/numericaloptimization2006_p198_algorithm_7_4.json)
 
 ---
 
-### Formula 3
+### Formula 3 - Complexity Analysis O(md) complexity statement
 
-**Verification:** ❌ Not Verified
+**Cropped Formula Image:**
+
+![numericaloptimization2006_p198_complexity_analysis](../extracted-pages/formulas/numericaloptimization2006_p198_complexity_analysis.png)
+
+**Extracted LaTeX:**
+
+$$
+\text{Without considering the multiplication } H_k^0 q, \text{ the two-loop recursion scheme requires } 4mn \text{ multiplications; if } H_k^0 \text{ is diagonal, then } n \text{ additional multiplications are needed.}
+$$
+
+<details>
+<summary>LaTeX Source</summary>
+
+```latex
+\text{Without considering the multiplication } H_k^0 q, \text{ the two-loop recursion scheme requires } 4mn \text{ multiplications; if } H_k^0 \text{ is diagonal, then } n \text{ additional multiplications are needed.}
+```
+
+</details>
+
+**Verification:** ✅ Verified
+
+**Metadata:** [numericaloptimization2006_p198_complexity_analysis.json](../extracted-pages/formulas/numericaloptimization2006_p198_complexity_analysis.json)
 
 ---
 

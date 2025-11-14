@@ -15,11 +15,13 @@
   ],
   "formulaImages": [
     {
-      "formula": "f(x,y) = 100(y - x²)² + (1 - x)²",
-      "description": "Rosenbrock function (also known as Rosenbrock's valley or banana function) - a classic non-convex test problem for optimization algorithms",
-      "reference": "rosenbrock-1960",
-      "page": "4",
-      "context": "Table 1 on page 178 (PDF page 4) as a test example for the optimization method"
+      "formula_id": "rosenbrock1960_p4_table_1",
+      "metadata_path": "docs/references/extracted-pages/formulas/rosenbrock1960_p4_table_1.json",
+      "image_path": "docs/references/extracted-pages/formulas/rosenbrock1960_p4_table_1.png",
+      "latex": "f(x,y) = 100(y - x^2)^2 + (1 - x)^2",
+      "verified": true,
+      "theorem": "Rosenbrock function",
+      "equation": "Table 1"
     }
   ],
   "verified": "2025-11-12",
