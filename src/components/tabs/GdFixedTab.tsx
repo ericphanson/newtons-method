@@ -397,7 +397,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <ul className="space-y-2">
               <li>
                 <strong><GlossaryTooltip termKey="strongly-convex" />:</strong> <GlossaryTooltip termKey="linear-convergence" /> to global minimum
-                (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with <InlineMath>{String.raw`0 < \varAlpha < 2/(L+\mu)`}</InlineMath>)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
+                (for <InlineMath>\mu</InlineMath>-strongly convex, <InlineMath>L</InlineMath>-smooth functions with <InlineMath>{String.raw`0 < \varAlpha \leq 2/(L+\mu)`}</InlineMath>)<Citation citationKey="gd-strongly-convex-linear-convergence-nesterov-2018" />
               </li>
               <li>
                 <strong>Convex:</strong> <GlossaryTooltip termKey="sublinear-convergence" /> to global minimum<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
@@ -459,7 +459,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
             <BlockMath>{String.raw`f(\varW_{k+1}) \leq f(\varW_k) - \varAlpha \|\nabla f(\varW_k)\|^2 + \frac{L\varAlpha^2}{2}\|\nabla f(\varW_k)\|^2`}</BlockMath>
             <p className="text-sm mt-2">
               Rearranging: <InlineMath>{String.raw`f(\varW_{k+1}) \leq f(\varW_k) - \varAlpha(1 - \frac{L\varAlpha}{2})\|\nabla f(\varW_k)\|^2`}</InlineMath>.
-              For descent, we need <InlineMath>{String.raw`1 - \frac{L\varAlpha}{2} > 0`}</InlineMath>, which gives <InlineMath>{String.raw`\varAlpha < \frac{2}{L}`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
+              For descent, we need <InlineMath>{String.raw`1 - \frac{L\varAlpha}{2} \geq 0`}</InlineMath>, which gives <InlineMath>{String.raw`\varAlpha \leq \frac{2}{L}`}</InlineMath>.<Citation citationKey="gd-smooth-descent-condition-nesterov-2018" />
             </p>
           </div>
 

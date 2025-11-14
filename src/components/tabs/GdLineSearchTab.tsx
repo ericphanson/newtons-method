@@ -665,10 +665,10 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
               <p className="font-semibold text-sm mb-2">Strongly Convex Functions</p>
               <p className="text-sm mb-2">
                 For <InlineMath>\mu</InlineMath>-<GlossaryTooltip termKey="strongly-convex" />, <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions
-                with Armijo line search, gradient descent achieves <GlossaryTooltip termKey="linear-convergence" />:<Citation citationKey="gd-linesearch-strongly-convex-linear-convergence-nesterov-2018" />
+                with Armijo line search, gradient descent achieves <GlossaryTooltip termKey="linear-convergence" />:<Citation citationKey="gd-global-strongly-convex-linear-convergence-nesterov-2018" />
               </p>
               <BlockMath>
-                {String.raw`\|\varW_k - \varW^*\| \leq C\left(1 - \frac{2\mu}{L+3\mu}\right)^k`}
+                {String.raw`\|\varW_k - \varW^*\| \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|`}
               </BlockMath>
               <p className="text-sm mt-2">
                 The convergence rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>.
@@ -683,7 +683,7 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
                 with Armijo line search:<Citation citationKey="gd-linesearch-convex-sublinear-convergence-nesterov-2018" />
               </p>
               <BlockMath>
-                {String.raw`f(\varW_k) - f^* \leq O\left(\frac{L\|\varWZero - \varW^*\|^2}{k}\right)`}
+                {String.raw`f(\varW_k) - f^* \leq \frac{2L\|\varWZero - \varW^*\|^2}{k+4}`}
               </BlockMath>
               <p className="text-sm mt-2">
                 <strong><GlossaryTooltip termKey="sublinear-convergence" />:</strong> Same <InlineMath>O(1/k)</InlineMath> rate
