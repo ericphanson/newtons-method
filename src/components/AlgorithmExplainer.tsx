@@ -136,11 +136,12 @@ export function AlgorithmExplainer() {
           </p>
 
           <p>
-            <strong>Convergence rate:</strong> Same as fixed-step gradient descent (linear for{' '}
+            <strong>Convergence rate:</strong> Linear convergence for{' '}
             <GlossaryTooltip termKey="strongly-convex" />{' '}
             <GlossaryTooltip termKey="smooth" />{' '}
-            functions: <InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations)
-            <Citation citationKey="gd-global-strongly-convex-linear-convergence-nesterov-2018" />, but with guaranteed descent
+            functions (<InlineMath>O(\log(1/\varepsilon))</InlineMath> iterations, matching the convergence rate
+            established for fixed-step gradient descent
+            <Citation citationKey="gd-global-strongly-convex-linear-convergence-nesterov-2018" />), but with guaranteed descent
             at each step and no need for manual step size tuning.
           </p>
 
@@ -474,9 +475,10 @@ export function AlgorithmExplainer() {
 
           <p>
             <strong>Convergence rate:</strong> <GlossaryTooltip termKey="linear-convergence" /> on{' '}
-            <GlossaryTooltip termKey="strongly-convex" />{' '}
-            <GlossaryTooltip termKey="smooth" /> functions
-            <Citation citationKey="lbfgs-linear-convergence-nocedal-wright-2006" />.
+            <GlossaryTooltip termKey="uniformly-convex" /> functions (formally proven)
+            <Citation citationKey="lbfgs-uniformly-convex-linear-convergence-liu-nocedal-1989" />, and observed
+            in practice on <GlossaryTooltip termKey="strongly-convex" />{' '}
+            <GlossaryTooltip termKey="smooth" /> functions.
             The memory parameter <InlineMath>M</InlineMath> affects the convergence constant but not the convergence order.
             Note: Full BFGS can achieve <GlossaryTooltip termKey="superlinear-convergence" />, but L-BFGS is limited to linear convergence
             due to limited memory.

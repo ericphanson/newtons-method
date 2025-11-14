@@ -379,8 +379,8 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
                 requiring greater actual decrease.
               </p>
               <p className="text-sm text-blue-800 mt-3">
-                <strong>Practice:</strong> The value <InlineMath>{String.raw`c_1 = 10^{-4}`}</InlineMath> is widely used based on empirical experience,
-                not theoretical optimization.<Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" /> See
+                <strong>Practice:</strong> The value <InlineMath>{String.raw`c_1 = 10^{-4}`}</InlineMath> is commonly used in practice
+                <Citation citationKey="armijo-backtracking-termination-nocedal-wright-2006" />. See
                 the <strong>"How <InlineMath>c_1</InlineMath> Affects Convergence"</strong> visualization above to explore how different <InlineMath>c_1</InlineMath> values
                 perform on the current problem.
               </p>
@@ -664,15 +664,16 @@ export const GdLineSearchTab: React.FC<GdLineSearchTabProps> = ({
             <div className="mt-4">
               <p className="font-semibold text-sm mb-2">Strongly Convex Functions</p>
               <p className="text-sm mb-2">
-                For <InlineMath>\mu</InlineMath>-<GlossaryTooltip termKey="strongly-convex" />, <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions
-                with Armijo line search, gradient descent achieves <GlossaryTooltip termKey="linear-convergence" />:<Citation citationKey="gd-global-strongly-convex-linear-convergence-nesterov-2018" />
+                For <InlineMath>\mu</InlineMath>-<GlossaryTooltip termKey="strongly-convex" />, <InlineMath>L</InlineMath>-<GlossaryTooltip termKey="smooth" /> functions,
+                gradient descent with fixed optimal step size <InlineMath>{String.raw`\alpha = 2/(L+\mu)`}</InlineMath> achieves <GlossaryTooltip termKey="linear-convergence" />:<Citation citationKey="gd-global-strongly-convex-linear-convergence-nesterov-2018" />
               </p>
               <BlockMath>
                 {String.raw`\|\varW_k - \varW^*\| \leq \left(\frac{L-\mu}{L+\mu}\right)^k \|\varWZero - \varW^*\|`}
               </BlockMath>
               <p className="text-sm mt-2">
+                Armijo backtracking line search achieves similar linear convergence in practice by adaptively selecting step sizes,
+                though no formal convergence theorem for Armijo + strongly convex exists in standard references.
                 The convergence rate depends on the condition number <InlineMath>{String.raw`Q = L/\mu`}</InlineMath>.
-                Line search automatically achieves near-optimal step sizes without knowing <InlineMath>L</InlineMath> or <InlineMath>\mu</InlineMath>.
               </p>
             </div>
 

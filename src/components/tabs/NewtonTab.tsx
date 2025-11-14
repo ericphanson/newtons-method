@@ -779,7 +779,7 @@ export const NewtonTab: React.FC<NewtonTabProps> = ({
             <ul className="list-disc ml-6 space-y-1">
               <li>Solve <InlineMath>\varH\varP = -\varGrad</InlineMath> <strong>approximately</strong> using iterative methods (e.g., Conjugate Gradient)</li>
               <li>Reduces computational cost from O(d³) to O(d²) or better by avoiding direct Hessian factorization</li>
-              <li>Still achieves <GlossaryTooltip termKey="superlinear-convergence" /> with appropriate forcing sequences (loose tolerances)</li>
+              <li>Still achieves <GlossaryTooltip termKey="superlinear-convergence" /> with forcing sequences that decay to zero (η<sub>k</sub> → 0 as k → ∞)</li>
             </ul>
             <Citation citationKey="inexact-newton-superlinear-convergence" />
           </div>

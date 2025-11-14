@@ -1,0 +1,51 @@
+{
+  "formula_id": "liunocedal1989_p23_theorem_6_1",
+  "source": {
+    "pdf_id": "liunocedal1989",
+    "page": 23,
+    "theorem": "Theorem 6.1",
+    "equation": "(6.5)",
+    "description": "R-linear convergence bound showing geometric decrease in function value error"
+  },
+  "extraction": {
+    "source_image": "docs/references/extracted-pages/liunocedal1989_page_0023.png",
+    "output_image": "docs/references/extracted-pages/formulas/liunocedal1989_p23_theorem_6_1.png",
+    "source_dimensions": {
+      "width": 2550,
+      "height": 3300
+    },
+    "crop_coordinates_percent": {
+      "left": 0,
+      "top": 18.0,
+      "right": 100,
+      "bottom": 24.5
+    },
+    "crop_coordinates_pixels": {
+      "left": 0,
+      "top": 594,
+      "right": 2550,
+      "bottom": 808,
+      "width": 2550,
+      "height": 214
+    },
+    "dpi": 300
+  },
+  "latex": {
+    "formula": "",
+    "extracted_by": null,
+    "extracted_date": null,
+    "notes": ""
+  },
+  "verification": {
+    "verified": false,
+    "verified_by": null,
+    "verified_date": null,
+    "issues": []
+  },
+  "metadata": {
+    "created_by": "agent",
+    "created_date": "2025-11-14T15:15:26.528776Z",
+    "status": "extracted",
+    "version": "1.0"
+  }
+}

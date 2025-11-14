@@ -1189,7 +1189,7 @@ export const LbfgsTab: React.FC<LbfgsTabProps> = ({
             <h3 className="text-lg font-bold text-orange-800 mb-2">Role of Convexity</h3>
             <ul className="space-y-2">
               <li>
-                <strong><GlossaryTooltip termKey="strongly-convex" /> (sufficient condition):</strong> <GlossaryTooltip termKey="linear-convergence" /> (L-BFGS) or <GlossaryTooltip termKey="superlinear-convergence" /> (full BFGS with Lipschitz continuous Hessian)<Citation citationKey="bfgs-superlinear-convergence-nocedal-wright-2006" />
+                <strong><GlossaryTooltip termKey="uniformly-convex" /> (proven):</strong> <GlossaryTooltip termKey="linear-convergence" /> for L-BFGS<Citation citationKey="lbfgs-uniformly-convex-linear-convergence-liu-nocedal-1989" />; <GlossaryTooltip termKey="superlinear-convergence" /> for full BFGS (with Lipschitz continuous Hessian and additional regularity conditions)<Citation citationKey="bfgs-superlinear-convergence-nocedal-wright-2006" />. Linear convergence also observed in practice on <GlossaryTooltip termKey="strongly-convex" /> <GlossaryTooltip termKey="smooth" /> functions.
               </li>
               <li>
                 <strong><GlossaryTooltip termKey="convex" />:</strong> Converges to global minimum

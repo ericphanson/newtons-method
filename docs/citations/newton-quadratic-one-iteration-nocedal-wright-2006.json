@@ -1,0 +1,31 @@
+{
+  "reference": "nocedal-wright-2006",
+  "pages": "22",
+  "pdfPages": "42",
+  "theorem": "Equations (2.14)-(2.15)",
+  "claim": "Newton's method minimizes the quadratic model $m_k(p) = f_k + p^T\\nabla f_k + \\frac{1}{2}p^T\\nabla^2 f_k p$ exactly by solving $\\nabla m_k(p) = 0$, yielding $p_k^N = -(\\nabla^2 f_k)^{-1}\\nabla f_k$. For quadratic functions $f(x) = \\frac{1}{2}x^TAx - b^Tx$ where $A \\succ 0$, the quadratic model is exact (no $O(\\|p\\|^3)$ remainder), so Newton's method finds the global minimum $x^* = A^{-1}b$ in exactly one iteration with step size $\\alpha = 1$.",
+  "quote": "Another important search direction—perhaps the most important one of all—is the Newton direction. This direction is derived from the second-order Taylor series approximation to $f(x_k + p)$, which is\n\n$f(x_k + p) \\approx f_k + p^T\\nabla f_k + \\frac{1}{2}p^T\\nabla^2 f_k p = m_k(p)$.  (2.14)\n\nAssuming for the moment that $\\nabla^2 f_k$ is positive definite, we obtain the Newton direction by finding the vector $p$ that minimizes $m_k(p)$. By simply setting the derivative of $m_k(p)$ to zero, we obtain the following explicit formula:\n\n$p_k^N = -(\\nabla^2 f_k)^{-1}\\nabla f_k$.  (2.15)",
+  "notes": "Internal: This is a derived result, not a stated theorem. Nocedal & Wright present equations (2.14)-(2.15) showing Newton's method minimizes the quadratic model. The one-iteration property for quadratics follows from the exactness of the model. Used in DiagonalPrecondTab to explain why diagonal preconditioning equals Newton when Hessian is diagonal.",
+  "readerNotes": "The one-iteration property is not explicitly stated but follows from two facts: (1) Newton's method finds the minimum of the quadratic model $m_k(p)$ by solving $\\nabla m_k(p) = 0$ (equations 2.14-2.15), and (2) for quadratic $f$, the model is exact—there is no $O(\\|p\\|^3)$ remainder term. Therefore, minimizing the model finds the global minimum in one step: $x_1 = x_0 - A^{-1}(Ax_0 - b) = A^{-1}b = x^*$.",
+  "proofPages": [
+    "docs/references/extracted-pages/numericaloptimization2006_page_0042.png"
+  ],
+  "formulaImages": [
+    {
+      "file": "docs/references/extracted-pages/numericaloptimization2006_page_0042_eq_2.14_crop.png",
+      "equation": "2.14",
+      "latex": "$f(x_k + p) \\approx f_k + p^T \\nabla f_k + \\frac{1}{2} p^T \\nabla^2 f_k p \\stackrel{\\text{def}}{=} m_k(p)$",
+      "description": "Quadratic model used by Newton's method"
+    },
+    {
+      "file": "docs/references/extracted-pages/numericaloptimization2006_page_0042_eq_2.15_crop.png",
+      "equation": "2.15",
+      "latex": "$p_k^N = -(\\nabla^2 f_k)^{-1} \\nabla f_k$",
+      "description": "Newton direction from solving ∇m_k(p) = 0"
+    }
+  ],
+  "verified": "2025-11-14",
+  "verifiedBy": "claude-code",
+  "verificationNotes": "Corrected page numbers from 62-63 to 42 (book page 22). Both equations (2.14)-(2.15) are on PDF page 42. Verified equations are present on this page. Extracted formula crops following 3-checkpoint workflow: (1) Cropped both equations with generous padding, (2) Extracted LaTeX with proper escaping, (3) Verified crops are complete with no clipping of equation numbers or mathematical content. The one-iteration result is derived from these equations combined with the exactness of the quadratic model for quadratic functions.",
+  "usedIn": ["DiagonalPrecondTab"]
+}

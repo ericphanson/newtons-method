@@ -225,7 +225,7 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
                 <li>
                   <strong>Axis-aligned problems:</strong> When <InlineMath>\varH</InlineMath> is diagonal or nearly diagonal,
                   this method can achieve fast convergence. On strictly <GlossaryTooltip termKey="convex" /> quadratic functions with diagonal <InlineMath>\varH</InlineMath>,
-                  diagonal preconditioning with <InlineMath>{String.raw`\varAlpha = 1`}</InlineMath> equals Newton's method and converges in one iteration<Citation citationKey="newton-computational-complexity" />
+                  diagonal preconditioning with <InlineMath>{String.raw`\varAlpha = 1`}</InlineMath> equals Newton's method<Citation citationKey="newton-quadratic-one-iteration-nocedal-wright-2006" /> and converges in one iteration (because Newton's method solves quadratics exactly by minimizing a quadratic model that is itself exact for quadratic functions)
                 </li>
                 <li>
                   <strong>Need per-coordinate learning rates:</strong> When different coordinates have vastly
@@ -738,8 +738,8 @@ export const DiagonalPrecondTab: React.FC<DiagonalPrecondTabProps> = ({
               </p>
               <ul className="list-disc ml-6 space-y-2 text-sm">
                 <li>
-                  <strong>If <InlineMath>{String.raw`A`}</InlineMath> is diagonal:</strong> Diagonal preconditioning with <InlineMath>{String.raw`\varAlpha = 1`}</InlineMath> is equivalent to Newton's method
-                  and converges in one iteration (finds the exact optimum <InlineMath>{String.raw`\varW^* = A^{-1}b`}</InlineMath>).<Citation citationKey="newton-computational-complexity" />
+                  <strong>If <InlineMath>{String.raw`A`}</InlineMath> is diagonal:</strong> Diagonal preconditioning with <InlineMath>{String.raw`\varAlpha = 1`}</InlineMath> is equivalent to Newton's method<Citation citationKey="newton-quadratic-one-iteration-nocedal-wright-2006" />
+                  and converges in one iteration (finds the exact optimum <InlineMath>{String.raw`\varW^* = A^{-1}b`}</InlineMath>).
                   This is because <InlineMath>{String.raw`\text{diag}(A) = A`}</InlineMath> when <InlineMath>{String.raw`A`}</InlineMath> is diagonal,
                   so the diagonal approximation is exact.
                 </li>

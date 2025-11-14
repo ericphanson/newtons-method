@@ -119,6 +119,16 @@ export const glossary: Record<string, GlossaryEntry> = {
     ),
   },
 
+  'uniformly-convex': {
+    term: 'uniformly convex',
+    definition: (
+      <>
+        <strong>Uniformly convex function:</strong> Has Hessian eigenvalues bounded above AND below by constants{' '}
+        <InlineMath>{String.raw`M_1, M_2`}</InlineMath> for ALL x: <InlineMath>{String.raw`M_1 \|z\|^2 \leq z^T \nabla^2 f(x) z \leq M_2 \|z\|^2`}</InlineMath>. This is stronger than strongly convex smooth (which only requires lower and upper bounds, not uniform bounds independent of x). Guarantees well-conditioned optimization everywhere in the domain.
+      </>
+    ),
+  },
+
   'convex': {
     term: 'convex',
     definition: (
