@@ -57,7 +57,7 @@ export function AlgorithmExplainer() {
             </li>
             <li>
               <strong><GlossaryTooltip termKey="convex" /> (not strongly convex):</strong> Sublinear convergence
-              (requires smooth function and step size <InlineMath>{'0 < \\alpha \\leq 1/L'}</InlineMath>, with optimal choice <InlineMath>\alpha = 1/L</InlineMath>).
+              (requires smooth function and step size <InlineMath>{'0 < \\alpha < 2/L'}</InlineMath>, with optimal choice <InlineMath>\alpha = 1/L</InlineMath>).
               Requires <InlineMath>O(1/\varepsilon)</InlineMath> iterations to reach <InlineMath>\varepsilon</InlineMath> accuracy
               <Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />.
             </li>

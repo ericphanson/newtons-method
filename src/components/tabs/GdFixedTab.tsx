@@ -517,7 +517,7 @@ export const GdFixedTab: React.FC<GdFixedTabProps> = ({
               <p className="text-sm mb-2">
                 For convex, <InlineMath>L</InlineMath>-smooth functions with <InlineMath>{String.raw`\varAlpha = \frac{1}{L}`}</InlineMath>:
               </p>
-              <BlockMath>{String.raw`f(\varW_k) - f(\varW^*) \leq \frac{L\|\varWZero - \varW^*\|^2}{2(k+1)}`}</BlockMath>
+              <BlockMath>{String.raw`f(\varW_k) - f(\varW^*) \leq \frac{2L\|\varWZero - \varW^*\|^2}{k+4}`}</BlockMath>
               <p className="text-sm mt-2">
                 <strong><GlossaryTooltip termKey="sublinear-convergence" />:</strong> Function value gap decreases as <InlineMath>{String.raw`O(1/k)`}</InlineMath>.
                 Slower than strongly convex case, but still guarantees progress.<Citation citationKey="gd-convex-sublinear-convergence-nesterov-2018" />
